@@ -17,4 +17,3 @@ namespace Isonia
 		Window::Window window { WIDTH, HEIGHT, NAME };
 	};
 }
-

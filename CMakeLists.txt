@@ -1,5 +1,5 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration and include sub-projects here.
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -17,11 +17,11 @@ else()
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 endif()
 
-# Link time optimization
-#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-
 # Set name of project.
 project(Isonia)
+
+# Link time optimization, only for our
+set(TARGET ${PROJECT_NAME} CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 # Include sub-projects.
 add_subdirectory(Isonia)
