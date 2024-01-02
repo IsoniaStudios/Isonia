@@ -73,27 +73,34 @@ file(GLOB_RECURSE SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.vert" "${CMAKE_CURRENT_
 
 # For each shader, we create a header file
 foreach(SHADER ${SHADERS})
-    # Prepare a header name and a global variable for this shader
+    # Prepare a header name and a global variable for this shader 
     get_filename_component(SHADER_NAME ${SHADER} NAME)
+    get_filename_component(SHADER_DIRECTORY ${SHADER} DIRECTORY)
     string(REPLACE "." "_" HEADER_NAME ${SHADER_NAME})
+    string(REPLACE "${PROJECT_SOURCE_DIR}/Isonia/Shaders" "" SHADER_SUB_DIRECTORY "${SHADER_DIRECTORY}")
+    string(REPLACE "/" "_" SHADER_SUB_NAMESPACE "${SHADER_SUB_DIRECTORY}")
     string(TOUPPER ${HEADER_NAME} GLOBAL_SHADER_VAR)
+    set(TARGET_NAME "Isonia_Shader${SHADER_SUB_NAMESPACE}_${HEADER_NAME}")
 
-    set(SHADER_HEADER "${PROJECT_SOURCE_DIR}/Isonia/Shaders/Include/${HEADER_NAME}.h")
+    set(SHADER_DIRECTORY "${PROJECT_SOURCE_DIR}/Isonia/Shaders/Include${SHADER_SUB_DIRECTORY}/")
+    set(SHADER_HEADER "${SHADER_DIRECTORY}/${HEADER_NAME}.h")
+    set(SHADER_SPV "${SHADER_DIRECTORY}/${SHADER_NAME}.spv")
+
+    file(MAKE_DIRECTORY ${SHADER_DIRECTORY})
 
     add_custom_target(
-        ${HEADER_NAME}
+        ${TARGET_NAME}
         # Compile any GLSL shader into SPIR-V shader
-        COMMAND ${glslCompiler} ${SHADER} -o ${SHADER}.spv
+        COMMAND ${glslCompiler} ${SHADER} -o ${SHADER_SPV}
         # Make a C header file with the SPIR-V shader
-        COMMAND ${CMAKE_COMMAND} -DPATH="${SHADER}.spv" -DHEADER="${SHADER_HEADER}" -DGLOBAL="${GLOBAL_SHADER_VAR}" -P "${CMAKE_CURRENT_SOURCE_DIR}/CMake/EmbedData.cmake"
+        COMMAND ${CMAKE_COMMAND} -DPATH="${SHADER_SPV}" -DHEADER="${SHADER_HEADER}" -DGLOBAL="${GLOBAL_SHADER_VAR}" -DSUB_DIRECTORY="${SHADER_SUB_DIRECTORY}" -P "${CMAKE_CURRENT_SOURCE_DIR}/CMake/EmbedData.cmake"
         # Rebuild the header file if the shader is updated
         DEPENDS ${SHADER}
-        COMMENT "Building ${SHADER}.spv and embedding it into ${SHADER_HEADER}"
+        COMMENT "Building ${SHADER_SPV} and embedding it into ${SHADER_HEADER}"
     )
 
     # Add the custom target like a dependencies of the project
-    add_dependencies(${PROJECT_NAME} ${HEADER_NAME})
+    add_dependencies(${PROJECT_NAME} ${TARGET_NAME})
 
     message(STATUS "Generating build commands for ${SHADER}")
-    message(STATUS ${CMAKE_COMMAND} -DPATH="${SHADER}.spv" -DHEADER="${SHADER_HEADER}" -DGLOBAL="${GLOBAL_SHADER_VAR}" -P "${CMAKE_CURRENT_SOURCE_DIR}/CMake/EmbedData.cmake")
 endforeach()

@@ -412,5 +412,4 @@ _deps
 out/build
 
 # shader compiled code
-Shaders/Include
-/Isonia/Shaders/Include/Simple
+/Isonia/Shaders/Include
