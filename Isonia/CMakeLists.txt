@@ -1,5 +1,5 @@
 ﻿# CMakeList.txt : CMake project for Isonia, include source and define project specific logic here.
-# Add glfw, glm
+# Add glfw
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -8,7 +8,7 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(
     External/glfw
-    #External/glm
+    External/tinyobjloader
 )
 
 # Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
@@ -16,6 +16,7 @@ find_package(Vulkan REQUIRED)
 
 # Find all cpp files recursively
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+# Excluding external
 list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
 
 # Add project as ex
@@ -48,17 +49,14 @@ endif()
 
 target_include_directories(
     ${PROJECT_NAME} PUBLIC "External/glfw/include"
-    #${PROJECT_NAME} PUBLIC "External/glm"
 )
 target_link_directories(
     ${PROJECT_NAME} PUBLIC "External/glfw/src"
-    #${PROJECT_NAME} PUBLIC "External/glm/glm"
 )
 
-target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 target_link_libraries(${PROJECT_NAME}
+    Vulkan::Vulkan
     glfw
-    #glm
 )
 
 # Compile shader into SPIR-V
