@@ -1,6 +1,14 @@
 #pragma once
 
+#include "Pipeline/Descriptors/Descriptors.h"
+#include "Pipeline/Device.h"
+#include "ECS/GameObject.h"
+#include "Pipeline/Renderer.h"
 #include "Window/Window.h"
+
+// std
+#include <memory>
+#include <vector>
 
 namespace Isonia
 {
@@ -11,9 +19,23 @@ namespace Isonia
 		static constexpr int HEIGHT = 576;
 		static constexpr const char* NAME = "Window";
 
+		Isonia();
+		~Isonia();
+
+		Isonia(const Isonia&) = delete;
+		Isonia& operator=(const Isonia&) = delete;
+
 		void Run();
 
 	private:
-		Window::Window window { WIDTH, HEIGHT, NAME };
+		void LoadGameObjects();
+
+		Window::Window window{ WIDTH, HEIGHT, NAME };
+		Pipeline::Device device{ window };
+		Pipeline::Renderer renderer{ window, device };
+
+		// note: order of declarations matters
+		std::unique_ptr<Pipeline::Descriptors::DescriptorPool> globalPool{};
+		ECS::GameObject::Map gameObjects;
 	};
 }

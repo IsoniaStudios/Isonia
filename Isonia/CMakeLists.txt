@@ -6,10 +6,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(
-    External/glfw
-    External/tinyobjloader
-)
+add_subdirectory(External/glfw EXCLUDE_FROM_ALL)
+add_subdirectory(External/tinyobjloader EXCLUDE_FROM_ALL)
+add_subdirectory(External/glm EXCLUDE_FROM_ALL)
 
 # Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
 find_package(Vulkan REQUIRED)
@@ -18,6 +17,8 @@ find_package(Vulkan REQUIRED)
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 # Excluding external
 list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
+# Include the specific header file from External/tinyobjloader/tiny_obj_loader
+list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_obj_loader.h")
 
 # Add project as ex
 add_executable(${PROJECT_NAME})
@@ -47,16 +48,18 @@ if(MSVC)
 	set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
-target_include_directories(
-    ${PROJECT_NAME} PUBLIC "External/glfw/include"
-)
-target_link_directories(
-    ${PROJECT_NAME} PUBLIC "External/glfw/src"
-)
+#include_directories(${GLM_INCLUDE_DIRS}) 
+
+#target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
+#target_include_directories(${PROJECT_NAME} PUBLIC "External/glm/glm")
+
+#target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
+#target_link_directories(${PROJECT_NAME} PUBLIC "External/glm/glm")
 
 target_link_libraries(${PROJECT_NAME}
-    Vulkan::Vulkan
-    glfw
+    PRIVATE Vulkan::Vulkan
+    PRIVATE glfw
+    PRIVATE glm
 )
 
 # Compile shader into SPIR-V
@@ -68,8 +71,6 @@ set(glslCompiler "$ENV{VK_SDK_PATH}/Bin/glslc.exe")
 # Get all shaders recursively
 file(GLOB_RECURSE SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.vert" "${CMAKE_CURRENT_SOURCE_DIR}/*.frag")
 
-#set(SHADERS "")
-
 # For each shader, we create a header file
 foreach(SHADER ${SHADERS})
     # Prepare a header name and a global variable for this shader
@@ -77,7 +78,7 @@ foreach(SHADER ${SHADERS})
     string(REPLACE "." "_" HEADER_NAME ${SHADER_NAME})
     string(TOUPPER ${HEADER_NAME} GLOBAL_SHADER_VAR)
 
-    set(SHADER_HEADER "${PROJECT_SOURCE_DIR}/include/${HEADER_NAME}.h")
+    set(SHADER_HEADER "${PROJECT_SOURCE_DIR}/Isonia/Shaders/Include/${HEADER_NAME}.h")
 
     add_custom_target(
         ${HEADER_NAME}
