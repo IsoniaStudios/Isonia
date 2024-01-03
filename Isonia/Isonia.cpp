@@ -82,8 +82,7 @@ namespace Isonia
 			glfwPollEvents();
 
 			auto newTime = std::chrono::high_resolution_clock::now();
-			float frameTime =
-				std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
 
 			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, viewerObject);

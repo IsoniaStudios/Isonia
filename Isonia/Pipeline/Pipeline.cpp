@@ -8,10 +8,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#ifndef ENGINE_DIR
-#define ENGINE_DIR "../"
-#endif
-
 namespace Isonia::Pipeline
 {
 	Pipeline::Pipeline(Device& device, const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo) : device(device)
