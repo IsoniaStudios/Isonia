@@ -116,7 +116,8 @@ namespace Isonia::Pipeline
 		HasGflwRequiredInstanceExtensions();
 	}
 
-	void Device::PickPhysicalDevice() {
+	void Device::PickPhysicalDevice()
+	{
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 		if (deviceCount == 0)
@@ -304,7 +305,8 @@ namespace Isonia::Pipeline
 		return extensions;
 	}
 
-	void Device::HasGflwRequiredInstanceExtensions() {
+	void Device::HasGflwRequiredInstanceExtensions()
+	{
 		uint32_t extensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 		std::vector<VkExtensionProperties> extensions(extensionCount);

@@ -71,7 +71,8 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	VkResult SwapChain::AcquireNextImage(uint32_t* imageIndex) {
+	VkResult SwapChain::AcquireNextImage(uint32_t* imageIndex)
+	{
 		vkWaitForFences(
 			device.GetDevice(),
 			1,

@@ -17,6 +17,13 @@
 #define ENGINE_DIR "../"
 #endif
 
+
+
+#include <string>
+#include <iostream>
+#include <filesystem>
+
+
 namespace std
 {
 	template <>
@@ -164,6 +171,12 @@ namespace Isonia::ECS
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
+
+		for (const auto& entry : std::filesystem::directory_iterator("."))
+		{
+			auto path = entry.path();
+			std::cout << path << std::endl;
+		}
 
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
 		{

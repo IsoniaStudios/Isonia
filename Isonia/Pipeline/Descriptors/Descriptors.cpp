@@ -11,7 +11,8 @@ namespace Isonia::Pipeline::Descriptors
 		uint32_t binding,
 		VkDescriptorType descriptorType,
 		VkShaderStageFlags stageFlags,
-		uint32_t count) {
+		uint32_t count)
+	{
 		assert(bindings.count(binding) == 0 && "Binding already in use");
 		VkDescriptorSetLayoutBinding layoutBinding{};
 		layoutBinding.binding = binding;
@@ -31,7 +32,8 @@ namespace Isonia::Pipeline::Descriptors
 		Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
 		: device{ device }, bindings{ bindings } {
 		std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-		for (auto kv : bindings) {
+		for (auto kv : bindings)
+		{
 			setLayoutBindings.push_back(kv.second);
 		}
 
@@ -44,29 +46,31 @@ namespace Isonia::Pipeline::Descriptors
 			device.GetDevice(),
 			&descriptorSetLayoutInfo,
 			nullptr,
-			&descriptorSetLayout) != VK_SUCCESS) {
+			&descriptorSetLayout) != VK_SUCCESS)
+		{
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
 	}
 
-	DescriptorSetLayout::~DescriptorSetLayout() {
+	DescriptorSetLayout::~DescriptorSetLayout()
+	{
 		vkDestroyDescriptorSetLayout(device.GetDevice(), descriptorSetLayout, nullptr);
 	}
 
 	// *************** Descriptor Pool Builder *********************
-
-	DescriptorPool::Builder& DescriptorPool::Builder::addPoolSize(
-		VkDescriptorType descriptorType, uint32_t count) {
+	DescriptorPool::Builder& DescriptorPool::Builder::addPoolSize(VkDescriptorType descriptorType, uint32_t count)
+	{
 		poolSizes.push_back({ descriptorType, count });
 		return *this;
 	}
 
-	DescriptorPool::Builder& DescriptorPool::Builder::setPoolFlags(
-		VkDescriptorPoolCreateFlags flags) {
+	DescriptorPool::Builder& DescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags)
+	{
 		poolFlags = flags;
 		return *this;
 	}
-	DescriptorPool::Builder& DescriptorPool::Builder::setMaxSets(uint32_t count) {
+	DescriptorPool::Builder& DescriptorPool::Builder::setMaxSets(uint32_t count)
+	{
 		maxSets = count;
 		return *this;
 	}
@@ -90,18 +94,19 @@ namespace Isonia::Pipeline::Descriptors
 		descriptorPoolInfo.maxSets = maxSets;
 		descriptorPoolInfo.flags = poolFlags;
 
-		if (vkCreateDescriptorPool(device.GetDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) !=
-			VK_SUCCESS) {
+		if (vkCreateDescriptorPool(device.GetDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+		{
 			throw std::runtime_error("failed to create descriptor pool!");
 		}
 	}
 
-	DescriptorPool::~DescriptorPool() {
+	DescriptorPool::~DescriptorPool()
+	{
 		vkDestroyDescriptorPool(device.GetDevice(), descriptorPool, nullptr);
 	}
 
-	bool DescriptorPool::allocateDescriptor(
-		const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const {
+	bool DescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const
+	{
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 		allocInfo.descriptorPool = descriptorPool;
@@ -124,7 +129,8 @@ namespace Isonia::Pipeline::Descriptors
 			descriptors.data());
 	}
 
-	void DescriptorPool::resetPool() {
+	void DescriptorPool::resetPool()
+	{
 		vkResetDescriptorPool(device.GetDevice(), descriptorPool, 0);
 	}
 
@@ -133,8 +139,8 @@ namespace Isonia::Pipeline::Descriptors
 	DescriptorWriter::DescriptorWriter(DescriptorSetLayout& setLayout, DescriptorPool& pool)
 		: setLayout{ setLayout }, pool{ pool } {}
 
-	DescriptorWriter& DescriptorWriter::writeBuffer(
-		uint32_t binding, VkDescriptorBufferInfo* bufferInfo) {
+	DescriptorWriter& DescriptorWriter::writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo)
+	{
 		assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
 		auto& bindingDescription = setLayout.bindings[binding];
@@ -154,8 +160,8 @@ namespace Isonia::Pipeline::Descriptors
 		return *this;
 	}
 
-	DescriptorWriter& DescriptorWriter::writeImage(
-		uint32_t binding, VkDescriptorImageInfo* imageInfo) {
+	DescriptorWriter& DescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo)
+	{
 		assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
 		auto& bindingDescription = setLayout.bindings[binding];
@@ -175,17 +181,21 @@ namespace Isonia::Pipeline::Descriptors
 		return *this;
 	}
 
-	bool DescriptorWriter::build(VkDescriptorSet& set) {
+	bool DescriptorWriter::build(VkDescriptorSet& set)
+	{
 		bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
-		if (!success) {
+		if (!success)
+		{
 			return false;
 		}
 		overwrite(set);
 		return true;
 	}
 
-	void DescriptorWriter::overwrite(VkDescriptorSet& set) {
-		for (auto& write : writes) {
+	void DescriptorWriter::overwrite(VkDescriptorSet& set)
+	{
+		for (auto& write : writes)
+		{
 			write.dstSet = set;
 		}
 		vkUpdateDescriptorSets(pool.device.GetDevice(), writes.size(), writes.data(), 0, nullptr);

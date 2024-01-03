@@ -29,17 +29,22 @@ namespace Isonia
 		LoadGameObjects();
 	}
 
-	Isonia::~Isonia() {}
+	Isonia::~Isonia()
+	{
+	}
 
-	void Isonia::Run() {
+	void Isonia::Run()
+	{
 		std::vector<std::unique_ptr<Pipeline::Buffer>> uboBuffers(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < uboBuffers.size(); i++) {
+		for (int i = 0; i < uboBuffers.size(); i++)
+		{
 			uboBuffers[i] = std::make_unique<Pipeline::Buffer>(
 				device,
 				sizeof(State::GlobalUbo),
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
 			uboBuffers[i]->Map();
 		}
 
@@ -48,11 +53,13 @@ namespace Isonia
 			.build();
 
 		std::vector<VkDescriptorSet> globalDescriptorSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < globalDescriptorSets.size(); i++) {
+		for (int i = 0; i < globalDescriptorSets.size(); i++)
+		{
 			auto bufferInfo = uboBuffers[i]->DescriptorInfo();
 			Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
 				.writeBuffer(0, &bufferInfo)
-				.build(globalDescriptorSets[i]);
+				.build(globalDescriptorSets[i]
+				);
 		}
 
 		Pipeline::Systems::SimpleRenderSystem simpleRenderSystem{
@@ -70,7 +77,8 @@ namespace Isonia
 		Controllers::KeyboardMovementController cameraController{};
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		while (!window.ShouldClose()) {
+		while (!window.ShouldClose())
+		{
 			glfwPollEvents();
 
 			auto newTime = std::chrono::high_resolution_clock::now();
@@ -84,7 +92,8 @@ namespace Isonia
 			float aspect = renderer.GetAspectRatio();
 			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
-			if (auto commandBuffer = renderer.BeginFrame()) {
+			if (auto commandBuffer = renderer.BeginFrame())
+			{
 				int frameIndex = renderer.getFrameIndex();
 				State::FrameInfo frameInfo{
 					frameIndex,
@@ -115,22 +124,23 @@ namespace Isonia
 		vkDeviceWaitIdle(device.GetDevice());
 	}
 
-	void Isonia::LoadGameObjects() {
-		std::shared_ptr<ECS::Model> model = ECS::Model::CreateModelFromFile(device, "models/flat_vase.obj");
+	void Isonia::LoadGameObjects()
+	{
+		std::shared_ptr<ECS::Model> model = ECS::Model::CreateModelFromFile(device, "Resources/Models/FlatVase.obj");
 		auto flatVase = ECS::GameObject::CreateGameObject();
 		flatVase.model = model;
 		flatVase.transform.translation = { -.5f, .5f, 0.f };
 		flatVase.transform.scale = { 3.f, 1.5f, 3.f };
 		gameObjects.emplace(flatVase.GetId(), std::move(flatVase));
 
-		model = ECS::Model::CreateModelFromFile(device, "models/smooth_vase.obj");
+		model = ECS::Model::CreateModelFromFile(device, "Resources/Models/SmoothVase.obj");
 		auto smoothVase = ECS::GameObject::CreateGameObject();
 		smoothVase.model = model;
 		smoothVase.transform.translation = { .5f, .5f, 0.f };
 		smoothVase.transform.scale = { 3.f, 1.5f, 3.f };
 		gameObjects.emplace(smoothVase.GetId(), std::move(smoothVase));
 
-		model = ECS::Model::CreateModelFromFile(device, "models/quad.obj");
+		model = ECS::Model::CreateModelFromFile(device, "Resources/Models/Quad.obj");
 		auto floor = ECS::GameObject::CreateGameObject();
 		floor.model = model;
 		floor.transform.translation = { 0.f, .5f, 0.f };
@@ -146,13 +156,15 @@ namespace Isonia
 			{1.f, 1.f, 1.f}
 		};
 
-		for (int i = 0; i < lightColors.size(); i++) {
+		for (int i = 0; i < lightColors.size(); i++)
+		{
 			auto pointLight = ECS::GameObject::MakePointLight(0.2f);
 			pointLight.color = lightColors[i];
 			auto rotateLight = glm::rotate(
 				glm::mat4(1.f),
 				(i * glm::two_pi<float>()) / lightColors.size(),
-				{ 0.f, -1.f, 0.f });
+				{ 0.f, -1.f, 0.f }
+			);
 			pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
 			gameObjects.emplace(pointLight.GetId(), std::move(pointLight));
 		}

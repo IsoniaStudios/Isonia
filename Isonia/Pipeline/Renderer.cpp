@@ -157,7 +157,8 @@ namespace Isonia::Pipeline
 		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 	}
 
-	void Renderer::EndSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+	void Renderer::EndSwapChainRenderPass(VkCommandBuffer commandBuffer)
+	{
 		assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
 		assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
 		vkCmdEndRenderPass(commandBuffer);

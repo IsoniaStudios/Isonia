@@ -1,18 +1,4 @@
 ﻿# CMakeList.txt : CMake project for Isonia, include source and define project specific logic here.
-# Add glfw
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
-add_subdirectory(External/glfw EXCLUDE_FROM_ALL)
-add_subdirectory(External/tinyobjloader EXCLUDE_FROM_ALL)
-add_subdirectory(External/glm EXCLUDE_FROM_ALL)
-
-# Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
-find_package(Vulkan REQUIRED)
-
 # Find all cpp files recursively
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 # Excluding external
@@ -48,18 +34,31 @@ if(MSVC)
 	set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
-#include_directories(${GLM_INCLUDE_DIRS}) 
+# Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
+find_package(Vulkan REQUIRED)
 
-#target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
-#target_include_directories(${PROJECT_NAME} PUBLIC "External/glm/glm")
+# Add glfw
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
-#target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
-#target_link_directories(${PROJECT_NAME} PUBLIC "External/glm/glm")
+add_subdirectory(External/glfw EXCLUDE_FROM_ALL)
+target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
+target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
 
+# Add tinyobjloader
+add_subdirectory(External/tinyobjloader EXCLUDE_FROM_ALL)
+
+# Add glm
+add_subdirectory(External/glm EXCLUDE_FROM_ALL)
+
+# Target link
 target_link_libraries(${PROJECT_NAME}
     PRIVATE Vulkan::Vulkan
     PRIVATE glfw
-    PRIVATE glm
+    PRIVATE glm::glm
 )
 
 # Compile shader into SPIR-V
@@ -104,3 +103,25 @@ foreach(SHADER ${SHADERS})
 
     message(STATUS "Generating build commands for ${SHADER}")
 endforeach()
+
+# Copy resources if they are newer
+file(GLOB_RECURSE RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*")
+foreach(RESOURCE_FILE ${RESOURCE_FILES})
+    get_filename_component(RESOURCE_FILENAME ${RESOURCE_FILE} NAME)
+    set(DESTINATION "${CMAKE_BINARY_DIR}/Resources/${RESOURCE_FILENAME}")
+
+    add_custom_command(
+        OUTPUT ${DESTINATION}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${DESTINATION}
+        DEPENDS ${RESOURCE_FILE}
+        COMMENT "Copying ${RESOURCE_FILENAME} to ${CMAKE_BINARY_DIR}/Resources/"
+    )
+
+    list(APPEND COPIED_RESOURCES ${DESTINATION})
+endforeach()
+
+# Add a custom target to group the copy commands
+add_custom_target(CopyResources DEPENDS ${COPIED_RESOURCES})
+
+# Add the CopyResources target as a dependency for your main target
+add_dependencies(${PROJECT_NAME} CopyResources)

@@ -68,7 +68,8 @@ namespace Isonia::Pipeline
 	 *
 	 * @note Does not return a result as vkUnmapMemory can't fail
 	 */
-	void Buffer::Unmap() {
+	void Buffer::Unmap()
+	{
 		if (mapped)
 		{
 			vkUnmapMemory(device.GetDevice(), memory);
