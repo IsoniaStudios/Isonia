@@ -11,6 +11,10 @@
 #include <cassert>
 #include <stdexcept>
 
+// shaders
+#include "../../Shaders/Include/Simple/FragShader_frag.h"
+#include "../../Shaders/Include/Simple/VertexShader_vert.h"
+
 namespace Isonia::Pipeline::Systems
 {
 	struct SimplePushConstantData
@@ -61,8 +65,8 @@ namespace Isonia::Pipeline::Systems
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		pipeline = std::make_unique<Pipeline>(
 			device,
-			"Shaders/SimpleShader.vert.spv", // 123
-			"Shaders/SimpleShader.frag.spv", // 123
+			Shaders::Simple::VERTEXSHADER_VERT,
+			Shaders::Simple::FRAGSHADER_FRAG,
 			pipelineConfig
 		);
 	}

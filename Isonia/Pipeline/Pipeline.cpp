@@ -14,9 +14,9 @@
 
 namespace Isonia::Pipeline
 {
-	Pipeline::Pipeline(Device& device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo) : device(device)
+	Pipeline::Pipeline(Device& device, const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo) : device(device)
 	{
-		CreateGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
+		CreateGraphicsPipeline(vertCode, fragCode, configInfo);
 	}
 
 	Pipeline::~Pipeline()
@@ -26,33 +26,10 @@ namespace Isonia::Pipeline
 		vkDestroyPipeline(device.GetDevice(), graphicsPipeline, nullptr);
 	}
 
-	std::vector<char> Pipeline::ReadFile(const std::string& filepath)
-	{
-		std::string enginePath = ENGINE_DIR + filepath;
-		std::ifstream file{ enginePath, std::ios::ate | std::ios::binary };
-
-		if (!file.is_open()) 
-		{
-			throw std::runtime_error("failed to open file: " + enginePath);
-		}
-
-		size_t fileSize = static_cast<size_t>(file.tellg());
-		std::vector<char> buffer(fileSize);
-
-		file.seekg(0);
-		file.read(buffer.data(), fileSize);
-
-		file.close();
-		return buffer;
-	}
-
-	void Pipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo)
+	void Pipeline::CreateGraphicsPipeline(const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo)
 	{
 		assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
-
-		auto vertCode = ReadFile(vertFilepath);
-		auto fragCode = ReadFile(fragFilepath);
 
 		CreateShaderModule(vertCode, &vertShaderModule);
 		CreateShaderModule(fragCode, &fragShaderModule);
@@ -108,7 +85,7 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	void Pipeline::CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule)
+	void Pipeline::CreateShaderModule(const std::vector<unsigned char>& code, VkShaderModule* shaderModule)
 	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

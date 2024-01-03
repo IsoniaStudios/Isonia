@@ -13,17 +13,6 @@
 #include <cstring>
 #include <unordered_map>
 
-#ifndef ENGINE_DIR
-#define ENGINE_DIR "../"
-#endif
-
-
-
-#include <string>
-#include <iostream>
-#include <filesystem>
-
-
 namespace std
 {
 	template <>
@@ -53,7 +42,7 @@ namespace Isonia::ECS
 	std::unique_ptr<Model> Model::CreateModelFromFile(Pipeline::Device& device, const std::string& filepath)
 	{
 		Builder builder{};
-		builder.LoadModel(ENGINE_DIR + filepath);
+		builder.LoadModel(filepath);
 		return std::make_unique<Model>(device, builder);
 	}
 
@@ -171,12 +160,6 @@ namespace Isonia::ECS
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
-
-		for (const auto& entry : std::filesystem::directory_iterator("."))
-		{
-			auto path = entry.path();
-			std::cout << path << std::endl;
-		}
 
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
 		{

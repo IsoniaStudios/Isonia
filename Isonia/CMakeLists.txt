@@ -107,17 +107,20 @@ endforeach()
 # Copy resources if they are newer
 file(GLOB_RECURSE RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*")
 foreach(RESOURCE_FILE ${RESOURCE_FILES})
-    get_filename_component(RESOURCE_FILENAME ${RESOURCE_FILE} NAME)
-    set(DESTINATION "${CMAKE_BINARY_DIR}/Resources/${RESOURCE_FILENAME}")
+    get_filename_component(RESOURCE_FILENAME ${RESOURCE_FILE} NAME) 
+    get_filename_component(RESOURCE_DIRECTORY ${RESOURCE_FILE} DIRECTORY)  # Added this line
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" RESOURCE_SUBDIRECTORY ${RESOURCE_DIRECTORY})
+
+    set(RESOURCE_DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${RESOURCE_SUBDIRECTORY}/${RESOURCE_FILENAME}")  # Modified this line
 
     add_custom_command(
-        OUTPUT ${DESTINATION}
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${DESTINATION}
+        OUTPUT ${RESOURCE_DESTINATION}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RESOURCE_FILE} ${RESOURCE_DESTINATION}
         DEPENDS ${RESOURCE_FILE}
-        COMMENT "Copying ${RESOURCE_FILENAME} to ${CMAKE_BINARY_DIR}/Resources/"
+        COMMENT "Copying ${RESOURCE_FILENAME} to ${CMAKE_CURRENT_BINARY_DIR}/Resources/"
     )
 
-    list(APPEND COPIED_RESOURCES ${DESTINATION})
+    list(APPEND COPIED_RESOURCES ${RESOURCE_DESTINATION})
 endforeach()
 
 # Add a custom target to group the copy commands

@@ -33,7 +33,7 @@ namespace Isonia::Pipeline
 	class Pipeline
 	{
 	public:
-		Pipeline(Device& device, const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
+		Pipeline(Device& device, std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo);
 		~Pipeline();
 
 		Pipeline(const Pipeline&) = delete;
@@ -44,11 +44,9 @@ namespace Isonia::Pipeline
 		static void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
 	private:
-		static std::vector<char> ReadFile(const std::string& filepath);
+		void CreateGraphicsPipeline(const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo);
 
-		void CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
-
-		void CreateShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
+		void CreateShaderModule(const std::vector<unsigned char>& code, VkShaderModule* shaderModule);
 
 		Device& device;
 		VkPipeline graphicsPipeline;

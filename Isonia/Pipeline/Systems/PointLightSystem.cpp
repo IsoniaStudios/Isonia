@@ -11,6 +11,10 @@
 #include <cassert>
 #include <stdexcept>
 
+// shaders
+#include "../../Shaders/Include/Point/FragPointLightShader_frag.h"
+#include "../../Shaders/Include/Point/VertexPointLightShader_vert.h"
+
 namespace Isonia::Pipeline::Systems
 {
 	struct PointLightPushConstants
@@ -64,8 +68,8 @@ namespace Isonia::Pipeline::Systems
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		pipeline = std::make_unique<Pipeline>(
 			device,
-			"Shaders/PointLight.vert.spv", // 123
-			"Shaders/PointLight.frag.spv", // 123
+			Shaders::Point::VERTEXPOINTLIGHTSHADER_VERT,
+			Shaders::Point::FRAGPOINTLIGHTSHADER_FRAG,
 			pipelineConfig
 		);
 	}
