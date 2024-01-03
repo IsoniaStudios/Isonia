@@ -7,7 +7,7 @@
 namespace Isonia::Pipeline::Descriptors
 {
 	// *************** Descriptor Set Layout Builder *********************
-	DescriptorSetLayout::Builder& DescriptorSetLayout::Builder::addBinding(
+	DescriptorSetLayout::Builder& DescriptorSetLayout::Builder::AddBinding(
 		uint32_t binding,
 		VkDescriptorType descriptorType,
 		VkShaderStageFlags stageFlags,
@@ -23,14 +23,15 @@ namespace Isonia::Pipeline::Descriptors
 		return *this;
 	}
 
-	std::unique_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::build() const {
+	std::unique_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::Build() const
+	{
 		return std::make_unique<DescriptorSetLayout>(device, bindings);
 	}
 
 	// *************** Descriptor Set Layout *********************
-	DescriptorSetLayout::DescriptorSetLayout(
-		Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
-		: device{ device }, bindings{ bindings } {
+	DescriptorSetLayout::DescriptorSetLayout(Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
+		: device(device), bindings(bindings)
+	{
 		std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
 		for (auto kv : bindings)
 		{
@@ -58,35 +59,32 @@ namespace Isonia::Pipeline::Descriptors
 	}
 
 	// *************** Descriptor Pool Builder *********************
-	DescriptorPool::Builder& DescriptorPool::Builder::addPoolSize(VkDescriptorType descriptorType, uint32_t count)
+	DescriptorPool::Builder& DescriptorPool::Builder::AddPoolSize(VkDescriptorType descriptorType, uint32_t count)
 	{
 		poolSizes.push_back({ descriptorType, count });
 		return *this;
 	}
 
-	DescriptorPool::Builder& DescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags)
+	DescriptorPool::Builder& DescriptorPool::Builder::SetPoolFlags(VkDescriptorPoolCreateFlags flags)
 	{
 		poolFlags = flags;
 		return *this;
 	}
-	DescriptorPool::Builder& DescriptorPool::Builder::setMaxSets(uint32_t count)
+	DescriptorPool::Builder& DescriptorPool::Builder::SetMaxSets(uint32_t count)
 	{
 		maxSets = count;
 		return *this;
 	}
 
-	std::unique_ptr<DescriptorPool> DescriptorPool::Builder::build() const {
+	std::unique_ptr<DescriptorPool> DescriptorPool::Builder::Build() const
+	{
 		return std::make_unique<DescriptorPool>(device, maxSets, poolFlags, poolSizes);
 	}
 
 	// *************** Descriptor Pool *********************
-
-	DescriptorPool::DescriptorPool(
-		Device& device,
-		uint32_t maxSets,
-		VkDescriptorPoolCreateFlags poolFlags,
-		const std::vector<VkDescriptorPoolSize>& poolSizes)
-		: device{ device } {
+	DescriptorPool::DescriptorPool(Device& device, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize>& poolSizes)
+		: device(device)
+	{
 		VkDescriptorPoolCreateInfo descriptorPoolInfo{};
 		descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
@@ -105,7 +103,7 @@ namespace Isonia::Pipeline::Descriptors
 		vkDestroyDescriptorPool(device.GetDevice(), descriptorPool, nullptr);
 	}
 
-	bool DescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const
+	bool DescriptorPool::AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const
 	{
 		VkDescriptorSetAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -121,33 +119,34 @@ namespace Isonia::Pipeline::Descriptors
 		return true;
 	}
 
-	void DescriptorPool::freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const {
+	void DescriptorPool::FreeDescriptors(std::vector<VkDescriptorSet>& descriptors) const
+	{
 		vkFreeDescriptorSets(
 			device.GetDevice(),
 			descriptorPool,
 			static_cast<uint32_t>(descriptors.size()),
-			descriptors.data());
+			descriptors.data()
+		);
 	}
 
-	void DescriptorPool::resetPool()
+	void DescriptorPool::ResetPool()
 	{
 		vkResetDescriptorPool(device.GetDevice(), descriptorPool, 0);
 	}
 
 	// *************** Descriptor Writer *********************
-
 	DescriptorWriter::DescriptorWriter(DescriptorSetLayout& setLayout, DescriptorPool& pool)
-		: setLayout{ setLayout }, pool{ pool } {}
+		: setLayout(setLayout), pool(pool)
+	{
+	}
 
-	DescriptorWriter& DescriptorWriter::writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo)
+	DescriptorWriter& DescriptorWriter::WriteBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo)
 	{
 		assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
 		auto& bindingDescription = setLayout.bindings[binding];
 
-		assert(
-			bindingDescription.descriptorCount == 1 &&
-			"Binding single descriptor info, but binding expects multiple");
+		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -160,15 +159,13 @@ namespace Isonia::Pipeline::Descriptors
 		return *this;
 	}
 
-	DescriptorWriter& DescriptorWriter::writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo)
+	DescriptorWriter& DescriptorWriter::WriteImage(uint32_t binding, VkDescriptorImageInfo* imageInfo)
 	{
 		assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
 		auto& bindingDescription = setLayout.bindings[binding];
 
-		assert(
-			bindingDescription.descriptorCount == 1 &&
-			"Binding single descriptor info, but binding expects multiple");
+		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -181,18 +178,18 @@ namespace Isonia::Pipeline::Descriptors
 		return *this;
 	}
 
-	bool DescriptorWriter::build(VkDescriptorSet& set)
+	bool DescriptorWriter::Build(VkDescriptorSet& set)
 	{
-		bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
+		bool success = pool.AllocateDescriptor(setLayout.GetDescriptorSetLayout(), set);
 		if (!success)
 		{
 			return false;
 		}
-		overwrite(set);
+		Overwrite(set);
 		return true;
 	}
 
-	void DescriptorWriter::overwrite(VkDescriptorSet& set)
+	void DescriptorWriter::Overwrite(VkDescriptorSet& set)
 	{
 		for (auto& write : writes)
 		{

@@ -99,6 +99,21 @@ namespace Isonia::Pipeline
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 	}
 
+	void Pipeline::PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
+	{
+		Pipeline::DefaultPipelineConfigInfo(configInfo);
+		
+		configInfo.rasterizationInfo.lineWidth = 1.0f;
+
+		configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+		configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
+
+		configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
+
+		configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
+		configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
+	}
+
 	void Pipeline::DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 	{
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -116,8 +131,8 @@ namespace Isonia::Pipeline
 		configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
 		configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
 		configInfo.rasterizationInfo.lineWidth = 1.0f;
-		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
-		configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+		configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
 		configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f;  // Optional
 		configInfo.rasterizationInfo.depthBiasClamp = 0.0f;           // Optional

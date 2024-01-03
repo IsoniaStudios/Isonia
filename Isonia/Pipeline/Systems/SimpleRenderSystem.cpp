@@ -60,7 +60,7 @@ namespace Isonia::Pipeline::Systems
 		assert(pipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 
 		PipelineConfigInfo pipelineConfig{};
-		Pipeline::DefaultPipelineConfigInfo(pipelineConfig);
+		Pipeline::PixelPipelineConfigInfo(pipelineConfig);
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		pipeline = std::make_unique<Pipeline>(

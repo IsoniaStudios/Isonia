@@ -23,9 +23,9 @@ namespace Isonia
 	Isonia::Isonia()
 	{
 		globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
-			.setMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
-			.build();
+			.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+			.Build();
 		LoadGameObjects();
 	}
 
@@ -49,27 +49,27 @@ namespace Isonia
 		}
 
 		auto globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.build();
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			.Build();
 
 		std::vector<VkDescriptorSet> globalDescriptorSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
 			auto bufferInfo = uboBuffers[i]->DescriptorInfo();
 			Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
-				.writeBuffer(0, &bufferInfo)
-				.build(globalDescriptorSets[i]
+				.WriteBuffer(0, &bufferInfo)
+				.Build(globalDescriptorSets[i]
 				);
 		}
 
 		Pipeline::Systems::SimpleRenderSystem simpleRenderSystem{
 			device,
 			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->getDescriptorSetLayout() };
+			globalSetLayout->GetDescriptorSetLayout() };
 		Pipeline::Systems::PointLightSystem pointLightSystem{
 			device,
 			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->getDescriptorSetLayout() };
+			globalSetLayout->GetDescriptorSetLayout() };
 		ECS::Camera camera{};
 
 		auto viewerObject = ECS::GameObject::CreateGameObject();

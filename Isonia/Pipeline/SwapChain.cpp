@@ -439,10 +439,8 @@ namespace Isonia::Pipeline
 		else
 		{
 			VkExtent2D actualExtent = windowExtent;
-			actualExtent.width = std::max(capabilities.minImageExtent.width,
-				std::min(capabilities.maxImageExtent.width, actualExtent.width));
-			actualExtent.height = std::max(capabilities.minImageExtent.height,
-				std::min(capabilities.maxImageExtent.height, actualExtent.height));
+			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
 			return actualExtent;
 		}
 	}

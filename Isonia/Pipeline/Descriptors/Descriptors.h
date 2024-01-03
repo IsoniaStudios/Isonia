@@ -12,31 +12,27 @@ namespace Isonia::Pipeline::Descriptors
 	class DescriptorSetLayout
 	{
 	public:
-		class Builder {
+		class Builder
+		{
 		public:
-			Builder(Device& device) : device{ device }
+			Builder(Device& device) : device(device)
 			{
 			}
 
-			Builder& addBinding(
-				uint32_t binding,
-				VkDescriptorType descriptorType,
-				VkShaderStageFlags stageFlags,
-				uint32_t count = 1);
-			std::unique_ptr<DescriptorSetLayout> build() const;
+			Builder& AddBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlags stageFlags, uint32_t count = 1);
+			std::unique_ptr<DescriptorSetLayout> Build() const;
 
 		private:
 			Device& device;
 			std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
 		};
 
-		DescriptorSetLayout(
-			Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+		DescriptorSetLayout(Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
 		~DescriptorSetLayout();
 		DescriptorSetLayout(const DescriptorSetLayout&) = delete;
 		DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
 
-		VkDescriptorSetLayout getDescriptorSetLayout() const { return descriptorSetLayout; }
+		VkDescriptorSetLayout GetDescriptorSetLayout() const { return descriptorSetLayout; }
 
 	private:
 		Device& device;
@@ -46,16 +42,20 @@ namespace Isonia::Pipeline::Descriptors
 		friend class DescriptorWriter;
 	};
 
-	class DescriptorPool {
+	class DescriptorPool
+	{
 	public:
-		class Builder {
+		class Builder
+		{
 		public:
-			Builder(Device& device) : device{ device } {}
+			Builder(Device& device) : device(device)
+			{
+			}
 
-			Builder& addPoolSize(VkDescriptorType descriptorType, uint32_t count);
-			Builder& setPoolFlags(VkDescriptorPoolCreateFlags flags);
-			Builder& setMaxSets(uint32_t count);
-			std::unique_ptr<DescriptorPool> build() const;
+			Builder& AddPoolSize(VkDescriptorType descriptorType, uint32_t count);
+			Builder& SetPoolFlags(VkDescriptorPoolCreateFlags flags);
+			Builder& SetMaxSets(uint32_t count);
+			std::unique_ptr<DescriptorPool> Build() const;
 
 		private:
 			Device& device;
@@ -64,21 +64,16 @@ namespace Isonia::Pipeline::Descriptors
 			VkDescriptorPoolCreateFlags poolFlags = 0;
 		};
 
-		DescriptorPool(
-			Device& device,
-			uint32_t maxSets,
-			VkDescriptorPoolCreateFlags poolFlags,
-			const std::vector<VkDescriptorPoolSize>& poolSizes);
+		DescriptorPool(Device& device, uint32_t maxSets, VkDescriptorPoolCreateFlags poolFlags, const std::vector<VkDescriptorPoolSize>& poolSizes);
 		~DescriptorPool();
 		DescriptorPool(const DescriptorPool&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&) = delete;
 
-		bool allocateDescriptor(
-			const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
+		bool AllocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet& descriptor) const;
 
-		void freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;
+		void FreeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;
 
-		void resetPool();
+		void ResetPool();
 
 	private:
 		Device& device;
@@ -87,15 +82,16 @@ namespace Isonia::Pipeline::Descriptors
 		friend class DescriptorWriter;
 	};
 
-	class DescriptorWriter {
+	class DescriptorWriter
+	{
 	public:
 		DescriptorWriter(DescriptorSetLayout& setLayout, DescriptorPool& pool);
 
-		DescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
-		DescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
+		DescriptorWriter& WriteBuffer(uint32_t binding, VkDescriptorBufferInfo* bufferInfo);
+		DescriptorWriter& WriteImage(uint32_t binding, VkDescriptorImageInfo* imageInfo);
 
-		bool build(VkDescriptorSet& set);
-		void overwrite(VkDescriptorSet& set);
+		bool Build(VkDescriptorSet& set);
+		void Overwrite(VkDescriptorSet& set);
 
 	private:
 		DescriptorSetLayout& setLayout;
