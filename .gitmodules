@@ -1,9 +1,3 @@
-[submodule "Isonia/External/glfw"]
-	path = Isonia/External/glfw
-	url = https://github.com/glfw/glfw.git
-[submodule "Isonia/External/glm"]
-	path = Isonia/External/glm
-	url = https://github.com/g-truc/glm.git
 [submodule "Isonia/External/tinyobjloader"]
 	path = Isonia/External/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
