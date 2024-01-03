@@ -4,3 +4,6 @@
 [submodule "Isonia/External/glm"]
 	path = Isonia/External/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "Isonia/External/glfw"]
+	path = Isonia/External/glfw
+	url = https://github.com/glfw/glfw.git
