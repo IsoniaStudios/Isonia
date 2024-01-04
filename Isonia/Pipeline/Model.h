@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Pipeline/Buffer.h"
-#include "../Pipeline/Device.h"
+#include "Buffer.h"
+#include "Device.h"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace Isonia::ECS
+namespace Isonia::Pipeline
 {
 	class Model
 	{

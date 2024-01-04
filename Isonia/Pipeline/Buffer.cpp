@@ -174,7 +174,7 @@ namespace Isonia::Pipeline
 	}
 
 	/**
-	 *  Flush the memory range at index * alignmentSize of the buffer to make it visible to the device
+	 * Flush the memory range at index * alignmentSize of the buffer to make it visible to the device
 	 *
 	 * @param index Used in offset calculation
 	 *

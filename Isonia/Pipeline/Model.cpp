@@ -27,7 +27,7 @@ namespace std
 	};
 }
 
-namespace Isonia::ECS
+namespace Isonia::Pipeline
 {
 	Model::Model(Pipeline::Device& device, const Model::Builder& builder) : device(device)
 	{
