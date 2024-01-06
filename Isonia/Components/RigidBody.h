@@ -4,7 +4,7 @@
 
 namespace Isonia::Components
 {
-	struct Gravity
+	struct RigidBody
 	{
 	public:
 		glm::vec3 velocity;

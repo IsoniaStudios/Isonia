@@ -7,7 +7,7 @@
 
 namespace Isonia::Components
 {
-	class Camera
+	struct Camera
 	{
 	public:
 		void SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far);

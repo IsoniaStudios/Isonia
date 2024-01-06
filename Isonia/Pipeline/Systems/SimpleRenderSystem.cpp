@@ -1,5 +1,8 @@
 #include "SimpleRenderSystem.h"
 
+#include "../../ECS/Coordinator.h"
+#include "../../Components/Mesh.h"
+
 // libraries
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -14,6 +17,8 @@
 // shaders
 #include "../../Shaders/Include/Simple/FragShader_frag.h"
 #include "../../Shaders/Include/Simple/VertexShader_vert.h"
+
+extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
@@ -86,15 +91,13 @@ namespace Isonia::Pipeline::Systems
 			nullptr
 		);
 
-		for (auto& kv : frameInfo.gameObjects)
+		for (auto const& entity : mEntities)
 		{
-			auto& obj = kv.second;
-			if (obj.model == nullptr)
-				continue;
+			auto const& mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
 
 			SimplePushConstantData push{};
-			push.modelMatrix = obj.transform.mat4();
-			push.normalMatrix = obj.transform.normalMatrix();
+			push.modelMatrix = mesh.transform->Mat4();
+			push.normalMatrix = mesh.transform->NormalMatrix();
 
 			vkCmdPushConstants(
 				frameInfo.commandBuffer,
@@ -104,8 +107,8 @@ namespace Isonia::Pipeline::Systems
 				sizeof(SimplePushConstantData),
 				&push
 			);
-			obj.model->Bind(frameInfo.commandBuffer);
-			obj.model->Draw(frameInfo.commandBuffer);
+			mesh.model->Bind(frameInfo.commandBuffer);
+			mesh.model->Draw(frameInfo.commandBuffer);
 		}
 	}
 }

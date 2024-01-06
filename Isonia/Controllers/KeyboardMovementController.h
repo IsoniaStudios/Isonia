@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ECS/GameObject.h"
+#include "../Components/Transform.h"
 #include "../Window/Window.h"
 
 namespace Isonia::Controllers
@@ -22,7 +22,7 @@ namespace Isonia::Controllers
 			int lookDown = GLFW_KEY_DOWN;
 		};
 
-		void MoveInPlaneXZ(GLFWwindow* window, float dt, ECS::GameObject& gameObject);
+		void MoveInPlaneXZ(GLFWwindow* window, float dt, Components::Transform& transform);
 
 		KeyMappings keys{};
 		float moveSpeed{ 3.f };

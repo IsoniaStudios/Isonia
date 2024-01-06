@@ -16,9 +16,9 @@
 namespace std
 {
 	template <>
-	struct hash<Isonia::ECS::Model::Vertex>
+	struct hash<Isonia::Pipeline::Model::Vertex>
 	{
-		size_t operator()(Isonia::ECS::Model::Vertex const& vertex) const
+		size_t operator()(Isonia::Pipeline::Model::Vertex const& vertex) const
 		{
 			size_t seed = 0;
 			Isonia::Utilities::HashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);

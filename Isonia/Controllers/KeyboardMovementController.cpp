@@ -3,9 +3,12 @@
 // std
 #include <limits>
 
+// glm
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace Isonia::Controllers
 {
-	void KeyboardMovementController::MoveInPlaneXZ(GLFWwindow* window, float dt, Isonia::ECS::GameObject& gameObject)
+	void KeyboardMovementController::MoveInPlaneXZ(GLFWwindow* window, float dt, Components::Transform& transform)
 	{
 		glm::vec3 rotate{ 0 };
 		if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
@@ -15,14 +18,14 @@ namespace Isonia::Controllers
 
 		if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
 		{
-			gameObject.transform.rotation += lookSpeed * dt * glm::normalize(rotate);
+			transform.rotation += lookSpeed * dt * glm::normalize(rotate);
 		}
 
 		// limit pitch values between about +/- 85ish degrees
-		gameObject.transform.rotation.x = glm::clamp(gameObject.transform.rotation.x, -1.5f, 1.5f);
-		gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y, glm::two_pi<float>());
+		transform.rotation.x = glm::clamp(transform.rotation.x, -1.5f, 1.5f);
+		transform.rotation.y = glm::mod(transform.rotation.y, glm::two_pi<float>());
 
-		float yaw = gameObject.transform.rotation.y;
+		float yaw = transform.rotation.y;
 		const glm::vec3 forwardDir{ sin(yaw), 0.f, cos(yaw) };
 		const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
 		const glm::vec3 upDir{ 0.f, -1.f, 0.f };
@@ -37,7 +40,7 @@ namespace Isonia::Controllers
 
 		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
 		{
-			gameObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
+			transform.position += moveSpeed * dt * glm::normalize(moveDir);
 		}
 	}
 }

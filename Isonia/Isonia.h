@@ -2,9 +2,14 @@
 
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/Device.h"
-#include "ECS/GameObject.h"
+#include "ECS/Coordinator.h"
 #include "Pipeline/Renderer.h"
 #include "Window/Window.h"
+
+#include "Components/Gravity.h"
+#include "Components/Mesh.h"
+#include "Components/MeshRenderer.h"
+#include "Components/RigidBody.h"
 
 // std
 #include <memory>
@@ -28,14 +33,11 @@ namespace Isonia
 		void Run();
 
 	private:
-		void LoadGameObjects();
-
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };
 		Pipeline::Renderer renderer{ window, device };
 
 		// note: order of declarations matters
 		std::unique_ptr<Pipeline::Descriptors::DescriptorPool> globalPool{};
-		ECS::GameObject::Map gameObjects;
 	};
 }

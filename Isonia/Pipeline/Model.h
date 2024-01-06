@@ -41,13 +41,13 @@ namespace Isonia::Pipeline
 			void LoadModel(const std::string& filepath);
 		};
 
-		Model(Pipeline::Device& device, const Model::Builder& builder);
+		Model(Device& device, const Model::Builder& builder);
 		~Model();
 
 		Model(const Model&) = delete;
 		Model& operator=(const Model&) = delete;
 
-		static std::unique_ptr<Model> CreateModelFromFile(Pipeline::Device& device, const std::string& filepath);
+		static std::unique_ptr<Model> CreateModelFromFile(Device& device, const std::string& filepath);
 
 		void Bind(VkCommandBuffer commandBuffer);
 		void Draw(VkCommandBuffer commandBuffer);
@@ -56,13 +56,13 @@ namespace Isonia::Pipeline
 		void CreateVertexBuffers(const std::vector<Vertex>& vertices);
 		void CreateIndexBuffers(const std::vector<uint32_t>& indices);
 
-		Pipeline::Device& device;
+		Device& device;
 
-		std::unique_ptr<Pipeline::Buffer> vertexBuffer;
+		std::unique_ptr<Buffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexBuffer = false;
-		std::unique_ptr<Pipeline::Buffer> indexBuffer;
+		std::unique_ptr<Buffer> indexBuffer;
 		uint32_t indexCount;
 	};
 }

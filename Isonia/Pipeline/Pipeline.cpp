@@ -1,6 +1,6 @@
 #include "Pipeline.h"
 
-#include "../ECS/Model.h"
+#include "Model.h"
 
 // std
 #include <cassert>
@@ -182,7 +182,7 @@ namespace Isonia::Pipeline
 		configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 		configInfo.dynamicStateInfo.flags = 0;
 
-		configInfo.bindingDescriptions = ECS::Model::Vertex::GetBindingDescriptions();
-		configInfo.attributeDescriptions = ECS::Model::Vertex::GetAttributeDescriptions();
+		configInfo.bindingDescriptions = Model::Vertex::GetBindingDescriptions();
+		configInfo.attributeDescriptions = Model::Vertex::GetAttributeDescriptions();
 	}
 }

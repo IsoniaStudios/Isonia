@@ -2,9 +2,10 @@
 
 #include "Controllers/KeyboardMovementController.h"
 #include "Pipeline/Buffer.h"
-#include "ECS/Camera.h"
-#include "Pipeline/Systems/PointLightSystem.h"
+#include "Components/Camera.h"
 #include "Pipeline/Systems/SimpleRenderSystem.h"
+#include "Physics/PhysicsSystem.h"
+#include "ECS/Definitions.h"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -17,6 +18,9 @@
 #include <cassert>
 #include <chrono>
 #include <stdexcept>
+#include <random>
+
+Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia
 {
@@ -26,7 +30,76 @@ namespace Isonia
 			.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.Build();
-		LoadGameObjects();
+
+		gCoordinator.Init();
+
+		gCoordinator.RegisterComponent<Components::Camera>();
+		gCoordinator.RegisterComponent<Components::Gravity>();
+		gCoordinator.RegisterComponent<Components::Mesh>();
+		gCoordinator.RegisterComponent<Components::MeshRenderer>();
+		gCoordinator.RegisterComponent<Components::RigidBody>();
+		gCoordinator.RegisterComponent<Components::Transform>();
+
+		auto physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
+		{
+			ECS::Signature signature;
+			signature.set(gCoordinator.GetComponentType<Components::Gravity>());
+			signature.set(gCoordinator.GetComponentType<Components::RigidBody>());
+			signature.set(gCoordinator.GetComponentType<Components::Transform>());
+			gCoordinator.SetSystemSignature<Physics::PhysicsSystem>(signature);
+		}
+		physicsSystem->Init();
+
+		std::vector<ECS::Entity> entities(ECS::MAX_ENTITIES - 1);
+
+		std::default_random_engine generator;
+		std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
+		std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
+		std::uniform_real_distribution<float> randScale(3.0f, 5.0f);
+		std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
+		std::uniform_real_distribution<float> randGravity(-10.0f, -1.0f);
+
+		float scale = randScale(generator);
+
+		std::shared_ptr<Pipeline::Model> model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/FlatVase.obj");
+
+		for (auto& entity : entities)
+		{
+			entity = gCoordinator.CreateEntity();
+
+			gCoordinator.AddComponent<Components::Gravity>(
+				entity,
+				Components::Gravity{
+					glm::vec3(0.0f, randGravity(generator), 0.0f)
+				}
+			);
+
+			gCoordinator.AddComponent(
+				entity,
+				Components::RigidBody{
+					.velocity = glm::vec3(0.0f, 0.0f, 0.0f),
+					.acceleration = glm::vec3(0.0f, 0.0f, 0.0f)
+				}
+			);
+
+			auto const& transform = Components::Transform{
+				.position = glm::vec3(randPosition(generator), randPosition(generator), randPosition(generator)),
+				.rotation = glm::vec3(randRotation(generator), randRotation(generator), randRotation(generator)),
+				.scale = glm::vec3(scale, scale, scale)
+			};
+			gCoordinator.AddComponent(
+				entity,
+				transform
+			);
+
+			gCoordinator.AddComponent(
+				entity,
+				Components::Mesh{
+					.model = model,
+					.transform = std::make_shared<Components::Transform>(transform)
+				}
+			);
+		}
 	}
 
 	Isonia::~Isonia()
@@ -66,14 +139,10 @@ namespace Isonia
 			device,
 			renderer.GetSwapChainRenderPass(),
 			globalSetLayout->GetDescriptorSetLayout() };
-		Pipeline::Systems::PointLightSystem pointLightSystem{
-			device,
-			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->GetDescriptorSetLayout() };
-		ECS::Camera camera{};
+		Components::Camera camera{};
 
-		auto viewerObject = ECS::GameObject::CreateGameObject();
-		viewerObject.transform.translation.z = -2.5f;
+		auto viewerObject = Components::Transform{};
+		viewerObject.position.z = -2.5f;
 		Controllers::KeyboardMovementController cameraController{};
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -86,7 +155,7 @@ namespace Isonia
 			currentTime = newTime;
 
 			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, viewerObject);
-			camera.SetViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+			camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
 
 			float aspect = renderer.GetAspectRatio();
 			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
@@ -98,23 +167,20 @@ namespace Isonia
 					frameIndex,
 					frameTime,
 					commandBuffer,
-					camera,
-					globalDescriptorSets[frameIndex],
-					gameObjects };
+					globalDescriptorSets[frameIndex]
+				};
 
 				// update
 				State::GlobalUbo ubo{};
 				ubo.projection = camera.getProjection();
 				ubo.view = camera.getView();
 				ubo.inverseView = camera.getInverseView();
-				pointLightSystem.Update(frameInfo, ubo);
 				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 				uboBuffers[frameIndex]->Flush();
 
 				// render
 				renderer.BeginSwapChainRenderPass(commandBuffer);
 				simpleRenderSystem.RenderGameObjects(frameInfo);
-				pointLightSystem.Render(frameInfo);
 				renderer.EndSwapChainRenderPass(commandBuffer);
 				renderer.EndFrame();
 			}
@@ -123,23 +189,24 @@ namespace Isonia
 		vkDeviceWaitIdle(device.GetDevice());
 	}
 
+	/*
 	void Isonia::LoadGameObjects()
 	{
-		std::shared_ptr<ECS::Model> model = ECS::Model::CreateModelFromFile(device, "Resources/Models/FlatVase.obj");
+		std::shared_ptr<Pipeline::Model> model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/FlatVase.obj");
 		auto flatVase = ECS::GameObject::CreateGameObject();
 		flatVase.model = model;
 		flatVase.transform.translation = { -.5f, .5f, 0.f };
 		flatVase.transform.scale = { 3.f, 1.5f, 3.f };
 		gameObjects.emplace(flatVase.GetId(), std::move(flatVase));
 
-		model = ECS::Model::CreateModelFromFile(device, "Resources/Models/SmoothVase.obj");
+		model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/SmoothVase.obj");
 		auto smoothVase = ECS::GameObject::CreateGameObject();
 		smoothVase.model = model;
 		smoothVase.transform.translation = { .5f, .5f, 0.f };
 		smoothVase.transform.scale = { 3.f, 1.5f, 3.f };
 		gameObjects.emplace(smoothVase.GetId(), std::move(smoothVase));
 
-		model = ECS::Model::CreateModelFromFile(device, "Resources/Models/Quad.obj");
+		model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Quad.obj");
 		auto floor = ECS::GameObject::CreateGameObject();
 		floor.model = model;
 		floor.transform.translation = { 0.f, .5f, 0.f };
@@ -168,4 +235,5 @@ namespace Isonia
 			gameObjects.emplace(pointLight.GetId(), std::move(pointLight));
 		}
 	}
+	*/
 }

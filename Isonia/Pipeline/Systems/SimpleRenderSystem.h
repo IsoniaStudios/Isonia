@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../ECS/Camera.h"
+#include "../../Components/Camera.h"
 #include "../Device.h"
 #include "../../State/FrameInfo.h"
-#include "../../ECS/GameObject.h"
 #include "../Pipeline.h"
+#include "../../ECS/System.h"
 
 // std
 #include <memory>
@@ -12,7 +12,7 @@
 
 namespace Isonia::Pipeline::Systems
 {
-	class SimpleRenderSystem
+	class SimpleRenderSystem : public ECS::System
 	{
 	public:
 		SimpleRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);

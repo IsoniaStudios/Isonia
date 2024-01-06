@@ -2,7 +2,7 @@
 
 namespace Isonia::Components
 {
-	glm::mat4 Transform::mat4()
+	glm::mat4 Transform::Mat4()
 	{
 		const float c3 = glm::cos(rotation.z);
 		const float s3 = glm::sin(rotation.z);
@@ -29,11 +29,11 @@ namespace Isonia::Components
 				scale.z * (c1 * c2),
 				0.0f,
 			},
-			{translation.x, translation.y, translation.z, 1.0f}
+			{position.x, position.y, position.z, 1.0f}
 		};
 	}
 
-	glm::mat3 Transform::normalMatrix()
+	glm::mat3 Transform::NormalMatrix()
 	{
 		const float c3 = glm::cos(rotation.z);
 		const float s3 = glm::sin(rotation.z);
