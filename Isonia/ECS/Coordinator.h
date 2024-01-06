@@ -69,6 +69,11 @@ namespace Isonia::ECS
         {
             return mSystemManager->RegisterSystem<T>();
         }
+        template<typename T>
+        std::shared_ptr<T> RegisterSystem(T* system)
+        {
+            return mSystemManager->RegisterSystem<T>(system);
+        }
 
         template<typename T>
         void SetSystemSignature(Signature signature)

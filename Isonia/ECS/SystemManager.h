@@ -5,6 +5,7 @@
 #include <cassert>
 #include <memory>
 #include <unordered_map>
+#include <typeindex>
 
 namespace Isonia::ECS
 {
@@ -19,6 +20,16 @@ namespace Isonia::ECS
             auto system = std::make_shared<T>();
             mSystems.insert({ typeName, system });
             return system;
+        }
+
+        template<typename T>
+        std::shared_ptr<T> RegisterSystem(T* system)
+        {
+            const char* typeName = typeid(T).name();
+            assert(mSystems.find(typeName) == mSystems.end() && "Registering system more than once.");
+            std::shared_ptr<T> systemPtr(system);
+            mSystems.insert({ typeName, systemPtr });
+            return systemPtr;
         }
 
         template<typename T>

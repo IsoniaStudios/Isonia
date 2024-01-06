@@ -40,6 +40,43 @@ namespace Isonia
 		gCoordinator.RegisterComponent<Components::MeshRenderer>();
 		gCoordinator.RegisterComponent<Components::RigidBody>();
 		gCoordinator.RegisterComponent<Components::Transform>();
+	}
+
+	Isonia::~Isonia()
+	{
+	}
+
+	void Isonia::Run()
+	{
+		std::vector<std::unique_ptr<Pipeline::Buffer>> uboBuffers(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++)
+		{
+			uboBuffers[i] = std::make_unique<Pipeline::Buffer>(
+				device,
+				sizeof(State::GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			uboBuffers[i]->Map();
+		}
+
+		auto globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			.Build();
+
+		std::vector<VkDescriptorSet> globalDescriptorSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalDescriptorSets.size(); i++)
+		{
+			auto bufferInfo = uboBuffers[i]->DescriptorInfo();
+			Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
+				.WriteBuffer(0, &bufferInfo)
+				.Build(globalDescriptorSets[i]
+				);
+		}
+
+
+
 
 		auto physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
 		{
@@ -50,6 +87,19 @@ namespace Isonia
 			gCoordinator.SetSystemSignature<Physics::PhysicsSystem>(signature);
 		}
 		physicsSystem->Init();
+
+		Pipeline::Systems::SimpleRenderSystem simpleRenderSystem{
+			device,
+			renderer.GetSwapChainRenderPass(),
+			globalSetLayout->GetDescriptorSetLayout()
+		};
+		auto test = gCoordinator.RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(&simpleRenderSystem);
+		{
+			ECS::Signature signature;
+			signature.set(gCoordinator.GetComponentType<Components::Mesh>());
+			signature.set(gCoordinator.GetComponentType<Components::Transform>());
+			gCoordinator.SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
+		}
 
 		std::vector<ECS::Entity> entities(ECS::MAX_ENTITIES - 1);
 
@@ -101,45 +151,9 @@ namespace Isonia
 				}
 			);
 		}
-	}
 
-	Isonia::~Isonia()
-	{
-	}
 
-	void Isonia::Run()
-	{
-		std::vector<std::unique_ptr<Pipeline::Buffer>> uboBuffers(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < uboBuffers.size(); i++)
-		{
-			uboBuffers[i] = std::make_unique<Pipeline::Buffer>(
-				device,
-				sizeof(State::GlobalUbo),
-				1,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-			);
-			uboBuffers[i]->Map();
-		}
 
-		auto globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.Build();
-
-		std::vector<VkDescriptorSet> globalDescriptorSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < globalDescriptorSets.size(); i++)
-		{
-			auto bufferInfo = uboBuffers[i]->DescriptorInfo();
-			Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
-				.WriteBuffer(0, &bufferInfo)
-				.Build(globalDescriptorSets[i]
-				);
-		}
-
-		Pipeline::Systems::SimpleRenderSystem simpleRenderSystem{
-			device,
-			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->GetDescriptorSetLayout() };
 		Components::Camera camera{};
 
 		auto viewerObject = Components::Transform{};
@@ -154,6 +168,8 @@ namespace Isonia
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
+
+			physicsSystem->Update(frameTime);
 
 			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, viewerObject);
 			camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
@@ -181,7 +197,7 @@ namespace Isonia
 
 				// render
 				renderer.BeginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.RenderGameObjects(frameInfo);
+				test->RenderGameObjects(frameInfo);
 				renderer.EndSwapChainRenderPass(commandBuffer);
 				renderer.EndFrame();
 			}
