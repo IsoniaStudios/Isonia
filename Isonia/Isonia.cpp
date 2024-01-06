@@ -6,6 +6,7 @@
 #include "Pipeline/Systems/SimpleRenderSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "ECS/Definitions.h"
+#include "ECS/Coordinator.h"
 
 // libs
 #define GLM_FORCE_RADIANS

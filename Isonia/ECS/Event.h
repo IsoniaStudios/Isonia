@@ -14,10 +14,16 @@ namespace Isonia::ECS
         explicit Event(EventId type);
 
         template<typename T>
-        void SetParam(EventId id, T value);
+        void SetParam(EventId id, T value)
+        {
+            mData[id] = value;
+        }
 
         template<typename T>
-        T GetParam(EventId id);
+        T GetParam(EventId id)
+        {
+            return std::any_cast<T>(mData[id]);
+        }
 
         EventId GetType() const;
 
