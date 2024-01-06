@@ -7,12 +7,6 @@
 
 namespace Isonia::State
 {
-	struct PointLight
-	{
-		glm::vec4 position{};  // ignore w
-		glm::vec4 color{};     // w is intensity
-	};
-
 	struct GlobalUbo
 	{
 		glm::mat4 projection{ 1.f };

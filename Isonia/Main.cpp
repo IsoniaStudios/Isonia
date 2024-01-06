@@ -4,6 +4,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#ifdef DEBUG
+#pragma comment(linker, "/SUBSYSTEM:CONSOLE")
+#endif
+
 int main()
 {
 	try

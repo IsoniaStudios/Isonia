@@ -25,7 +25,7 @@ namespace Isonia::Controllers
 		void MoveInPlaneXZ(GLFWwindow* window, float dt, Components::Transform& transform);
 
 		KeyMappings keys{};
-		float moveSpeed{ 3.f };
+		float moveSpeed{ 30.f };
 		float lookSpeed{ 1.5f };
 	};
 }

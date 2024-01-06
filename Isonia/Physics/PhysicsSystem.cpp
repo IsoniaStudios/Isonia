@@ -19,12 +19,9 @@ namespace Isonia::Physics
 		{
 			auto& rigidBody = gCoordinator.GetComponent<Components::RigidBody>(entity);
 			auto& transform = gCoordinator.GetComponent<Components::Transform>(entity);
-
-			// Forces
 			auto const& gravity = gCoordinator.GetComponent<Components::Gravity>(entity);
 
 			transform.position += rigidBody.velocity * dt;
-
 			rigidBody.velocity += gravity.acceleration * dt;
 		}
 	}

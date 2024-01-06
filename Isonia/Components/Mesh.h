@@ -9,6 +9,5 @@ namespace Isonia::Components
 	{
 	public:
 		std::shared_ptr<Pipeline::Model> model{};
-		std::shared_ptr<Transform> transform{};
 	};
 }

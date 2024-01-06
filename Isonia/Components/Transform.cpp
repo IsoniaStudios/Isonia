@@ -2,7 +2,7 @@
 
 namespace Isonia::Components
 {
-	glm::mat4 Transform::Mat4()
+	glm::mat4 Transform::Mat4() const
 	{
 		const float c3 = glm::cos(rotation.z);
 		const float s3 = glm::sin(rotation.z);
@@ -33,7 +33,7 @@ namespace Isonia::Components
 		};
 	}
 
-	glm::mat3 Transform::NormalMatrix()
+	glm::mat3 Transform::NormalMatrix() const
 	{
 		const float c3 = glm::cos(rotation.z);
 		const float s3 = glm::sin(rotation.z);

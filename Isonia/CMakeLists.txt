@@ -1,6 +1,10 @@
 ﻿# CMakeList.txt : CMake project for Isonia, include source and define project specific logic here.
 # Find all cpp files recursively
-file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+)
 # Excluding external
 list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
 # Include the specific header file from External/tinyobjloader/tiny_obj_loader
@@ -8,6 +12,11 @@ list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_
 
 # Add project as ex
 add_executable(${PROJECT_NAME})
+
+# Define conditional debug
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC DEBUG=1)
+endif()
 
 # Check cmake version
 if (CMAKE_VERSION VERSION_GREATER 3.12)

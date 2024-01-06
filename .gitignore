@@ -413,3 +413,6 @@ out/build
 
 # shader compiled code
 /Isonia/Shaders/Include
+
+# allow for one debug folder
+!/[Ii]sonia/Debug/

@@ -90,14 +90,14 @@ namespace Isonia::Pipeline::Systems
 			0,
 			nullptr
 		);
-
 		for (auto const& entity : mEntities)
 		{
 			auto const& mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
+			auto const& transform = gCoordinator.GetComponent<Components::Transform>(entity);
 
 			SimplePushConstantData push{};
-			push.modelMatrix = mesh.transform->Mat4();
-			push.normalMatrix = mesh.transform->NormalMatrix();
+			push.modelMatrix = transform.Mat4();
+			push.normalMatrix = transform.NormalMatrix();
 
 			vkCmdPushConstants(
 				frameInfo.commandBuffer,

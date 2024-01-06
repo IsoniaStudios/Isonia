@@ -7,6 +7,7 @@
 #include "Physics/PhysicsSystem.h"
 #include "ECS/Definitions.h"
 #include "ECS/Coordinator.h"
+#include "Debug/PerformanceTracker.h"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -104,7 +105,7 @@ namespace Isonia
 		std::vector<ECS::Entity> entities(ECS::MAX_ENTITIES - 1);
 
 		std::default_random_engine generator;
-		std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
+		std::uniform_real_distribution<float> randPosition(-25.0f, 25.0f);
 		std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
 		std::uniform_real_distribution<float> randScale(3.0f, 5.0f);
 		std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
@@ -133,31 +134,31 @@ namespace Isonia
 				}
 			);
 
-			auto const& transform = Components::Transform{
-				.position = glm::vec3(randPosition(generator), randPosition(generator), randPosition(generator)),
-				.rotation = glm::vec3(randRotation(generator), randRotation(generator), randRotation(generator)),
-				.scale = glm::vec3(scale, scale, scale)
-			};
 			gCoordinator.AddComponent(
 				entity,
-				transform
+				Components::Transform{
+				   .position = glm::vec3(randPosition(generator), randPosition(generator), randPosition(generator)),
+				   .rotation = glm::vec3(randRotation(generator), randRotation(generator), randRotation(generator)),
+				   .scale = glm::vec3(scale, scale, scale)
+				}
 			);
 
 			gCoordinator.AddComponent(
 				entity,
 				Components::Mesh{
-					.model = model,
-					.transform = std::make_shared<Components::Transform>(transform)
+					.model = model
 				}
 			);
 		}
 
 
 
+		Debug::PerformanceTracker performanceTracker;
+
 		Components::Camera camera{};
 
 		auto viewerObject = Components::Transform{};
-		viewerObject.position.z = -2.5f;
+		viewerObject.position.z = -50.f;
 		Controllers::KeyboardMovementController cameraController{};
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -169,13 +170,15 @@ namespace Isonia
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
 
+			performanceTracker.LogFrameTime(frameTime);
+
 			physicsSystem->Update(frameTime);
 
 			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, viewerObject);
 			camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
 
 			float aspect = renderer.GetAspectRatio();
-			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
 			if (auto commandBuffer = renderer.BeginFrame())
 			{
@@ -205,52 +208,4 @@ namespace Isonia
 
 		vkDeviceWaitIdle(device.GetDevice());
 	}
-
-	/*
-	void Isonia::LoadGameObjects()
-	{
-		std::shared_ptr<Pipeline::Model> model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/FlatVase.obj");
-		auto flatVase = ECS::GameObject::CreateGameObject();
-		flatVase.model = model;
-		flatVase.transform.translation = { -.5f, .5f, 0.f };
-		flatVase.transform.scale = { 3.f, 1.5f, 3.f };
-		gameObjects.emplace(flatVase.GetId(), std::move(flatVase));
-
-		model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/SmoothVase.obj");
-		auto smoothVase = ECS::GameObject::CreateGameObject();
-		smoothVase.model = model;
-		smoothVase.transform.translation = { .5f, .5f, 0.f };
-		smoothVase.transform.scale = { 3.f, 1.5f, 3.f };
-		gameObjects.emplace(smoothVase.GetId(), std::move(smoothVase));
-
-		model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Quad.obj");
-		auto floor = ECS::GameObject::CreateGameObject();
-		floor.model = model;
-		floor.transform.translation = { 0.f, .5f, 0.f };
-		floor.transform.scale = { 3.f, 1.f, 3.f };
-		gameObjects.emplace(floor.GetId(), std::move(floor));
-
-		std::vector<glm::vec3> lightColors{
-			{1.f, .1f, .1f},
-			{.1f, .1f, 1.f},
-			{.1f, 1.f, .1f},
-			{1.f, 1.f, .1f},
-			{.1f, 1.f, 1.f},
-			{1.f, 1.f, 1.f}
-		};
-
-		for (int i = 0; i < lightColors.size(); i++)
-		{
-			auto pointLight = ECS::GameObject::MakePointLight(0.2f);
-			pointLight.color = lightColors[i];
-			auto rotateLight = glm::rotate(
-				glm::mat4(1.f),
-				(i * glm::two_pi<float>()) / lightColors.size(),
-				{ 0.f, -1.f, 0.f }
-			);
-			pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
-			gameObjects.emplace(pointLight.GetId(), std::move(pointLight));
-		}
-	}
-	*/
 }
