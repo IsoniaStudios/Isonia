@@ -46,7 +46,6 @@ namespace Isonia::ECS
 		T& GetData(Entity entity)
 		{
 			assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Retrieving non-existent component.");
-
 			return mComponentArray[mEntityToIndexMap[entity]];
 		}
 
