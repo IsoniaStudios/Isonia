@@ -109,11 +109,10 @@ namespace Isonia
 		std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
 		std::uniform_real_distribution<float> randScale(.25f, 1.0f);
 		std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
-		std::uniform_real_distribution<float> randGravity(-10.0f, -1.0f);
 
 		float scale = randScale(generator);
 
-		Pipeline::Model* model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Cube.obj");
+		Pipeline::Model* model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
 		for (auto& entity : entities)
 		{
@@ -121,17 +120,12 @@ namespace Isonia
 
 			gCoordinator.AddComponent<Components::Gravity>(
 				entity,
-				Components::Gravity{
-					.acceleration = glm::vec3(0.0f, randGravity(generator), 0.0f)
-				}
+				Components::Gravity{}
 			);
 
 			gCoordinator.AddComponent(
 				entity,
-				Components::RigidBody{
-					.velocity = glm::vec3(0.0f, 0.0f, 0.0f),
-					.acceleration = glm::vec3(0.0f, 0.0f, 0.0f)
-				}
+				Components::RigidBody{}
 			);
 
 			gCoordinator.AddComponent(
