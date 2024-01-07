@@ -19,8 +19,7 @@ namespace Isonia::ECS
 			assert(mComponentTypes.find(typeName) == mComponentTypes.end() && "Registering component type more than once.");
 
 			mComponentTypes.insert({ typeName, mNextComponentType });
-			mComponentArrays.insert({ typeName, std::make_shared<ComponentArray<T>>() });
-
+			mComponentArrays.insert({ typeName, new ComponentArray<T>() });
 			++mNextComponentType;
 		}
 
@@ -45,7 +44,7 @@ namespace Isonia::ECS
 		}
 
 		template<typename T>
-		T& GetComponent(Entity entity)
+		T* GetComponent(Entity entity)
 		{
 			return GetComponentArray<T>()->GetData(entity);
 		}
@@ -54,15 +53,16 @@ namespace Isonia::ECS
 
 	private:
 		std::unordered_map<const char*, ComponentType> mComponentTypes{};
-		std::unordered_map<const char*, std::shared_ptr<IComponentArray>> mComponentArrays{};
+		std::unordered_map<const char*, IComponentArray*> mComponentArrays{};
 		ComponentType mNextComponentType{};
 
 		template<typename T>
-		std::shared_ptr<ComponentArray<T>> GetComponentArray()
+		ComponentArray<T>* GetComponentArray()
 		{
 			const char* typeName = typeid(T).name();
 			assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered before use.");
-			return std::static_pointer_cast<ComponentArray<T>>(mComponentArrays[typeName]);
+			IComponentArray* basePtr = mComponentArrays[typeName];
+			return static_cast<ComponentArray<T>*>(basePtr);
 		}
 	};
 }

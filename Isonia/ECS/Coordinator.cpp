@@ -4,10 +4,10 @@ namespace Isonia::ECS
 {
     void Coordinator::Init()
     {
-        mComponentManager = std::make_unique<ComponentManager>();
-        mEntityManager = std::make_unique<EntityManager>();
-        mEventManager = std::make_unique<EventManager>();
-        mSystemManager = std::make_unique<SystemManager>();
+        mComponentManager = new ComponentManager();
+        mEntityManager = new EntityManager();
+        mEventManager = new EventManager();
+        mSystemManager = new SystemManager();
     }
 
     // Entity methods

@@ -13,23 +13,22 @@ namespace Isonia::ECS
 	{
 	public:
         template<typename T>
-        std::shared_ptr<T> RegisterSystem()
+        T* RegisterSystem()
         {
             const char* typeName = typeid(T).name();
             assert(mSystems.find(typeName) == mSystems.end() && "Registering system more than once.");
-            auto system = std::make_shared<T>();
+            auto system = new T();
             mSystems.insert({ typeName, system });
             return system;
         }
 
         template<typename T>
-        std::shared_ptr<T> RegisterSystem(T* system)
+        T* RegisterSystem(T* system)
         {
             const char* typeName = typeid(T).name();
             assert(mSystems.find(typeName) == mSystems.end() && "Registering system more than once.");
-            std::shared_ptr<T> systemPtr(system);
-            mSystems.insert({ typeName, systemPtr });
-            return systemPtr;
+            mSystems.insert({ typeName, system });
+            return system;
         }
 
         template<typename T>
@@ -46,6 +45,6 @@ namespace Isonia::ECS
 
 	private:
 		std::unordered_map<const char*, Signature> mSignatures{};
-		std::unordered_map<const char*, std::shared_ptr<System>> mSystems{};
-	};
+        std::unordered_map<const char*, System*> mSystems{};
+    };
 }

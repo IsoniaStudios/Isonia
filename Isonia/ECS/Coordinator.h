@@ -19,7 +19,6 @@ namespace Isonia::ECS
         Entity CreateEntity();
         void DestroyEntity(Entity entity);
 
-
         // Component methods
         template<typename T>
         void RegisterComponent()
@@ -52,7 +51,7 @@ namespace Isonia::ECS
         }
 
         template<typename T>
-        T& GetComponent(Entity entity)
+        T* GetComponent(Entity entity)
         {
             return mComponentManager->GetComponent<T>(entity);
         }
@@ -65,12 +64,12 @@ namespace Isonia::ECS
 
         // System methods
         template<typename T>
-        std::shared_ptr<T> RegisterSystem()
+        T* RegisterSystem()
         {
             return mSystemManager->RegisterSystem<T>();
         }
         template<typename T>
-        std::shared_ptr<T> RegisterSystem(T* system)
+        T* RegisterSystem(T* system)
         {
             return mSystemManager->RegisterSystem<T>(system);
         }
@@ -88,9 +87,9 @@ namespace Isonia::ECS
         void SendEvent(EventId eventId);
 
     private:
-        std::unique_ptr<ComponentManager> mComponentManager;
-        std::unique_ptr<EntityManager> mEntityManager;
-        std::unique_ptr<EventManager> mEventManager;
-        std::unique_ptr<SystemManager> mSystemManager;
+        ComponentManager* mComponentManager;
+        EntityManager* mEntityManager;
+        EventManager* mEventManager;
+        SystemManager* mSystemManager;
     };
 }

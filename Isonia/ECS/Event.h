@@ -22,7 +22,7 @@ namespace Isonia::ECS
         template<typename T>
         T GetParam(EventId id)
         {
-            return std::any_cast<T>(mData[id]);
+            return std::any_cast<T>(mData[id]); // 123123
         }
 
         EventId GetType() const;

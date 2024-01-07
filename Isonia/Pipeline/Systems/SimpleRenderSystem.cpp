@@ -92,12 +92,12 @@ namespace Isonia::Pipeline::Systems
 		);
 		for (auto const& entity : mEntities)
 		{
-			auto const& mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
-			auto const& transform = gCoordinator.GetComponent<Components::Transform>(entity);
+			auto* const mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
+			auto* const transform = gCoordinator.GetComponent<Components::Transform>(entity);
 
 			SimplePushConstantData push{};
-			push.modelMatrix = transform.Mat4();
-			push.normalMatrix = transform.NormalMatrix();
+			push.modelMatrix = transform->Mat4();
+			push.normalMatrix = transform->NormalMatrix();
 
 			vkCmdPushConstants(
 				frameInfo.commandBuffer,
@@ -107,8 +107,8 @@ namespace Isonia::Pipeline::Systems
 				sizeof(SimplePushConstantData),
 				&push
 			);
-			mesh.model->Bind(frameInfo.commandBuffer);
-			mesh.model->Draw(frameInfo.commandBuffer);
+			mesh->model->Bind(frameInfo.commandBuffer);
+			mesh->model->Draw(frameInfo.commandBuffer);
 		}
 	}
 }
