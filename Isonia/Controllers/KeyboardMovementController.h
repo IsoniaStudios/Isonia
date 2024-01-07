@@ -22,7 +22,7 @@ namespace Isonia::Controllers
 			int lookDown = GLFW_KEY_DOWN;
 		};
 
-		void MoveInPlaneXZ(GLFWwindow* window, float dt, Components::Transform& transform);
+		void MoveInPlaneXZ(GLFWwindow* window, float dt, Components::Transform* transform);
 
 		KeyMappings keys{};
 		float moveSpeed{ 30.f };

@@ -47,7 +47,7 @@ namespace Isonia::Pipeline
 		Model(const Model&) = delete;
 		Model& operator=(const Model&) = delete;
 
-		static std::unique_ptr<Model> CreateModelFromFile(Device& device, const std::string& filepath);
+		static Model* CreateModelFromFile(Device& device, const std::string& filepath);
 
 		void Bind(VkCommandBuffer commandBuffer);
 		void Draw(VkCommandBuffer commandBuffer);

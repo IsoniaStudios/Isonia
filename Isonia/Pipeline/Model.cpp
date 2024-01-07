@@ -39,11 +39,11 @@ namespace Isonia::Pipeline
 	{
 	}
 
-	std::unique_ptr<Model> Model::CreateModelFromFile(Pipeline::Device& device, const std::string& filepath)
+	Model* Model::CreateModelFromFile(Pipeline::Device& device, const std::string& filepath)
 	{
 		Builder builder{};
 		builder.LoadModel(filepath);
-		return std::make_unique<Model>(device, builder);
+		return new Model(device, builder);
 	}
 
 	void Model::CreateVertexBuffers(const std::vector<Vertex>& vertices)

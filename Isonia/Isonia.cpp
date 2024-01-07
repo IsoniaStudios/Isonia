@@ -105,15 +105,15 @@ namespace Isonia
 		std::vector<ECS::Entity> entities(ECS::MAX_ENTITIES - 1);
 
 		std::default_random_engine generator;
-		std::uniform_real_distribution<float> randPosition(-25.0f, 25.0f);
+		std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
 		std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
-		std::uniform_real_distribution<float> randScale(3.0f, 5.0f);
+		std::uniform_real_distribution<float> randScale(.25f, 1.0f);
 		std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
 		std::uniform_real_distribution<float> randGravity(-10.0f, -1.0f);
 
 		float scale = randScale(generator);
 
-		std::shared_ptr<Pipeline::Model> model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/FlatVase.obj");
+		Pipeline::Model* model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Cube.obj");
 
 		for (auto& entity : entities)
 		{
@@ -122,7 +122,7 @@ namespace Isonia
 			gCoordinator.AddComponent<Components::Gravity>(
 				entity,
 				Components::Gravity{
-					glm::vec3(0.0f, randGravity(generator), 0.0f)
+					.acceleration = glm::vec3(0.0f, randGravity(generator), 0.0f)
 				}
 			);
 
@@ -158,7 +158,7 @@ namespace Isonia
 		Components::Camera camera{};
 
 		auto viewerObject = Components::Transform{};
-		viewerObject.position.z = -50.f;
+		viewerObject.position.z = -250.f;
 		Controllers::KeyboardMovementController cameraController{};
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -172,9 +172,9 @@ namespace Isonia
 
 			performanceTracker.LogFrameTime(frameTime);
 
-			physicsSystem->Update(frameTime);
+			//physicsSystem->Update(frameTime);
 
-			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, viewerObject);
+			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, &(viewerObject));
 			camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
 
 			float aspect = renderer.GetAspectRatio();

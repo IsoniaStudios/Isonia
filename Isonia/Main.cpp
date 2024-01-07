@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#ifdef DEBUG
+#ifdef PRODUCTION_BUILD
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 #endif
 

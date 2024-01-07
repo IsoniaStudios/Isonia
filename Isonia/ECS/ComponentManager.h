@@ -34,19 +34,22 @@ namespace Isonia::ECS
 		template<typename T>
 		void AddComponent(Entity entity, T component)
 		{
-			GetComponentArray<T>()->InsertData(entity, component);
+			ComponentArray<T>* componentArray = GetComponentArray<T>();
+			componentArray->InsertData(entity, component);
 		}
 
 		template<typename T>
 		void RemoveComponent(Entity entity)
 		{
-			GetComponentArray<T>()->RemoveData(entity);
+			ComponentArray<T>* componentArray = GetComponentArray<T>();
+			componentArray->RemoveData(entity);
 		}
 
 		template<typename T>
 		T* GetComponent(Entity entity)
 		{
-			return GetComponentArray<T>()->GetData(entity);
+			ComponentArray<T>* componentArray = GetComponentArray<T>();
+			return componentArray->GetData(entity);
 		}
 
 		void EntityDestroyed(Entity entity);

@@ -46,7 +46,8 @@ namespace Isonia::ECS
 		T* GetData(Entity entity)
 		{
 			assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Retrieving non-existent component.");
-			return &(mComponentArray[mEntityToIndexMap[entity]]);
+			size_t index = mEntityToIndexMap[entity];
+			return &mComponentArray[index];
 		}
 
 		void EntityDestroyed(Entity entity) override
