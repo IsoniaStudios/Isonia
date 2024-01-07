@@ -192,10 +192,9 @@ namespace Isonia
 
 				// update
 				State::GlobalUbo ubo{};
-				ubo.projectionView = camera.GetProjection();
-				//ubo.projection = camera.GetProjection();
-				//ubo.view = camera.GetView();
-				//ubo.inverseView = camera.GetInverseView();
+				ubo.projection = camera.GetProjection();
+				ubo.view = camera.GetView();
+				ubo.inverseView = camera.GetInverseView();
 				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 				uboBuffers[frameIndex]->Flush();
 
