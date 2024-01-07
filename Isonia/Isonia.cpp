@@ -172,9 +172,9 @@ namespace Isonia
 
 			performanceTracker.LogFrameTime(frameTime);
 
-			//physicsSystem->Update(frameTime);
+			physicsSystem->Update(frameTime);
 
-			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, &(viewerObject));
+			cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, &viewerObject);
 			camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
 
 			float aspect = renderer.GetAspectRatio();
@@ -192,9 +192,10 @@ namespace Isonia
 
 				// update
 				State::GlobalUbo ubo{};
-				ubo.projection = camera.getProjection();
-				ubo.view = camera.getView();
-				ubo.inverseView = camera.getInverseView();
+				ubo.projectionView = camera.GetProjection();
+				//ubo.projection = camera.GetProjection();
+				//ubo.view = camera.GetView();
+				//ubo.inverseView = camera.GetInverseView();
 				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 				uboBuffers[frameIndex]->Flush();
 

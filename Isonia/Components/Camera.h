@@ -17,9 +17,9 @@ namespace Isonia::Components
 		void SetViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{ 0.f, -1.f, 0.f });
 		void SetViewYXZ(glm::vec3 position, glm::vec3 rotation);
 
-		const glm::mat4& getProjection() const { return projectionMatrix; }
-		const glm::mat4& getView() const { return viewMatrix; }
-		const glm::mat4& getInverseView() const { return inverseViewMatrix; }
+		const glm::mat4& GetProjection() const { return projectionMatrix; }
+		const glm::mat4& GetView() const { return viewMatrix; }
+		const glm::mat4& GetInverseView() const { return inverseViewMatrix; }
 
 	private:
 		glm::mat4 projectionMatrix{ 1.f };
