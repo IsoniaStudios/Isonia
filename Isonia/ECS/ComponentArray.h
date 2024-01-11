@@ -1,6 +1,9 @@
 #pragma once
 
+// internal
 #include "IComponentArray.h"
+
+// std
 #include <array>
 #include <cassert>
 #include <unordered_map>

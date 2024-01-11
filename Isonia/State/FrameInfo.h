@@ -1,8 +1,9 @@
 #pragma once
 
+// internal
 #include "../Components/Camera.h"
 
-// lib
+// vulkan
 #include <vulkan/vulkan.h>
 
 namespace Isonia::State

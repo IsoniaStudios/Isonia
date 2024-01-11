@@ -1,10 +1,13 @@
 #pragma once
 
+// internal
 #include "ComponentManager.h"
 #include "EntityManager.h"
 #include "EventManager.h"
 #include "SystemManager.h"
 #include "Definitions.h"
+
+// std
 #include <memory>
 #include <functional>
 
@@ -13,11 +16,26 @@ namespace Isonia::ECS
     class Coordinator
     {
     public:
-        void Init();
+        void Init()
+        {
+            mComponentManager = new ComponentManager();
+            mEntityManager = new EntityManager();
+            mEventManager = new EventManager();
+            mSystemManager = new SystemManager();
+        }
 
         // Entity methods
-        Entity CreateEntity();
-        void DestroyEntity(Entity entity);
+        Entity CreateEntity()
+        {
+            return mEntityManager->CreateEntity();
+        }
+
+        void DestroyEntity(Entity entity)
+        {
+            mEntityManager->DestroyEntity(entity);
+            mComponentManager->EntityDestroyed(entity);
+            mSystemManager->EntityDestroyed(entity);
+        }
 
         // Component methods
         template<typename T>
@@ -81,10 +99,20 @@ namespace Isonia::ECS
         }
 
         // Event methods
-        void AddEventListener(EventId eventId, std::function<void(Event&)> const& listener);
+        void AddEventListener(EventId eventId, std::function<void(Event&)> const& listener)
+        {
+            mEventManager->AddListener(eventId, listener);
+        }
 
-        void SendEvent(Event& event);
-        void SendEvent(EventId eventId);
+        void SendEvent(Event& event)
+        {
+            mEventManager->SendEvent(event);
+        }
+
+        void SendEvent(EventId eventId)
+        {
+            mEventManager->SendEvent(eventId);
+        }
 
     private:
         ComponentManager* mComponentManager;

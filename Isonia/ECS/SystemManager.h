@@ -1,7 +1,10 @@
 #pragma once
 
+// internal
 #include "System.h"
 #include "Definitions.h"
+
+// std
 #include <cassert>
 #include <memory>
 #include <unordered_map>
@@ -39,9 +42,33 @@ namespace Isonia::ECS
             mSignatures.insert({ typeName, signature });
         }
 
-		void EntityDestroyed(Entity entity);
+        void EntityDestroyed(Entity entity)
+        {
+            for (auto const& pair : mSystems)
+            {
+                auto const& system = pair.second;
+                system->mEntities.erase(entity);
+            }
+        }
 
-		void EntitySignatureChanged(Entity entity, Signature entitySignature);
+        void EntitySignatureChanged(Entity entity, Signature entitySignature)
+        {
+            for (auto const& pair : mSystems)
+            {
+                auto const& type = pair.first;
+                auto const& system = pair.second;
+                auto const& systemSignature = mSignatures[type];
+
+                if ((entitySignature & systemSignature) == systemSignature)
+                {
+                    system->mEntities.insert(entity);
+                }
+                else
+                {
+                    system->mEntities.erase(entity);
+                }
+            }
+        }
 
 	private:
 		std::unordered_map<const char*, Signature> mSignatures{};

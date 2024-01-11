@@ -1,9 +1,11 @@
 #include "SimpleRenderSystem.h"
 
+// internal
 #include "../../ECS/Coordinator.h"
 #include "../../Components/Mesh.h"
+#include "../../Components/Transform.h"
 
-// libraries
+// glm
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>

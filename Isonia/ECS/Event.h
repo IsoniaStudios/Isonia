@@ -1,6 +1,9 @@
 #pragma once
 
+// internal
 #include "Definitions.h"
+
+// std
 #include <any>
 #include <unordered_map>
 
@@ -11,7 +14,14 @@ namespace Isonia::ECS
     public:
         Event() = delete;
 
-        explicit Event(EventId type);
+        explicit Event(EventId type) : mType(type)
+        {
+        }
+
+        EventId GetType() const
+        {
+            return mType;
+        }
 
         template<typename T>
         void SetParam(EventId id, T value)
@@ -24,8 +34,6 @@ namespace Isonia::ECS
         {
             return std::any_cast<T>(mData[id]); // 123123
         }
-
-        EventId GetType() const;
 
     private:
         EventId mType{};

@@ -1,5 +1,6 @@
 #pragma once
 
+// internal
 #include "Definitions.h"
 
 namespace Isonia::ECS

@@ -1,7 +1,10 @@
 #pragma once
 
+// internal
 #include "ComponentArray.h"
 #include "Definitions.h"
+
+// std
 #include <any>
 #include <memory>
 #include <unordered_map>
@@ -52,7 +55,14 @@ namespace Isonia::ECS
 			return componentArray->GetData(entity);
 		}
 
-		void EntityDestroyed(Entity entity);
+		void EntityDestroyed(Entity entity)
+		{
+			for (auto const& pair : mComponentArrays)
+			{
+				auto const& component = pair.second;
+				component->EntityDestroyed(entity);
+			}
+		}
 
 	private:
 		std::unordered_map<const char*, ComponentType> mComponentTypes{};
