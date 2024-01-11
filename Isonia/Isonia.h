@@ -60,12 +60,11 @@ namespace Isonia
 
 			gCoordinator.Init();
 
-			gCoordinator.RegisterComponent<Components::Camera>();
-			gCoordinator.RegisterComponent<Components::Gravity>();
-			gCoordinator.RegisterComponent<Components::Mesh>();
-			gCoordinator.RegisterComponent<Components::MeshRenderer>();
-			gCoordinator.RegisterComponent<Components::RigidBody>();
 			gCoordinator.RegisterComponent<Components::Transform>();
+			gCoordinator.RegisterComponent<Components::Mesh>();
+			gCoordinator.RegisterComponent<Components::RigidBody>();
+			gCoordinator.RegisterComponent<Components::Gravity>();
+			gCoordinator.RegisterComponent<Components::Camera>();
 		}
 
 		~Isonia()
@@ -107,9 +106,9 @@ namespace Isonia
 			auto physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
 			{
 				ECS::Signature signature;
-				signature.set(gCoordinator.GetComponentType<Components::Gravity>());
-				signature.set(gCoordinator.GetComponentType<Components::RigidBody>());
 				signature.set(gCoordinator.GetComponentType<Components::Transform>());
+				signature.set(gCoordinator.GetComponentType<Components::RigidBody>());
+				signature.set(gCoordinator.GetComponentType<Components::Gravity>());
 				gCoordinator.SetSystemSignature<Physics::PhysicsSystem>(signature);
 			}
 			physicsSystem->Init();
@@ -122,8 +121,8 @@ namespace Isonia
 			auto test = gCoordinator.RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(&simpleRenderSystem);
 			{
 				ECS::Signature signature;
-				signature.set(gCoordinator.GetComponentType<Components::Mesh>());
 				signature.set(gCoordinator.GetComponentType<Components::Transform>());
+				signature.set(gCoordinator.GetComponentType<Components::Mesh>());
 				gCoordinator.SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
 			}
 
@@ -143,16 +142,6 @@ namespace Isonia
 			{
 				entity = gCoordinator.CreateEntity();
 
-				gCoordinator.AddComponent<Components::Gravity>(
-					entity,
-					Components::Gravity{}
-				);
-
-				gCoordinator.AddComponent(
-					entity,
-					Components::RigidBody{}
-				);
-
 				gCoordinator.AddComponent(
 					entity,
 					Components::Transform{
@@ -165,6 +154,16 @@ namespace Isonia
 				gCoordinator.AddComponent(
 					entity,
 					Components::Mesh{ model }
+				);
+
+				gCoordinator.AddComponent(
+					entity,
+					Components::RigidBody{}
+				);
+
+				gCoordinator.AddComponent<Components::Gravity>(
+					entity,
+					Components::Gravity{}
 				);
 			}
 
