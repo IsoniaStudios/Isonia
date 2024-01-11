@@ -22,7 +22,7 @@ namespace Isonia::Physics
 
 		void Update(float dt)
 		{
-			for (auto const& entity : mEntities)
+			for (auto const& entity : entities)
 			{
 				auto* rigidBody = gCoordinator.GetComponent<Components::RigidBody>(entity);
 				auto* transform = gCoordinator.GetComponent<Components::Transform>(entity);

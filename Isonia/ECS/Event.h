@@ -14,29 +14,29 @@ namespace Isonia::ECS
     public:
         Event() = delete;
 
-        explicit Event(EventId type) : mType(type)
+        explicit Event(EventId type) : type(type)
         {
         }
 
         EventId GetType() const
         {
-            return mType;
+            return type;
         }
 
         template<typename T>
         void SetParam(EventId id, T value)
         {
-            mData[id] = value;
+            data[id] = value;
         }
 
         template<typename T>
         T GetParam(EventId id)
         {
-            return std::any_cast<T>(mData[id]); // 123123
+            return std::any_cast<T>(data[id]);
         }
 
     private:
-        EventId mType{};
-        std::unordered_map<EventId, std::any> mData{};
+        EventId type{};
+        std::unordered_map<EventId, std::any> data{};
     };
 }

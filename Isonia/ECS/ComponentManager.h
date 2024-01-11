@@ -19,19 +19,19 @@ namespace Isonia::ECS
 		{
 			const char* typeName = typeid(T).name();
 
-			assert(mComponentTypes.find(typeName) == mComponentTypes.end() && "Registering component type more than once.");
+			assert(componentTypes.find(typeName) == componentTypes.end() && "Registering component type more than once.");
 
-			mComponentTypes.insert({ typeName, mNextComponentType });
-			mComponentArrays.insert({ typeName, new ComponentArray<T>() });
-			++mNextComponentType;
+			componentTypes.insert({ typeName, nextComponentType });
+			componentArrays.insert({ typeName, new ComponentArray<T>() });
+			++nextComponentType;
 		}
 
 		template<typename T>
 		ComponentType GetComponentType()
 		{
 			const char* typeName = typeid(T).name();
-			assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered before use.");
-			return mComponentTypes[typeName];
+			assert(componentTypes.find(typeName) != componentTypes.end() && "Component not registered before use.");
+			return componentTypes[typeName];
 		}
 
 		template<typename T>
@@ -57,7 +57,7 @@ namespace Isonia::ECS
 
 		void EntityDestroyed(Entity entity)
 		{
-			for (auto const& pair : mComponentArrays)
+			for (auto const& pair : componentArrays)
 			{
 				auto const& component = pair.second;
 				component->EntityDestroyed(entity);
@@ -65,16 +65,16 @@ namespace Isonia::ECS
 		}
 
 	private:
-		std::unordered_map<const char*, ComponentType> mComponentTypes{};
-		std::unordered_map<const char*, IComponentArray*> mComponentArrays{};
-		ComponentType mNextComponentType{};
+		std::unordered_map<const char*, ComponentType> componentTypes{};
+		std::unordered_map<const char*, IComponentArray*> componentArrays{};
+		ComponentType nextComponentType{};
 
 		template<typename T>
 		ComponentArray<T>* GetComponentArray()
 		{
 			const char* typeName = typeid(T).name();
-			assert(mComponentTypes.find(typeName) != mComponentTypes.end() && "Component not registered before use.");
-			IComponentArray* basePtr = mComponentArrays[typeName];
+			assert(componentTypes.find(typeName) != componentTypes.end() && "Component not registered before use.");
+			IComponentArray* basePtr = componentArrays[typeName];
 			return static_cast<ComponentArray<T>*>(basePtr);
 		}
 	};

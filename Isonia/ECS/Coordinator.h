@@ -18,106 +18,106 @@ namespace Isonia::ECS
     public:
         void Init()
         {
-            mComponentManager = new ComponentManager();
-            mEntityManager = new EntityManager();
-            mEventManager = new EventManager();
-            mSystemManager = new SystemManager();
+            entityManager = new EntityManager();
+            componentManager = new ComponentManager();
+            systemManager = new SystemManager();
+            eventManager = new EventManager();
         }
 
         // Entity methods
         Entity CreateEntity()
         {
-            return mEntityManager->CreateEntity();
+            return entityManager->CreateEntity();
         }
 
         void DestroyEntity(Entity entity)
         {
-            mEntityManager->DestroyEntity(entity);
-            mComponentManager->EntityDestroyed(entity);
-            mSystemManager->EntityDestroyed(entity);
+            entityManager->DestroyEntity(entity);
+            componentManager->EntityDestroyed(entity);
+            systemManager->EntityDestroyed(entity);
         }
 
         // Component methods
         template<typename T>
         void RegisterComponent()
         {
-            mComponentManager->RegisterComponent<T>();
+            componentManager->RegisterComponent<T>();
         }
 
         template<typename T>
         void AddComponent(Entity entity, T component)
         {
-            mComponentManager->AddComponent<T>(entity, component);
+            componentManager->AddComponent<T>(entity, component);
 
-            auto signature = mEntityManager->GetSignature(entity);
-            signature.set(mComponentManager->GetComponentType<T>(), true);
-            mEntityManager->SetSignature(entity, signature);
+            auto signature = entityManager->GetSignature(entity);
+            signature.set(componentManager->GetComponentType<T>(), true);
+            entityManager->SetSignature(entity, signature);
 
-            mSystemManager->EntitySignatureChanged(entity, signature);
+            systemManager->EntitySignatureChanged(entity, signature);
         }
 
         template<typename T>
         void RemoveComponent(Entity entity)
         {
-            mComponentManager->RemoveComponent<T>(entity);
+            componentManager->RemoveComponent<T>(entity);
 
-            auto signature = mEntityManager->GetSignature(entity);
-            signature.set(mComponentManager->GetComponentType<T>(), false);
-            mEntityManager->SetSignature(entity, signature);
+            auto signature = entityManager->GetSignature(entity);
+            signature.set(componentManager->GetComponentType<T>(), false);
+            entityManager->SetSignature(entity, signature);
 
-            mSystemManager->EntitySignatureChanged(entity, signature);
+            systemManager->EntitySignatureChanged(entity, signature);
         }
 
         template<typename T>
         T* GetComponent(Entity entity)
         {
-            return mComponentManager->GetComponent<T>(entity);
+            return componentManager->GetComponent<T>(entity);
         }
 
         template<typename T>
         ComponentType GetComponentType()
         {
-            return mComponentManager->GetComponentType<T>();
+            return componentManager->GetComponentType<T>();
         }
 
         // System methods
         template<typename T>
         T* RegisterSystem()
         {
-            return mSystemManager->RegisterSystem<T>();
+            return systemManager->RegisterSystem<T>();
         }
         template<typename T>
         T* RegisterSystem(T* system)
         {
-            return mSystemManager->RegisterSystem<T>(system);
+            return systemManager->RegisterSystem<T>(system);
         }
 
         template<typename T>
         void SetSystemSignature(Signature signature)
         {
-            mSystemManager->SetSignature<T>(signature);
+            systemManager->SetSignature<T>(signature);
         }
 
         // Event methods
         void AddEventListener(EventId eventId, std::function<void(Event&)> const& listener)
         {
-            mEventManager->AddListener(eventId, listener);
+            eventManager->AddListener(eventId, listener);
         }
 
         void SendEvent(Event& event)
         {
-            mEventManager->SendEvent(event);
+            eventManager->SendEvent(event);
         }
 
         void SendEvent(EventId eventId)
         {
-            mEventManager->SendEvent(eventId);
+            eventManager->SendEvent(eventId);
         }
 
     private:
-        ComponentManager* mComponentManager;
-        EntityManager* mEntityManager;
-        EventManager* mEventManager;
-        SystemManager* mSystemManager;
+        EntityManager* entityManager;
+        ComponentManager* componentManager;
+        SystemManager* systemManager;
+        EventManager* eventManager;
     };
 }

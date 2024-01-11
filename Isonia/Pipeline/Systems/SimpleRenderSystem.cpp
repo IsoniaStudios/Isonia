@@ -92,7 +92,7 @@ namespace Isonia::Pipeline::Systems
 			0,
 			nullptr
 		);
-		for (auto const& entity : mEntities)
+		for (auto const& entity : entities)
 		{
 			auto* const mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
 			auto* const transform = gCoordinator.GetComponent<Components::Transform>(entity);

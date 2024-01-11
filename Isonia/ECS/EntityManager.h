@@ -17,42 +17,42 @@ namespace Isonia::ECS
         {
             for (Entity entity = 0; entity < MAX_ENTITIES; ++entity)
             {
-                mAvailableEntities.push(entity);
+                availableEntities.push(entity);
             }
         }
 
         Entity CreateEntity()
         {
-            assert(mLivingEntityCount < MAX_ENTITIES && "Too many entities in existence.");
-            Entity id = mAvailableEntities.front();
-            mAvailableEntities.pop();
-            ++mLivingEntityCount;
+            assert(livingEntityCount < MAX_ENTITIES && "Too many entities in existence.");
+            Entity id = availableEntities.front();
+            availableEntities.pop();
+            ++livingEntityCount;
             return id;
         }
 
         void DestroyEntity(Entity entity)
         {
             assert(entity < MAX_ENTITIES && "Entity out of range.");
-            mSignatures[entity].reset();
-            mAvailableEntities.push(entity);
-            --mLivingEntityCount;
+            signatures[entity].reset();
+            availableEntities.push(entity);
+            --livingEntityCount;
         }
 
         void SetSignature(Entity entity, Signature signature)
         {
             assert(entity < MAX_ENTITIES && "Entity out of range.");
-            mSignatures[entity] = signature;
+            signatures[entity] = signature;
         }
 
         Signature GetSignature(Entity entity) const
         {
             assert(entity < MAX_ENTITIES && "Entity out of range.");
-            return mSignatures[entity];
+            return signatures[entity];
         }
 
     private:
-        std::queue<Entity> mAvailableEntities{};
-        std::array<Signature, MAX_ENTITIES> mSignatures{};
-        uint32_t mLivingEntityCount{};
+        std::queue<Entity> availableEntities{};
+        std::array<Signature, MAX_ENTITIES> signatures{};
+        uint32_t livingEntityCount{};
     };
 }

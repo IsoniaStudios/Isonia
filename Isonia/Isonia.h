@@ -145,26 +145,26 @@ namespace Isonia
 
 				gCoordinator.AddComponent<Components::Gravity>(
 					entity,
-					Components::Gravity()
+					Components::Gravity{}
 				);
 
 				gCoordinator.AddComponent(
 					entity,
-					Components::RigidBody()
+					Components::RigidBody{}
 				);
 
 				gCoordinator.AddComponent(
 					entity,
-					Components::Transform(
-					   glm::vec3(randPosition(generator), randPosition(generator), randPosition(generator)),
-					   glm::vec3(randRotation(generator), randRotation(generator), randRotation(generator)),
-					   glm::vec3(scale, scale, scale)
-					)
+					Components::Transform{
+					   glm::vec3{ randPosition(generator), randPosition(generator), randPosition(generator) },
+					   glm::vec3{ randRotation(generator), randRotation(generator), randRotation(generator) },
+					   glm::vec3{ scale, scale, scale }
+					}
 				);
 
 				gCoordinator.AddComponent(
 					entity,
-					Components::Mesh(model)
+					Components::Mesh{ model }
 				);
 			}
 

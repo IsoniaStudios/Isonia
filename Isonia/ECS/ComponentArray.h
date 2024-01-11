@@ -16,55 +16,55 @@ namespace Isonia::ECS
 	public:
 		void InsertData(Entity entity, T component)
 		{
-			assert(mEntityToIndexMap.find(entity) == mEntityToIndexMap.end() && "Component added to same entity more than once.");
+			assert(entityToIndexMap.find(entity) == entityToIndexMap.end() && "Component added to same entity more than once.");
 
 			// Put new entry at end
-			size_t newIndex = mSize;
-			mEntityToIndexMap[entity] = newIndex;
-			mIndexToEntityMap[newIndex] = entity;
-			mComponentArray[newIndex] = component;
-			++mSize;
+			size_t newIndex = size;
+			entityToIndexMap[entity] = newIndex;
+			indexToEntityMap[newIndex] = entity;
+			componentArray[newIndex] = component;
+			++size;
 		}
 
 		void RemoveData(Entity entity)
 		{
-			assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Removing non-existent component.");
+			assert(entityToIndexMap.find(entity) != entityToIndexMap.end() && "Removing non-existent component.");
 
 			// Copy element at end into deleted element's place to maintain density
-			size_t indexOfRemovedEntity = mEntityToIndexMap[entity];
-			size_t indexOfLastElement = mSize - 1;
-			mComponentArray[indexOfRemovedEntity] = mComponentArray[indexOfLastElement];
+			size_t indexOfRemovedEntity = entityToIndexMap[entity];
+			size_t indexOfLastElement = size - 1;
+			componentArray[indexOfRemovedEntity] = componentArray[indexOfLastElement];
 
 			// Update map to point to moved spot
-			Entity entityOfLastElement = mIndexToEntityMap[indexOfLastElement];
-			mEntityToIndexMap[entityOfLastElement] = indexOfRemovedEntity;
-			mIndexToEntityMap[indexOfRemovedEntity] = entityOfLastElement;
+			Entity entityOfLastElement = indexToEntityMap[indexOfLastElement];
+			entityToIndexMap[entityOfLastElement] = indexOfRemovedEntity;
+			indexToEntityMap[indexOfRemovedEntity] = entityOfLastElement;
 
-			mEntityToIndexMap.erase(entity);
-			mIndexToEntityMap.erase(indexOfLastElement);
+			entityToIndexMap.erase(entity);
+			indexToEntityMap.erase(indexOfLastElement);
 
-			--mSize;
+			--size;
 		}
 
 		T* GetData(Entity entity)
 		{
-			assert(mEntityToIndexMap.find(entity) != mEntityToIndexMap.end() && "Retrieving non-existent component.");
-			size_t index = mEntityToIndexMap[entity];
-			return &mComponentArray[index];
+			assert(entityToIndexMap.find(entity) != entityToIndexMap.end() && "Retrieving non-existent component.");
+			size_t index = entityToIndexMap[entity];
+			return &componentArray[index];
 		}
 
 		void EntityDestroyed(Entity entity) override
 		{
-			if (mEntityToIndexMap.find(entity) != mEntityToIndexMap.end())
+			if (entityToIndexMap.find(entity) != entityToIndexMap.end())
 			{
 				RemoveData(entity);
 			}
 		}
 
 	private:
-		std::array<T, MAX_ENTITIES> mComponentArray{};
-		std::unordered_map<Entity, size_t> mEntityToIndexMap{};
-		std::unordered_map<size_t, Entity> mIndexToEntityMap{};
-		size_t mSize{};
+		std::array<T, MAX_ENTITIES> componentArray{};
+		std::unordered_map<Entity, size_t> entityToIndexMap{};
+		std::unordered_map<size_t, Entity> indexToEntityMap{};
+		size_t size{};
 	};
 }

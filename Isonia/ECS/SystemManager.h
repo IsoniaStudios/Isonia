@@ -19,9 +19,9 @@ namespace Isonia::ECS
         T* RegisterSystem()
         {
             const char* typeName = typeid(T).name();
-            assert(mSystems.find(typeName) == mSystems.end() && "Registering system more than once.");
+            assert(systems.find(typeName) == systems.end() && "Registering system more than once.");
             auto system = new T();
-            mSystems.insert({ typeName, system });
+            systems.insert({ typeName, system });
             return system;
         }
 
@@ -29,8 +29,8 @@ namespace Isonia::ECS
         T* RegisterSystem(T* system)
         {
             const char* typeName = typeid(T).name();
-            assert(mSystems.find(typeName) == mSystems.end() && "Registering system more than once.");
-            mSystems.insert({ typeName, system });
+            assert(systems.find(typeName) == systems.end() && "Registering system more than once.");
+            systems.insert({ typeName, system });
             return system;
         }
 
@@ -38,40 +38,40 @@ namespace Isonia::ECS
         void SetSignature(Signature signature)
         {
             const char* typeName = typeid(T).name();
-            assert(mSystems.find(typeName) != mSystems.end() && "System used before registered.");
-            mSignatures.insert({ typeName, signature });
+            assert(systems.find(typeName) != systems.end() && "System used before registered.");
+            signatures.insert({ typeName, signature });
         }
 
         void EntityDestroyed(Entity entity)
         {
-            for (auto const& pair : mSystems)
+            for (auto const& pair : systems)
             {
                 auto const& system = pair.second;
-                system->mEntities.erase(entity);
+                system->entities.erase(entity);
             }
         }
 
         void EntitySignatureChanged(Entity entity, Signature entitySignature)
         {
-            for (auto const& pair : mSystems)
+            for (auto const& pair : systems)
             {
                 auto const& type = pair.first;
                 auto const& system = pair.second;
-                auto const& systemSignature = mSignatures[type];
+                auto const& systemSignature = signatures[type];
 
                 if ((entitySignature & systemSignature) == systemSignature)
                 {
-                    system->mEntities.insert(entity);
+                    system->entities.insert(entity);
                 }
                 else
                 {
-                    system->mEntities.erase(entity);
+                    system->entities.erase(entity);
                 }
             }
         }
 
 	private:
-		std::unordered_map<const char*, Signature> mSignatures{};
-        std::unordered_map<const char*, System*> mSystems{};
+		std::unordered_map<const char*, Signature> signatures{};
+        std::unordered_map<const char*, System*> systems{};
     };
 }
