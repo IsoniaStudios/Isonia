@@ -134,8 +134,6 @@ namespace Isonia
 			std::uniform_real_distribution<float> randScale(.25f, 1.0f);
 			std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
 
-			float scale = randScale(generator);
-
 			Pipeline::Model* model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
 			for (auto& entity : entities)
@@ -147,7 +145,7 @@ namespace Isonia
 					Components::Transform{
 					   glm::vec3{ randPosition(generator), randPosition(generator), randPosition(generator) },
 					   glm::vec3{ randRotation(generator), randRotation(generator), randRotation(generator) },
-					   glm::vec3{ scale, scale, scale }
+					   glm::vec3{ randScale(generator), randScale(generator), randScale(generator) }
 					}
 				);
 
