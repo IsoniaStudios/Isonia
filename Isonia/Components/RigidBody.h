@@ -1,11 +1,14 @@
 #pragma once
 
+// internal
+#include "../ECS/Definitions.h"
+
 // glm
 #include <glm/glm.hpp>
 
 namespace Isonia::Components
 {
-	struct RigidBody
+	struct RigidBody : ECS::Archetype<1>
 	{
 	public:
 		RigidBody() : velocity(0.f, 0.f, 0.f), acceleration(0.f, 0.f, 0.f)

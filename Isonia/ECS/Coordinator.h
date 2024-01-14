@@ -50,7 +50,7 @@ namespace Isonia::ECS
             componentManager->AddComponent<T>(entity, component);
 
             auto signature = entityManager->GetSignature(entity);
-            signature.set(componentManager->GetComponentType<T>(), true);
+            signature.set(GetComponentType<T>(), true);
             entityManager->SetSignature(entity, signature);
 
             systemManager->EntitySignatureChanged(entity, signature);
@@ -62,7 +62,7 @@ namespace Isonia::ECS
             componentManager->RemoveComponent<T>(entity);
 
             auto signature = entityManager->GetSignature(entity);
-            signature.set(componentManager->GetComponentType<T>(), false);
+            signature.set(GetComponentType<T>(), false);
             entityManager->SetSignature(entity, signature);
 
             systemManager->EntitySignatureChanged(entity, signature);
@@ -72,12 +72,6 @@ namespace Isonia::ECS
         T* GetComponent(Entity entity)
         {
             return componentManager->GetComponent<T>(entity);
-        }
-
-        template<typename T>
-        ComponentType GetComponentType()
-        {
-            return componentManager->GetComponentType<T>();
         }
 
         // System methods

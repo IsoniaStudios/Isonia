@@ -13,4 +13,26 @@ namespace Isonia::ECS
 
 	using EventId = std::uint16_t;
 	using ParamId = std::uint16_t;
+
+	template <ComponentType componentType>
+	struct Archetype
+	{
+		static constexpr int ComponentType = componentType;
+	};
+
+	template <ComponentType componentType>
+	struct Component
+	{
+		static constexpr int ComponentType = componentType;
+	};
+
+	template <typename T>
+	inline constexpr bool UtilizesArchetype() {
+		return std::is_base_of<Archetype, T>::value;
+	}
+
+	template <typename T>
+	inline constexpr ComponentType GetComponentType() {
+		return T::ComponentType;
+	}
 }

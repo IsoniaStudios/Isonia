@@ -1,11 +1,14 @@
 #pragma once
 
+// internal
+#include "../ECS/Definitions.h"
+
 // glm
 #include <glm/glm.hpp>
 
 namespace Isonia::Components
 {
-	struct Transform
+	struct Transform : ECS::Archetype<0>
 	{
 	public:
 		glm::vec3 position;

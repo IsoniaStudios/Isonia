@@ -64,7 +64,6 @@ namespace Isonia
 			gCoordinator.RegisterComponent<Components::Mesh>();
 			gCoordinator.RegisterComponent<Components::RigidBody>();
 			gCoordinator.RegisterComponent<Components::Gravity>();
-			gCoordinator.RegisterComponent<Components::Camera>();
 		}
 
 		~Isonia()
@@ -99,16 +98,15 @@ namespace Isonia
 				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
 				Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
 					.WriteBuffer(0, &bufferInfo)
-					.Build(globalDescriptorSets[i]
-					);
+					.Build(globalDescriptorSets[i]);
 			}
 
 			auto physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
 			{
 				ECS::Signature signature;
-				signature.set(gCoordinator.GetComponentType<Components::Transform>());
-				signature.set(gCoordinator.GetComponentType<Components::RigidBody>());
-				signature.set(gCoordinator.GetComponentType<Components::Gravity>());
+				signature.set(ECS::GetComponentType<Components::Transform>());
+				signature.set(ECS::GetComponentType<Components::RigidBody>());
+				signature.set(ECS::GetComponentType<Components::Gravity>());
 				gCoordinator.SetSystemSignature<Physics::PhysicsSystem>(signature);
 			}
 			physicsSystem->Init();
@@ -121,8 +119,8 @@ namespace Isonia
 			auto test = gCoordinator.RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(&simpleRenderSystem);
 			{
 				ECS::Signature signature;
-				signature.set(gCoordinator.GetComponentType<Components::Transform>());
-				signature.set(gCoordinator.GetComponentType<Components::Mesh>());
+				signature.set(ECS::GetComponentType<Components::Transform>());
+				signature.set(ECS::GetComponentType<Components::Mesh>());
 				gCoordinator.SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
 			}
 
