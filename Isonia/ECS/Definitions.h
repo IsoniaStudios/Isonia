@@ -17,13 +17,13 @@ namespace Isonia::ECS
 	template <ComponentType componentType>
 	struct Archetype
 	{
-		static constexpr int ComponentType = componentType;
+		static constexpr ComponentType COMPONENT_TYPE = componentType;
 	};
 
 	template <ComponentType componentType>
 	struct Component
 	{
-		static constexpr int ComponentType = componentType;
+		static constexpr ComponentType COMPONENT_TYPE = componentType;
 	};
 
 	template <typename T>
@@ -33,6 +33,6 @@ namespace Isonia::ECS
 
 	template <typename T>
 	inline constexpr ComponentType GetComponentType() {
-		return T::ComponentType;
+		return T::COMPONENT_TYPE;
 	}
 }

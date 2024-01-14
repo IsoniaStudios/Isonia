@@ -2,6 +2,7 @@
 
 // std
 #include <iostream>
+#include <iomanip>
 
 namespace Isonia::Debug
 {
@@ -20,11 +21,15 @@ namespace Isonia::Debug
             // Update highest frame time
             highestFrameTime = std::max(highestFrameTime, frameTime);
 
+            // Move the cursor to the beginning of the line
+            std::cout << "\r";
+
             // Print performance statistics
-            std::cout << "Frame Time: " << frameTime << " ms"
+            std::cout << std::fixed << std::setw(8) << std::setprecision(6)
+                      << "Frame Time: " << frameTime << " ms"
                       << " | Average Frame Time: " << averageFrameTime << " ms"
                       << " | Highest Frame Time: " << highestFrameTime << " ms"
-                      << std::endl;
+                      << std::flush;
         }
 
     private:
