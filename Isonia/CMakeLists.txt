@@ -35,7 +35,7 @@ else()
 	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
 endif()
 
-target_sources(${PROJECT_NAME} PRIVATE ${MY_SOURCES})
+target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
 
 # If using the VS compiler...
 if(MSVC)
@@ -53,21 +53,25 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(External/glfw EXCLUDE_FROM_ALL)
+add_subdirectory(External/glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
 target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
 
 # Add tinyobjloader
-add_subdirectory(External/tinyobjloader EXCLUDE_FROM_ALL)
+add_subdirectory(External/tinyobjloader)
 
 # Add glm
-add_subdirectory(External/glm EXCLUDE_FROM_ALL)
+set(GLM_PERF_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLM_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
+add_subdirectory(External/glm)
 
 # Target link
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE Vulkan::Vulkan
-    PRIVATE glfw
-    PRIVATE glm::glm
+    PUBLIC Vulkan::Vulkan
+    PUBLIC glfw
+    PUBLIC glm::glm
 )
 
 # Compile shader into SPIR-V
