@@ -94,8 +94,8 @@ namespace Isonia::Pipeline::Systems
 		);
 		for (auto const& entity : entities)
 		{
-			auto* const mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
 			auto* const transform = gCoordinator.GetComponent<Components::Transform>(entity);
+			auto* const mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
 
 			SimplePushConstantData push{};
 			push.modelMatrix = transform->Mat4();

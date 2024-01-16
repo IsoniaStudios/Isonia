@@ -44,12 +44,28 @@ Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia
 {
+#ifdef EXPORT_FUNCTIONS
+#define EXPORT_API __declspec(dllexport)
+#else
+#define EXPORT_API __declspec(dllimport)
+#endif
+	extern "C" {
+		EXPORT_API void* CreateIsoniaWindow();
+		EXPORT_API void DestroyIsoniaWindow(void* windowHandle);
+
+		void* CreateIsoniaWindow() {
+			return nullptr;
+		}
+		void DestroyIsoniaWindow(void* windowHandle) {
+		}
+	}
+
 	class Isonia
 	{
 	public:
 		static constexpr int WIDTH = 1024;
 		static constexpr int HEIGHT = 576;
-		static constexpr const char* NAME = "Window";
+		static constexpr const char* NAME = "Isonia";
 
 		Isonia()
 		{

@@ -10,6 +10,9 @@ endif()
 # Production build.
 option(PRODUCTION_BUILD "Make this a production build" OFF)
 
+# DLL
+option(DLL_BUILD "Make this a dll build" ON)
+
 #
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")

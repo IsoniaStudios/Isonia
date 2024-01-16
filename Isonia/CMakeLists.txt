@@ -10,8 +10,12 @@ list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
 # Include the specific header file from External/tinyobjloader/tiny_obj_loader
 list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_obj_loader.h")
 
-# Add project as ex
-add_executable(${PROJECT_NAME})
+# Add project as ex or dll depending on choise
+if(DLL_BUILD)
+    add_library(${PROJECT_NAME} SHARED)
+else()
+    add_executable(${PROJECT_NAME})
+endif()
 
 # Define conditional debug
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
