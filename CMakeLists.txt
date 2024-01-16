@@ -21,7 +21,9 @@ else()
 endif()
 
 # Set name of project.
-project(Isonia)
+if(NOT DEFINED PROJECT_NAME)
+	project(Isonia)
+endif()
 
 # Link time optimization, only for our
 set(TARGET ${PROJECT_NAME} CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
