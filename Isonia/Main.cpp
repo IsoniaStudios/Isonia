@@ -1,3 +1,4 @@
+#ifndef DLL_BUILD
 // internal
 #include "Isonia.h"
 
@@ -13,16 +14,17 @@
 
 int main()
 {
-	try
-	{
-		Isonia::Isonia isonia{};
-		isonia.Run();
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
+    try
+    {
+        Isonia::Isonia isonia{};
+        isonia.Run();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
+#endif

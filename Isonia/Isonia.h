@@ -44,22 +44,6 @@ Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia
 {
-#ifdef EXPORT_FUNCTIONS
-#define EXPORT_API __declspec(dllexport)
-#else
-#define EXPORT_API __declspec(dllimport)
-#endif
-	extern "C" {
-		EXPORT_API void* CreateIsoniaWindow();
-		EXPORT_API void DestroyIsoniaWindow(void* windowHandle);
-
-		void* CreateIsoniaWindow() {
-			return nullptr;
-		}
-		void DestroyIsoniaWindow(void* windowHandle) {
-		}
-	}
-
 	class Isonia
 	{
 	public:
@@ -235,6 +219,10 @@ namespace Isonia
 			vkDeviceWaitIdle(device.GetDevice());
 		}
 
+		GLFWwindow* GetGLFWwindow() const
+		{
+			return window.GetGLFWwindow();
+		}
 	private:
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };

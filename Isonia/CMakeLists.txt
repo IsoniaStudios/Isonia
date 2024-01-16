@@ -13,6 +13,7 @@ list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_
 # Add project as ex or dll depending on choise
 if(DLL_BUILD)
     add_library(${PROJECT_NAME} SHARED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC DLL_BUILD=1)
 else()
     add_executable(${PROJECT_NAME})
 endif()
@@ -44,7 +45,9 @@ target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
 # If using the VS compiler...
 if(MSVC)
 	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
-	set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+    if(NOT DLL_BUILD)
+        set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+    endif()
 endif()
 
 # Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
