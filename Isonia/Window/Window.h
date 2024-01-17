@@ -66,8 +66,14 @@ namespace Isonia::Window
 		void InitWindow()
 		{
 			glfwInit();
+#ifdef DLL_BUILD
+			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+			glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+#else
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+#endif
 
 			window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
 			glfwSetWindowUserPointer(window, this);

@@ -39,6 +39,12 @@
 #include <memory>
 #include <vector>
 
+// test
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <Windows.h>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 // global vars
 Isonia::ECS::Coordinator gCoordinator;
 
@@ -219,9 +225,9 @@ namespace Isonia
 			vkDeviceWaitIdle(device.GetDevice());
 		}
 
-		GLFWwindow* GetGLFWwindow() const
+		HWND GetGLFWWindowHandle()
 		{
-			return window.GetGLFWwindow();
+			return glfwGetWin32Window(window.GetGLFWwindow());
 		}
 	private:
 		Window::Window window{ WIDTH, HEIGHT, NAME };
