@@ -2,10 +2,10 @@
 
 #include "Device.h"
 
-// vulkan headers
+// external
 #include <vulkan/vulkan.h>
 
-// std lib headers
+// std
 #include <memory>
 #include <string>
 #include <vector>
@@ -18,7 +18,7 @@ namespace Isonia::Pipeline
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 		SwapChain(Device& deviceRef, VkExtent2D windowExtent);
-		SwapChain(Device& deviceRef, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
+		SwapChain(Device& deviceRef, VkExtent2D windowExtent, SwapChain* previous);
 
 		~SwapChain();
 
@@ -47,7 +47,7 @@ namespace Isonia::Pipeline
 		bool CompareSwapFormats(const SwapChain& swapChain) const
 		{
 			return swapChain.swapChainDepthFormat == swapChainDepthFormat &&
-				swapChain.swapChainImageFormat == swapChainImageFormat;
+				   swapChain.swapChainImageFormat == swapChainImageFormat;
 		}
 
 	private:
@@ -81,7 +81,7 @@ namespace Isonia::Pipeline
 		VkExtent2D windowExtent;
 
 		VkSwapchainKHR swapChain;
-		std::shared_ptr<SwapChain> oldSwapChain;
+		SwapChain* oldSwapChain = nullptr;
 
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;

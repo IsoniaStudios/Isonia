@@ -1,6 +1,7 @@
 #include "Pipeline.h"
 
-#include "Model.h"
+// internal
+#include "../Renderable/Model.h"
 
 // std
 #include <cassert>
@@ -182,7 +183,7 @@ namespace Isonia::Pipeline
 		configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 		configInfo.dynamicStateInfo.flags = 0;
 
-		configInfo.bindingDescriptions = Model::Vertex::GetBindingDescriptions();
-		configInfo.attributeDescriptions = Model::Vertex::GetAttributeDescriptions();
+		configInfo.bindingDescriptions = Renderable::VertexComplete::GetBindingDescriptions();
+		configInfo.attributeDescriptions = Renderable::VertexComplete::GetAttributeDescriptions();
 	}
 }

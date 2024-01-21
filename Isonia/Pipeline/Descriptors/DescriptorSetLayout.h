@@ -36,9 +36,9 @@ namespace Isonia::Pipeline::Descriptors
 				return *this;
 			}
 
-			std::unique_ptr<DescriptorSetLayout> Build() const
+			DescriptorSetLayout* Build() const
 			{
-				return std::make_unique<DescriptorSetLayout>(device, bindings);
+				return new DescriptorSetLayout(device, bindings);
 			}
 
 		private:

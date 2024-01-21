@@ -1,8 +1,9 @@
 #pragma once
 
+// internal
 #include "../Window/Window.h"
 
-// std lib headers
+// std
 #include <string>
 #include <vector>
 

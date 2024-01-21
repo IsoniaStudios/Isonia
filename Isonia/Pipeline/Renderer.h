@@ -1,5 +1,6 @@
 #pragma once
 
+// internal
 #include "Device.h"
 #include "SwapChain.h"
 #include "../Window/Window.h"
@@ -48,7 +49,7 @@ namespace Isonia::Pipeline
 
 		Window::Window& window;
 		Device& device;
-		std::unique_ptr<SwapChain> swapChain;
+		SwapChain* swapChain = nullptr;
 		std::vector<VkCommandBuffer> commandBuffers;
 
 		uint32_t currentImageIndex;

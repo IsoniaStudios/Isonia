@@ -1,5 +1,6 @@
 #pragma once
 
+// internal
 #include "../../Components/Camera.h"
 #include "../Device.h"
 #include "../../State/FrameInfo.h"
@@ -29,7 +30,7 @@ namespace Isonia::Pipeline::Systems
 
 		Device& device;
 
-		std::unique_ptr<Pipeline> pipeline;
+		Pipeline* pipeline;
 		VkPipelineLayout pipelineLayout;
 	};
 }

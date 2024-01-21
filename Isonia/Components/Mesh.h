@@ -4,7 +4,7 @@
 #include "../ECS/Definitions.h"
 
 // internal
-#include "../Pipeline/Model.h"
+#include "../Renderable/Model.h"
 
 namespace Isonia::Components
 {
@@ -15,10 +15,10 @@ namespace Isonia::Components
 		{
 		}
 
-		Mesh(Pipeline::Model* model) : model(model)
+		Mesh(Renderable::Model* model) : model(model)
 		{
 		}
 
-		Pipeline::Model* model;
+		Renderable::Model* model;
 	};
 }

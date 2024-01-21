@@ -11,7 +11,7 @@ endif()
 option(PRODUCTION_BUILD "Make this a production build" OFF)
 
 # DLL
-option(DLL_BUILD "Make this a dll build" ON)
+option(DLL_BUILD "Make this a dll build" OFF)
 
 #
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

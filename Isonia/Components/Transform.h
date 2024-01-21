@@ -3,7 +3,7 @@
 // internal
 #include "../ECS/Definitions.h"
 
-// glm
+// external
 #include <glm/glm.hpp>
 
 namespace Isonia::Components

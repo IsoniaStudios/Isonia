@@ -7,7 +7,7 @@
 // std
 #include <limits>
 
-// glm
+// external
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Isonia::Controllers

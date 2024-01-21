@@ -17,7 +17,7 @@ namespace Isonia::Pipeline
 		Init();
 	}
 
-	SwapChain::SwapChain(Device& deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
+	SwapChain::SwapChain(Device& deviceRef, VkExtent2D extent, SwapChain* previous)
 		: device(deviceRef), windowExtent(extent), oldSwapChain(previous)
 	{
 		Init();

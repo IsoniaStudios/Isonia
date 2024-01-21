@@ -5,7 +5,7 @@
 #include "../../Components/Mesh.h"
 #include "../../Components/Transform.h"
 
-// glm
+// external
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -70,7 +70,7 @@ namespace Isonia::Pipeline::Systems
 		Pipeline::PixelPipelineConfigInfo(pipelineConfig);
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
-		pipeline = std::make_unique<Pipeline>(
+		pipeline = new Pipeline(
 			device,
 			Shaders::Simple::VERTEXSHADER_VERT,
 			Shaders::Simple::FRAGSHADER_FRAG,

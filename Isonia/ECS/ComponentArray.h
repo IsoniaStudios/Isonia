@@ -71,7 +71,7 @@ namespace Isonia::ECS
 		}
 
 	private:
-		T componentArray[MAX_ENTITIES]{};
+		T componentArray[MAX_ENTITIES];
 		std::unordered_map<Entity, Entity> entityToIndexMap{};
 		std::unordered_map<Entity, Entity> indexToEntityMap{};
 		Entity size{};

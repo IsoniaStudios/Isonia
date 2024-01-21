@@ -1,6 +1,6 @@
 #include "Device.h"
 
-// std headers
+// std
 #include <cstring>
 #include <iostream>
 #include <set>

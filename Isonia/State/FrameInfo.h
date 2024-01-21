@@ -3,7 +3,7 @@
 // internal
 #include "../Components/Camera.h"
 
-// vulkan
+// external
 #include <vulkan/vulkan.h>
 
 namespace Isonia::State

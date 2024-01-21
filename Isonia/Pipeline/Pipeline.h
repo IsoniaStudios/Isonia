@@ -1,5 +1,6 @@
 #pragma once
 
+// internal
 #include "Device.h"
 
 // std

@@ -37,9 +37,9 @@ namespace Isonia::Pipeline::Descriptors
 				return *this;
 			}
 
-			std::unique_ptr<DescriptorPool> Build() const
+			DescriptorPool* Build() const
 			{
-				return std::make_unique<DescriptorPool>(device, maxSets, poolFlags, poolSizes);
+				return new DescriptorPool(device, maxSets, poolFlags, poolSizes);
 			}
 
 		private:

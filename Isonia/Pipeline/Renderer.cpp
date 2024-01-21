@@ -30,17 +30,19 @@ namespace Isonia::Pipeline
 
 		if (swapChain == nullptr)
 		{
-			swapChain = std::make_unique<SwapChain>(device, extent);
+			swapChain = new SwapChain(device, extent);
 		}
 		else
 		{
-			std::shared_ptr<SwapChain> oldSwapChain = std::move(swapChain);
-			swapChain = std::make_unique<SwapChain>(device, extent, oldSwapChain);
+			SwapChain* oldSwapChain = swapChain;
+			swapChain = new SwapChain(device, extent, oldSwapChain);
 
-			if (!oldSwapChain->CompareSwapFormats(*swapChain.get()))
+			if (!oldSwapChain->CompareSwapFormats(*swapChain))
 			{
 				throw std::runtime_error("Swap chain image(or depth) format has changed!");
 			}
+
+			delete oldSwapChain;
 		}
 	}
 

@@ -1,5 +1,13 @@
 #pragma once
 
+// external
+#define TINYOBJLOADER_IMPLEMENTATION
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
 // internal
 #include "Debug/PerformanceTracker.h"
 
@@ -23,12 +31,6 @@
 #include "Components/Mesh.h"
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
-
-// glm
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 
 // std
 #include <array>
@@ -59,17 +61,12 @@ namespace Isonia
 
 		Isonia()
 		{
-			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
-				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
-				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
-				.Build();
-
-			gCoordinator.Init();
-
-			gCoordinator.RegisterComponent<Components::Transform>();
-			gCoordinator.RegisterComponent<Components::Mesh>();
-			gCoordinator.RegisterComponent<Components::RigidBody>();
-			gCoordinator.RegisterComponent<Components::Gravity>();
+			InitializeDescriptorPool();
+			InitializeCoordinator();
+			InitializePhysicsSystem();
+			InitializeRenderSystem();
+			InitializeEntities();
+			InitializePlayer();
 		}
 
 		~Isonia()
@@ -81,10 +78,79 @@ namespace Isonia
 
 		void Run()
 		{
-			std::vector<std::unique_ptr<Pipeline::Buffer>> uboBuffers(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
+			Components::Camera camera{};
+			auto viewerObject = Components::Transform{};
+			viewerObject.position.z = -250.f;
+			Controllers::KeyboardMovementController cameraController{};
+			Debug::PerformanceTracker performanceTracker;
+			auto currentTime = std::chrono::high_resolution_clock::now();
+			while (!window.ShouldClose())
+			{
+				glfwPollEvents();
+
+				auto newTime = std::chrono::high_resolution_clock::now();
+				float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+				currentTime = newTime;
+
+				performanceTracker.LogFrameTime(frameTime);
+
+				physicsSystem->Update(frameTime);
+
+				cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, &viewerObject);
+				camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
+
+				float aspect = renderer.GetAspectRatio();
+				const float orthoSize = 100.f;
+				camera.SetOrthographicProjection(-orthoSize * aspect, orthoSize * aspect, -orthoSize, orthoSize, 0.f, 1000.f);
+
+				if (auto commandBuffer = renderer.BeginFrame())
+				{
+					int frameIndex = renderer.getFrameIndex();
+					State::FrameInfo frameInfo{
+						frameIndex,
+						frameTime,
+						commandBuffer,
+						globalDescriptorSets[frameIndex]
+					};
+
+					// update
+					State::GlobalUbo ubo{};
+					ubo.projection = camera.GetProjection();
+					ubo.view = camera.GetView();
+					ubo.inverseView = camera.GetInverseView();
+					uboBuffers[frameIndex]->WriteToBuffer(&ubo);
+					uboBuffers[frameIndex]->Flush();
+
+					// render
+					renderer.BeginSwapChainRenderPass(commandBuffer);
+					simpleRenderSystem->RenderGameObjects(frameInfo);
+					renderer.EndSwapChainRenderPass(commandBuffer);
+					renderer.EndFrame();
+				}
+			}
+
+			vkDeviceWaitIdle(device.GetDevice());
+		}
+
+		HWND GetGLFWWindowHandle()
+		{
+			return glfwGetWin32Window(window.GetGLFWwindow());
+		}
+	private:
+		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
+		std::vector<VkDescriptorSet> globalDescriptorSets;
+		std::vector<Pipeline::Buffer*> uboBuffers;
+		void InitializeDescriptorPool()
+		{
+			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
+				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.Build();
+
+			uboBuffers.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (int i = 0; i < uboBuffers.size(); i++)
 			{
-				uboBuffers[i] = std::make_unique<Pipeline::Buffer>(
+				uboBuffers[i] = new Pipeline::Buffer(
 					device,
 					sizeof(State::GlobalUbo),
 					1,
@@ -94,11 +160,11 @@ namespace Isonia
 				uboBuffers[i]->Map();
 			}
 
-			auto globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
+			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
-			std::vector<VkDescriptorSet> globalDescriptorSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
+			globalDescriptorSets.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (int i = 0; i < globalDescriptorSets.size(); i++)
 			{
 				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
@@ -106,8 +172,22 @@ namespace Isonia
 					.WriteBuffer(0, &bufferInfo)
 					.Build(globalDescriptorSets[i]);
 			}
+		}
 
-			auto physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
+		void InitializeCoordinator()
+		{
+			gCoordinator.Init();
+
+			gCoordinator.RegisterComponent<Components::Transform>();
+			gCoordinator.RegisterComponent<Components::Mesh>();
+			gCoordinator.RegisterComponent<Components::RigidBody>();
+			gCoordinator.RegisterComponent<Components::Gravity>();
+		}
+
+		Physics::PhysicsSystem* physicsSystem;
+		void InitializePhysicsSystem()
+		{
+			physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
 			{
 				ECS::Signature signature;
 				signature.set(ECS::GetComponentType<Components::Transform>());
@@ -116,20 +196,27 @@ namespace Isonia
 				gCoordinator.SetSystemSignature<Physics::PhysicsSystem>(signature);
 			}
 			physicsSystem->Init();
+		}
 
-			Pipeline::Systems::SimpleRenderSystem simpleRenderSystem{
+		Pipeline::Systems::SimpleRenderSystem* simpleRenderSystem;
+		void InitializeRenderSystem()
+		{
+			simpleRenderSystem = new Pipeline::Systems::SimpleRenderSystem{
 				device,
 				renderer.GetSwapChainRenderPass(),
 				globalSetLayout->GetDescriptorSetLayout()
 			};
-			auto test = gCoordinator.RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(&simpleRenderSystem);
+			gCoordinator.RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(simpleRenderSystem);
 			{
 				ECS::Signature signature;
 				signature.set(ECS::GetComponentType<Components::Transform>());
 				signature.set(ECS::GetComponentType<Components::Mesh>());
 				gCoordinator.SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
 			}
+		}
 
+		void InitializeEntities()
+		{
 			std::vector<ECS::Entity> entities(ECS::MAX_ENTITIES - 1);
 
 			std::default_random_engine generator;
@@ -138,7 +225,7 @@ namespace Isonia
 			std::uniform_real_distribution<float> randScale(.25f, 1.0f);
 			std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
 
-			Pipeline::Model* model = Pipeline::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
+			Renderable::Model* model = Renderable::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
 			for (auto& entity : entities)
 			{
@@ -168,73 +255,18 @@ namespace Isonia
 					Components::Gravity{}
 				);
 			}
-
-			Debug::PerformanceTracker performanceTracker;
-
-			Components::Camera camera{};
-
-			auto viewerObject = Components::Transform{};
-			viewerObject.position.z = -250.f;
-			Controllers::KeyboardMovementController cameraController{};
-
-			auto currentTime = std::chrono::high_resolution_clock::now();
-			while (!window.ShouldClose())
-			{
-				glfwPollEvents();
-
-				auto newTime = std::chrono::high_resolution_clock::now();
-				float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-				currentTime = newTime;
-
-				performanceTracker.LogFrameTime(frameTime);
-
-				physicsSystem->Update(frameTime);
-
-				cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, &viewerObject);
-				camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
-
-				float aspect = renderer.GetAspectRatio();
-				camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
-
-				if (auto commandBuffer = renderer.BeginFrame())
-				{
-					int frameIndex = renderer.getFrameIndex();
-					State::FrameInfo frameInfo{
-						frameIndex,
-						frameTime,
-						commandBuffer,
-						globalDescriptorSets[frameIndex]
-					};
-
-					// update
-					State::GlobalUbo ubo{};
-					ubo.projection = camera.GetProjection();
-					ubo.view = camera.GetView();
-					ubo.inverseView = camera.GetInverseView();
-					uboBuffers[frameIndex]->WriteToBuffer(&ubo);
-					uboBuffers[frameIndex]->Flush();
-
-					// render
-					renderer.BeginSwapChainRenderPass(commandBuffer);
-					test->RenderGameObjects(frameInfo);
-					renderer.EndSwapChainRenderPass(commandBuffer);
-					renderer.EndFrame();
-				}
-			}
-
-			vkDeviceWaitIdle(device.GetDevice());
 		}
 
-		HWND GetGLFWWindowHandle()
+		void InitializePlayer()
 		{
-			return glfwGetWin32Window(window.GetGLFWwindow());
+
 		}
-	private:
+
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };
 		Pipeline::Renderer renderer{ window, device };
 
 		// note: order of declarations matters
-		std::unique_ptr<Pipeline::Descriptors::DescriptorPool> globalPool{};
+		Pipeline::Descriptors::DescriptorPool* globalPool{};
 	};
 }
