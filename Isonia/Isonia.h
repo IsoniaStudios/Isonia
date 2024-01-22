@@ -19,6 +19,7 @@
 #include "Pipeline/Device.h"
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/Systems/SimpleRenderSystem.h"
+#include "Pipeline/Systems/GroundRenderSystem.h"
 
 #include "Physics/PhysicsSystem.h"
 
@@ -64,7 +65,7 @@ namespace Isonia
 			InitializeDescriptorPool();
 			InitializeCoordinator();
 			InitializePhysicsSystem();
-			InitializeRenderSystem();
+			InitializeRenderSystems();
 			InitializeEntities();
 			InitializePlayer();
 		}
@@ -123,6 +124,7 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
+					groundRenderSystem->RenderGround(frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();
@@ -199,7 +201,8 @@ namespace Isonia
 		}
 
 		Pipeline::Systems::SimpleRenderSystem* simpleRenderSystem;
-		void InitializeRenderSystem()
+		Pipeline::Systems::GroundRenderSystem* groundRenderSystem;
+		void InitializeRenderSystems()
 		{
 			simpleRenderSystem = new Pipeline::Systems::SimpleRenderSystem{
 				device,
@@ -213,12 +216,16 @@ namespace Isonia
 				signature.set(ECS::GetComponentType<Components::Mesh>());
 				gCoordinator.SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
 			}
+
+			groundRenderSystem = new Pipeline::Systems::GroundRenderSystem{
+				device,
+				renderer.GetSwapChainRenderPass(),
+				globalSetLayout->GetDescriptorSetLayout()
+			};
 		}
 
 		void InitializeEntities()
 		{
-			std::vector<ECS::Entity> entities(ECS::MAX_ENTITIES - 1);
-
 			std::default_random_engine generator;
 			std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
 			std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
@@ -227,9 +234,9 @@ namespace Isonia
 
 			Renderable::Model* model = Renderable::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
-			for (auto& entity : entities)
+			for (int i = 0; i < ECS::MAX_ENTITIES; ++i)
 			{
-				entity = gCoordinator.CreateEntity();
+				ECS::Entity entity = gCoordinator.CreateEntity();
 
 				gCoordinator.AddComponent(
 					entity,

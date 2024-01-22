@@ -100,6 +100,13 @@ namespace Isonia::Pipeline
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 	}
 
+	void Pipeline::PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
+	{
+		Pipeline::PixelPipelineConfigInfo(configInfo);
+
+		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+	}
+
 	void Pipeline::PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
 	{
 		Pipeline::DefaultPipelineConfigInfo(configInfo);

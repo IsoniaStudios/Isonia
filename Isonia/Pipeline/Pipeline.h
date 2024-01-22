@@ -44,6 +44,7 @@ namespace Isonia::Pipeline
 
 		static void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 		static void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo);
+		static void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo);
 
 	private:
 		void CreateGraphicsPipeline(const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo);

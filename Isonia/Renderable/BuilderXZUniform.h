@@ -25,5 +25,29 @@ namespace Isonia::Renderable
 				vertices[i] = VertexXZUniform{};
 			}
 		}
+
+		void Bind(VkCommandBuffer commandBuffer)
+		{
+			VkBuffer buffers[] = { vertexBuffer->GetBuffer() };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+
+			if (hasIndexBuffer)
+			{
+				vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+			}
+		}
+
+		void Draw(VkCommandBuffer commandBuffer)
+		{
+			if (hasIndexBuffer)
+			{
+				vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+			}
+			else
+			{
+				vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+			}
+		}
 	};
 }
