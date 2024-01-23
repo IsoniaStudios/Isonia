@@ -16,16 +16,46 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+const int VERTICES = 4;
+const int VERTICES_COUNT = 2 * VERTICES * VERTICES - 4;
+
 void main()
 {
-	float VERTICES_PER_RUN = 20.0;
-	float CLAMPED_VERTICES_PER_RUN = 17.0;
+    // Calculate the row and column indices using gl_VertexIndex
+    int row = gl_VertexIndex / (2 * VERTICES - 2);
+    int col = gl_VertexIndex % (2 * VERTICES - 2);
 
-	float rowIndex = mod(gl_VertexIndex, VERTICES_PER_RUN);
-	float clampedIndex = clamp(rowIndex - 1.0, 0.0, CLAMPED_VERTICES_PER_RUN);
+    // Calculate the position of the vertex in the rectangle
+    float x = float(col / 2);
+    float y = float(row);
 
-	fragPosWorld = vec3(floor(clampedIndex / 2.0), amplitude, mod(clampedIndex, 2.0));
-	fragNormalWorld = vec3(0,1,0);
+    // Adjust the position to form a rectangle
+    x *= 2.0 / (VERTICES - 1.0);
+    y *= 2.0 / (VERTICES - 1.0);
+
+    // Alternate between even and odd rows to create a triangle strip
+    if (row % 2 == 1) {
+        x += 1.0 / (VERTICES - 1.0);
+    }
+
+    fragPosWorld = vec3(x, amplitude, y);
+    fragNormalWorld = vec3(x / 2.0, amplitude, y / 2.0);
+
+    // Output the final vertex position
+    gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);
+
+    /*
+    // Calculate the current strip and vertex indices
+    int stripIndex = int(gl_VertexIndex / VERTICES_PER_STRIP);
+    int vertexIndex = int(gl_VertexIndex % VERTICES_PER_STRIP);
+
+    // Calculate x and z positions based on strip and vertex indices
+    float x = float(vertexIndex % 2 + stripIndex);
+    float z = float(vertexIndex / 2);
+
+	fragPosWorld = vec3(x, amplitude, z);
+	fragNormalWorld = vec3(x / 2.0, amplitude, z / 2.0);
 
 	gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);
+    */
 }

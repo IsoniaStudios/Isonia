@@ -16,5 +16,5 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-	outColor = vec4(1.0);
+	outColor = vec4(fragNormalWorld, 1.0);
 }

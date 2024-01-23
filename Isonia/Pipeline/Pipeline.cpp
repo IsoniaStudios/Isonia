@@ -11,7 +11,7 @@
 
 namespace Isonia::Pipeline
 {
-	Pipeline::Pipeline(Device& device, const unsigned char* vertCode, std::size_t vertSize, const unsigned char* fragCode, std::size_t fragSize, const PipelineConfigInfo& configInfo) : device(device)
+	Pipeline::Pipeline(Device& device, const unsigned char* const vertCode, const std::size_t vertSize, const unsigned char* const fragCode, const std::size_t fragSize, const PipelineConfigInfo& configInfo) : device(device)
 	{
 		CreateGraphicsPipeline(vertCode, vertSize, fragCode, fragSize, configInfo);
 	}
@@ -23,7 +23,7 @@ namespace Isonia::Pipeline
 		vkDestroyPipeline(device.GetDevice(), graphicsPipeline, nullptr);
 	}
 
-	void Pipeline::CreateGraphicsPipeline(const unsigned char* vertCode, std::size_t vertSize, const unsigned char* fragCode, std::size_t fragSize, const PipelineConfigInfo& configInfo)
+	void Pipeline::CreateGraphicsPipeline(const unsigned char* const vertCode, const std::size_t vertSize, const unsigned char* const fragCode, const std::size_t fragSize, const PipelineConfigInfo& configInfo)
 	{
 		assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
@@ -82,12 +82,12 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	void Pipeline::CreateShaderModule(const unsigned char* code, std::size_t codeSize, VkShaderModule* shaderModule)
+	void Pipeline::CreateShaderModule(const unsigned char* const code, const std::size_t codeSize, VkShaderModule* shaderModule)
 	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		createInfo.codeSize = codeSize;
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code); // this i do not understand i have to admit
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(code);
 
 		if (vkCreateShaderModule(device.GetDevice(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
 		{

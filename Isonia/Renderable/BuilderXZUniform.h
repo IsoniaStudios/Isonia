@@ -11,20 +11,27 @@
 
 namespace Isonia::Renderable
 {
-	const std::size_t STRIP_COUNT = 8;
-	const std::size_t VERTICES_PER_STRIP = (STRIP_COUNT + 1) * 2;
-	const std::size_t VERTICES = VERTICES_PER_STRIP * STRIP_COUNT;
+	/// <summary>
+	/// 1 1 1 1 1
+	/// 3 2 2 2 3
+	/// 3 2 2 2 3
+	/// 3 2 2 2 3
+	/// 1 1 1 1 1
+	/// </summary>
+
+	const std::size_t VERTICES = 4;
+	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 	const float UNIFORM_DISTANCE = 0.1f;
 
 	struct BuilderXZUniform
 	{
-		VertexXZUniform vertices[VERTICES];
+		VertexXZUniform vertices[VERTICES_COUNT];
 
 		BuilderXZUniform(Pipeline::Device& device) : device(device)
 		{
-			for (size_t i = 0; i < VERTICES; i++)
+			for (size_t i = 0; i < VERTICES_COUNT; i++)
 			{
-				vertices[i] = VertexXZUniform{};
+				vertices[i].altitude = 0.0;
 			}
 			CreateVertexBuffers();
 		}
@@ -38,19 +45,19 @@ namespace Isonia::Renderable
 
 		void Draw(VkCommandBuffer commandBuffer)
 		{
-			vkCmdDraw(commandBuffer, VERTICES, 1, 0, 0);
+			vkCmdDraw(commandBuffer, VERTICES_COUNT, 1, 0, 0);
 		}
 
 	private:
 		void CreateVertexBuffers()
 		{
-			VkDeviceSize bufferSize = sizeof(VertexXZUniform) * VERTICES;
+			VkDeviceSize bufferSize = sizeof(VertexXZUniform) * VERTICES_COUNT;
 			uint32_t vertexSize = sizeof(VertexXZUniform);
 
 			Pipeline::Buffer stagingBuffer{
 				device,
 				vertexSize,
-				VERTICES,
+				VERTICES_COUNT,
 				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 			};
@@ -61,7 +68,7 @@ namespace Isonia::Renderable
 			vertexBuffer = new Pipeline::Buffer(
 				device,
 				vertexSize,
-				VERTICES,
+				VERTICES_COUNT,
 				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 			);
