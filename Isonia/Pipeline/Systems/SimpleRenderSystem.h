@@ -51,9 +51,6 @@ namespace Isonia::Pipeline::Systems
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 		}
 
-		SimpleRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-		~SimpleRenderSystem();
-
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
@@ -126,7 +123,9 @@ namespace Isonia::Pipeline::Systems
 			pipeline = new Pipeline(
 				device,
 				Shaders::Simple::VERTEXSHADER_VERT,
+				sizeof(Shaders::Simple::VERTEXSHADER_VERT) / sizeof(unsigned char),
 				Shaders::Simple::FRAGSHADER_FRAG,
+				sizeof(Shaders::Simple::FRAGSHADER_FRAG) / sizeof(unsigned char),
 				pipelineConfig
 			);
 		}

@@ -46,13 +46,10 @@ namespace Isonia::Pipeline::Systems
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 		}
 
-		GroundRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
-		~GroundRenderSystem();
-
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
-		void RenderGround(State::FrameInfo& frameInfo)
+		void RenderGround(Device& device, State::FrameInfo& frameInfo)
 		{
 			pipeline->Bind(frameInfo.commandBuffer);
 
@@ -68,10 +65,10 @@ namespace Isonia::Pipeline::Systems
 			);
 
 
-			auto ground = Renderable::BuilderXZUniform{};
+			auto ground = Renderable::BuilderXZUniform{ device };
 
-			ground->Bind(frameInfo.commandBuffer);
-			ground->Draw(frameInfo.commandBuffer);
+			ground.Bind(frameInfo.commandBuffer);
+			ground.Draw(frameInfo.commandBuffer);
 		}
 
 	private:
@@ -99,8 +96,10 @@ namespace Isonia::Pipeline::Systems
 			pipelineConfig.pipelineLayout = pipelineLayout;
 			pipeline = new Pipeline(
 				device,
-				Shaders::Simple::VERTEXSHADER_VERT,
-				Shaders::Simple::FRAGSHADER_FRAG,
+				Shaders::Ground::VERTEXSHADER_VERT,
+				sizeof(Shaders::Ground::VERTEXSHADER_VERT) / sizeof(unsigned char),
+				Shaders::Ground::FRAGSHADER_FRAG,
+				sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char),
 				pipelineConfig
 			);
 		}

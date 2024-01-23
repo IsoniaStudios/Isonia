@@ -11,9 +11,9 @@
 
 namespace Isonia::Pipeline
 {
-	Pipeline::Pipeline(Device& device, const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo) : device(device)
+	Pipeline::Pipeline(Device& device, const unsigned char* vertCode, std::size_t vertSize, const unsigned char* fragCode, std::size_t fragSize, const PipelineConfigInfo& configInfo) : device(device)
 	{
-		CreateGraphicsPipeline(vertCode, fragCode, configInfo);
+		CreateGraphicsPipeline(vertCode, vertSize, fragCode, fragSize, configInfo);
 	}
 
 	Pipeline::~Pipeline()
@@ -23,13 +23,13 @@ namespace Isonia::Pipeline
 		vkDestroyPipeline(device.GetDevice(), graphicsPipeline, nullptr);
 	}
 
-	void Pipeline::CreateGraphicsPipeline(const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo)
+	void Pipeline::CreateGraphicsPipeline(const unsigned char* vertCode, std::size_t vertSize, const unsigned char* fragCode, std::size_t fragSize, const PipelineConfigInfo& configInfo)
 	{
 		assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
-		CreateShaderModule(vertCode, &vertShaderModule);
-		CreateShaderModule(fragCode, &fragShaderModule);
+		CreateShaderModule(vertCode, vertSize, &vertShaderModule);
+		CreateShaderModule(fragCode, fragSize, &fragShaderModule);
 
 		VkPipelineShaderStageCreateInfo shaderStages[2];
 		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -82,12 +82,12 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	void Pipeline::CreateShaderModule(const std::vector<unsigned char>& code, VkShaderModule* shaderModule)
+	void Pipeline::CreateShaderModule(const unsigned char* code, std::size_t codeSize, VkShaderModule* shaderModule)
 	{
 		VkShaderModuleCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+		createInfo.codeSize = codeSize;
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(code); // this i do not understand i have to admit
 
 		if (vkCreateShaderModule(device.GetDevice(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
 		{

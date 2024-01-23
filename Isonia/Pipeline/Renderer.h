@@ -53,7 +53,7 @@ namespace Isonia::Pipeline
 		std::vector<VkCommandBuffer> commandBuffers;
 
 		uint32_t currentImageIndex;
-		int currentFrameIndex{ 0 };
-		bool isFrameStarted{ false };
+		int currentFrameIndex = 0;
+		bool isFrameStarted = false;
 	};
 }

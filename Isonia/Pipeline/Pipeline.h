@@ -34,7 +34,7 @@ namespace Isonia::Pipeline
 	class Pipeline
 	{
 	public:
-		Pipeline(Device& device, std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo);
+		Pipeline(Device& device, const unsigned char* vertCode, std::size_t vertSize, const unsigned char* fragCode, std::size_t fragSize, const PipelineConfigInfo& configInfo);
 		~Pipeline();
 
 		Pipeline(const Pipeline&) = delete;
@@ -47,9 +47,9 @@ namespace Isonia::Pipeline
 		static void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo);
 
 	private:
-		void CreateGraphicsPipeline(const std::vector<unsigned char> vertCode, const std::vector<unsigned char> fragCode, const PipelineConfigInfo& configInfo);
+		void CreateGraphicsPipeline(const unsigned char* vertCode, std::size_t vertSize, const unsigned char* fragCode, std::size_t fragSize, const PipelineConfigInfo& configInfo);
 
-		void CreateShaderModule(const std::vector<unsigned char>& code, VkShaderModule* shaderModule);
+		void CreateShaderModule(const unsigned char* code, std::size_t codeSize, VkShaderModule* shaderModule);
 
 		Device& device;
 		VkPipeline graphicsPipeline;

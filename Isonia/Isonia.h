@@ -81,7 +81,6 @@ namespace Isonia
 		{
 			Components::Camera camera{};
 			auto viewerObject = Components::Transform{};
-			viewerObject.position.z = -250.f;
 			Controllers::KeyboardMovementController cameraController{};
 			Debug::PerformanceTracker performanceTracker;
 			auto currentTime = std::chrono::high_resolution_clock::now();
@@ -101,8 +100,12 @@ namespace Isonia
 				camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
 
 				float aspect = renderer.GetAspectRatio();
+
+				/*
 				const float orthoSize = 100.f;
 				camera.SetOrthographicProjection(-orthoSize * aspect, orthoSize * aspect, -orthoSize, orthoSize, 0.f, 1000.f);
+				*/
+				camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
 				if (auto commandBuffer = renderer.BeginFrame())
 				{
@@ -124,7 +127,7 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
-					groundRenderSystem->RenderGround(frameInfo);
+					groundRenderSystem->RenderGround(device, frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();
