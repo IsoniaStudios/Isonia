@@ -33,7 +33,7 @@ extern Isonia::ECS::Coordinator gCoordinator;
 namespace Isonia::Pipeline::Systems
 {
 	// requires sign
-	const long GROUNDS = 20;
+	const long GROUNDS = 200;
 	const long GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
@@ -59,6 +59,7 @@ namespace Isonia::Pipeline::Systems
 		~GroundRenderSystem()
 		{
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
+			delete pipeline;
 
 			for (long x = GROUNDS - 1; x >= 0; x--)
 			{

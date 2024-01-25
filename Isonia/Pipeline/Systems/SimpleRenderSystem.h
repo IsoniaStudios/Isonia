@@ -49,6 +49,7 @@ namespace Isonia::Pipeline::Systems
 		~SimpleRenderSystem()
 		{
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
+			delete pipeline;
 		}
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;

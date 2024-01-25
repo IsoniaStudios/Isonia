@@ -8,7 +8,8 @@
 
 namespace Isonia::Pipeline
 {
-	VkResult CreateDebugUtilsMessengerEXT(
+#ifndef NDEBUG
+	static VkResult CreateDebugUtilsMessengerEXT(
 		VkInstance instance,
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
 		const VkAllocationCallbacks* pAllocator,
@@ -22,8 +23,7 @@ namespace Isonia::Pipeline
 		return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
 
-#ifndef NDEBUG
-	void DestroyDebugUtilsMessengerEXT(
+	static void DestroyDebugUtilsMessengerEXT(
 		VkInstance instance,
 		VkDebugUtilsMessengerEXT debugMessenger,
 		const VkAllocationCallbacks* pAllocator)

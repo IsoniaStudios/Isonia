@@ -2,6 +2,7 @@
 
 // std
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace Isonia::Pipeline
 {

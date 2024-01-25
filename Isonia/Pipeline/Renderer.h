@@ -26,6 +26,7 @@ namespace Isonia::Pipeline
 		~Renderer()
 		{
 			FreeCommandBuffers();
+			delete swapChain;
 		}
 
 		Renderer(const Renderer&) = delete;
