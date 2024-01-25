@@ -13,6 +13,11 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+layout(push_constant) uniform Push {
+  float x;
+  float z;
+} push;
+
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;

@@ -8,17 +8,6 @@
 
 namespace Isonia::Pipeline
 {
-	// local callback functions
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData)
-	{
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-		return VK_FALSE;
-	}
-
 	VkResult CreateDebugUtilsMessengerEXT(
 		VkInstance instance,
 		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -33,6 +22,7 @@ namespace Isonia::Pipeline
 		return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
 
+#ifndef NDEBUG
 	void DestroyDebugUtilsMessengerEXT(
 		VkInstance instance,
 		VkDebugUtilsMessengerEXT debugMessenger,
@@ -44,12 +34,15 @@ namespace Isonia::Pipeline
 			func(instance, debugMessenger, pAllocator);
 		}
 	}
+#endif
 
 	// class member functions
 	Device::Device(Window::Window& window) : window(window)
 	{
 		CreateInstance();
+#ifndef NDEBUG
 		SetupDebugMessenger();
+#endif
 		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
@@ -58,14 +51,14 @@ namespace Isonia::Pipeline
 
 	Device::~Device()
 	{
-		vkDestroyCommandPool(device_, commandPool, nullptr);
-		vkDestroyDevice(device_, nullptr);
+		vkDestroyCommandPool(device, commandPool, nullptr);
+		vkDestroyDevice(device, nullptr);
 
 #ifndef NDEBUG
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 #endif
 
-		vkDestroySurfaceKHR(instance, surface_, nullptr);
+		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
 	}
 
@@ -80,9 +73,9 @@ namespace Isonia::Pipeline
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "LittleVulkanEngine App";
+		appInfo.pApplicationName = "Isonia";
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "No Engine";
+		appInfo.pEngineName = "Isonia";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -94,9 +87,8 @@ namespace Isonia::Pipeline
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
-		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-
 #ifndef NDEBUG
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 
@@ -184,13 +176,13 @@ namespace Isonia::Pipeline
 		createInfo.enabledLayerCount = 0;
 #endif
 
-		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS)
+		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create logical device!");
 		}
 
-		vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
-		vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+		vkGetDeviceQueue(device, indices.graphicsFamily, 0, &graphicsQueue);
+		vkGetDeviceQueue(device, indices.presentFamily, 0, &presentQueue);
 	}
 
 	void Device::CreateCommandPool()
@@ -202,7 +194,7 @@ namespace Isonia::Pipeline
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-		if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create command pool!");
 		}
@@ -210,7 +202,7 @@ namespace Isonia::Pipeline
 
 	void Device::CreateSurface()
 	{
-		window.CreateWindowSurface(instance, &surface_);
+		window.CreateWindowSurface(instance, &surface);
 	}
 
 	bool Device::IsDeviceSuitable(VkPhysicalDevice device)
@@ -232,26 +224,35 @@ namespace Isonia::Pipeline
 		return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
 	}
 
+#ifndef NDEBUG
+	static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserData)
+	{
+		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		return VK_FALSE;
+	}
+
 	void Device::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
 	{
 		createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo.pfnUserCallback = debugCallback;
+		createInfo.pfnUserCallback = DebugCallback;
 		createInfo.pUserData = nullptr;
 	}
 
 	void Device::SetupDebugMessenger()
 	{
-#ifndef NDEBUG
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
 		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
-#endif
 	}
 
 	bool Device::CheckValidationLayerSupport()
@@ -283,6 +284,7 @@ namespace Isonia::Pipeline
 
 		return true;
 	}
+#endif
 
 	std::vector<const char*> Device::GetRequiredExtensions()
 	{
@@ -368,7 +370,7 @@ namespace Isonia::Pipeline
 				indices.graphicsFamilyHasValue = true;
 			}
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &presentSupport);
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 			if (queueFamily.queueCount > 0 && presentSupport)
 			{
 				indices.presentFamily = i;
@@ -388,26 +390,26 @@ namespace Isonia::Pipeline
 	SwapChainSupportDetails Device::QuerySwapChainSupport(VkPhysicalDevice device)
 	{
 		SwapChainSupportDetails details;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 
 		if (formatCount != 0)
 		{
 			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &formatCount, details.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
 		}
 
 		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 
 		if (presentModeCount != 0)
 		{
 			details.presentModes.resize(presentModeCount);
 			vkGetPhysicalDeviceSurfacePresentModesKHR(
 				device,
-				surface_,
+				surface,
 				&presentModeCount,
 				details.presentModes.data()
 			);
@@ -457,25 +459,25 @@ namespace Isonia::Pipeline
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateBuffer(device_, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create vertex buffer!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(device_, buffer, &memRequirements);
+		vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(device_, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+		if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate vertex buffer memory!");
 		}
 
-		vkBindBufferMemory(device_, buffer, bufferMemory, 0);
+		vkBindBufferMemory(device, buffer, bufferMemory, 0);
 	}
 
 	VkCommandBuffer Device::BeginSingleTimeCommands()
@@ -487,7 +489,7 @@ namespace Isonia::Pipeline
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer);
+		vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
 
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -506,10 +508,10 @@ namespace Isonia::Pipeline
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
-		vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(graphicsQueue_);
+		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(graphicsQueue);
 
-		vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
+		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 	}
 
 	void Device::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
@@ -555,25 +557,25 @@ namespace Isonia::Pipeline
 
 	void Device::CreateImageWithInfo(const VkImageCreateInfo& imageInfo, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
 	{
-		if (vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS)
+		if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create image!");
 		}
 
 		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(device_, image, &memRequirements);
+		vkGetImageMemoryRequirements(device, image, &memRequirements);
 
 		VkMemoryAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+		if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate image memory!");
 		}
 
-		if (vkBindImageMemory(device_, image, imageMemory, 0) != VK_SUCCESS)
+		if (vkBindImageMemory(device, image, imageMemory, 0) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to bind image memory!");
 		}

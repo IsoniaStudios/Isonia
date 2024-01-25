@@ -32,6 +32,9 @@ extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
+	const std::size_t GROUNDS = 100;
+	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
+
 	class GroundRenderSystem
 	{
 	public:
@@ -39,17 +42,35 @@ namespace Isonia::Pipeline::Systems
 		{
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
+
+			grounds = static_cast<Renderable::BuilderXZUniform*>(operator new[](sizeof(Renderable::BuilderXZUniform) * GROUNDS_COUNT));
+			for (size_t x = 0; x < GROUNDS; x++)
+			{
+				for (size_t z = 0; z < GROUNDS; z++)
+				{
+					new (grounds + x * GROUNDS + z) Renderable::BuilderXZUniform(device, x * 18.0f, z * 18.0f);
+				}
+			}
 		}
 
 		~GroundRenderSystem()
 		{
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
+
+			for (size_t x = GROUNDS - 1; x >= 0; x--)
+			{
+				for (size_t z = GROUNDS - 1; z >= 0; z--)
+				{
+					grounds[x * GROUNDS + z].~BuilderXZUniform();
+				}
+			}
+			operator delete[](grounds);
 		}
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
-		void RenderGround(Device& device, State::FrameInfo& frameInfo)
+		void RenderGround(State::FrameInfo& frameInfo)
 		{
 			pipeline->Bind(frameInfo.commandBuffer);
 
@@ -64,22 +85,42 @@ namespace Isonia::Pipeline::Systems
 				nullptr
 			);
 
+			for (size_t x = 0; x < GROUNDS; x++)
+			{
+				for (size_t z = 0; z < GROUNDS; z++)
+				{
+					Renderable::BuilderXZUniform* ground = &grounds[x * GROUNDS + z];
 
-			auto ground = Renderable::BuilderXZUniform{ device };
-
-			ground.Bind(frameInfo.commandBuffer);
-			ground.Draw(frameInfo.commandBuffer);
+					vkCmdPushConstants(
+						frameInfo.commandBuffer,
+						pipelineLayout,
+						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+						0,
+						sizeof(Renderable::XZPositionalData),
+						&(ground->positionalData)
+					);
+					ground->Bind(frameInfo.commandBuffer);
+					ground->Draw(frameInfo.commandBuffer);
+				}
+			}
 		}
 
 	private:
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout)
 		{
+			VkPushConstantRange pushConstantRange{};
+			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+			pushConstantRange.offset = 0;
+			pushConstantRange.size = sizeof(Renderable::XZPositionalData);
+
 			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 			pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
 			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+			pipelineLayoutInfo.pushConstantRangeCount = 1;
+			pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 			if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create pipeline layout!");
@@ -108,5 +149,7 @@ namespace Isonia::Pipeline::Systems
 
 		Pipeline* pipeline;
 		VkPipelineLayout pipelineLayout;
+
+		Renderable::BuilderXZUniform* grounds;
 	};
 }

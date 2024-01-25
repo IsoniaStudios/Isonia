@@ -127,7 +127,7 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
-					groundRenderSystem->RenderGround(device, frameInfo);
+					groundRenderSystem->RenderGround(frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();

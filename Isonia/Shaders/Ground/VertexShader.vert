@@ -16,6 +16,11 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+layout(push_constant) uniform Push {
+  float x;
+  float z;
+} push;
+
 const int VERTICES = 19;
 const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 
@@ -51,7 +56,7 @@ void main()
     int row = calculateRow(gl_VertexIndex, strip);
     int col = calculateCol(gl_VertexIndex, strip);
 
-    fragPosWorld = vec3(row, amplitude, col);
+    fragPosWorld = vec3(row + push.x, amplitude, col + push.z);
 
     float red = fract(sin(fragPosWorld.x * 12.9898 + fragPosWorld.z * 78.233) * 43758.5453);
     float green = fract(sin(fragPosWorld.x * 54.9874 + fragPosWorld.z * 87.156) * 65498.231);

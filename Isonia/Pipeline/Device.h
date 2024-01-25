@@ -22,7 +22,7 @@ namespace Isonia::Pipeline
 		uint32_t presentFamily;
 		bool graphicsFamilyHasValue = false;
 		bool presentFamilyHasValue = false;
-		bool IsComplete()
+		bool IsComplete() const
 		{
 			return graphicsFamilyHasValue && presentFamilyHasValue;
 		}
@@ -40,11 +40,11 @@ namespace Isonia::Pipeline
 		Device(Device&&) = delete;
 		Device& operator=(Device&&) = delete;
 
-		VkCommandPool GetCommandPool() { return commandPool; }
-		VkDevice GetDevice() { return device_; }
-		VkSurfaceKHR Surface() { return surface_; }
-		VkQueue GraphicsQueue() { return graphicsQueue_; }
-		VkQueue PresentQueue() { return presentQueue_; }
+		VkCommandPool GetCommandPool() const { return commandPool; }
+		VkDevice GetDevice() const { return device; }
+		VkSurfaceKHR Surface() const { return surface; }
+		VkQueue GraphicsQueue() const { return graphicsQueue; }
+		VkQueue PresentQueue() const { return presentQueue; }
 
 		SwapChainSupportDetails GetSwapChainSupport() { return QuerySwapChainSupport(physicalDevice); }
 		uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -73,7 +73,6 @@ namespace Isonia::Pipeline
 
 	private:
 		void CreateInstance();
-		void SetupDebugMessenger();
 		void CreateSurface();
 		void PickPhysicalDevice();
 		void CreateLogicalDevice();
@@ -82,9 +81,7 @@ namespace Isonia::Pipeline
 		// helper functions
 		bool IsDeviceSuitable(VkPhysicalDevice device);
 		std::vector<const char*> GetRequiredExtensions();
-		bool CheckValidationLayerSupport();
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 		void HasGflwRequiredInstanceExtensions();
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
@@ -95,12 +92,17 @@ namespace Isonia::Pipeline
 		Window::Window& window;
 		VkCommandPool commandPool;
 
-		VkDevice device_;
-		VkSurfaceKHR surface_;
-		VkQueue graphicsQueue_;
-		VkQueue presentQueue_;
+		VkDevice device;
+		VkSurfaceKHR surface;
+		VkQueue graphicsQueue;
+		VkQueue presentQueue;
 
+#ifndef NDEBUG
+		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+		void SetupDebugMessenger();
+		bool CheckValidationLayerSupport();
 		const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+#endif
 		const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 	};
 }

@@ -15,11 +15,19 @@ namespace Isonia::Renderable
 	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 	const float UNIFORM_DISTANCE = 0.1f;
 
+	struct XZPositionalData
+	{
+		XZPositionalData(const float x, const float z) : x(x), z(z) { }
+		const float x;
+		const float z;
+	};
+
 	struct BuilderXZUniform
 	{
 		VertexXZUniform vertices[VERTICES_COUNT];
+		const XZPositionalData positionalData;
 
-		BuilderXZUniform(Pipeline::Device& device) : device(device)
+		BuilderXZUniform(Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
 		{
 			for (size_t i = 0; i < VERTICES_COUNT; i++)
 			{
