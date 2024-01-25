@@ -31,12 +31,6 @@ namespace Isonia::Pipeline
 	class Device
 	{
 	public:
-#ifdef NDEBUG
-		const bool enableValidationLayers = false;
-#else
-		const bool enableValidationLayers = true;
-#endif
-
 		Device(Window::Window& window);
 		~Device();
 

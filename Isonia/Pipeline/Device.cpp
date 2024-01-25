@@ -61,10 +61,9 @@ namespace Isonia::Pipeline
 		vkDestroyCommandPool(device_, commandPool, nullptr);
 		vkDestroyDevice(device_, nullptr);
 
-		if (enableValidationLayers)
-		{
-			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-		}
+#ifndef NDEBUG
+		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+#endif
 
 		vkDestroySurfaceKHR(instance, surface_, nullptr);
 		vkDestroyInstance(instance, nullptr);
@@ -72,10 +71,12 @@ namespace Isonia::Pipeline
 
 	void Device::CreateInstance()
 	{
-		if (enableValidationLayers && !CheckValidationLayerSupport())
+#ifndef NDEBUG
+		if (!CheckValidationLayerSupport())
 		{
 			throw std::runtime_error("Validation layers requested, but not available!");
 		}
+#endif
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -94,19 +95,17 @@ namespace Isonia::Pipeline
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-		if (enableValidationLayers)
-		{
-			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-			createInfo.ppEnabledLayerNames = validationLayers.data();
 
-			PopulateDebugMessengerCreateInfo(debugCreateInfo);
-			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
-		}
-		else
-		{
-			createInfo.enabledLayerCount = 0;
-			createInfo.pNext = nullptr;
-		}
+#ifndef NDEBUG
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+
+		PopulateDebugMessengerCreateInfo(debugCreateInfo);
+		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+#else
+		createInfo.enabledLayerCount = 0;
+		createInfo.pNext = nullptr;
+#endif
 
 		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
 		{
@@ -177,16 +176,13 @@ namespace Isonia::Pipeline
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
+#ifndef NDEBUG
 		// might not really be necessary anymore because device specific validation layers have been deprecated
-		if (enableValidationLayers)
-		{
-			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-			createInfo.ppEnabledLayerNames = validationLayers.data();
-		}
-		else
-		{
-			createInfo.enabledLayerCount = 0;
-		}
+		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+#else
+		createInfo.enabledLayerCount = 0;
+#endif
 
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS)
 		{
@@ -248,15 +244,14 @@ namespace Isonia::Pipeline
 
 	void Device::SetupDebugMessenger()
 	{
-		if (!enableValidationLayers)
-			return;
-
+#ifdef NDEBUG
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
 		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
+#endif
 	}
 
 	bool Device::CheckValidationLayerSupport()
@@ -297,10 +292,9 @@ namespace Isonia::Pipeline
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-		if (enableValidationLayers)
-		{
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		}
+#ifndef NDEBUG
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 
 		return extensions;
 	}

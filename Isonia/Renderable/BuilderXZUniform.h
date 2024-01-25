@@ -11,14 +11,6 @@
 
 namespace Isonia::Renderable
 {
-	/// <summary>
-	/// 1 1 1 1 1
-	/// 3 2 2 2 3
-	/// 3 2 2 2 3
-	/// 3 2 2 2 3
-	/// 1 1 1 1 1
-	/// </summary>
-
 	const std::size_t VERTICES = 19;
 	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 	const float UNIFORM_DISTANCE = 0.1f;
