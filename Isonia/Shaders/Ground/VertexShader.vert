@@ -34,8 +34,6 @@ int calculateCol(int index, int strip)
     // 3:
     return abs(18 - ((index + 1) / 2));
     */
-    if (strip == 0)
-        return index / 2;
     return abs((((strip + 1) / 2) * (VERTICES * 2 - 1)) - ((index + (strip % 2)) / 2));
 }
 int calculateRow(int index, int strip)
