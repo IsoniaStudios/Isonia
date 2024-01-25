@@ -244,7 +244,7 @@ namespace Isonia::Pipeline
 
 	void Device::SetupDebugMessenger()
 	{
-#ifdef NDEBUG
+#ifndef NDEBUG
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
 		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
