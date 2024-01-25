@@ -24,6 +24,14 @@ namespace Isonia::ECS
             eventManager = new EventManager();
         }
 
+        ~Coordinator()
+        {
+            delete eventManager;
+            delete systemManager;
+            delete componentManager;
+            delete entityManager;
+        }
+
         // Entity methods
         Entity CreateEntity()
         {

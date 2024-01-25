@@ -35,6 +35,11 @@ namespace Isonia::Renderable
 			CreateVertexBuffers();
 		}
 
+		~BuilderXZUniform()
+		{
+			delete vertexBuffer;
+		}
+
 		void Bind(VkCommandBuffer commandBuffer)
 		{
 			VkBuffer buffers[] = { vertexBuffer->GetBuffer() };

@@ -52,7 +52,7 @@ namespace Isonia::ECS
 
     private:
         std::queue<Entity> availableEntities{};
-        std::array<Signature, MAX_ENTITIES> signatures{};
+        Signature signatures[MAX_ENTITIES];
         Entity livingEntityCount{};
     };
 }

@@ -33,7 +33,7 @@ extern Isonia::ECS::Coordinator gCoordinator;
 namespace Isonia::Pipeline::Systems
 {
 	// requires sign
-	const long GROUNDS = 250;
+	const long GROUNDS = 20;
 	const long GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem

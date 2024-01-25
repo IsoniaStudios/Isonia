@@ -16,6 +16,15 @@ namespace Isonia::ECS
 	class ComponentManager
 	{
     public:
+        ~ComponentManager()
+        {
+            for (size_t i = 0; i < MAX_COMPONENTS; ++i)
+            {
+                delete componentArrays[i];
+            }
+            //delete[] componentArrays;
+        }
+
         template<typename T>
         void RegisterComponent()
         {
@@ -57,7 +66,7 @@ namespace Isonia::ECS
         }
 
     private:
-        std::array<IComponentArray*, MAX_COMPONENTS> componentArrays{};
+        IComponentArray* componentArrays[MAX_COMPONENTS];
 
         template<typename T>
         ComponentArray<T>* GetComponentArray()

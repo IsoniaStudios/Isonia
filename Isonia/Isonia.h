@@ -72,6 +72,12 @@ namespace Isonia
 
 		~Isonia()
 		{
+			delete groundRenderSystem;
+			delete globalSetLayout;
+			for (Pipeline::Buffer* buffer : uboBuffers) {
+				delete buffer;
+			}
+			delete globalPool;
 		}
 
 		Isonia(const Isonia&) = delete;
@@ -185,6 +191,7 @@ namespace Isonia
 
 			gCoordinator.RegisterComponent<Components::Transform>();
 			gCoordinator.RegisterComponent<Components::Mesh>();
+			gCoordinator.RegisterComponent<Components::MeshRenderer>();
 			gCoordinator.RegisterComponent<Components::RigidBody>();
 			gCoordinator.RegisterComponent<Components::Gravity>();
 		}
@@ -235,6 +242,7 @@ namespace Isonia
 			std::uniform_real_distribution<float> randScale(.25f, 1.0f);
 			std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
 
+			// never gets freed
 			Renderable::Model* model = Renderable::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
 			for (int i = 0; i < ECS::MAX_ENTITIES; ++i)
@@ -275,8 +283,6 @@ namespace Isonia
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };
 		Pipeline::Renderer renderer{ window, device };
-
-		// note: order of declarations matters
 		Pipeline::Descriptors::DescriptorPool* globalPool{};
 	};
 }

@@ -15,6 +15,14 @@ namespace Isonia::ECS
 	class SystemManager
 	{
 	public:
+        ~SystemManager()
+        {
+            for (const auto& pair : systems)
+            {
+                delete pair.second;
+            }
+        }
+
         template<typename T>
         T* RegisterSystem()
         {

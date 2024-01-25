@@ -24,6 +24,8 @@ namespace Isonia::Renderable
 
 		~Model()
 		{
+			delete vertexBuffer;
+			delete indexBuffer;
 		}
 
 		Model(const Model&) = delete;

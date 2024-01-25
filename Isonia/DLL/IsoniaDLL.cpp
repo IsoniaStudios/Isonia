@@ -10,6 +10,7 @@ void* CreateIsoniaWindow() {
 }
 
 void DestroyIsoniaWindow(void* windowHandle) {
+    delete globalIsoniaInstance;
 }
 
 void Run() {
