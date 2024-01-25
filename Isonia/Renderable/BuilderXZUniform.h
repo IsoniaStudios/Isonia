@@ -11,7 +11,7 @@
 
 namespace Isonia::Renderable
 {
-	const std::size_t VERTICES = 19;
+	const std::size_t VERTICES = 29;
 	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 
 	struct XZPositionalData

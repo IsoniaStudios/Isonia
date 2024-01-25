@@ -149,7 +149,8 @@ namespace Isonia::Pipeline
 			submitInfo.pSignalSemaphores = signalSemaphores;
 
 			vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
-			if (vkQueueSubmit(device.GraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
+			VkResult queueSubmitResult = vkQueueSubmit(device.GraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]);
+			if (queueSubmitResult != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to submit draw command buffer!");
 			}
@@ -166,7 +167,7 @@ namespace Isonia::Pipeline
 
 			presentInfo.pImageIndices = imageIndex;
 
-			auto result = vkQueuePresentKHR(device.PresentQueue(), &presentInfo);
+			VkResult result = vkQueuePresentKHR(device.PresentQueue(), &presentInfo);
 
 			currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 

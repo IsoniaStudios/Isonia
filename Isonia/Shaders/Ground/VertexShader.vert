@@ -2,8 +2,8 @@
 #extension GL_KHR_vulkan_glsl : enable
 
 layout(location = 0) in float amplitude;
-layout(location = 1) in float putch;
-layout(location = 2) in float yaw;
+//layout(location = 1) in float pitch;
+//layout(location = 2) in float yaw;
 
 layout(location = 0) out vec3 fragPosWorld;
 layout(location = 1) out vec3 fragNormalWorld;
@@ -21,7 +21,7 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
-const int VERTICES = 19;
+const int VERTICES = 29;
 const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 
 int calculateCol(int index, int strip)
@@ -57,7 +57,7 @@ void main()
     int col = calculateCol(gl_VertexIndex, strip);
 
     fragPosWorld = vec3(row + push.x, amplitude, col + push.z);
-
+    
     float red = fract(sin(fragPosWorld.x * 12.9898 + fragPosWorld.z * 78.233) * 43758.5453);
     float green = fract(sin(fragPosWorld.x * 54.9874 + fragPosWorld.z * 87.156) * 65498.231);
     float blue = fract(sin(fragPosWorld.x * 98.1234 + fragPosWorld.z * 45.678) * 87651.874);
