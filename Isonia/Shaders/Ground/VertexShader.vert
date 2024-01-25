@@ -17,7 +17,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 } ubo;
 
 const int VERTICES = 19;
-const int VERTICES_COUNT = 2 * VERTICES * VERTICES - 4;
+const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 
 int calculateCol(int index, int strip)
 {
@@ -42,8 +42,6 @@ int calculateRow(int index, int strip)
 }
 int calculateStrip(int index)
 {
-    if (index < VERTICES * 2)
-        return 0;
     return (index - 1) / (VERTICES * 2 - 1);
 }
 
