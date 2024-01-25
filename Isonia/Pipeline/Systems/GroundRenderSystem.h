@@ -32,8 +32,9 @@ extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 100;
-	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
+	// requires sign
+	const long GROUNDS = 250;
+	const long GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
 	{
@@ -44,11 +45,13 @@ namespace Isonia::Pipeline::Systems
 			CreatePipeline(renderPass);
 
 			grounds = static_cast<Renderable::BuilderXZUniform*>(operator new[](sizeof(Renderable::BuilderXZUniform) * GROUNDS_COUNT));
-			for (size_t x = 0; x < GROUNDS; x++)
+			for (long x = 0; x < GROUNDS; x++)
 			{
-				for (size_t z = 0; z < GROUNDS; z++)
+				for (long z = 0; z < GROUNDS; z++)
 				{
-					new (grounds + x * GROUNDS + z) Renderable::BuilderXZUniform(device, x * 18.0f, z * 18.0f);
+					float xOffset = (x - GROUNDS / 2) * 18.0f;
+					float zOffset = (z - GROUNDS / 2) * 18.0f;
+					new (grounds + x * GROUNDS + z) Renderable::BuilderXZUniform(device, xOffset, zOffset);
 				}
 			}
 		}
@@ -57,9 +60,9 @@ namespace Isonia::Pipeline::Systems
 		{
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 
-			for (size_t x = GROUNDS - 1; x >= 0; x--)
+			for (long x = GROUNDS - 1; x >= 0; x--)
 			{
-				for (size_t z = GROUNDS - 1; z >= 0; z--)
+				for (long z = GROUNDS - 1; z >= 0; z--)
 				{
 					grounds[x * GROUNDS + z].~BuilderXZUniform();
 				}
@@ -85,9 +88,9 @@ namespace Isonia::Pipeline::Systems
 				nullptr
 			);
 
-			for (size_t x = 0; x < GROUNDS; x++)
+			for (long x = 0; x < GROUNDS; x++)
 			{
-				for (size_t z = 0; z < GROUNDS; z++)
+				for (long z = 0; z < GROUNDS; z++)
 				{
 					Renderable::BuilderXZUniform* ground = &grounds[x * GROUNDS + z];
 
