@@ -4,14 +4,18 @@
 #include "VertexXZUniform.h"
 #include "../Pipeline/Buffer.h"
 #include "../Pipeline/Device.h"
+#include "../Noise/Noise.h"
 
 // std
 #include <stdexcept>
 #include <bitset>
+#include <cmath>
 
 namespace Isonia::Renderable
 {
-	const std::size_t VERTICES = 29;
+	const float QUAD_SIZE = 0.1f;
+	const std::size_t QUADS = 256;
+	const std::size_t VERTICES = QUADS + 1;
 	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 
 	struct XZPositionalData
@@ -28,9 +32,18 @@ namespace Isonia::Renderable
 
 		BuilderXZUniform(Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
 		{
+			Noise::Noise noise{};
+
 			for (size_t i = 0; i < VERTICES_COUNT; i++)
 			{
-				vertices[i].altitude = 0.0;
+				const int strip = CalculateStrip(i);
+				const int row = CalculateRow(i, strip);
+				const int col = CalculateCol(i, strip);
+
+				const float x = row * QUAD_SIZE + positionalData.x;
+				const float z = col * QUAD_SIZE + positionalData.z;
+
+				vertices[i].altitude = noise.GeneratePerlinNoise(69, x, z);
 			}
 			CreateVertexBuffers();
 		}
@@ -53,10 +66,23 @@ namespace Isonia::Renderable
 		}
 
 	private:
+		int CalculateCol(const int index, const int strip) const
+		{
+			return abs(((strip + 1) / 2) * (int(VERTICES) * 2 - 1) - ((index + (strip % 2)) / 2));
+		}
+		int CalculateRow(const int index, const int strip) const
+		{
+			return ((index + strip) % 2) + strip;
+		}
+		int CalculateStrip(const int index) const
+		{
+			return (index - 1) / (int(VERTICES) * 2 - 1);
+		}
+
 		void CreateVertexBuffers()
 		{
-			VkDeviceSize bufferSize = sizeof(VertexXZUniform) * VERTICES_COUNT;
-			uint32_t vertexSize = sizeof(VertexXZUniform);
+			const VkDeviceSize bufferSize = sizeof(VertexXZUniform) * VERTICES_COUNT;
+			const uint32_t vertexSize = sizeof(VertexXZUniform);
 
 			Pipeline::Buffer stagingBuffer{
 				device,

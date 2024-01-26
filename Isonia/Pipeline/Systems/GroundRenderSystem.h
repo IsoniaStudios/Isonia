@@ -32,9 +32,8 @@ extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	// requires sign
-	const long GROUNDS = 10;
-	const long GROUNDS_COUNT = GROUNDS * GROUNDS;
+	const std::size_t GROUNDS = 10;
+	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
 	{
@@ -49,9 +48,9 @@ namespace Isonia::Pipeline::Systems
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					float xOffset = (x - GROUNDS / 2) * 50.0f;
-					float zOffset = (z - GROUNDS / 2) * 50.0f;
-					new (grounds + x * GROUNDS + z) Renderable::BuilderXZUniform(device, xOffset, zOffset);
+					float xOffset = (x - static_cast<long>(GROUNDS) / 2) * static_cast<long>(Renderable::QUADS) * Renderable::QUAD_SIZE;
+					float zOffset = (z - static_cast<long>(GROUNDS) / 2) * static_cast<long>(Renderable::QUADS) * Renderable::QUAD_SIZE;
+					new (grounds + x * static_cast<long>(GROUNDS) + z) Renderable::BuilderXZUniform(device, xOffset, zOffset);
 				}
 			}
 		}

@@ -68,8 +68,8 @@ namespace Isonia::Renderable
 			vertexCount = static_cast<uint32_t>(vertices.size());
 			assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
-			VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
-			uint32_t vertexSize = sizeof(vertices[0]);
+			VkDeviceSize bufferSize = sizeof(VertexComplete) * vertexCount;
+			uint32_t vertexSize = sizeof(VertexComplete);
 
 			Pipeline::Buffer stagingBuffer{
 				device,

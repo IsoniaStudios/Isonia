@@ -4,6 +4,7 @@
 #include "Device.h"
 #include "PipelineConfigInfo.h"
 #include "../Renderable/Model.h"
+#include "../Renderable/VertexXZUniform.h"
 
 // std
 #include <cassert>
@@ -43,6 +44,9 @@ namespace Isonia::Pipeline
 			Pipeline::PixelPipelineConfigInfo(configInfo);
 
 			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+
+			configInfo.bindingDescriptions = Renderable::VertexXZUniform::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::VertexXZUniform::GetAttributeDescriptions();
 		}
 
 		static void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
