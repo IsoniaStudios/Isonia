@@ -11,6 +11,7 @@
 #include <vector>
 #include <array>
 #include <stdexcept>
+#include <functional>
 
 namespace Isonia::Pipeline
 {
