@@ -23,6 +23,8 @@
 
 #include "Physics/PhysicsSystem.h"
 
+#include "Controllers/Player.h"
+
 #include "ECS/Definitions.h"
 #include "ECS/Coordinator.h"
 #include "ECS/Coordinator.h"
@@ -85,9 +87,6 @@ namespace Isonia
 
 		void Run()
 		{
-			Components::Camera camera{};
-			auto viewerObject = Components::Transform{};
-			Controllers::KeyboardMovementController cameraController{};
 			Debug::PerformanceTracker performanceTracker;
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			while (!window.ShouldClose())
@@ -102,20 +101,11 @@ namespace Isonia
 
 				physicsSystem->Update(frameTime);
 
-				cameraController.MoveInPlaneXZ(window.GetGLFWwindow(), frameTime, &viewerObject);
-				camera.SetViewYXZ(viewerObject.position, viewerObject.rotation);
-
-				float aspect = renderer.GetAspectRatio();
-
-				/*
-				const float orthoSize = 100.f;
-				camera.SetOrthographicProjection(-orthoSize * aspect, orthoSize * aspect, -orthoSize, orthoSize, 0.f, 1000.f);
-				*/
-				camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+				player.Act(window.GetGLFWwindow(), frameTime);
 
 				if (auto commandBuffer = renderer.BeginFrame())
 				{
-					int frameIndex = renderer.getFrameIndex();
+					int frameIndex = renderer.GetFrameIndex();
 					State::FrameInfo frameInfo{
 						frameIndex,
 						frameTime,
@@ -125,9 +115,9 @@ namespace Isonia
 
 					// update
 					State::GlobalUbo ubo{};
-					ubo.projection = camera.GetProjection();
-					ubo.view = camera.GetView();
-					ubo.inverseView = camera.GetInverseView();
+					ubo.projection = player.camera.GetProjection();
+					ubo.view = player.camera.GetView();
+					ubo.inverseView = player.camera.GetInverseView();
 					uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 					uboBuffers[frameIndex]->Flush();
 
@@ -277,9 +267,11 @@ namespace Isonia
 
 		void InitializePlayer()
 		{
-
+			//renderer.RegisterRenderResizeCallback(player.GetOnAspectChangeCallback());
+			player.OnAspectChange(&renderer);
 		}
 
+		Controllers::Player player{};
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };
 		Pipeline::Renderer renderer{ window, device };

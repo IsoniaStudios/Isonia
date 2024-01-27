@@ -7,6 +7,8 @@
 // std
 #include <string>
 #include <stdexcept>
+#include <vector>
+#include <functional>
 
 namespace Isonia::Window
 {
@@ -62,6 +64,20 @@ namespace Isonia::Window
 			}
 		}
 
+		using EventHandler = std::function<void(Window*)>;
+		void RegisterCallback(EventHandler handler)
+		{
+			handlers.push_back(handler);
+		}
+
+		void PropigateEvent()
+		{
+			for (const auto& handler : handlers)
+			{
+				handler(this);
+			}
+		}
+
 	private:
 		void InitWindow()
 		{
@@ -86,11 +102,14 @@ namespace Isonia::Window
 			localWindow->framebufferResized = true;
 			localWindow->width = width;
 			localWindow->height = height;
+			localWindow->PropigateEvent();
 		}
 
 		int width;
 		int height;
 		bool framebufferResized = false;
+
+		std::vector<EventHandler> handlers;
 
 		const std::string name;
 		GLFWwindow* window;

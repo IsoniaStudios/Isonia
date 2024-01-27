@@ -32,6 +32,20 @@ namespace Isonia::Pipeline
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
+		using EventHandler = std::function<void(Renderer*)>;
+		void RegisterRenderResizeCallback(EventHandler handler)
+		{
+			handlers.push_back(handler);
+		}
+
+		void PropigateRenderResizeEvent()
+		{
+			for (const auto& handler : handlers)
+			{
+				handler(this);
+			}
+		}
+
 		VkRenderPass GetSwapChainRenderPass() const { return swapChain->GetRenderPass(); }
 		float GetAspectRatio() const { return swapChain->ExtentAspectRatio(); }
 		bool IsFrameInProgress() const { return isFrameStarted; }
@@ -42,7 +56,7 @@ namespace Isonia::Pipeline
 			return commandBuffers[currentFrameIndex];
 		}
 
-		int getFrameIndex() const
+		int GetFrameIndex() const
 		{
 			assert(isFrameStarted && "Cannot get frame index when frame not in progress");
 			return currentFrameIndex;
@@ -91,6 +105,7 @@ namespace Isonia::Pipeline
 			{
 				window.ResetWindowResizedFlag();
 				RecreateSwapChain();
+				PropigateRenderResizeEvent();
 			}
 			else if (result != VK_SUCCESS)
 			{
@@ -201,6 +216,7 @@ namespace Isonia::Pipeline
 		Device& device;
 		SwapChain* swapChain = nullptr;
 		std::vector<VkCommandBuffer> commandBuffers;
+		std::vector<EventHandler> handlers;
 
 		uint32_t currentImageIndex;
 		int currentFrameIndex = 0;

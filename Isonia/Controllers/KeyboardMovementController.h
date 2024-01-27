@@ -23,13 +23,18 @@ namespace Isonia::Controllers
 			int moveBackward = GLFW_KEY_S;
 			int moveUp = GLFW_KEY_E;
 			int moveDown = GLFW_KEY_Q;
+
+			int sprint = GLFW_KEY_LEFT_SHIFT;
+
 			int lookLeft = GLFW_KEY_LEFT;
 			int lookRight = GLFW_KEY_RIGHT;
 			int lookUp = GLFW_KEY_UP;
 			int lookDown = GLFW_KEY_DOWN;
+
+			int perspective = GLFW_KEY_TAB;
 		};
 
-		void MoveInPlaneXZ(GLFWwindow* window, float dt, Components::Transform* transform)
+		void Move(GLFWwindow* window, float dt, Components::Transform* transform)
 		{
 			glm::vec3 rotate{ 0 };
 			if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
@@ -61,11 +66,13 @@ namespace Isonia::Controllers
 
 			if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
 			{
-				transform->position += moveSpeed * dt * glm::normalize(moveDir);
+				float speedScalar = glfwGetKey(window, keys.sprint) == GLFW_PRESS ? sprintSpeed : moveSpeed;
+				transform->position += speedScalar * dt * glm::normalize(moveDir);
 			}
 		}
 
 		KeyMappings keys{};
+		float sprintSpeed{ 60.f };
 		float moveSpeed{ 30.f };
 		float lookSpeed{ 1.5f };
 	};
