@@ -32,7 +32,7 @@ extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 10;
+	const std::size_t GROUNDS = 50;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
