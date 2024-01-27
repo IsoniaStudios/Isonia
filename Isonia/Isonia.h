@@ -267,7 +267,7 @@ namespace Isonia
 
 		void InitializePlayer()
 		{
-			//renderer.RegisterRenderResizeCallback(player.GetOnAspectChangeCallback());
+			renderer.RegisterRenderResizeCallback(player.GetOnAspectChangeCallback());
 			player.OnAspectChange(&renderer);
 		}
 
