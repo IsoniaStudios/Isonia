@@ -72,8 +72,14 @@ namespace Isonia::Pipeline
 				vkDestroySemaphore(device.GetDevice(), imageAvailableSemaphores[i], nullptr);
 				vkDestroyFence(device.GetDevice(), inFlightFences[i], nullptr);
 			}
+		}
 
-			delete oldSwapChain;
+		void FreeOldSwapChain()
+		{
+			if (oldSwapChain != nullptr)
+			{
+				delete oldSwapChain;
+			}
 		}
 
 		SwapChain(const SwapChain&) = delete;

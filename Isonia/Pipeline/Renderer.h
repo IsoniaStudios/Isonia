@@ -27,6 +27,7 @@ namespace Isonia::Pipeline
 		~Renderer()
 		{
 			FreeCommandBuffers();
+			swapChain->FreeOldSwapChain();
 			delete swapChain;
 		}
 
@@ -202,14 +203,13 @@ namespace Isonia::Pipeline
 			else
 			{
 				SwapChain* oldSwapChain = swapChain;
+				oldSwapChain->FreeOldSwapChain();
 				swapChain = new SwapChain(device, extent, oldSwapChain);
 
 				if (!oldSwapChain->CompareSwapFormats(*swapChain))
 				{
 					throw std::runtime_error("Swap chain image(or depth) format has changed!");
 				}
-
-				delete oldSwapChain;
 			}
 		}
 
