@@ -32,7 +32,7 @@ extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 10;
+	const std::size_t GROUNDS = 4;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
@@ -43,14 +43,16 @@ namespace Isonia::Pipeline::Systems
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
 
+			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
+			auto QUADS_LONG = static_cast<long>(Renderable::QUADS);
 			grounds = static_cast<Renderable::BuilderXZUniform*>(operator new[](sizeof(Renderable::BuilderXZUniform) * GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					float xOffset = (x - static_cast<long>(GROUNDS) / 2) * static_cast<long>(Renderable::QUADS) * Renderable::QUAD_SIZE;
-					float zOffset = (z - static_cast<long>(GROUNDS) / 2) * static_cast<long>(Renderable::QUADS) * Renderable::QUAD_SIZE;
-					new (grounds + x * static_cast<long>(GROUNDS) + z) Renderable::BuilderXZUniform(device, xOffset, zOffset);
+					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::QUAD_SIZE;
+					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::QUAD_SIZE;
+					new (grounds + x * GROUNDS_LONG + z) Renderable::BuilderXZUniform(device, xOffset, zOffset);
 				}
 			}
 		}

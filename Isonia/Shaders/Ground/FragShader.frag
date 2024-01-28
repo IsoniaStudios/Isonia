@@ -1,7 +1,8 @@
 #version 450
 
-layout (location = 0) in vec3 fragPosWorld;
-layout (location = 1) in vec3 fragNormalWorld;
+layout (location = 0) in vec3 fragColor;
+layout (location = 1) in vec3 fragPosWorld;
+layout (location = 2) in vec3 fragNormalWorld;
 
 layout (location = 0) out vec4 outColor;
 
@@ -21,5 +22,6 @@ layout(push_constant) uniform Push {
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
+	//outColor = vec4(diffuseLight * fragColor, 1.0);
 	outColor = vec4(fragNormalWorld, 1.0);
 }

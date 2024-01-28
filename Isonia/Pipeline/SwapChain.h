@@ -486,7 +486,7 @@ namespace Isonia::Pipeline
 			return VK_PRESENT_MODE_FIFO_KHR;
 		}
 
-		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
 		{
 			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 			{
