@@ -22,6 +22,6 @@ layout(push_constant) uniform Push {
 void main()
 {
 	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-	//outColor = vec4(diffuseLight * fragColor, 1.0);
-	outColor = vec4(fragNormalWorld.x, -fragNormalWorld.y, fragNormalWorld.z, 1.0);
+	outColor = vec4(diffuseLight * fragColor, 1.0);
+	//outColor = vec4(fragNormalWorld.x, -fragNormalWorld.y, fragNormalWorld.z, 1.0);
 }

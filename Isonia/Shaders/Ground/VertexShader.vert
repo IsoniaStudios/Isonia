@@ -58,12 +58,7 @@ void main()
     */
     
     float lightIntensity = max(dot(fragNormalWorld, ubo.lightDirection), 0.0);
-    //fragColor = vec3(lightIntensity);
-
-    float red = fract(sin(fragPosWorld.x * 12.9898 + fragPosWorld.z * 78.233) * 43758.5453);
-    float green = fract(sin(fragPosWorld.x * 54.9874 + fragPosWorld.z * 87.156) * 65498.231);
-    float blue = fract(sin(fragPosWorld.x * 98.1234 + fragPosWorld.z * 45.678) * 87651.874);
-    fragColor = vec3(red, green, blue);
+    fragColor = vec3(lightIntensity);
 
     // Output the final vertex position
     gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);

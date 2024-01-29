@@ -91,14 +91,6 @@ namespace Isonia::Renderable
 				glm::vec3 v12 = {  QUAD_SIZE, localY[1][2],       0.0f };
 				glm::vec3 v22 = {  QUAD_SIZE, localY[2][2],  QUAD_SIZE };
 
-				glm::vec3 n0 = CalculateMiddleVertexNormal3D(v01, v11, v21);
-				glm::vec3 n1 = CalculateMiddleVertexNormal3D(v02, v11, v20);
-				glm::vec3 n2 = CalculateMiddleVertexNormal3D(v12, v11, v10);
-				glm::vec3 n3 = CalculateMiddleVertexNormal3D(v22, v11, v00);
-
-				vertices[i].normal = glm::normalize(n0 + n1 + n2 + n3);
-				vertices[i].normal = glm::normalize(n2);
-				vertices[i].normal = CalculateSmoothNormal(v00, v01, v02, v10, v11, v12, v20, v21, v22);
 				vertices[i].normal = ComputeSmoothNormal(v00, v01, v02, v10, v11, v12, v20, v21, v22);
 			}
 
@@ -133,17 +125,17 @@ namespace Isonia::Renderable
 									  const glm::vec3& v02, const glm::vec3& v12, const glm::vec3& v22)
 		{
 			// Calculate flat normal for each triangle
-			glm::vec3 t00 = glm::cross(v10 - v00, v01 - v00);
-			glm::vec3 t01 = glm::cross(v20 - v10, v11 - v10);
+			glm::vec3 t00 = glm::cross(v01 - v11, v00 - v11);
+			glm::vec3 t01 = glm::cross(v00 - v11, v10 - v11);
 
-			glm::vec3 t10 = glm::cross(v21 - v11, v12 - v11);
-			glm::vec3 t11 = glm::cross(v01 - v21, v22 - v21);
+			glm::vec3 t10 = glm::cross(v10 - v11, v20 - v11);
+			glm::vec3 t11 = glm::cross(v20 - v11, v21 - v11);
 
-			glm::vec3 t20 = glm::cross(v02 - v22, v21 - v22);
-			glm::vec3 t21 = glm::cross(v12 - v02, v00 - v02);
+			glm::vec3 t20 = glm::cross(v21 - v11, v22 - v11);
+			glm::vec3 t21 = glm::cross(v22 - v11, v12 - v11);
 
-			glm::vec3 t30 = glm::cross(v11 - v01, v02 - v01);
-			glm::vec3 t31 = glm::cross(v22 - v12, v10 - v12);
+			glm::vec3 t30 = glm::cross(v12 - v11, v02 - v11);
+			glm::vec3 t31 = glm::cross(v02 - v11, v01 - v11);
 
 			// Compute the smooth normal
 			glm::vec3 smoothNormal = glm::normalize(t00 + t01 + t10 + t11 + t20 + t21 + t30 + t31);
