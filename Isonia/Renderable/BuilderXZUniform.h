@@ -99,6 +99,7 @@ namespace Isonia::Renderable
 				vertices[i].normal = glm::normalize(n0 + n1 + n2 + n3);
 				vertices[i].normal = glm::normalize(n2);
 				vertices[i].normal = CalculateSmoothNormal(v00, v01, v02, v10, v11, v12, v20, v21, v22);
+				vertices[i].normal = ComputeSmoothNormal(v00, v01, v02, v10, v11, v12, v20, v21, v22);
 			}
 
 			// free locally allocated memory
@@ -127,43 +128,27 @@ namespace Isonia::Renderable
 		}
 
 	private:
-		glm::vec3 CalculateSmoothNormal(const glm::vec3& v00, const glm::vec3& v01, const glm::vec3& v02,
-										const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
-										const glm::vec3& v20, const glm::vec3& v21, const glm::vec3& v22)
+		glm::vec3 ComputeSmoothNormal(const glm::vec3& v00, const glm::vec3& v10, const glm::vec3& v20,
+							  		  const glm::vec3& v01, const glm::vec3& v11, const glm::vec3& v21,
+									  const glm::vec3& v02, const glm::vec3& v12, const glm::vec3& v22)
 		{
-			// Calculate cross products of neighboring vectors
-			glm::vec3 crossProduct1 = glm::cross(v00, v11);
-			glm::vec3 crossProduct2 = glm::cross(v01, v11);
-			glm::vec3 crossProduct3 = glm::cross(v02, v11);
-			glm::vec3 crossProduct4 = glm::cross(v10, v11);
-			glm::vec3 crossProduct5 = glm::cross(v12, v11);
-			glm::vec3 crossProduct6 = glm::cross(v20, v11);
-			glm::vec3 crossProduct7 = glm::cross(v21, v11);
-			glm::vec3 crossProduct8 = glm::cross(v22, v11);
+			// Calculate flat normal for each triangle
+			glm::vec3 t00 = glm::cross(v10 - v00, v01 - v00);
+			glm::vec3 t01 = glm::cross(v20 - v10, v11 - v10);
 
-			// Weighted sum of the neighboring normals
-			glm::vec3 smoothNormal = (crossProduct1 +
-				crossProduct2 +
-				crossProduct3 +
-				crossProduct4 +
-				crossProduct5 +
-				crossProduct6 +
-				crossProduct7 +
-				crossProduct8);
+			glm::vec3 t10 = glm::cross(v21 - v11, v12 - v11);
+			glm::vec3 t11 = glm::cross(v01 - v21, v22 - v21);
 
-			// Normalize the result
-			smoothNormal = glm::normalize(smoothNormal);
+			glm::vec3 t20 = glm::cross(v02 - v22, v21 - v22);
+			glm::vec3 t21 = glm::cross(v12 - v02, v00 - v02);
+
+			glm::vec3 t30 = glm::cross(v11 - v01, v02 - v01);
+			glm::vec3 t31 = glm::cross(v22 - v12, v10 - v12);
+
+			// Compute the smooth normal
+			glm::vec3 smoothNormal = glm::normalize(t00 + t01 + t10 + t11 + t20 + t21 + t30 + t31);
 
 			return smoothNormal;
-		}
-
-		glm::vec3 CalculateMiddleVertexNormal3D(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) const
-		{
-			// calculate vectors AB and BC
-			glm::vec3 AB = b - a;
-			glm::vec3 BC = c - b;
-			// return the sum
-			return AB + BC;
 		}
 
 		int CalculateCol(const int index, const int strip) const
