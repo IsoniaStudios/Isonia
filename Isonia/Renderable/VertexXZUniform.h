@@ -20,9 +20,9 @@ namespace Isonia::Renderable
 	struct VertexXZUniform
 	{
 		float altitude;
-		glm::uvec3 normal;
+		glm::vec3 normal;
 
-		VertexXZUniform(float altitude, glm::uvec3 normal)
+		VertexXZUniform(float altitude, glm::vec3 normal)
 			: altitude(altitude), normal(normal)
 		{
 		}

@@ -51,71 +51,60 @@ namespace Isonia::Renderable
 				float z = (i / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
 
 				// calculate perlin noise from xz
-				perlinNoise[i] = noise.GeneratePerlinNoise(69, x, z);
+				perlinNoise[i] = noise.GeneratePerlinNoise(69, x, z) * 0.5f;
 			}
 
-			float localNormalNoise[3][3]{};
+			float localY[3][3]{};
 			for (size_t i = 0; i < VERTICES_COUNT; i++)
 			{
 				// calculate strip row and col
 				const int strip = CalculateStrip(i);
-				const int row = CalculateRow(i, strip) + 1;
-				const int col = CalculateCol(i, strip) + 1;
+				const int row = CalculateRow(i, strip) + 1; // is x
+				const int col = CalculateCol(i, strip) + 1; // is z
 
 				//
-				for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
+				for (int colOffset = -1; colOffset <= 1; colOffset++)
 				{
-					int rowWO = row + rowOffset;
-					for (int colOffset = -1; colOffset <= 1; colOffset++)
+					int colWO = col + colOffset;
+					for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
 					{
-						int colWO = col + colOffset;
-						localNormalNoise[colOffset + 1][rowOffset + 1] = perlinNoise[rowWO + SAMPLE * colWO]; // unsure why this is flipped but oh well
+						int rowWO = row + rowOffset;
+						localY[colOffset + 1][rowOffset + 1] = perlinNoise[rowWO + SAMPLE * colWO]; // unsure why this is flipped but oh well
 					}
 				}
 
 				// get precalculated perlin noise and set it to altitude
-				vertices[i].altitude = localNormalNoise[1][1];
+				vertices[i].altitude = localY[1][1];
 
-				//glm::vec3 b = { 0.0f, vertices[i].altitude, 0.0f };
+				// [00, 01, 02]
+				// [10, 11, 12]
+				// [20, 21, 22]
+				glm::vec3 v00 = { -QUAD_SIZE, localY[0][0], -QUAD_SIZE };
+				glm::vec3 v10 = { -QUAD_SIZE, localY[1][0],       0.0f };
+				glm::vec3 v20 = { -QUAD_SIZE, localY[2][0],  QUAD_SIZE };
 
+				glm::vec3 v01 = {       0.0f, localY[0][1], -QUAD_SIZE };
+				glm::vec3 v11 = {       0.0f, localY[1][1],       0.0f };
+				glm::vec3 v21 = {       0.0f, localY[2][1],  QUAD_SIZE };
 
-				//glm::vec3 n0 = CalculateMiddleVertexNormal3D(glm::vec3(-QUAD_SIZE, localNormalNoise[1][0], 0.0), b, glm::vec3(+QUAD_SIZE, localNormalNoise[1][2], 0.0));
-				//glm::vec3 norm = glm::normalize(n0);
-				//vertices[i].normal = norm;
-				vertices[i].normal = glm::vec3(1.0f, 1.0f, 1.0f);
-			}
-			/*
-			// calculate per triangle normal
-			glm::vec3* triangleNorms = static_cast<glm::vec3*>(operator new[](sizeof(glm::vec3) * TRIANGLE_COUNT));
-			for (size_t i = 0; i < TRIANGLE_COUNT; i++)
-			{
-				// get vecs
-				glm::vec3 v0{ xzVertices[i + 0].x, vertices[i + 0].altitude, xzVertices[i + 0].y };
-				glm::vec3 v1{ xzVertices[i + 1].x, vertices[i + 1].altitude, xzVertices[i + 1].y };
-				glm::vec3 v2{ xzVertices[i + 2].x, vertices[i + 2].altitude, xzVertices[i + 2].y };
+				glm::vec3 v02 = {  QUAD_SIZE, localY[0][2], -QUAD_SIZE };
+				glm::vec3 v12 = {  QUAD_SIZE, localY[1][2],       0.0f };
+				glm::vec3 v22 = {  QUAD_SIZE, localY[2][2],  QUAD_SIZE };
 
-				// calculate triangle normal
-				glm::vec3 cross = glm::cross(v1 - v0, v2 - v0);
-				glm::vec3 norm = glm::normalize(cross);
+				glm::vec3 n0 = CalculateMiddleVertexNormal3D(v01, v11, v21);
+				glm::vec3 n1 = CalculateMiddleVertexNormal3D(v02, v11, v20);
+				glm::vec3 n2 = CalculateMiddleVertexNormal3D(v12, v11, v10);
+				glm::vec3 n3 = CalculateMiddleVertexNormal3D(v22, v11, v00);
 
-				triangleNorms[i] = norm;
-			}
-
-			// calculate smooth normal
-			for (size_t i = 0; i < TRIANGLE_COUNT; i++)
-			{
-
-				// convert to pitch and yaw
-				float pitch = glm::asin(triangleNorms[i].y);
-				float yaw = atan2(-triangleNorms[i].x, triangleNorms[i].z);
-
-				vertices[i].pitch = pitch;
-				vertices[i].yaw = yaw;
+				vertices[i].normal = glm::normalize(n0 + n1 + n2 + n3);
+				vertices[i].normal = glm::normalize(n2);
+				vertices[i].normal = CalculateSmoothNormal(v00, v01, v02, v10, v11, v12, v20, v21, v22);
 			}
 
-			delete xzVertices;
-			delete triangleNorms;
-			*/
+			// free locally allocated memory
+			delete perlinNoise;
+
+			// create the buffers
 			CreateVertexBuffers();
 		}
 
@@ -138,18 +127,44 @@ namespace Isonia::Renderable
 		}
 
 	private:
-		glm::vec3 CalculateMiddleVertexNormal3D(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) const
+		glm::vec3 CalculateSmoothNormal(const glm::vec3& v00, const glm::vec3& v01, const glm::vec3& v02,
+										const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
+										const glm::vec3& v20, const glm::vec3& v21, const glm::vec3& v22)
 		{
-			// Calculate vectors AB and BC
-			glm::vec3 AB = b - a;
-			glm::vec3 BC = c - b;
+			// Calculate cross products of neighboring vectors
+			glm::vec3 crossProduct1 = glm::cross(v00, v11);
+			glm::vec3 crossProduct2 = glm::cross(v01, v11);
+			glm::vec3 crossProduct3 = glm::cross(v02, v11);
+			glm::vec3 crossProduct4 = glm::cross(v10, v11);
+			glm::vec3 crossProduct5 = glm::cross(v12, v11);
+			glm::vec3 crossProduct6 = glm::cross(v20, v11);
+			glm::vec3 crossProduct7 = glm::cross(v21, v11);
+			glm::vec3 crossProduct8 = glm::cross(v22, v11);
 
-			// Calculate the average vector
-			glm::vec3 averageVector = (AB + BC) / 2.0f;
+			// Weighted sum of the neighboring normals
+			glm::vec3 smoothNormal = (crossProduct1 +
+				crossProduct2 +
+				crossProduct3 +
+				crossProduct4 +
+				crossProduct5 +
+				crossProduct6 +
+				crossProduct7 +
+				crossProduct8);
 
-			return averageVector;
+			// Normalize the result
+			smoothNormal = glm::normalize(smoothNormal);
+
+			return smoothNormal;
 		}
 
+		glm::vec3 CalculateMiddleVertexNormal3D(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) const
+		{
+			// calculate vectors AB and BC
+			glm::vec3 AB = b - a;
+			glm::vec3 BC = c - b;
+			// return the sum
+			return AB + BC;
+		}
 
 		int CalculateCol(const int index, const int strip) const
 		{
