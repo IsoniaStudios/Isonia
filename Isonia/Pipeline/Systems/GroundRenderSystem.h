@@ -3,13 +3,18 @@
 // internal
 #include "../Device.h"
 #include "../Pipeline.h"
+
 #include "../../State/FrameInfo.h"
+
 #include "../../ECS/System.h"
 #include "../../ECS/Coordinator.h"
-#include "../../Components/Camera.h"
+
 #include "../../Components/Mesh.h"
+#include "../../Components/Camera.h"
 #include "../../Components/Transform.h"
-#include "../../Renderable/BuilderXZUniform.h"
+
+#include "../../Renderable/PosNorm/Builder.h"
+#include "../../Renderable/XZUniform/Builder.h"
 
 // shaders
 #include "../../Shaders/Include/Ground/FragShader_frag.h"
@@ -44,15 +49,15 @@ namespace Isonia::Pipeline::Systems
 			CreatePipeline(renderPass);
 
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
-			auto QUADS_LONG = static_cast<long>(Renderable::QUADS);
-			grounds = static_cast<Renderable::BuilderXZUniform*>(operator new[](sizeof(Renderable::BuilderXZUniform) * GROUNDS_COUNT));
+			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
+			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::QUAD_SIZE;
-					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::QUAD_SIZE;
-					new (grounds + x * GROUNDS_LONG + z) Renderable::BuilderXZUniform(device, xOffset, zOffset);
+					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
+					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
+					new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(device, xOffset, zOffset);
 				}
 			}
 		}
@@ -66,7 +71,7 @@ namespace Isonia::Pipeline::Systems
 			{
 				for (long z = GROUNDS - 1; z >= 0; z--)
 				{
-					grounds[x * GROUNDS + z].~BuilderXZUniform();
+					grounds[x * GROUNDS + z].~Builder();
 				}
 			}
 			operator delete[](grounds);
@@ -94,14 +99,14 @@ namespace Isonia::Pipeline::Systems
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					Renderable::BuilderXZUniform* ground = &grounds[x * GROUNDS + z];
+					Renderable::XZUniform::Builder* ground = &grounds[x * GROUNDS + z];
 
 					vkCmdPushConstants(
 						frameInfo.commandBuffer,
 						pipelineLayout,
 						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 						0,
-						sizeof(Renderable::XZPositionalData),
+						sizeof(Renderable::XZUniform::XZPositionalData),
 						&(ground->positionalData)
 					);
 					ground->Bind(frameInfo.commandBuffer);
@@ -116,7 +121,7 @@ namespace Isonia::Pipeline::Systems
 			VkPushConstantRange pushConstantRange{};
 			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			pushConstantRange.offset = 0;
-			pushConstantRange.size = sizeof(Renderable::XZPositionalData);
+			pushConstantRange.size = sizeof(Renderable::XZUniform::XZPositionalData);
 
 			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
 
@@ -155,6 +160,7 @@ namespace Isonia::Pipeline::Systems
 		Pipeline* pipeline;
 		VkPipelineLayout pipelineLayout;
 
-		Renderable::BuilderXZUniform* grounds;
+		Renderable::XZUniform::Builder* grounds;
+		Renderable::PosNorm::Builder* foliages;
 	};
 }

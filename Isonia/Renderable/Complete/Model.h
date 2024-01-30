@@ -1,9 +1,9 @@
 #pragma once
 
 // internal
-#include "../Pipeline/Buffer.h"
-#include "../Pipeline/Device.h"
-#include "BuilderComplete.h"
+#include "../../Pipeline/Buffer.h"
+#include "../../Pipeline/Device.h"
+#include "Builder.h"
 
 // std
 #include <memory>
@@ -11,12 +11,12 @@
 #include <cassert>
 #include <cstring>
 
-namespace Isonia::Renderable
+namespace Isonia::Renderable::Complete
 {
 	class Model
 	{
 	public:
-		Model(Pipeline::Device& device, const BuilderComplete& builder) : device(device)
+		Model(Pipeline::Device& device, const Builder& builder) : device(device)
 		{
 			CreateVertexBuffers(builder.vertices);
 			CreateIndexBuffers(builder.indices);
@@ -33,7 +33,7 @@ namespace Isonia::Renderable
 
 		static Model* CreateModelFromFile(Pipeline::Device& device, const std::string& filepath)
 		{
-			BuilderComplete builder{};
+			Builder builder{};
 			builder.LoadModel(filepath);
 			return new Model(device, builder);
 		}
@@ -63,13 +63,13 @@ namespace Isonia::Renderable
 		}
 
 	private:
-		void CreateVertexBuffers(const std::vector<VertexComplete>& vertices)
+		void CreateVertexBuffers(const std::vector<Vertex>& vertices)
 		{
 			vertexCount = static_cast<uint32_t>(vertices.size());
 			assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
-			VkDeviceSize bufferSize = sizeof(VertexComplete) * vertexCount;
-			uint32_t vertexSize = sizeof(VertexComplete);
+			VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
+			uint32_t vertexSize = sizeof(Vertex);
 
 			Pipeline::Buffer stagingBuffer{
 				device,

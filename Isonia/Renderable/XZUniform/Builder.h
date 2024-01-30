@@ -1,10 +1,10 @@
 #pragma once
 
 // internal
-#include "VertexXZUniform.h"
-#include "../Pipeline/Buffer.h"
-#include "../Pipeline/Device.h"
-#include "../Noise/Noise.h"
+#include "Vertex.h"
+#include "../../Noise/Noise.h"
+#include "../../Pipeline/Buffer.h"
+#include "../../Pipeline/Device.h"
 
 // external
 #include <glm/glm.hpp>
@@ -14,7 +14,7 @@
 #include <bitset>
 #include <cmath>
 
-namespace Isonia::Renderable
+namespace Isonia::Renderable::XZUniform
 {
 	const float QUAD_SIZE = 0.1f;
 	const std::size_t QUADS = 256;
@@ -31,16 +31,16 @@ namespace Isonia::Renderable
 		const float z;
 	};
 
-	struct BuilderXZUniform
+	struct Builder
 	{
-		VertexXZUniform* vertices;
+		Vertex* vertices;
 		const XZPositionalData positionalData;
 
-		BuilderXZUniform(Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
+		Builder(Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
 		{
 			// alloc memory
 			Noise::Noise noise{};
-			vertices = static_cast<VertexXZUniform*>(operator new[](sizeof(VertexXZUniform) * VERTICES_COUNT));
+			vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
 			
 			// calculate perlin
 			float* perlinNoise = static_cast<float*>(operator new[](sizeof(float) * SAMPLE_COUNT));
@@ -101,7 +101,7 @@ namespace Isonia::Renderable
 			CreateVertexBuffers();
 		}
 
-		~BuilderXZUniform()
+		~Builder()
 		{
 			delete vertexBuffer;
 			delete vertices;
@@ -175,8 +175,8 @@ namespace Isonia::Renderable
 
 		void CreateVertexBuffers()
 		{
-			const VkDeviceSize bufferSize = sizeof(VertexXZUniform) * VERTICES_COUNT;
-			const uint32_t vertexSize = sizeof(VertexXZUniform);
+			const VkDeviceSize bufferSize = sizeof(Vertex) * VERTICES_COUNT;
+			const uint32_t vertexSize = sizeof(Vertex);
 
 			Pipeline::Buffer stagingBuffer{
 				device,

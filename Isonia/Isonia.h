@@ -233,7 +233,7 @@ namespace Isonia
 			std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
 
 			// never gets freed
-			Renderable::Model* model = Renderable::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
+			Renderable::Complete::Model* model = Renderable::Complete::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
 			for (int i = 0; i < ECS::MAX_ENTITIES; ++i)
 			{

@@ -3,8 +3,9 @@
 // internal
 #include "Device.h"
 #include "PipelineConfigInfo.h"
-#include "../Renderable/Model.h"
-#include "../Renderable/VertexXZUniform.h"
+#include "../Renderable/Complete/Model.h"
+#include "../Renderable/Complete/Vertex.h"
+#include "../Renderable/XZUniform/Vertex.h"
 
 // std
 #include <cassert>
@@ -45,8 +46,8 @@ namespace Isonia::Pipeline
 
 			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 
-			configInfo.bindingDescriptions = Renderable::VertexXZUniform::GetBindingDescriptions();
-			configInfo.attributeDescriptions = Renderable::VertexXZUniform::GetAttributeDescriptions();
+			configInfo.bindingDescriptions = Renderable::XZUniform::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
 		}
 
 		static void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
@@ -132,8 +133,8 @@ namespace Isonia::Pipeline
 			configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 			configInfo.dynamicStateInfo.flags = 0;
 
-			configInfo.bindingDescriptions = Renderable::VertexComplete::GetBindingDescriptions();
-			configInfo.attributeDescriptions = Renderable::VertexComplete::GetAttributeDescriptions();
+			configInfo.bindingDescriptions = Renderable::Complete::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::Complete::Vertex::GetAttributeDescriptions();
 		}
 
 	private:

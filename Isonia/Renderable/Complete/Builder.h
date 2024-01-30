@@ -1,17 +1,20 @@
 #pragma once
 
 // internal
-#include "VertexComplete.h"
+#include "Vertex.h"
 #include "Builder.h"
+
+// external
+#include "../../External/tinyobjloader/tiny_obj_loader.h"
 
 // std
 #include <stdexcept>
 
-namespace Isonia::Renderable
+namespace Isonia::Renderable::Complete
 {
-	struct BuilderComplete
+	struct Builder
 	{
-		std::vector<VertexComplete> vertices{};
+		std::vector<Vertex> vertices{};
 		std::vector<uint32_t> indices{};
 
 		void LoadModel(const std::string& filepath)
@@ -29,12 +32,12 @@ namespace Isonia::Renderable
 			vertices.clear();
 			indices.clear();
 
-			std::unordered_map<VertexComplete, uint32_t> uniqueVertices{};
+			std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 			for (const auto& shape : shapes)
 			{
 				for (const auto& index : shape.mesh.indices)
 				{
-					VertexComplete vertex{};
+					Vertex vertex{};
 
 					if (index.vertex_index >= 0)
 					{

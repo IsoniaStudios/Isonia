@@ -9,14 +9,14 @@
 #include <glm/gtx/hash.hpp>
 
 // internal
-#include "../Utilities/HashUtility.h"
+#include "../../Utilities/HashUtility.h"
 
 // std
 #include <unordered_map>
 
-namespace Isonia::Renderable
+namespace Isonia::Renderable::Complete
 {
-	struct VertexComplete
+	struct Vertex
 	{
 		glm::vec3 position{};
 		glm::vec3 color{};
@@ -27,7 +27,7 @@ namespace Isonia::Renderable
 		{
 			std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 			bindingDescriptions[0].binding = 0;
-			bindingDescriptions[0].stride = sizeof(VertexComplete);
+			bindingDescriptions[0].stride = sizeof(Vertex);
 			bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 			return bindingDescriptions;
 		}
@@ -36,15 +36,15 @@ namespace Isonia::Renderable
 		{
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-			attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, position) });
-			attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, color) });
-			attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, normal) });
-			attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexComplete, uv) });
+			attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
+			attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
+			attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
+			attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
 
 			return attributeDescriptions;
 		}
 
-		bool operator==(const VertexComplete& other) const
+		bool operator==(const Vertex& other) const
 		{
 			return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
 		}
@@ -54,9 +54,9 @@ namespace Isonia::Renderable
 namespace std
 {
 	template <>
-	struct hash<Isonia::Renderable::VertexComplete>
+	struct hash<Isonia::Renderable::Complete::Vertex>
 	{
-		size_t operator()(const Isonia::Renderable::VertexComplete& vertex) const
+		size_t operator()(const Isonia::Renderable::Complete::Vertex& vertex) const
 		{
 			size_t seed = 0;
 			Isonia::Utilities::Hash::HashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
