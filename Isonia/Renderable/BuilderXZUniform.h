@@ -79,19 +79,19 @@ namespace Isonia::Renderable
 				// [00, 01, 02]
 				// [10, 11, 12]
 				// [20, 21, 22]
-				glm::vec3 v00 = { -QUAD_SIZE, localY[0][0], -QUAD_SIZE };
+				//glm::vec3 v00 = { -QUAD_SIZE, localY[0][0], -QUAD_SIZE };
 				glm::vec3 v10 = { -QUAD_SIZE, localY[1][0],       0.0f };
-				glm::vec3 v20 = { -QUAD_SIZE, localY[2][0],  QUAD_SIZE };
+				//glm::vec3 v20 = { -QUAD_SIZE, localY[2][0],  QUAD_SIZE };
 
 				glm::vec3 v01 = {       0.0f, localY[0][1], -QUAD_SIZE };
 				glm::vec3 v11 = {       0.0f, localY[1][1],       0.0f };
 				glm::vec3 v21 = {       0.0f, localY[2][1],  QUAD_SIZE };
 
-				glm::vec3 v02 = {  QUAD_SIZE, localY[0][2], -QUAD_SIZE };
+				//glm::vec3 v02 = {  QUAD_SIZE, localY[0][2], -QUAD_SIZE };
 				glm::vec3 v12 = {  QUAD_SIZE, localY[1][2],       0.0f };
-				glm::vec3 v22 = {  QUAD_SIZE, localY[2][2],  QUAD_SIZE };
+				//glm::vec3 v22 = {  QUAD_SIZE, localY[2][2],  QUAD_SIZE };
 
-				vertices[i].normal = ComputeSmoothNormal(v00, v01, v02, v10, v11, v12, v20, v21, v22);
+				vertices[i].normal = ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
 			}
 
 			// free locally allocated memory
@@ -120,9 +120,26 @@ namespace Isonia::Renderable
 		}
 
 	private:
-		glm::vec3 ComputeSmoothNormal(const glm::vec3& v00, const glm::vec3& v10, const glm::vec3& v20,
-							  		  const glm::vec3& v01, const glm::vec3& v11, const glm::vec3& v21,
-									  const glm::vec3& v02, const glm::vec3& v12, const glm::vec3& v22)
+		glm::vec3 ComputeSmoothNormalFrom4(const glm::vec3& v01,
+					 const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
+										   const glm::vec3& v21)
+		{
+			// Calculate flat normal for neighbouring 4 triangles
+			glm::vec3 t0 = glm::cross(v01 - v11, v10 - v11);
+			glm::vec3 t1 = glm::cross(v10 - v11, v21 - v11);
+
+			glm::vec3 t2 = glm::cross(v21 - v11, v12 - v11);
+			glm::vec3 t3 = glm::cross(v12 - v11, v01 - v11);
+
+			// Compute the smooth normal
+			glm::vec3 smoothNormal = glm::normalize(t0 + t1 + t2 + t3);
+
+			return smoothNormal;
+		}
+
+		glm::vec3 ComputeSmoothNormalFrom8(const glm::vec3& v00, const glm::vec3& v01, const glm::vec3& v02,
+							  			   const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
+										   const glm::vec3& v20, const glm::vec3& v21, const glm::vec3& v22)
 		{
 			// Calculate flat normal for each triangle
 			glm::vec3 t00 = glm::cross(v01 - v11, v00 - v11);
