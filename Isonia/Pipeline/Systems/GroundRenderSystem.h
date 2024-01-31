@@ -15,6 +15,7 @@
 
 #include "../../Renderable/PosNorm/Builder.h"
 #include "../../Renderable/XZUniform/Builder.h"
+#include "../../Renderable/Color/Color.h"
 
 // shaders
 #include "../../Shaders/Include/Ground/FragShader_frag.h"
@@ -40,6 +41,27 @@ namespace Isonia::Pipeline::Systems
 	const std::size_t GROUNDS = 4;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
+	const Renderable::Color::Color colors[]
+	{
+		{ 215, 224, 131 },
+		{ 151, 221, 62 },
+		{ 140, 197, 66 },
+		{ 140, 197, 66 },
+		{ 112, 177, 77 },
+		{ 93, 161, 60 },
+		{ 81, 139, 115 },
+		{ 63, 117, 94 },
+		{ 45, 103, 78 },
+		{ 28, 91, 64 },
+		{ 22, 83, 89 },
+		{ 22, 63, 71 },
+		{ 21, 45, 54 },
+		{ 12, 32, 39 },
+		{ 7, 25, 20 },
+		{ 0, 16, 18 },
+		{ 0, 11, 12 }
+	};
+
 	class GroundRenderSystem
 	{
 	public:
@@ -48,16 +70,19 @@ namespace Isonia::Pipeline::Systems
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
 
+			Noise::Noise noise{};
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
+			foliages = static_cast<Renderable::PosNorm::Builder*>(operator new[](sizeof(Renderable::PosNorm::Builder) * GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
-					new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(device, xOffset, zOffset);
+					new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(noise, device, xOffset, zOffset);
+					new (foliages + x * GROUNDS_LONG + z) Renderable::PosNorm::Builder(&grounds[x * GROUNDS + z]);
 				}
 			}
 		}

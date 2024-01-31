@@ -2,7 +2,11 @@
 
 // internal
 #include "Vertex.h"
+
+#include "../XZUniform/Builder.h"
+
 #include "../../Noise/Noise.h"
+
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
@@ -27,6 +31,8 @@ namespace Isonia::Renderable::PosNorm
 	{
 		Vertex* vertices;
 
-
+		Builder(Renderable::XZUniform::Builder* xzUniform)
+		{
+		}
 	};
 }

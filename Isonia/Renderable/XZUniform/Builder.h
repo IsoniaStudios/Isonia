@@ -36,10 +36,9 @@ namespace Isonia::Renderable::XZUniform
 		Vertex* vertices;
 		const XZPositionalData positionalData;
 
-		Builder(Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
+		Builder(Noise::Noise& noise, Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
 		{
 			// alloc memory
-			Noise::Noise noise{};
 			vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
 			
 			// calculate perlin
