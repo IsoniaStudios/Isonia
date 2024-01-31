@@ -24,12 +24,14 @@ layout(push_constant) uniform Push {
 
 void main()
 {
-  vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);
-  gl_Position = ubo.projection * ubo.view * positionWorld;
-  fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
+  vec4 positionWorld = push.modelMatrix * vec4(position, 1.0);  
+
   fragPosWorld = positionWorld.xyz;
 
-  float lightIntensity = max(dot(fragNormalWorld, ubo.lightDirection), 0.0);
+  fragNormalWorld = normalize(mat3(push.normalMatrix) * normal);
 
+  float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), 0.0);
   fragColor = color + lightIntensity;
+
+  gl_Position = ubo.projection * ubo.view * positionWorld;
 }

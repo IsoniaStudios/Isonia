@@ -25,6 +25,8 @@ namespace Isonia::Renderable::PosNorm
 
 	struct Builder
 	{
-		
+		Vertex* vertices;
+
+
 	};
 }

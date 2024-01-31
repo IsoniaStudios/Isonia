@@ -99,7 +99,7 @@ namespace Isonia
 
 				performanceTracker.LogFrameTime(frameTime);
 
-				physicsSystem->Update(frameTime);
+				//physicsSystem->Update(frameTime);
 
 				player.Act(window.GetGLFWwindow(), frameTime);
 
@@ -229,8 +229,7 @@ namespace Isonia
 			std::default_random_engine generator;
 			std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
 			std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
-			std::uniform_real_distribution<float> randScale(.25f, 1.0f);
-			std::uniform_real_distribution<float> randColor(0.0f, 1.0f);
+			std::uniform_real_distribution<float> randScale(1.0f, 5.0f);
 
 			// never gets freed
 			Renderable::Complete::Model* model = Renderable::Complete::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");

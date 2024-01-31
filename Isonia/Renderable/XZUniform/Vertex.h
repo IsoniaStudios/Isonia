@@ -20,10 +20,11 @@ namespace Isonia::Renderable::XZUniform
 	struct Vertex
 	{
 		float altitude;
-		glm::vec3 normal;
+		float pitch;
+		float yaw;
 
 		Vertex(float altitude, glm::vec3 normal)
-			: altitude(altitude), normal(normal)
+			: altitude(altitude), pitch(pitch), yaw(yaw)
 		{
 		}
 
@@ -41,7 +42,8 @@ namespace Isonia::Renderable::XZUniform
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
 			attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, altitude) });
-			attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
+			attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, pitch) });
+			attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, yaw) });
 
 			return attributeDescriptions;
 		}

@@ -1,15 +1,4 @@
 ﻿# CMakeList.txt : CMake project for Isonia, include source and define project specific logic here.
-# Find all cpp files recursively
-file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
-# Excluding external
-list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
-# Include the specific header file from External/tinyobjloader/tiny_obj_loader
-list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_obj_loader.h")
-
 # Add project as ex or dll depending on choise
 if(DLL_BUILD)
     add_library(${PROJECT_NAME} SHARED)
@@ -39,47 +28,6 @@ else()
 	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/Resources/")
 	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
 endif()
-
-target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
-
-# If using the VS compiler...
-if(MSVC)
-	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
-    if(NOT DLL_BUILD)
-        set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-    endif()
-endif()
-
-# Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
-find_package(Vulkan REQUIRED)
-
-# Add glfw
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
-add_subdirectory(External/glfw)
-target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
-target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
-
-# Add tinyobjloader
-add_subdirectory(External/tinyobjloader)
-
-# Add glm
-set(GLM_PERF_TEST_ENABLE OFF CACHE BOOL "" FORCE)
-set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
-set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLM_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(External/glm)
-
-# Target link
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC Vulkan::Vulkan
-    PUBLIC glfw
-    PUBLIC glm::glm
-)
 
 # Compile shader into SPIR-V
 include(CMakeParseArguments)
@@ -123,6 +71,59 @@ foreach(SHADER ${SHADERS})
 
     message(STATUS "Generating build commands for ${SHADER}")
 endforeach()
+
+# Find all cpp files recursively
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS 
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+)
+# Excluding external
+list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
+# Include the specific header file from External/tinyobjloader/tiny_obj_loader
+list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_obj_loader.h")
+
+# Add sources
+target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
+
+# If using the VS compiler...
+if(MSVC)
+	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
+    if(NOT DLL_BUILD)
+        set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+    endif()
+endif()
+
+# Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
+find_package(Vulkan REQUIRED)
+
+# Add glfw
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(External/glfw)
+target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
+target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
+
+# Add tinyobjloader
+add_subdirectory(External/tinyobjloader)
+
+# Add glm
+set(GLM_PERF_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
+set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLM_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
+add_subdirectory(External/glm)
+
+# Target link
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC Vulkan::Vulkan
+    PUBLIC glfw
+    PUBLIC glm::glm
+)
 
 # Copy resources if they are newer
 file(GLOB_RECURSE RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*")

@@ -91,7 +91,10 @@ namespace Isonia::Renderable::XZUniform
 				glm::vec3 v12 = {  QUAD_SIZE, localY[1][2],       0.0f };
 				//glm::vec3 v22 = {  QUAD_SIZE, localY[2][2],  QUAD_SIZE };
 
-				vertices[i].normal = ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
+				glm::vec3 normal = ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
+
+				vertices[i].pitch = glm::atan(normal.y, normal.z);
+				vertices[i].yaw = glm::atan(normal.y, normal.x);
 			}
 
 			// free locally allocated memory
@@ -125,11 +128,11 @@ namespace Isonia::Renderable::XZUniform
 										   const glm::vec3& v21)
 		{
 			// Calculate flat normal for neighbouring 4 triangles
-			glm::vec3 t0 = glm::cross(v01 - v11, v10 - v11);
-			glm::vec3 t1 = glm::cross(v10 - v11, v21 - v11);
+			glm::vec3 t0 = glm::cross(v01 - v11, v12 - v11);
+			glm::vec3 t1 = glm::cross(v12 - v11, v21 - v11);
 
-			glm::vec3 t2 = glm::cross(v21 - v11, v12 - v11);
-			glm::vec3 t3 = glm::cross(v12 - v11, v01 - v11);
+			glm::vec3 t2 = glm::cross(v21 - v11, v10 - v11);
+			glm::vec3 t3 = glm::cross(v10 - v11, v01 - v11);
 
 			// Compute the smooth normal
 			glm::vec3 smoothNormal = glm::normalize(t0 + t1 + t2 + t3);
