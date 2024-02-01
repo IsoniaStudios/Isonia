@@ -7,3 +7,6 @@
 [submodule "Isonia/External/glfw"]
 	path = Isonia/External/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "Isonia/External/stb"]
+	path = Isonia/External/stb
+	url = https://github.com/nothings/stb.git
