@@ -2,6 +2,7 @@
 
 // internal
 #include "../Components/Camera.h"
+#include "../Pipeline/Descriptors/Descriptors.h"
 
 // external
 #include <vulkan/vulkan.h>
@@ -23,5 +24,6 @@ namespace Isonia::State
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		VkDescriptorSet globalDescriptorSet;
+		Pipeline::Descriptors::DescriptorPool& descriptorPool;
 	};
 }

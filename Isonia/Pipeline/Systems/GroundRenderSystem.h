@@ -3,6 +3,7 @@
 // internal
 #include "../Device.h"
 #include "../Pipeline.h"
+#include "../Descriptors/Descriptors.h"
 
 #include "../../State/FrameInfo.h"
 
@@ -16,6 +17,8 @@
 #include "../../Renderable/PosNorm/Builder.h"
 #include "../../Renderable/XZUniform/Builder.h"
 #include "../../Renderable/Color/Color.h"
+
+#include "../../Renderable/Texture.h"
 
 // shaders
 #include "../../Shaders/Include/Ground/FragShader_frag.h"
@@ -41,9 +44,10 @@ namespace Isonia::Pipeline::Systems
 	const std::size_t GROUNDS = 4;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
-	const Renderable::Color::Color colors[]
+	const int PALETTE_LENGTH = 17;
+	const Renderable::Color::Color PALETTE[PALETTE_LENGTH]
 	{
-		{ 0, 11, 12 }
+		{ 0, 11, 12 },
 		{ 0, 16, 18 },
 		{ 7, 25, 20 },
 		{ 12, 32, 39 },
@@ -59,7 +63,7 @@ namespace Isonia::Pipeline::Systems
 		{ 140, 197, 66 },
 		{ 140, 197, 66 },
 		{ 151, 221, 62 },
-		{ 215, 224, 131 },
+		{ 215, 224, 131 }
 	};
 
 	class GroundRenderSystem
@@ -67,6 +71,8 @@ namespace Isonia::Pipeline::Systems
 	public:
 		GroundRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)
 		{
+			palette = Renderable::Texture::CreateTextureFromPalette(device, PALETTE, PALETTE_LENGTH);
+
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
 
@@ -90,6 +96,7 @@ namespace Isonia::Pipeline::Systems
 		~GroundRenderSystem()
 		{
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
+			delete renderSystemLayout;
 			delete pipeline;
 
 			for (long x = GROUNDS - 1; x >= 0; x--)
@@ -100,6 +107,7 @@ namespace Isonia::Pipeline::Systems
 				}
 			}
 			operator delete[](grounds);
+			delete palette;
 		}
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
@@ -126,6 +134,26 @@ namespace Isonia::Pipeline::Systems
 				{
 					Renderable::XZUniform::Builder* ground = &grounds[x * GROUNDS + z];
 
+					// writing descriptor set each frame can slow performance
+					// would be more efficient to implement some sort of caching
+					VkDescriptorBufferInfo bufferInfo = uboBuffers[frameInfo.frameIndex]->descriptorInfoForIndex(gameObjectId);
+					VkDescriptorSet groundDescriptorSet;
+					Descriptors::DescriptorWriter(*renderSystemLayout, frameInfo.descriptorPool)
+						.WriteBuffer(0, &bufferInfo)
+						.WriteImage(1, &palette->GetImageInfo())
+						.Build(groundDescriptorSet);
+
+					vkCmdBindDescriptorSets(
+						frameInfo.commandBuffer,
+						VK_PIPELINE_BIND_POINT_GRAPHICS,
+						pipelineLayout,
+						1,  // starting set (0 is the globalDescriptorSet, 1 is the set specific to this system)
+						1,  // set count
+						&groundDescriptorSet,
+						0,
+						nullptr
+					);
+
 					vkCmdPushConstants(
 						frameInfo.commandBuffer,
 						pipelineLayout,
@@ -141,6 +169,36 @@ namespace Isonia::Pipeline::Systems
 		}
 
 	private:
+		void InitializePaletteDescriptorPool()
+		{
+			/*
+			VkDescriptorSetAllocateInfo allocInfo = {};
+			allocInfo.pNext = nullptr;
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = _descriptorPool;
+			allocInfo.descriptorSetCount = 1;
+			allocInfo.pSetLayouts = &_singleTextureSetLayout;
+
+			vkAllocateDescriptorSets(_device, &allocInfo, &texturedMat->textureSet);
+
+			VkSamplerCreateInfo samplerInfo = vkinit::sampler_create_info(VK_FILTER_NEAREST);
+
+			VkSampler blockySampler;
+			vkCreateSampler(_device, &samplerInfo, nullptr, &blockySampler);
+
+			VkDescriptorImageInfo imageBufferInfo;
+			imageBufferInfo.sampler = blockySampler;
+			imageBufferInfo.imageView = colorMap->GetImageView();
+			imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+
+
+			VkWriteDescriptorSet texture1 = vkinit::write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, texturedMat->textureSet, &imageBufferInfo, 0);
+
+			vkUpdateDescriptorSets(_device, 1, &texture1, 0, nullptr);
+			*/
+		}
+
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout)
 		{
 			VkPushConstantRange pushConstantRange{};
@@ -148,7 +206,15 @@ namespace Isonia::Pipeline::Systems
 			pushConstantRange.offset = 0;
 			pushConstantRange.size = sizeof(Renderable::XZUniform::XZPositionalData);
 
-			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+			renderSystemLayout = Descriptors::DescriptorSetLayout::Builder(device)
+				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+				.Build();
+
+			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
+				globalSetLayout,
+				renderSystemLayout->GetDescriptorSetLayout()
+			};
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -184,7 +250,9 @@ namespace Isonia::Pipeline::Systems
 
 		Pipeline* pipeline;
 		VkPipelineLayout pipelineLayout;
+		Descriptors::DescriptorSetLayout* renderSystemLayout;
 
+		Renderable::Texture* palette;
 		Renderable::XZUniform::Builder* grounds;
 		Renderable::PosNorm::Builder* foliages;
 	};

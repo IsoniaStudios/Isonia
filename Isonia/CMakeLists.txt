@@ -82,6 +82,8 @@ file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS
 list(FILTER MY_SOURCES EXCLUDE REGEX "${PROJECT_NAME}/External/")
 # Include the specific header file from External/tinyobjloader/tiny_obj_loader
 list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/tinyobjloader/tiny_obj_loader.h")
+# And 
+list(APPEND MY_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/External/stb/stb_image.h")
 
 # Add sources
 target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
@@ -108,21 +110,12 @@ add_subdirectory(External/glfw)
 target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
 target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
 
-# Add tinyobjloader
-add_subdirectory(External/tinyobjloader)
-
 # Add glm
 set(GLM_PERF_TEST_ENABLE OFF CACHE BOOL "" FORCE)
 set(GLM_TEST_ENABLE OFF CACHE BOOL "" FORCE)
 set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLM_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(External/glm)
-
-# Add stb
-if (NOT STB_PATH)
-  message(STATUS "STB_PATH not specified in .env.cmake, using external/stbimage")
-  set(STB_PATH External/stbimage)
-endif()
 
 # Target link
 target_link_libraries(${PROJECT_NAME}
