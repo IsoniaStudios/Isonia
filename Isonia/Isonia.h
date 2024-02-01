@@ -137,6 +137,7 @@ namespace Isonia
 		{
 			return glfwGetWin32Window(window.GetGLFWwindow());
 		}
+
 	private:
 		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
 		std::vector<VkDescriptorSet> globalDescriptorSets;

@@ -324,6 +324,8 @@ namespace Isonia::Pipeline
 			}
 		}
 
+		VkPhysicalDeviceProperties properties;
+
 	private:
 #ifndef NDEBUG
 		const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
@@ -718,8 +720,6 @@ namespace Isonia::Pipeline
 		VkSurfaceKHR surface;
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
-
-		VkPhysicalDeviceProperties properties;
 
 		const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 	};

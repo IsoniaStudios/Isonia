@@ -36,6 +36,7 @@
 #include <array>
 #include <cassert>
 #include <stdexcept>
+#include <numeric>
 
 extern Isonia::ECS::Coordinator gCoordinator;
 
@@ -147,8 +148,8 @@ namespace Isonia::Pipeline::Systems
 						frameInfo.commandBuffer,
 						VK_PIPELINE_BIND_POINT_GRAPHICS,
 						pipelineLayout,
-						1,  // starting set (0 is the globalDescriptorSet, 1 is the set specific to this system)
-						1,  // set count
+						1,
+						1,
 						&groundDescriptorSet,
 						0,
 						nullptr
