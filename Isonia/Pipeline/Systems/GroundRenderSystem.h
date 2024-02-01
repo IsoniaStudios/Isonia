@@ -138,9 +138,10 @@ namespace Isonia::Pipeline::Systems
 					// writing descriptor set each frame can slow performance
 					// would be more efficient to implement some sort of caching
 					VkDescriptorSet groundDescriptorSet;
+					auto imageinfo = palette->GetImageInfo();
 					Descriptors::DescriptorWriter(*renderSystemLayout, descriptorPool)
 						.WriteBuffer(0, &bufferInfo)
-						.WriteImage(1, &(palette->GetImageInfo()))
+						.WriteImage(1, &imageinfo)
 						.Build(groundDescriptorSet);
 
 					vkCmdBindDescriptorSets(
