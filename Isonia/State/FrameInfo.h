@@ -24,6 +24,5 @@ namespace Isonia::State
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		VkDescriptorSet globalDescriptorSet;
-		Pipeline::Descriptors::DescriptorPool& descriptorPool;
 	};
 }

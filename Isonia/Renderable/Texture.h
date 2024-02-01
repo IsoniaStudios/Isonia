@@ -128,8 +128,7 @@ namespace Isonia::Renderable
 		Texture(const Texture&) = delete;
 		Texture& operator=(const Texture&) = delete;
 
-		VkImageView ImageView() const { return textureImageView; }
-		VkSampler Sampler() const { return textureSampler; }
+		VkSampler GetSampler() const { return textureSampler; }
 		VkImage GetImage() const { return textureImage; }
 		VkImageView GetImageView() const { return textureImageView; }
 		VkDescriptorImageInfo GetImageInfo() const { return descriptor; }

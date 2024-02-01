@@ -123,7 +123,7 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
-					groundRenderSystem->RenderGround(frameInfo);
+					groundRenderSystem->RenderGround(frameInfo, uboBuffers[frameIndex]->DescriptorInfo(), *globalPool);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();

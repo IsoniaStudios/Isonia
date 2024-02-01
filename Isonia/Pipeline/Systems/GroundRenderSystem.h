@@ -114,7 +114,7 @@ namespace Isonia::Pipeline::Systems
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
-		void RenderGround(State::FrameInfo& frameInfo)
+		void RenderGround(State::FrameInfo& frameInfo, VkDescriptorBufferInfo bufferInfo, Descriptors::DescriptorPool& descriptorPool)
 		{
 			pipeline->Bind(frameInfo.commandBuffer);
 
@@ -137,11 +137,10 @@ namespace Isonia::Pipeline::Systems
 
 					// writing descriptor set each frame can slow performance
 					// would be more efficient to implement some sort of caching
-					VkDescriptorBufferInfo bufferInfo = uboBuffers[frameInfo.frameIndex]->descriptorInfoForIndex(gameObjectId);
 					VkDescriptorSet groundDescriptorSet;
-					Descriptors::DescriptorWriter(*renderSystemLayout, frameInfo.descriptorPool)
+					Descriptors::DescriptorWriter(*renderSystemLayout, descriptorPool)
 						.WriteBuffer(0, &bufferInfo)
-						.WriteImage(1, &palette->GetImageInfo())
+						.WriteImage(1, &(palette->GetImageInfo()))
 						.Build(groundDescriptorSet);
 
 					vkCmdBindDescriptorSets(
