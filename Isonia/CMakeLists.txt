@@ -118,6 +118,12 @@ set(GLM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLM_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(External/glm)
 
+# Add stb
+if (NOT STB_PATH)
+  message(STATUS "STB_PATH not specified in .env.cmake, using external/stbimage")
+  set(STB_PATH External/stbimage)
+endif()
+
 # Target link
 target_link_libraries(${PROJECT_NAME}
     PUBLIC Vulkan::Vulkan

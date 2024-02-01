@@ -5,9 +5,8 @@ layout(location = 0) in float amplitude;
 layout(location = 1) in float pitch;
 layout(location = 2) in float yaw;
 
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec3 fragPosWorld;
-layout(location = 2) out vec3 fragNormalWorld;
+layout(location = 0) out vec3 fragPosWorld;
+layout(location = 1) out vec3 fragNormalWorld;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
@@ -55,8 +54,5 @@ void main()
         xzLen * sin(-yaw)
     );
     
-    float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), 0.0);
-    fragColor = vec3(lightIntensity);
-
     gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);
 }

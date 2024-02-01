@@ -1,6 +1,5 @@
 #version 450
 
-layout (location = 0) in vec3 fragColor;
 layout (location = 1) in vec3 fragPosWorld;
 layout (location = 2) in vec3 fragNormalWorld;
 
@@ -19,8 +18,10 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
+layout (set = 1, binding = 1) uniform sampler2D colorMap;
+
 void main()
 {
-	vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-	outColor = vec4(fragColor + diffuseLight, 1.0);
+	float lightIntensity = -dot(fragNormalWorld, ubo.lightDirection) + ubo.ambientLightColor.w;
+	outColor = texture(colorMap, vec2(lightIntensity, 0.0));
 }
