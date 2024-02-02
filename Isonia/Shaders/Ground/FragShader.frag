@@ -19,10 +19,11 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
-layout (set = 1, binding = 1) uniform sampler2D colorMap;
+//layout (set = 1, binding = 1) uniform sampler2D colorMap;
 
 void main()
 {
 	float lightIntensity = -dot(fragNormalWorld, ubo.lightDirection) + ubo.ambientLightColor.w;
-	outColor = texture(colorMap, vec2(lightIntensity, 0.0));
+	//outColor = texture(colorMap, vec2(lightIntensity, 0.0));
+	outColor = vec4(lightIntensity);
 }

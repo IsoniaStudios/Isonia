@@ -41,8 +41,7 @@ namespace Isonia::Pipeline
 		/**
 		 * Map a memory range of this buffer. If successful, mapped points to the specified buffer range.
 		 *
-		 * @param size (Optional) Size of the memory range to map. Pass VK_WHOLE_SIZE to map the complete
-		 * buffer range.
+		 * @param size (Optional) Size of the memory range to map. Pass VK_WHOLE_SIZE to map the complete buffer range.
 		 * @param offset (Optional) Byte offset from beginning
 		 *
 		 * @return VkResult of the buffer mapping call
@@ -71,8 +70,7 @@ namespace Isonia::Pipeline
 		 * Copies the specified data to the mapped buffer. Default value writes whole buffer range
 		 *
 		 * @param data Pointer to the data to copy
-		 * @param size (Optional) Size of the data to copy. Pass VK_WHOLE_SIZE to flush the complete buffer
-		 * range.
+		 * @param size (Optional) Size of the data to copy. Pass VK_WHOLE_SIZE to flush the complete buffer range.
 		 * @param offset (Optional) Byte offset from beginning of mapped region
 		 *
 		 */
@@ -97,8 +95,7 @@ namespace Isonia::Pipeline
 		 *
 		 * @note Only required for non-coherent memory
 		 *
-		 * @param size (Optional) Size of the memory range to flush. Pass VK_WHOLE_SIZE to flush the
-		 * complete buffer range.
+		 * @param size (Optional) Size of the memory range to flush. Pass VK_WHOLE_SIZE to flush the complete buffer range.
 		 * @param offset (Optional) Byte offset from beginning
 		 *
 		 * @return VkResult of the flush call
@@ -118,8 +115,7 @@ namespace Isonia::Pipeline
 		 *
 		 * @note Only required for non-coherent memory
 		 *
-		 * @param size (Optional) Size of the memory range to invalidate. Pass VK_WHOLE_SIZE to invalidate
-		 * the complete buffer range.
+		 * @param size (Optional) Size of the memory range to invalidate. Pass VK_WHOLE_SIZE to invalidate the complete buffer range.
 		 * @param offset (Optional) Byte offset from beginning
 		 *
 		 * @return VkResult of the invalidate call
@@ -214,8 +210,7 @@ namespace Isonia::Pipeline
 		 * Returns the minimum instance size required to be compatible with devices minOffsetAlignment
 		 *
 		 * @param instanceSize The size of an instance
-		 * @param minOffsetAlignment The minimum required alignment, in bytes, for the offset member (eg
-		 * minUniformBufferOffsetAlignment)
+		 * @param minOffsetAlignment The minimum required alignment, in bytes, for the offset member (eg minUniformBufferOffsetAlignment)
 		 *
 		 * @return VkResult of the buffer mapping call
 		 */
