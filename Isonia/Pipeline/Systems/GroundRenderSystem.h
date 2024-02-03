@@ -18,7 +18,7 @@
 #include "../../Renderable/XZUniform/Builder.h"
 #include "../../Renderable/Color/Color.h"
 
-//#include "../../Renderable/Texture.h"
+#include "../../Renderable/Texture.h"
 
 // shaders
 #include "../../Shaders/Include/Ground/FragShader_frag.h"
@@ -72,7 +72,7 @@ namespace Isonia::Pipeline::Systems
 	public:
 		GroundRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)
 		{
-			//palette = Renderable::Texture::CreateTextureFromPalette(device, PALETTE, PALETTE_LENGTH);
+			palette = Renderable::Texture::CreateTextureFromPalette(device, PALETTE, PALETTE_LENGTH);
 
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
@@ -255,7 +255,7 @@ namespace Isonia::Pipeline::Systems
 		VkPipelineLayout pipelineLayout;
 		Descriptors::DescriptorSetLayout* renderSystemLayout;
 
-		//Renderable::Texture* palette;
+		Renderable::Texture* palette;
 		Renderable::XZUniform::Builder* grounds;
 		Renderable::PosNorm::Builder* foliages;
 	};

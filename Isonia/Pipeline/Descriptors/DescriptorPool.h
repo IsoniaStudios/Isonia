@@ -61,7 +61,7 @@ namespace Isonia::Pipeline::Descriptors
 
 			if (vkCreateDescriptorPool(device.GetDevice(), &descriptorPoolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
 			{
-				throw std::runtime_error("failed to create descriptor pool!");
+				throw std::runtime_error("Failed to create descriptor pool!");
 			}
 		}
 

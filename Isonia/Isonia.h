@@ -99,7 +99,7 @@ namespace Isonia
 
 				performanceTracker.LogFrameTime(frameTime);
 
-				//physicsSystem->Update(frameTime);
+				physicsSystem->Update(frameTime);
 
 				player.Act(window.GetGLFWwindow(), frameTime);
 

@@ -23,15 +23,15 @@ namespace Isonia::Renderable
 		{
 			CreateTextureImage(textureFilepath);
 			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
-			CreateTextureSampler();
+			CreateTextureSampler(VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 			UpdateDescriptor();
 		}
 		
-		Texture(Pipeline::Device& device, const Renderable::Color::Color colors[], const uint32_t texWidth, const uint32_t texHeight) : device{ device }
+		Texture(Pipeline::Device& device, const Renderable::Color::Color colors[], const uint32_t texWidth) : device{ device }
 		{
-			CreateTextureImage(colors, texWidth, texHeight);
-			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
-			CreateTextureSampler();
+			CreateTextureImage(colors, texWidth, 1);
+			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_1D);
+			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 			UpdateDescriptor();
 		}
 
@@ -143,7 +143,7 @@ namespace Isonia::Renderable
 
 		static Texture* CreateTextureFromPalette(Pipeline::Device& device, const Renderable::Color::Color colors[], const uint32_t texWidth)
 		{
-			return new Texture(device, colors, texWidth, 1);
+			return new Texture(device, colors, texWidth);
 		}
 
 		void UpdateDescriptor()
@@ -264,9 +264,9 @@ namespace Isonia::Renderable
 			stbi_image_free(pixels);
 		}
 
-		void CreateTextureImage(const void* source, uint32_t texWidth, uint32_t texHeight)
+		void CreateTextureImage(const void* source, const uint32_t texWidth, const uint32_t texHeight, const uint32_t bytesPerPixel = 4)
 		{
-			VkDeviceSize imageSize = texWidth * texHeight * 4;
+			VkDeviceSize imageSize = texWidth * texHeight * bytesPerPixel;
 
 			// mMipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 			mipLevels = 1;
@@ -292,7 +292,7 @@ namespace Isonia::Renderable
 
 			VkImageCreateInfo imageInfo{};
 			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
+			imageInfo.imageType = texHeight == 1 ? VK_IMAGE_TYPE_1D : VK_IMAGE_TYPE_2D;
 			imageInfo.extent = extent;
 			imageInfo.mipLevels = mipLevels;
 			imageInfo.arrayLayers = layerCount;
@@ -302,6 +302,7 @@ namespace Isonia::Renderable
 			imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			imageInfo.flags = 0;
 
 			device.CreateImageWithInfo(
 				imageInfo,
@@ -336,7 +337,7 @@ namespace Isonia::Renderable
 			);
 
 			// If we generate mip maps then the final image will alerady be READ_ONLY_OPTIMAL
-			// mDevice.generateMipmaps(mTextureImage, mFormat, texWidth, texHeight, mMipLevels);
+			// device.GenerateMipmaps(textureImage, format, texWidth, texHeight, mipLevels);
 			textureLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 			vkDestroyBuffer(device.GetDevice(), stagingBuffer, nullptr);
@@ -362,19 +363,19 @@ namespace Isonia::Renderable
 			}
 		}
 
-		void CreateTextureSampler()
+		void CreateTextureSampler(VkFilter filter, VkSamplerAddressMode addressMode)
 		{
 			VkSamplerCreateInfo samplerInfo{};
 			samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			samplerInfo.magFilter = VK_FILTER_LINEAR;
-			samplerInfo.minFilter = VK_FILTER_LINEAR;
+			samplerInfo.magFilter = filter;
+			samplerInfo.minFilter = filter;
 
-			samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			samplerInfo.addressModeU = addressMode;
+			samplerInfo.addressModeV = addressMode;
+			samplerInfo.addressModeW = addressMode;
 
-			samplerInfo.anisotropyEnable = VK_TRUE;
-			samplerInfo.maxAnisotropy = 16.0f;
+			samplerInfo.anisotropyEnable = VK_FALSE;
+			samplerInfo.maxAnisotropy = 1.0f;
 			samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 			samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -395,10 +396,10 @@ namespace Isonia::Renderable
 
 		VkDescriptorImageInfo descriptor{};
 		Pipeline::Device& device;
-		VkImage textureImage = nullptr;
-		VkDeviceMemory textureImageMemory = nullptr;
-		VkImageView textureImageView = nullptr;
-		VkSampler textureSampler = nullptr;
+		VkImage textureImage;
+		VkDeviceMemory textureImageMemory;
+		VkImageView textureImageView;
+		VkSampler textureSampler;
 		VkFormat format;
 		VkImageLayout textureLayout;
 		uint32_t mipLevels{ 1 };

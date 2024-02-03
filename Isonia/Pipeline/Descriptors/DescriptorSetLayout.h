@@ -66,7 +66,7 @@ namespace Isonia::Pipeline::Descriptors
 				nullptr,
 				&descriptorSetLayout) != VK_SUCCESS)
 			{
-				throw std::runtime_error("failed to create descriptor set layout!");
+				throw std::runtime_error("Failed to create descriptor set layout!");
 			}
 		}
 

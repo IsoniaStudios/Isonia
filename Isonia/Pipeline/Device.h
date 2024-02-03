@@ -295,6 +295,7 @@ namespace Isonia::Pipeline
 				1,
 				&region
 			);
+
 			EndSingleTimeCommands(commandBuffer);
 		}
 
@@ -642,7 +643,7 @@ namespace Isonia::Pipeline
 			}
 
 			VkPhysicalDeviceFeatures deviceFeatures = {};
-			deviceFeatures.samplerAnisotropy = VK_TRUE;
+			deviceFeatures.samplerAnisotropy = VK_FALSE;
 
 			VkDeviceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -707,7 +708,7 @@ namespace Isonia::Pipeline
 			VkPhysicalDeviceFeatures supportedFeatures;
 			vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-			return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
+			return indices.IsComplete() && extensionsSupported && swapChainAdequate;
 		}
 
 		VkInstance instance;
