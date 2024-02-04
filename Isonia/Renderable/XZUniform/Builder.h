@@ -50,7 +50,7 @@ namespace Isonia::Renderable::XZUniform
 				float z = (i / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
 
 				// calculate perlin noise from xz
-				perlinNoise[i] = noise.GeneratePerlinNoise(69, x, z) * 0.5f;
+				perlinNoise[i] = noise.GenerateFractalNoise(x, z) * 10.0f;
 			}
 
 			float localY[3][3]{};

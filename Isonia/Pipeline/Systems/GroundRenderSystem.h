@@ -42,7 +42,7 @@ extern Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 4;
+	const std::size_t GROUNDS = 8;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
@@ -53,7 +53,7 @@ namespace Isonia::Pipeline::Systems
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
 
-			Noise::Noise noise{};
+			Noise::Noise noise{ 69, 0.1f, 3, 2.0f, 0.5f, 0.0f };
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
@@ -146,36 +146,6 @@ namespace Isonia::Pipeline::Systems
 		}
 
 	private:
-		void InitializePaletteDescriptorPool()
-		{
-			/*
-			VkDescriptorSetAllocateInfo allocInfo = {};
-			allocInfo.pNext = nullptr;
-			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			allocInfo.descriptorPool = _descriptorPool;
-			allocInfo.descriptorSetCount = 1;
-			allocInfo.pSetLayouts = &_singleTextureSetLayout;
-
-			vkAllocateDescriptorSets(_device, &allocInfo, &texturedMat->textureSet);
-
-			VkSamplerCreateInfo samplerInfo = vkinit::sampler_create_info(VK_FILTER_NEAREST);
-
-			VkSampler blockySampler;
-			vkCreateSampler(_device, &samplerInfo, nullptr, &blockySampler);
-
-			VkDescriptorImageInfo imageBufferInfo;
-			imageBufferInfo.sampler = blockySampler;
-			imageBufferInfo.imageView = colorMap->GetImageView();
-			imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-
-
-			VkWriteDescriptorSet texture1 = vkinit::write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, texturedMat->textureSet, &imageBufferInfo, 0);
-
-			vkUpdateDescriptorSets(_device, 1, &texture1, 0, nullptr);
-			*/
-		}
-
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout)
 		{
 			VkPushConstantRange pushConstantRange{};
