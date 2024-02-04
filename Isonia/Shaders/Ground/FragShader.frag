@@ -23,6 +23,6 @@ layout (set = 0, binding = 1) uniform sampler1D colorMap;
 
 void main()
 {
-	float lightIntensity = -dot(fragNormalWorld, ubo.lightDirection) + ubo.ambientLightColor.w;
+	float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), ubo.ambientLightColor.w);
 	outColor = texture(colorMap, lightIntensity);
 }

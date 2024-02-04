@@ -96,6 +96,7 @@ namespace Isonia
 
 		~Isonia()
 		{
+			delete sphereModel;
 			delete groundRenderSystem;
 			delete globalSetLayout;
 			for (Pipeline::Buffer* buffer : uboBuffers) {
@@ -254,17 +255,17 @@ namespace Isonia
 			};
 		}
 
+		Renderable::Complete::Model* sphereModel;
 		void InitializeEntities()
 		{
 			std::default_random_engine generator;
 			std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
 			std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
-			std::uniform_real_distribution<float> randScale(1.0f, 5.0f);
+			std::uniform_real_distribution<float> randScale(1.0f, 2.0f);
 
-			// never gets freed
-			Renderable::Complete::Model* model = Renderable::Complete::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
+			sphereModel = Renderable::Complete::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
 
-			for (int i = 0; i < ECS::MAX_ENTITIES; ++i)
+			for (int i = 0; i < 10; ++i)
 			{
 				ECS::Entity entity = gCoordinator.CreateEntity();
 
@@ -279,7 +280,7 @@ namespace Isonia
 
 				gCoordinator.AddComponent(
 					entity,
-					Components::Mesh{ model }
+					Components::Mesh{ sphereModel }
 				);
 
 				gCoordinator.AddComponent(
@@ -292,6 +293,22 @@ namespace Isonia
 					Components::Gravity{}
 				);
 			}
+
+			ECS::Entity sphere = gCoordinator.CreateEntity();
+
+			gCoordinator.AddComponent(
+				sphere,
+				Components::Transform{
+				   glm::vec3{ 0, -5, 0 },
+				   glm::vec3{ 0 },
+				   glm::vec3{ 1 }
+				}
+			);
+
+			gCoordinator.AddComponent(
+				sphere,
+				Components::Mesh{ sphereModel }
+			);
 		}
 
 		void InitializePlayer()

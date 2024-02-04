@@ -1,8 +1,8 @@
 #version 450
+#extension GL_KHR_vulkan_glsl : enable
 
-layout (location = 0) in vec3 fragColor;
-layout (location = 1) in vec3 fragPosWorld;
-layout (location = 2) in vec3 fragNormalWorld;
+layout (location = 0) in vec3 fragPosWorld;
+layout (location = 1) in vec3 fragNormalWorld;
 
 layout (location = 0) out vec4 outColor;
 
@@ -19,8 +19,10 @@ layout(push_constant) uniform Push {
   mat4 normalMatrix;
 } push;
 
+layout (set = 0, binding = 1) uniform sampler1D colorMap;
+
 void main()
 {
-  vec3 diffuseLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-  outColor = vec4(fragColor + diffuseLight, 1.0);
+	float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), ubo.ambientLightColor.w);
+	outColor = texture(colorMap, lightIntensity);
 }
