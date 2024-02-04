@@ -55,6 +55,28 @@ Isonia::ECS::Coordinator gCoordinator;
 
 namespace Isonia
 {
+	const int PALETTE_LENGTH = 17;
+	const Renderable::Color::Color PALETTE[PALETTE_LENGTH]
+	{
+		{ 0, 11, 12 },
+		{ 0, 16, 18 },
+		{ 7, 25, 20 },
+		{ 12, 32, 39 },
+		{ 21, 45, 54 },
+		{ 22, 63, 71 },
+		{ 22, 83, 89 },
+		{ 28, 91, 64 },
+		{ 45, 103, 78 },
+		{ 63, 117, 94 },
+		{ 81, 139, 115 },
+		{ 93, 161, 60 },
+		{ 112, 177, 77 },
+		{ 140, 197, 66 },
+		{ 140, 197, 66 },
+		{ 151, 221, 62 },
+		{ 215, 224, 131 }
+	};
+
 	class Isonia
 	{
 	public:
@@ -123,7 +145,7 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
-					groundRenderSystem->RenderGround(frameInfo, uboBuffers[frameIndex]->DescriptorInfo(), *globalPool);
+					groundRenderSystem->RenderGround(frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();
@@ -139,6 +161,7 @@ namespace Isonia
 		}
 
 	private:
+		Renderable::Texture* palette;
 		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
 		std::vector<VkDescriptorSet> globalDescriptorSets;
 		std::vector<Pipeline::Buffer*> uboBuffers;
@@ -147,6 +170,7 @@ namespace Isonia
 			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
 				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.Build();
 
 			uboBuffers.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -162,16 +186,21 @@ namespace Isonia
 				uboBuffers[i]->Map();
 			}
 
+			palette = Renderable::Texture::CreateTextureFromPalette(device, PALETTE, PALETTE_LENGTH);
+
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
 			globalDescriptorSets.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (int i = 0; i < globalDescriptorSets.size(); i++)
 			{
 				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
+				auto imageInfo = palette->GetImageInfo();
 				Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
 					.WriteBuffer(0, &bufferInfo)
+					.WriteImage(1, &imageInfo)
 					.Build(globalDescriptorSets[i]);
 			}
 		}

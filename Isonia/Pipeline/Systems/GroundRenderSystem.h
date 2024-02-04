@@ -45,35 +45,11 @@ namespace Isonia::Pipeline::Systems
 	const std::size_t GROUNDS = 4;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
-	const int PALETTE_LENGTH = 17;
-	const Renderable::Color::Color PALETTE[PALETTE_LENGTH]
-	{
-		{ 0, 11, 12 },
-		{ 0, 16, 18 },
-		{ 7, 25, 20 },
-		{ 12, 32, 39 },
-		{ 21, 45, 54 },
-		{ 22, 63, 71 },
-		{ 22, 83, 89 },
-		{ 28, 91, 64 },
-		{ 45, 103, 78 },
-		{ 63, 117, 94 },
-		{ 81, 139, 115 },
-		{ 93, 161, 60 },
-		{ 112, 177, 77 },
-		{ 140, 197, 66 },
-		{ 140, 197, 66 },
-		{ 151, 221, 62 },
-		{ 215, 224, 131 }
-	};
-
 	class GroundRenderSystem
 	{
 	public:
 		GroundRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)
 		{
-			palette = Renderable::Texture::CreateTextureFromPalette(device, PALETTE, PALETTE_LENGTH);
-
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
 
@@ -97,7 +73,6 @@ namespace Isonia::Pipeline::Systems
 		~GroundRenderSystem()
 		{
 			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
-			delete renderSystemLayout;
 			delete pipeline;
 
 			for (long x = GROUNDS - 1; x >= 0; x--)
@@ -108,13 +83,12 @@ namespace Isonia::Pipeline::Systems
 				}
 			}
 			operator delete[](grounds);
-			//delete palette;
 		}
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
-		void RenderGround(State::FrameInfo& frameInfo, VkDescriptorBufferInfo bufferInfo, Descriptors::DescriptorPool& descriptorPool)
+		void RenderGround(State::FrameInfo& frameInfo)
 		{
 			pipeline->Bind(frameInfo.commandBuffer);
 
@@ -209,14 +183,8 @@ namespace Isonia::Pipeline::Systems
 			pushConstantRange.offset = 0;
 			pushConstantRange.size = sizeof(Renderable::XZUniform::XZPositionalData);
 
-			renderSystemLayout = Descriptors::DescriptorSetLayout::Builder(device)
-				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-				.Build();
-
 			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
-				globalSetLayout,
-				renderSystemLayout->GetDescriptorSetLayout()
+				globalSetLayout
 			};
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -253,9 +221,7 @@ namespace Isonia::Pipeline::Systems
 
 		Pipeline* pipeline;
 		VkPipelineLayout pipelineLayout;
-		Descriptors::DescriptorSetLayout* renderSystemLayout;
 
-		Renderable::Texture* palette;
 		Renderable::XZUniform::Builder* grounds;
 		Renderable::PosNorm::Builder* foliages;
 	};
