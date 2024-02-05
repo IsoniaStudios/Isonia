@@ -16,7 +16,7 @@
 
 namespace Isonia::Renderable::XZUniform
 {
-	const float QUAD_SIZE = 0.1f;
+	const float QUAD_SIZE = 0.25f;
 	const std::size_t QUADS = 256;
 	const std::size_t VERTICES = QUADS + 1;
 	const std::size_t SAMPLE = VERTICES + 2;
