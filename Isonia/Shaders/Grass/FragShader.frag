@@ -14,11 +14,6 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
-layout(push_constant) uniform Push {
-  float x;
-  float z;
-} push;
-
 layout (set = 0, binding = 1) uniform sampler1D colorMap;
 
 void main()

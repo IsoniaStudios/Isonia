@@ -19,6 +19,7 @@ namespace Isonia::Renderable::XZUniform
 	const float QUAD_SIZE = 0.25f;
 	const std::size_t QUADS = 256;
 	const std::size_t VERTICES = QUADS + 1;
+	const std::size_t UNIQUE_VERTICES_COUNT = VERTICES * VERTICES;
 	const std::size_t SAMPLE = VERTICES + 2;
 	const std::size_t SAMPLE_COUNT = SAMPLE * SAMPLE;
 	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
@@ -33,80 +34,78 @@ namespace Isonia::Renderable::XZUniform
 
 	struct Builder
 	{
-		Vertex* vertices;
 		const XZPositionalData positionalData;
 
-		Builder(Noise::Noise& noise, Pipeline::Device& device, float x, float z) : device(device), positionalData(x, z)
+		float* sampleAltitudes;
+		glm::vec3* normals;
+
+		Builder(Noise::Noise& noise, Pipeline::Device& device, const float x, const float z) : device(device), positionalData(x, z)
 		{
 			// alloc memory
-			vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
+			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
 			
 			// calculate perlin
-			float* perlinNoise = static_cast<float*>(operator new[](sizeof(float) * SAMPLE_COUNT));
+			sampleAltitudes = static_cast<float*>(operator new[](sizeof(float) * SAMPLE_COUNT));
 			for (size_t i = 0; i < SAMPLE_COUNT; i++)
 			{
 				// calculate xz
-				float x = (i % SAMPLE) * QUAD_SIZE + positionalData.x - QUAD_SIZE;
-				float z = (i / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
+				const float x = (i % SAMPLE) * QUAD_SIZE + positionalData.x - QUAD_SIZE;
+				const float z = (i / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
 
 				// calculate perlin noise from xz
-				perlinNoise[i] = noise.GenerateFractalNoise(x, z) * 10.0f;
+				sampleAltitudes[i] = noise.GenerateFractalNoise(x, z) * 10.0f;
 			}
 
-			float localY[3][3]{};
+			// calculate normal
+			normals = static_cast<glm::vec3*>(operator new[](sizeof(glm::vec3) * UNIQUE_VERTICES_COUNT));
+			for (size_t i = 0; i < UNIQUE_VERTICES_COUNT; i++)
+			{
+				// calculate xz
+				const size_t x = i % VERTICES;
+				const size_t z = i / VERTICES;
+
+				// create the 5 points used in calculating normal
+				const glm::vec3 v10 = { -QUAD_SIZE, sampleAltitudes[(x + 1) + SAMPLE * (z + 0)], 0.0f };
+				const glm::vec3 v01 = { 0.0f,		sampleAltitudes[(x + 0) + SAMPLE * (z + 1)], -QUAD_SIZE };
+				const glm::vec3 v11 = { 0.0f,		sampleAltitudes[(x + 1) + SAMPLE * (z + 1)], 0.0f };
+				const glm::vec3 v21 = { 0.0f,		sampleAltitudes[(x + 2) + SAMPLE * (z + 1)], QUAD_SIZE };
+				const glm::vec3 v12 = { QUAD_SIZE,  sampleAltitudes[(x + 1) + SAMPLE * (z + 2)], 0.0f };
+
+				// compute normal
+				normals[i] = Utilities::Math::ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
+			}
+
+			// assign normal and altitude
 			for (size_t i = 0; i < VERTICES_COUNT; i++)
 			{
 				// calculate strip row and col
 				const int strip = CalculateStrip(i);
-				const int row = CalculateRow(i, strip) + 1; // is x
-				const int col = CalculateCol(i, strip) + 1; // is z
-
-				//
-				for (int colOffset = -1; colOffset <= 1; colOffset++)
-				{
-					int colWO = col + colOffset;
-					for (int rowOffset = -1; rowOffset <= 1; rowOffset++)
-					{
-						int rowWO = row + rowOffset;
-						localY[colOffset + 1][rowOffset + 1] = perlinNoise[rowWO + SAMPLE * colWO]; // unsure why this is flipped but oh well
-					}
-				}
+				const int col = CalculateCol(i, strip); // is x
+				const int row = CalculateRow(i, strip); // is z
 
 				// get precalculated perlin noise and set it to altitude
-				vertices[i].altitude = localY[1][1];
+				vertices[i].altitude = sampleAltitudes[(col + 1) + SAMPLE * (row + 1)];
 
-				// [00, 01, 02]
-				// [10, 11, 12]
-				// [20, 21, 22]
-				//glm::vec3 v00 = { -QUAD_SIZE, localY[0][0], -QUAD_SIZE };
-				glm::vec3 v10 = { -QUAD_SIZE, localY[1][0],       0.0f };
-				//glm::vec3 v20 = { -QUAD_SIZE, localY[2][0],  QUAD_SIZE };
+				// get precalculated perlin normal
+				const glm::vec3 normal = normals[col + VERTICES * row];
 
-				glm::vec3 v01 = {       0.0f, localY[0][1], -QUAD_SIZE };
-				glm::vec3 v11 = {       0.0f, localY[1][1],       0.0f };
-				glm::vec3 v21 = {       0.0f, localY[2][1],  QUAD_SIZE };
-
-				//glm::vec3 v02 = {  QUAD_SIZE, localY[0][2], -QUAD_SIZE };
-				glm::vec3 v12 = {  QUAD_SIZE, localY[1][2],       0.0f };
-				//glm::vec3 v22 = {  QUAD_SIZE, localY[2][2],  QUAD_SIZE };
-
-				glm::vec3 normal = ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
-
+				// calculate pitch and yaw
 				vertices[i].pitch = glm::atan(normal.y, normal.z);
 				vertices[i].yaw = glm::atan(normal.y, normal.x);
 			}
 
-			// free locally allocated memory
-			delete perlinNoise;
-
 			// create the buffers
-			CreateVertexBuffers();
+			CreateVertexBuffers(vertices);
+
+			// cleanup
+			delete vertices;
 		}
 
 		~Builder()
 		{
 			delete vertexBuffer;
-			delete vertices;
+			delete sampleAltitudes;
+			delete normals;
 		}
 
 		void Bind(VkCommandBuffer commandBuffer)
@@ -122,46 +121,6 @@ namespace Isonia::Renderable::XZUniform
 		}
 
 	private:
-		glm::vec3 ComputeSmoothNormalFrom4(const glm::vec3& v01,
-					 const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
-										   const glm::vec3& v21)
-		{
-			// Calculate flat normal for neighbouring 4 triangles
-			glm::vec3 t0 = glm::cross(v01 - v11, v12 - v11);
-			glm::vec3 t1 = glm::cross(v12 - v11, v21 - v11);
-
-			glm::vec3 t2 = glm::cross(v21 - v11, v10 - v11);
-			glm::vec3 t3 = glm::cross(v10 - v11, v01 - v11);
-
-			// Compute the smooth normal
-			glm::vec3 smoothNormal = glm::normalize(t0 + t1 + t2 + t3);
-
-			return smoothNormal;
-		}
-
-		glm::vec3 ComputeSmoothNormalFrom8(const glm::vec3& v00, const glm::vec3& v01, const glm::vec3& v02,
-							  			   const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
-										   const glm::vec3& v20, const glm::vec3& v21, const glm::vec3& v22)
-		{
-			// Calculate flat normal for each triangle
-			glm::vec3 t00 = glm::cross(v01 - v11, v00 - v11);
-			glm::vec3 t01 = glm::cross(v00 - v11, v10 - v11);
-
-			glm::vec3 t10 = glm::cross(v10 - v11, v20 - v11);
-			glm::vec3 t11 = glm::cross(v20 - v11, v21 - v11);
-
-			glm::vec3 t20 = glm::cross(v21 - v11, v22 - v11);
-			glm::vec3 t21 = glm::cross(v22 - v11, v12 - v11);
-
-			glm::vec3 t30 = glm::cross(v12 - v11, v02 - v11);
-			glm::vec3 t31 = glm::cross(v02 - v11, v01 - v11);
-
-			// Compute the smooth normal
-			glm::vec3 smoothNormal = glm::normalize(t00 + t01 + t10 + t11 + t20 + t21 + t30 + t31);
-
-			return smoothNormal;
-		}
-
 		int CalculateCol(const int index, const int strip) const
 		{
 			return abs(((strip + 1) / 2) * (int(VERTICES) * 2 - 1) - ((index + (strip % 2)) / 2));
@@ -175,7 +134,7 @@ namespace Isonia::Renderable::XZUniform
 			return (index - 1) / (int(VERTICES) * 2 - 1);
 		}
 
-		void CreateVertexBuffers()
+		void CreateVertexBuffers(void* vertices)
 		{
 			const VkDeviceSize bufferSize = sizeof(Vertex) * VERTICES_COUNT;
 			const uint32_t vertexSize = sizeof(Vertex);
@@ -189,7 +148,7 @@ namespace Isonia::Renderable::XZUniform
 			};
 
 			stagingBuffer.Map();
-			stagingBuffer.WriteToBuffer((void*)vertices);
+			stagingBuffer.WriteToBuffer(vertices);
 
 			vertexBuffer = new Pipeline::Buffer(
 				device,

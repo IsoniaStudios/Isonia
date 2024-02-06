@@ -20,7 +20,6 @@
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/Systems/SimpleRenderSystem.h"
 #include "Pipeline/Systems/GroundRenderSystem.h"
-#include "Pipeline/Systems/FoliageRenderSystem.h"
 
 #include "Physics/PhysicsSystem.h"
 
@@ -81,7 +80,6 @@ namespace Isonia
 			delete palette;
 			delete sphereModel;
 			delete groundRenderSystem;
-			delete foliageRenderSystem;
 			delete gCoordinator;
 			delete globalSetLayout;
 			for (Pipeline::Buffer* buffer : uboBuffers) {
@@ -131,8 +129,7 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
-					//groundRenderSystem->RenderGround(frameInfo);
-					foliageRenderSystem->RenderFoliage(frameInfo);
+					groundRenderSystem->Render(frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();
@@ -219,7 +216,6 @@ namespace Isonia
 
 		Pipeline::Systems::SimpleRenderSystem* simpleRenderSystem;
 		Pipeline::Systems::GroundRenderSystem* groundRenderSystem;
-		Pipeline::Systems::FoliageRenderSystem* foliageRenderSystem;
 		void InitializeRenderSystems()
 		{
 			simpleRenderSystem = new Pipeline::Systems::SimpleRenderSystem{
@@ -236,12 +232,6 @@ namespace Isonia
 			}
 
 			groundRenderSystem = new Pipeline::Systems::GroundRenderSystem{
-				device,
-				renderer.GetSwapChainRenderPass(),
-				globalSetLayout->GetDescriptorSetLayout()
-			};
-
-			foliageRenderSystem = new Pipeline::Systems::FoliageRenderSystem{
 				device,
 				renderer.GetSwapChainRenderPass(),
 				globalSetLayout->GetDescriptorSetLayout()

@@ -3,6 +3,9 @@
 // std
 #include <cmath>
 
+// external
+#include <glm/glm.hpp>
+
 namespace Isonia::Utilities::Math
 {
     // Generics
@@ -31,5 +34,23 @@ namespace Isonia::Utilities::Math
     {
         float p = (d - c) - (a - b);
         return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
+    }
+
+    // 
+    glm::vec3 ComputeSmoothNormalFrom4(const glm::vec3& v01,
+                 const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
+                                       const glm::vec3& v21)
+    {
+        // Calculate flat normal for neighbouring 4 triangles
+        glm::vec3 t0 = glm::cross(v01 - v11, v12 - v11);
+        glm::vec3 t1 = glm::cross(v12 - v11, v21 - v11);
+
+        glm::vec3 t2 = glm::cross(v21 - v11, v10 - v11);
+        glm::vec3 t3 = glm::cross(v10 - v11, v01 - v11);
+
+        // Compute the smooth normal
+        glm::vec3 smoothNormal = glm::normalize(t0 + t1 + t2 + t3);
+
+        return smoothNormal;
     }
 }

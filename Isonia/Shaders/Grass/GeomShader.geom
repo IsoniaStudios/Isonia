@@ -17,11 +17,6 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
-layout(push_constant) uniform Push {
-  float x;
-  float z;
-} push;
-
 const float SIZE = 0.1;
 const float yScale = 1.0 / cos(radians(-30.0));
 
@@ -32,24 +27,24 @@ void main()
 
 	vec3 cameraRightWorld = vec3(ubo.view[0][0], ubo.view[1][0], ubo.view[2][0]) * SIZE;
 	//vec3 cameraUpWorld = vec3(ubo.view[0][1], ubo.view[1][1], ubo.view[2][1]) * SIZE;
-	vec3 upWorld = vec3(0.0, yScale, 0.0) * SIZE;
+	vec3 upWorld = vec3(0.0, -yScale, 0.0) * SIZE;
 
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld - upWorld, 1.0);
+	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragTexCoord = vec2(-1.0,  1.0);
 	EmitVertex();
   
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld + upWorld, 1.0);
+	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld - upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragTexCoord = vec2(-1.0, -1.0);
 	EmitVertex();
   
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld - upWorld, 1.0);
+	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragTexCoord = vec2( 1.0,  1.0);
 	EmitVertex();
   
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld + upWorld, 1.0);
+	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld - upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragTexCoord = vec2( 1.0, -1.0);
 	EmitVertex();

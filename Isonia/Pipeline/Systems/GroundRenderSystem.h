@@ -14,13 +14,17 @@
 #include "../../Components/Camera.h"
 #include "../../Components/Transform.h"
 
-#include "../../Renderable/PosNorm/Builder.h"
 #include "../../Renderable/XZUniform/Builder.h"
+#include "../../Renderable/XZUniform/Grass/Builder.h"
 #include "../../Renderable/Color/Color.h"
 
 // shaders
 #include "../../Shaders/Include/Ground/FragShader_frag.h"
 #include "../../Shaders/Include/Ground/VertexShader_vert.h"
+
+#include "../../Shaders/Include/Grass/FragShader_frag.h"
+#include "../../Shaders/Include/Grass/VertexShader_vert.h"
+#include "../../Shaders/Include/Grass/GeomShader_geom.h"
 
 // external
 #define GLM_FORCE_RADIANS
@@ -48,50 +52,69 @@ namespace Isonia::Pipeline::Systems
 	public:
 		GroundRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)
 		{
-			CreatePipelineLayout(globalSetLayout);
-			CreatePipeline(renderPass);
+			CreateGroundPipelineLayout(globalSetLayout);
+			CreateGroundPipeline(renderPass);
 
-			Noise::Noise noise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
+			CreateGrassPipelineLayout(globalSetLayout);
+			CreateGrassPipeline(renderPass);
+
+			Noise::Noise groundNoise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
+			Noise::Noise n1{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
+			Noise::Noise n2{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
+
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
+			grasses = static_cast<Renderable::XZUniform::Grass::Builder*>(operator new[](sizeof(Renderable::XZUniform::Grass::Builder) * GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
-					new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(noise, device, xOffset, zOffset);
+					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(groundNoise, device, xOffset, zOffset);
+					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, n1, n2);
 				}
 			}
 		}
 
 		~GroundRenderSystem()
 		{
-			delete pipeline;
-			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
+			delete groundPipeline;
+			delete grassPipeline;
+			vkDestroyPipelineLayout(device.GetDevice(), groundPipelineLayout, nullptr);
+			vkDestroyPipelineLayout(device.GetDevice(), grassPipelineLayout, nullptr);
 
 			for (long x = GROUNDS - 1; x >= 0; x--)
 			{
 				for (long z = GROUNDS - 1; z >= 0; z--)
 				{
 					grounds[x * GROUNDS + z].~Builder();
+					grasses[x * GROUNDS + z].~Builder();
 				}
 			}
 			operator delete[](grounds);
+			operator delete[](grasses);
 		}
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
+		void Render(State::FrameInfo& frameInfo)
+		{
+			RenderGround(frameInfo);
+			RenderGrass(frameInfo);
+		}
+
+	private:
 		void RenderGround(State::FrameInfo& frameInfo)
 		{
-			pipeline->Bind(frameInfo.commandBuffer);
+			groundPipeline->Bind(frameInfo.commandBuffer);
 
 			vkCmdBindDescriptorSets(
 				frameInfo.commandBuffer,
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipelineLayout,
+				groundPipelineLayout,
 				0,
 				1,
 				&frameInfo.globalDescriptorSet,
@@ -107,7 +130,7 @@ namespace Isonia::Pipeline::Systems
 
 					vkCmdPushConstants(
 						frameInfo.commandBuffer,
-						pipelineLayout,
+						groundPipelineLayout,
 						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 						0,
 						sizeof(Renderable::XZUniform::XZPositionalData),
@@ -119,8 +142,34 @@ namespace Isonia::Pipeline::Systems
 			}
 		}
 
-	private:
-		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout)
+		void RenderGrass(State::FrameInfo& frameInfo)
+		{
+			grassPipeline->Bind(frameInfo.commandBuffer);
+
+			vkCmdBindDescriptorSets(
+				frameInfo.commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				grassPipelineLayout,
+				0,
+				1,
+				&frameInfo.globalDescriptorSet,
+				0,
+				nullptr
+			);
+
+			for (long x = 0; x < GROUNDS; x++)
+			{
+				for (long z = 0; z < GROUNDS; z++)
+				{
+					Renderable::XZUniform::Grass::Builder* grass = &grasses[x * GROUNDS + z];
+
+					grass->Bind(frameInfo.commandBuffer);
+					grass->Draw(frameInfo.commandBuffer);
+				}
+			}
+		}
+
+		void CreateGroundPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 		{
 			VkPushConstantRange pushConstantRange{};
 			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -137,21 +186,21 @@ namespace Isonia::Pipeline::Systems
 			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 			pipelineLayoutInfo.pushConstantRangeCount = 1;
 			pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-			if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+			if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &groundPipelineLayout) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create pipeline layout!");
 			}
 		}
 
-		void CreatePipeline(VkRenderPass renderPass)
+		void CreateGroundPipeline(VkRenderPass renderPass)
 		{
-			assert(pipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
+			assert(groundPipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 
 			PipelineConfigInfo pipelineConfig{};
-			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
+			PixelPipelineTriangleStripConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
-			pipelineConfig.pipelineLayout = pipelineLayout;
-			pipeline = Pipeline::Builder(device)
+			pipelineConfig.pipelineLayout = groundPipelineLayout;
+			groundPipeline = Pipeline::Builder(device)
 				.AddShaderModule(
 					VK_SHADER_STAGE_VERTEX_BIT,
 					Shaders::Ground::VERTEXSHADER_VERT,
@@ -163,11 +212,77 @@ namespace Isonia::Pipeline::Systems
 				).CreateGraphicsPipeline(pipelineConfig);
 		}
 
+		static void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			Pipeline::PixelPipelineConfigInfo(configInfo);
+
+			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+			configInfo.bindingDescriptions = Renderable::XZUniform::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
+		}
+
+		void CreateGrassPipelineLayout(VkDescriptorSetLayout globalSetLayout)
+		{
+			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
+				globalSetLayout
+			};
+
+			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+			pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+			pipelineLayoutInfo.pushConstantRangeCount = 0;
+			pipelineLayoutInfo.pPushConstantRanges = nullptr;
+			if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &grassPipelineLayout) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create pipeline layout!");
+			}
+		}
+
+		void CreateGrassPipeline(VkRenderPass renderPass)
+		{
+			assert(grassPipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
+
+			PipelineConfigInfo pipelineConfig{};
+			PixelPipelinePointListConfigInfo(pipelineConfig);
+			pipelineConfig.renderPass = renderPass;
+			pipelineConfig.pipelineLayout = grassPipelineLayout;
+			grassPipeline = Pipeline::Builder(device)
+				.AddShaderModule(
+					VK_SHADER_STAGE_GEOMETRY_BIT,
+					Shaders::Grass::GEOMSHADER_GEOM,
+					sizeof(Shaders::Grass::GEOMSHADER_GEOM) / sizeof(unsigned char)
+				).AddShaderModule(
+					VK_SHADER_STAGE_VERTEX_BIT,
+					Shaders::Grass::VERTEXSHADER_VERT,
+					sizeof(Shaders::Grass::VERTEXSHADER_VERT) / sizeof(unsigned char)
+				).AddShaderModule(
+					VK_SHADER_STAGE_FRAGMENT_BIT,
+					Shaders::Grass::FRAGSHADER_FRAG,
+					sizeof(Shaders::Grass::FRAGSHADER_FRAG) / sizeof(unsigned char)
+				).CreateGraphicsPipeline(pipelineConfig);
+		}
+
+		static void PixelPipelinePointListConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			Pipeline::PixelPipelineConfigInfo(configInfo);
+
+			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+
+			configInfo.bindingDescriptions = Renderable::XZUniform::Grass::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniform::Grass::Vertex::GetAttributeDescriptions();
+		}
+
 		Device& device;
 
-		Pipeline* pipeline;
-		VkPipelineLayout pipelineLayout;
+		Pipeline* groundPipeline;
+		Pipeline* grassPipeline;
+		VkPipelineLayout groundPipelineLayout;
+		VkPipelineLayout grassPipelineLayout;
 
 		Renderable::XZUniform::Builder* grounds;
+		Renderable::XZUniform::Grass::Builder* grasses;
 	};
 }

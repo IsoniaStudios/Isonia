@@ -45,7 +45,7 @@ void main()
     int row = calculateRow(gl_VertexIndex, strip);
     int col = calculateCol(gl_VertexIndex, strip);
 
-    fragPosWorld = vec3(row * QUAD_SIZE + push.x, amplitude, col * QUAD_SIZE + push.z);
+    fragPosWorld = vec3(col * QUAD_SIZE + push.x, amplitude, row * QUAD_SIZE + push.z);
 
     float xzLen = cos(pitch);
     fragNormalWorld = vec3(
