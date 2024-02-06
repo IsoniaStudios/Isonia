@@ -108,6 +108,16 @@ namespace Isonia::Pipeline
 			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
 		}
 
+		static void PixelPipelinePointListConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			Pipeline::PixelPipelineConfigInfo(configInfo);
+
+			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+
+			configInfo.bindingDescriptions = Renderable::XZUniform::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
+		}
+
 		static void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
 		{
 			Pipeline::DefaultPipelineConfigInfo(configInfo);

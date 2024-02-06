@@ -20,6 +20,7 @@
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/Systems/SimpleRenderSystem.h"
 #include "Pipeline/Systems/GroundRenderSystem.h"
+#include "Pipeline/Systems/FoliageRenderSystem.h"
 
 #include "Physics/PhysicsSystem.h"
 
@@ -53,7 +54,7 @@
 #include <GLFW/glfw3native.h>
 
 // global vars
-Isonia::ECS::Coordinator gCoordinator;
+Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia
 {
@@ -103,8 +104,11 @@ namespace Isonia
 
 		~Isonia()
 		{
+			delete palette;
 			delete sphereModel;
 			delete groundRenderSystem;
+			delete foliageRenderSystem;
+			delete gCoordinator;
 			delete globalSetLayout;
 			for (Pipeline::Buffer* buffer : uboBuffers) {
 				delete buffer;
@@ -153,7 +157,8 @@ namespace Isonia
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
-					groundRenderSystem->RenderGround(frameInfo);
+					//groundRenderSystem->RenderGround(frameInfo);
+					foliageRenderSystem->RenderFoliage(frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();
@@ -215,31 +220,32 @@ namespace Isonia
 
 		void InitializeCoordinator()
 		{
-			gCoordinator.Init();
+			gCoordinator = new ECS::Coordinator();
 
-			gCoordinator.RegisterComponent<Components::Transform>();
-			gCoordinator.RegisterComponent<Components::Mesh>();
-			gCoordinator.RegisterComponent<Components::MeshRenderer>();
-			gCoordinator.RegisterComponent<Components::RigidBody>();
-			gCoordinator.RegisterComponent<Components::Gravity>();
+			gCoordinator->RegisterComponent<Components::Transform>();
+			gCoordinator->RegisterComponent<Components::Mesh>();
+			gCoordinator->RegisterComponent<Components::MeshRenderer>();
+			gCoordinator->RegisterComponent<Components::RigidBody>();
+			gCoordinator->RegisterComponent<Components::Gravity>();
 		}
 
 		Physics::PhysicsSystem* physicsSystem;
 		void InitializePhysicsSystem()
 		{
-			physicsSystem = gCoordinator.RegisterSystem<Physics::PhysicsSystem>();
+			physicsSystem = gCoordinator->RegisterSystem<Physics::PhysicsSystem>();
 			{
 				ECS::Signature signature;
 				signature.set(ECS::GetComponentType<Components::Transform>());
 				signature.set(ECS::GetComponentType<Components::RigidBody>());
 				signature.set(ECS::GetComponentType<Components::Gravity>());
-				gCoordinator.SetSystemSignature<Physics::PhysicsSystem>(signature);
+				gCoordinator->SetSystemSignature<Physics::PhysicsSystem>(signature);
 			}
 			physicsSystem->Init();
 		}
 
 		Pipeline::Systems::SimpleRenderSystem* simpleRenderSystem;
 		Pipeline::Systems::GroundRenderSystem* groundRenderSystem;
+		Pipeline::Systems::FoliageRenderSystem* foliageRenderSystem;
 		void InitializeRenderSystems()
 		{
 			simpleRenderSystem = new Pipeline::Systems::SimpleRenderSystem{
@@ -247,15 +253,21 @@ namespace Isonia
 				renderer.GetSwapChainRenderPass(),
 				globalSetLayout->GetDescriptorSetLayout()
 			};
-			gCoordinator.RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(simpleRenderSystem);
+			gCoordinator->RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(simpleRenderSystem);
 			{
 				ECS::Signature signature;
 				signature.set(ECS::GetComponentType<Components::Transform>());
 				signature.set(ECS::GetComponentType<Components::Mesh>());
-				gCoordinator.SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
+				gCoordinator->SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
 			}
 
 			groundRenderSystem = new Pipeline::Systems::GroundRenderSystem{
+				device,
+				renderer.GetSwapChainRenderPass(),
+				globalSetLayout->GetDescriptorSetLayout()
+			};
+
+			foliageRenderSystem = new Pipeline::Systems::FoliageRenderSystem{
 				device,
 				renderer.GetSwapChainRenderPass(),
 				globalSetLayout->GetDescriptorSetLayout()
@@ -274,9 +286,9 @@ namespace Isonia
 
 			for (int i = 0; i < 10; ++i)
 			{
-				ECS::Entity entity = gCoordinator.CreateEntity();
+				ECS::Entity entity = gCoordinator->CreateEntity();
 
-				gCoordinator.AddComponent(
+				gCoordinator->AddComponent(
 					entity,
 					Components::Transform{
 					   glm::vec3{ randPosition(generator), randPosition(generator), randPosition(generator) },
@@ -285,25 +297,25 @@ namespace Isonia
 					}
 				);
 
-				gCoordinator.AddComponent(
+				gCoordinator->AddComponent(
 					entity,
 					Components::Mesh{ sphereModel }
 				);
 
-				gCoordinator.AddComponent(
+				gCoordinator->AddComponent(
 					entity,
 					Components::RigidBody{}
 				);
 
-				gCoordinator.AddComponent<Components::Gravity>(
+				gCoordinator->AddComponent<Components::Gravity>(
 					entity,
 					Components::Gravity{}
 				);
 			}
 
-			ECS::Entity sphere = gCoordinator.CreateEntity();
+			ECS::Entity sphere = gCoordinator->CreateEntity();
 
-			gCoordinator.AddComponent(
+			gCoordinator->AddComponent(
 				sphere,
 				Components::Transform{
 				   glm::vec3{ 0, -5, 0 },
@@ -312,7 +324,7 @@ namespace Isonia
 				}
 			);
 
-			gCoordinator.AddComponent(
+			gCoordinator->AddComponent(
 				sphere,
 				Components::Mesh{ sphereModel }
 			);

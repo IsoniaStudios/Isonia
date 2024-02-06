@@ -36,11 +36,11 @@
 #include <stdexcept>
 #include <numeric>
 
-extern Isonia::ECS::Coordinator gCoordinator;
+extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 8;
+	const std::size_t GROUNDS = 4;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
@@ -55,7 +55,6 @@ namespace Isonia::Pipeline::Systems
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
-			foliages = static_cast<Renderable::PosNorm::Builder*>(operator new[](sizeof(Renderable::PosNorm::Builder) * GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
@@ -63,15 +62,14 @@ namespace Isonia::Pipeline::Systems
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(noise, device, xOffset, zOffset);
-					new (foliages + x * GROUNDS_LONG + z) Renderable::PosNorm::Builder(&grounds[x * GROUNDS + z]);
 				}
 			}
 		}
 
 		~GroundRenderSystem()
 		{
-			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 			delete pipeline;
+			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 
 			for (long x = GROUNDS - 1; x >= 0; x--)
 			{
@@ -106,28 +104,6 @@ namespace Isonia::Pipeline::Systems
 				for (long z = 0; z < GROUNDS; z++)
 				{
 					Renderable::XZUniform::Builder* ground = &grounds[x * GROUNDS + z];
-
-					/*
-					// writing descriptor set each frame can slow performance
-					// would be more efficient to implement some sort of caching
-					VkDescriptorSet groundDescriptorSet;
-					auto imageinfo = palette->GetImageInfo();
-					Descriptors::DescriptorWriter(*renderSystemLayout, descriptorPool)
-						.WriteBuffer(0, &bufferInfo)
-						.WriteImage(1, &imageinfo)
-						.Build(groundDescriptorSet);
-
-					vkCmdBindDescriptorSets(
-						frameInfo.commandBuffer,
-						VK_PIPELINE_BIND_POINT_GRAPHICS,
-						pipelineLayout,
-						1,
-						1,
-						&groundDescriptorSet,
-						0,
-						nullptr
-					);
-					*/
 
 					vkCmdPushConstants(
 						frameInfo.commandBuffer,
@@ -193,6 +169,5 @@ namespace Isonia::Pipeline::Systems
 		VkPipelineLayout pipelineLayout;
 
 		Renderable::XZUniform::Builder* grounds;
-		Renderable::PosNorm::Builder* foliages;
 	};
 }

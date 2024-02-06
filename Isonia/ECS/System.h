@@ -12,5 +12,6 @@ namespace Isonia::ECS
 	{
 	public:
 		std::set<Entity> entities;
+		virtual ~System() { }
 	};
 }

@@ -27,7 +27,7 @@
 #include <cassert>
 #include <stdexcept>
 
-extern Isonia::ECS::Coordinator gCoordinator;
+extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
@@ -46,10 +46,10 @@ namespace Isonia::Pipeline::Systems
 			CreatePipeline(renderPass);
 		}
 
-		~SimpleRenderSystem()
+		~SimpleRenderSystem() override
 		{
-			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 			delete pipeline;
+			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 		}
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -71,8 +71,8 @@ namespace Isonia::Pipeline::Systems
 			);
 			for (auto const& entity : entities)
 			{
-				auto* const transform = gCoordinator.GetComponent<Components::Transform>(entity);
-				auto* const mesh = gCoordinator.GetComponent<Components::Mesh>(entity);
+				auto* const transform = gCoordinator->GetComponent<Components::Transform>(entity);
+				auto* const mesh = gCoordinator->GetComponent<Components::Mesh>(entity);
 
 				SimplePushConstantData push{};
 				push.modelMatrix = transform->Mat4();

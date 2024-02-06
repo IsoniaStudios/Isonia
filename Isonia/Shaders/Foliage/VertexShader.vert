@@ -54,5 +54,5 @@ void main()
         xzLen * sin(-yaw)
     );
     
-    gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);
+    gl_Position = vec4(fragPosWorld, 1);
 }

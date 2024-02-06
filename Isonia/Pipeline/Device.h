@@ -644,6 +644,7 @@ namespace Isonia::Pipeline
 
 			VkPhysicalDeviceFeatures deviceFeatures = {};
 			deviceFeatures.samplerAnisotropy = VK_FALSE;
+			deviceFeatures.geometryShader = VK_TRUE;
 
 			VkDeviceCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

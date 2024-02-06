@@ -1,6 +1,8 @@
 #pragma once
 
 // internal
+#include "GroundRenderSystem.h"
+
 #include "../Device.h"
 #include "../Pipeline.h"
 #include "../Descriptors/Descriptors.h"
@@ -19,8 +21,9 @@
 #include "../../Renderable/Color/Color.h"
 
 // shaders
-#include "../../Shaders/Include/Ground/FragShader_frag.h"
-#include "../../Shaders/Include/Ground/VertexShader_vert.h"
+#include "../../Shaders/Include/Foliage/FragShader_frag.h"
+#include "../../Shaders/Include/Foliage/GeomShader_geom.h"
+#include "../../Shaders/Include/Foliage/VertexShader_vert.h"
 
 // external
 #define GLM_FORCE_RADIANS
@@ -36,17 +39,14 @@
 #include <stdexcept>
 #include <numeric>
 
-extern Isonia::ECS::Coordinator gCoordinator;
+extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 8;
-	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
-
-	class GroundRenderSystem
+	class FoliageRenderSystem
 	{
 	public:
-		GroundRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)
+		FoliageRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)
 		{
 			CreatePipelineLayout(globalSetLayout);
 			CreatePipeline(renderPass);
@@ -55,7 +55,6 @@ namespace Isonia::Pipeline::Systems
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder)* GROUNDS_COUNT));
-			foliages = static_cast<Renderable::PosNorm::Builder*>(operator new[](sizeof(Renderable::PosNorm::Builder)* GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
@@ -63,15 +62,14 @@ namespace Isonia::Pipeline::Systems
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(noise, device, xOffset, zOffset);
-					new (foliages + x * GROUNDS_LONG + z) Renderable::PosNorm::Builder(&grounds[x * GROUNDS + z]);
 				}
 			}
 		}
 
-		~GroundRenderSystem()
+		~FoliageRenderSystem()
 		{
-			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 			delete pipeline;
+			vkDestroyPipelineLayout(device.GetDevice(), pipelineLayout, nullptr);
 
 			for (long x = GROUNDS - 1; x >= 0; x--)
 			{
@@ -83,10 +81,10 @@ namespace Isonia::Pipeline::Systems
 			operator delete[](grounds);
 		}
 
-		GroundRenderSystem(const GroundRenderSystem&) = delete;
-		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
+		FoliageRenderSystem(const FoliageRenderSystem&) = delete;
+		FoliageRenderSystem& operator=(const FoliageRenderSystem&) = delete;
 
-		void RenderGround(State::FrameInfo& frameInfo)
+		void RenderFoliage(State::FrameInfo& frameInfo)
 		{
 			pipeline->Bind(frameInfo.commandBuffer);
 
@@ -150,18 +148,22 @@ namespace Isonia::Pipeline::Systems
 			assert(pipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 
 			PipelineConfigInfo pipelineConfig{};
-			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
+			Pipeline::PixelPipelinePointListConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = pipelineLayout;
 			pipeline = Pipeline::Builder(device)
 				.AddShaderModule(
+					VK_SHADER_STAGE_GEOMETRY_BIT,
+					Shaders::Foliage::GEOMSHADER_GEOM,
+					sizeof(Shaders::Foliage::GEOMSHADER_GEOM) / sizeof(unsigned char)
+				).AddShaderModule(
 					VK_SHADER_STAGE_VERTEX_BIT,
-					Shaders::Ground::VERTEXSHADER_VERT,
-					sizeof(Shaders::Ground::VERTEXSHADER_VERT) / sizeof(unsigned char)
+					Shaders::Foliage::VERTEXSHADER_VERT,
+					sizeof(Shaders::Foliage::VERTEXSHADER_VERT) / sizeof(unsigned char)
 				).AddShaderModule(
 					VK_SHADER_STAGE_FRAGMENT_BIT,
-					Shaders::Ground::FRAGSHADER_FRAG,
-					sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char)
+					Shaders::Foliage::FRAGSHADER_FRAG,
+					sizeof(Shaders::Foliage::FRAGSHADER_FRAG) / sizeof(unsigned char)
 				).CreateGraphicsPipeline(pipelineConfig);
 		}
 
@@ -171,6 +173,5 @@ namespace Isonia::Pipeline::Systems
 		VkPipelineLayout pipelineLayout;
 
 		Renderable::XZUniform::Builder* grounds;
-		Renderable::PosNorm::Builder* foliages;
 	};
 }

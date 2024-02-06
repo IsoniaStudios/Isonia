@@ -36,7 +36,7 @@ include(CMakeParseArguments)
 set(glslCompiler "$ENV{VK_SDK_PATH}/Bin/glslc.exe")
 
 # Get all shaders recursively
-file(GLOB_RECURSE SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.vert" "${CMAKE_CURRENT_SOURCE_DIR}/*.frag")
+file(GLOB_RECURSE SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.vert" "${CMAKE_CURRENT_SOURCE_DIR}/*.frag" "${CMAKE_CURRENT_SOURCE_DIR}/*.geom")
 
 # For each shader, we create a header file
 foreach(SHADER ${SHADERS})

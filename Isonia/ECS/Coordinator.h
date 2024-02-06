@@ -16,7 +16,7 @@ namespace Isonia::ECS
     class Coordinator
     {
     public:
-        void Init()
+        Coordinator()
         {
             entityManager = new EntityManager();
             componentManager = new ComponentManager();

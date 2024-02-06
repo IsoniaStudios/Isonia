@@ -9,13 +9,18 @@
 #include "../ECS/System.h"
 
 // global reference
-extern Isonia::ECS::Coordinator gCoordinator;
+extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Physics
 {
 	class PhysicsSystem : public ECS::System
 	{
 	public:
+		~PhysicsSystem() override
+		{
+
+		}
+
 		void Init()
 		{
 		}
@@ -24,9 +29,9 @@ namespace Isonia::Physics
 		{
 			for (auto const& entity : entities)
 			{
-				auto* transform = gCoordinator.GetComponent<Components::Transform>(entity);
-				auto* rigidBody = gCoordinator.GetComponent<Components::RigidBody>(entity);
-				auto* const gravity = gCoordinator.GetComponent<Components::Gravity>(entity);
+				auto* transform = gCoordinator->GetComponent<Components::Transform>(entity);
+				auto* rigidBody = gCoordinator->GetComponent<Components::RigidBody>(entity);
+				auto* const gravity = gCoordinator->GetComponent<Components::Gravity>(entity);
 
 				transform->position += rigidBody->velocity * dt;
 				rigidBody->velocity += gravity->acceleration * dt;
