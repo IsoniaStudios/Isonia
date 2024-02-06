@@ -25,7 +25,8 @@ layout(push_constant) uniform Push {
 const float SIZE = 0.1;
 const float yScale = 1.0 / cos(radians(-30.0));
 
-void main() {
+void main()
+{
 	vec3 worldPosition = gl_in[0].gl_Position.xyz;
 	vec3 normal = fragNormalWorlds[0];
 
