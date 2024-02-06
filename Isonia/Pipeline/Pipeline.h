@@ -20,16 +20,74 @@ namespace Isonia::Pipeline
 	class Pipeline
 	{
 	public:
-		Pipeline(Device& device, const unsigned char* const vertCode, const std::size_t vertSize, const unsigned char* const fragCode, const std::size_t fragSize, const PipelineConfigInfo& configInfo) : device(device)
+		class Builder
 		{
-			CreateGraphicsPipeline(vertCode, vertSize, fragCode, fragSize, configInfo);
+		public:
+			Builder(Device& device) : device(device)
+			{
+			};
+
+			Builder& AddShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const std::size_t size)
+			{
+				VkShaderModule shaderModule = CreateShaderModule(code, size);
+
+				VkPipelineShaderStageCreateInfo shaderStage;
+				shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+				shaderStage.stage = stage;
+				shaderStage.module = shaderModule;
+				shaderStage.pName = "main";
+				shaderStage.flags = 0;
+				shaderStage.pNext = nullptr;
+				shaderStage.pSpecializationInfo = nullptr;
+
+				shaderStages.push_back(shaderStage);
+
+				return *this;
+			}
+
+			Pipeline* CreateGraphicsPipeline(const PipelineConfigInfo& configInfo) const
+			{
+				return new Pipeline(device, shaderStages, configInfo);
+			}
+
+		private:
+			VkShaderModule CreateShaderModule(const unsigned char* const code, const std::size_t size)
+			{
+				VkShaderModuleCreateInfo createInfo{};
+				createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+				createInfo.codeSize = size;
+				createInfo.pCode = reinterpret_cast<const uint32_t*>(code);
+
+				VkShaderModule shaderModule{};
+				if (vkCreateShaderModule(device.GetDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+				{
+					throw std::runtime_error("Failed to create shader module");
+				}
+				return shaderModule;
+			}
+
+			Device& device;
+			std::vector<VkPipelineShaderStageCreateInfo> shaderStages{};
+		};
+
+
+		Pipeline(Device& device, std::vector<VkPipelineShaderStageCreateInfo> shaderStages, const PipelineConfigInfo& configInfo) : device(device)
+		{
+			CreateGraphicsPipeline(shaderStages, configInfo);
 		}
 
 		~Pipeline()
 		{
-			vkDestroyShaderModule(device.GetDevice(), vertShaderModule, nullptr);
-			vkDestroyShaderModule(device.GetDevice(), fragShaderModule, nullptr);
+			for (auto const& shaderStage : shaderStages)
+			{
+				vkDestroyShaderModule(device.GetDevice(), shaderStage.module, nullptr);
+			}
 			vkDestroyPipeline(device.GetDevice(), graphicsPipeline, nullptr);
+		}
+
+		VkShaderStageFlags GetStageFlags() const
+		{
+			return stageFlags;
 		}
 
 		Pipeline(const Pipeline&) = delete;
@@ -138,29 +196,10 @@ namespace Isonia::Pipeline
 		}
 
 	private:
-		void CreateGraphicsPipeline(const unsigned char* const vertCode, const std::size_t vertSize, const unsigned char* const fragCode, const std::size_t fragSize, const PipelineConfigInfo& configInfo)
+		void CreateGraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo> shaderStages, const PipelineConfigInfo& configInfo)
 		{
 			assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 			assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
-
-			CreateShaderModule(vertCode, vertSize, &vertShaderModule);
-			CreateShaderModule(fragCode, fragSize, &fragShaderModule);
-
-			VkPipelineShaderStageCreateInfo shaderStages[2];
-			shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-			shaderStages[0].module = vertShaderModule;
-			shaderStages[0].pName = "main";
-			shaderStages[0].flags = 0;
-			shaderStages[0].pNext = nullptr;
-			shaderStages[0].pSpecializationInfo = nullptr;
-			shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-			shaderStages[1].module = fragShaderModule;
-			shaderStages[1].pName = "main";
-			shaderStages[1].flags = 0;
-			shaderStages[1].pNext = nullptr;
-			shaderStages[1].pSpecializationInfo = nullptr;
 
 			auto& bindingDescriptions = configInfo.bindingDescriptions;
 			auto& attributeDescriptions = configInfo.attributeDescriptions;
@@ -171,10 +210,16 @@ namespace Isonia::Pipeline
 			vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 			vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 
+			this->shaderStages = shaderStages;
+			for (auto const& shaderStage : shaderStages)
+			{
+				stageFlags |= shaderStage.stage;
+			}
+
 			VkGraphicsPipelineCreateInfo pipelineInfo{};
 			pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-			pipelineInfo.stageCount = 2;
-			pipelineInfo.pStages = shaderStages;
+			pipelineInfo.stageCount = shaderStages.size();
+			pipelineInfo.pStages = shaderStages.data();
 			pipelineInfo.pVertexInputState = &vertexInputInfo;
 			pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
 			pipelineInfo.pViewportState = &configInfo.viewportInfo;
@@ -197,22 +242,10 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		void CreateShaderModule(const unsigned char* const code, const std::size_t codeSize, VkShaderModule* shaderModule)
-		{
-			VkShaderModuleCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-			createInfo.codeSize = codeSize;
-			createInfo.pCode = reinterpret_cast<const uint32_t*>(code);
-
-			if (vkCreateShaderModule(device.GetDevice(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to create shader module");
-			}
-		}
-
 		Device& device;
 		VkPipeline graphicsPipeline;
-		VkShaderModule vertShaderModule;
-		VkShaderModule fragShaderModule;
+
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+		VkShaderStageFlags stageFlags{};
 	};
 }

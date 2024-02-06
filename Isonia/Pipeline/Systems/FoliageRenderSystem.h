@@ -54,8 +54,8 @@ namespace Isonia::Pipeline::Systems
 			Noise::Noise noise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
-			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
-			foliages = static_cast<Renderable::PosNorm::Builder*>(operator new[](sizeof(Renderable::PosNorm::Builder) * GROUNDS_COUNT));
+			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder)* GROUNDS_COUNT));
+			foliages = static_cast<Renderable::PosNorm::Builder*>(operator new[](sizeof(Renderable::PosNorm::Builder)* GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)
 			{
 				for (long z = 0; z < GROUNDS; z++)
@@ -107,32 +107,10 @@ namespace Isonia::Pipeline::Systems
 				{
 					Renderable::XZUniform::Builder* ground = &grounds[x * GROUNDS + z];
 
-					/*
-					// writing descriptor set each frame can slow performance
-					// would be more efficient to implement some sort of caching
-					VkDescriptorSet groundDescriptorSet;
-					auto imageinfo = palette->GetImageInfo();
-					Descriptors::DescriptorWriter(*renderSystemLayout, descriptorPool)
-						.WriteBuffer(0, &bufferInfo)
-						.WriteImage(1, &imageinfo)
-						.Build(groundDescriptorSet);
-
-					vkCmdBindDescriptorSets(
-						frameInfo.commandBuffer,
-						VK_PIPELINE_BIND_POINT_GRAPHICS,
-						pipelineLayout,
-						1,
-						1,
-						&groundDescriptorSet,
-						0,
-						nullptr
-					);
-					*/
-
 					vkCmdPushConstants(
 						frameInfo.commandBuffer,
 						pipelineLayout,
-						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_GEOMETRY_BIT,
 						0,
 						sizeof(Renderable::XZUniform::XZPositionalData),
 						&(ground->positionalData)
@@ -147,7 +125,7 @@ namespace Isonia::Pipeline::Systems
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout)
 		{
 			VkPushConstantRange pushConstantRange{};
-			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_GEOMETRY_BIT;
 			pushConstantRange.offset = 0;
 			pushConstantRange.size = sizeof(Renderable::XZUniform::XZPositionalData);
 
@@ -175,14 +153,16 @@ namespace Isonia::Pipeline::Systems
 			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = pipelineLayout;
-			pipeline = new Pipeline(
-				device,
-				Shaders::Ground::VERTEXSHADER_VERT,
-				sizeof(Shaders::Ground::VERTEXSHADER_VERT) / sizeof(unsigned char),
-				Shaders::Ground::FRAGSHADER_FRAG,
-				sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char),
-				pipelineConfig
-			);
+			pipeline = Pipeline::Builder(device)
+				.AddShaderModule(
+					VK_SHADER_STAGE_VERTEX_BIT,
+					Shaders::Ground::VERTEXSHADER_VERT,
+					sizeof(Shaders::Ground::VERTEXSHADER_VERT) / sizeof(unsigned char)
+				).AddShaderModule(
+					VK_SHADER_STAGE_FRAGMENT_BIT,
+					Shaders::Ground::FRAGSHADER_FRAG,
+					sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char)
+				).CreateGraphicsPipeline(pipelineConfig);
 		}
 
 		Device& device;

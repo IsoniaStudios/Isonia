@@ -708,7 +708,7 @@ namespace Isonia::Pipeline
 			VkPhysicalDeviceFeatures supportedFeatures;
 			vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
-			return indices.IsComplete() && extensionsSupported && swapChainAdequate;
+			return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.geometryShader;
 		}
 
 		VkInstance instance;

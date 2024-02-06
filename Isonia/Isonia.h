@@ -25,6 +25,8 @@
 
 #include "Controllers/Player.h"
 
+#include "Renderable/Texture.h"
+
 #include "ECS/Definitions.h"
 #include "ECS/Coordinator.h"
 #include "ECS/Coordinator.h"

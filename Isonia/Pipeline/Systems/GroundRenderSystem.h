@@ -175,14 +175,16 @@ namespace Isonia::Pipeline::Systems
 			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = pipelineLayout;
-			pipeline = new Pipeline(
-				device,
-				Shaders::Ground::VERTEXSHADER_VERT,
-				sizeof(Shaders::Ground::VERTEXSHADER_VERT) / sizeof(unsigned char),
-				Shaders::Ground::FRAGSHADER_FRAG,
-				sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char),
-				pipelineConfig
-			);
+			pipeline = Pipeline::Builder(device)
+				.AddShaderModule(
+					VK_SHADER_STAGE_VERTEX_BIT,
+					Shaders::Ground::VERTEXSHADER_VERT,
+					sizeof(Shaders::Ground::VERTEXSHADER_VERT) / sizeof(unsigned char)
+				).AddShaderModule(
+					VK_SHADER_STAGE_FRAGMENT_BIT,
+					Shaders::Ground::FRAGSHADER_FRAG,
+					sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char)
+				).CreateGraphicsPipeline(pipelineConfig);
 		}
 
 		Device& device;

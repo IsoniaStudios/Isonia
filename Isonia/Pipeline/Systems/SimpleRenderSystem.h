@@ -121,14 +121,16 @@ namespace Isonia::Pipeline::Systems
 			Pipeline::PixelPipelineConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = pipelineLayout;
-			pipeline = new Pipeline(
-				device,
-				Shaders::Simple::VERTEXSHADER_VERT,
-				sizeof(Shaders::Simple::VERTEXSHADER_VERT) / sizeof(unsigned char),
-				Shaders::Simple::FRAGSHADER_FRAG,
-				sizeof(Shaders::Simple::FRAGSHADER_FRAG) / sizeof(unsigned char),
-				pipelineConfig
-			);
+			pipeline = Pipeline::Builder(device)
+				.AddShaderModule(
+					VK_SHADER_STAGE_VERTEX_BIT,
+					Shaders::Simple::VERTEXSHADER_VERT,
+					sizeof(Shaders::Simple::VERTEXSHADER_VERT) / sizeof(unsigned char)
+				).AddShaderModule(
+					VK_SHADER_STAGE_FRAGMENT_BIT,
+					Shaders::Simple::FRAGSHADER_FRAG,
+					sizeof(Shaders::Simple::FRAGSHADER_FRAG) / sizeof(unsigned char)
+				).CreateGraphicsPipeline(pipelineConfig);
 		}
 
 		Device& device;
