@@ -27,6 +27,7 @@
 #include "Controllers/Player.h"
 
 #include "Renderable/Texture.h"
+#include "Renderable/Color/PaletteFactory.h"
 
 #include "ECS/Definitions.h"
 #include "ECS/Coordinator.h"
@@ -58,33 +59,6 @@ Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia
 {
-	const int PALETTE_LENGTH = 10;
-	const Renderable::Color::Color PALETTE[PALETTE_LENGTH]
-	{
-		{ 56, 55, 77 },
-		{ 60, 63, 78 },
-		{ 74, 91, 88 },
-		{ 76, 105, 81 },
-		{ 104, 145, 101 },
-		{ 132, 191, 110 },
-		{ 157, 220, 114 },
-		{ 184, 232, 120 },
-		{ 195, 239, 126 },
-		{ 218, 250, 139 },
-		/*
-		{ 0, 14, 28 },
-		{ 1, 18, 32 },
-		{ 2, 22, 35 },
-		{ 4, 30, 45 },
-		{ 16, 46, 65 },
-		{ 24, 63, 90 },
-		{ 33, 89, 119 },
-		{ 51, 115, 145 },
-		{ 86, 154, 181 },
-		{ 102, 173, 198 },
-		*/
-	};
-
 	class Isonia
 	{
 	public:
@@ -199,7 +173,7 @@ namespace Isonia
 				uboBuffers[i]->Map();
 			}
 
-			palette = Renderable::Texture::CreateTextureFromPalette(device, PALETTE, PALETTE_LENGTH);
+			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
 
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
