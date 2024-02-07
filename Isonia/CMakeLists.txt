@@ -74,7 +74,7 @@ foreach(SHADER ${SHADERS})
     add_custom_target(${TARGET_NAME} DEPENDS ${SHADER_HEADER})
 
     # Add the shader header to MY_SOURCES
-    list(APPEND MY_SOURCES ${SHADER_HEADER})
+    list(APPEND MY_SOURCES CONFIGURE_DEPENDS ${SHADER_HEADER})
 
     message(STATUS "Generating build commands for ${SHADER}")
 endforeach()

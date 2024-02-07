@@ -16,7 +16,7 @@
 
 namespace Isonia::Renderable::XZUniform
 {
-	const float QUAD_SIZE = 0.25f;
+	const float QUAD_SIZE = 0.5f;
 	const std::size_t QUADS = 256;
 	const std::size_t VERTICES = QUADS + 1;
 	const std::size_t UNIQUE_VERTICES_COUNT = VERTICES * VERTICES;
@@ -46,14 +46,15 @@ namespace Isonia::Renderable::XZUniform
 			
 			// calculate perlin
 			sampleAltitudes = static_cast<float*>(operator new[](sizeof(float) * SAMPLE_COUNT));
-			for (size_t i = 0; i < SAMPLE_COUNT; i++)
+			for (size_t i_z = 0; i_z < SAMPLE; i_z++)
 			{
-				// calculate xz
-				const float x = (i % SAMPLE) * QUAD_SIZE + positionalData.x - QUAD_SIZE;
-				const float z = (i / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
-
-				// calculate perlin noise from xz
-				sampleAltitudes[i] = noise.GenerateFractalNoise(x, z) * 10.0f;
+				const size_t ii_z = i_z * SAMPLE;
+				const float z = (i_z / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
+				for (size_t i_x = 0; i_x < SAMPLE; i_x++)
+				{
+					const float x = (i_x % SAMPLE) * QUAD_SIZE + positionalData.x - QUAD_SIZE;
+					sampleAltitudes[ii_z + i_x] = noise.GenerateFractalNoise(x, z) * 10.0f;
+				}
 			}
 
 			// calculate normal

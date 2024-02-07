@@ -91,6 +91,7 @@ namespace Isonia
 		Isonia(const Isonia&) = delete;
 		Isonia& operator=(const Isonia&) = delete;
 
+		State::GlobalUbo ubo{};
 		void Run()
 		{
 			Debug::PerformanceTracker performanceTracker;
@@ -120,7 +121,7 @@ namespace Isonia
 					};
 
 					// update
-					State::GlobalUbo ubo{};
+					ubo.lightDirection = glm::normalize(ubo.lightDirection - glm::vec3(0, frameTime * 0.01f, 0));
 					ubo.projection = player.camera.GetProjection();
 					ubo.view = player.camera.GetView();
 					ubo.inverseView = player.camera.GetInverseView();
