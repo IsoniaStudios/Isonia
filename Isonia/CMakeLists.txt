@@ -1,5 +1,5 @@
 ﻿# CMakeList.txt : CMake project for Isonia, include source and define project specific logic here.
-# Add project as ex or dll depending on choise
+# Add project as ex or dll depending on choice
 if(DLL_BUILD)
     add_library(${PROJECT_NAME} SHARED)
     target_compile_definitions(${PROJECT_NAME} PUBLIC DLL_BUILD=1)
@@ -19,14 +19,14 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 if(PRODUCTION_BUILD)
-	# setup the ASSETS_PATH macro to be in the root folder of your exe
-	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./Resources/") 
-	# remove the option to debug asserts.
-	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=1) 
+    # setup the ASSETS_PATH macro to be in the root folder of your exe
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./Resources/") 
+    # remove the option to debug asserts.
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=1) 
 else()
-	# This is useful to get an ASSETS_PATH in your IDE during development
-	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/Resources/")
-	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
+    # This is useful to get an ASSETS_PATH in your IDE during development
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/Resources/")
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
 endif()
 
 # Compile shader into SPIR-V
@@ -36,7 +36,11 @@ include(CMakeParseArguments)
 set(glslCompiler "$ENV{VK_SDK_PATH}/Bin/glslc.exe")
 
 # Get all shaders recursively
-file(GLOB_RECURSE SHADERS "${CMAKE_CURRENT_SOURCE_DIR}/*.vert" "${CMAKE_CURRENT_SOURCE_DIR}/*.frag" "${CMAKE_CURRENT_SOURCE_DIR}/*.geom")
+file(GLOB_RECURSE SHADERS CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/*.vert"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/*.frag"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/*.geom"
+)
 
 # For each shader, we create a header file
 foreach(SHADER ${SHADERS})
@@ -55,8 +59,8 @@ foreach(SHADER ${SHADERS})
 
     file(MAKE_DIRECTORY ${SHADER_DIRECTORY})
 
-    add_custom_target(
-        ${TARGET_NAME}
+    add_custom_command(
+        OUTPUT ${SHADER_SPV} ${SHADER_HEADER}
         # Compile any GLSL shader into SPIR-V shader
         COMMAND ${glslCompiler} ${SHADER} -o ${SHADER_SPV}
         # Make a C header file with the SPIR-V shader
@@ -66,8 +70,11 @@ foreach(SHADER ${SHADERS})
         COMMENT "Building ${SHADER_SPV} and embedding it into ${SHADER_HEADER}"
     )
 
-    # Add the custom target like a dependencies of the project
-    add_dependencies(${PROJECT_NAME} ${TARGET_NAME})
+    # Add the custom command as a target
+    add_custom_target(${TARGET_NAME} DEPENDS ${SHADER_HEADER})
+
+    # Add the shader header to MY_SOURCES
+    list(APPEND MY_SOURCES ${SHADER_HEADER})
 
     message(STATUS "Generating build commands for ${SHADER}")
 endforeach()
@@ -90,7 +97,7 @@ target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
 
 # If using the VS compiler...
 if(MSVC)
-	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
     if(NOT DLL_BUILD)
         set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
     endif()
