@@ -8,6 +8,17 @@
 
 namespace Isonia::Utilities::Math
 {
+    // Constants
+    const float PI = 3.14159265359;
+
+    // 
+    static inline float Radians(float degrees) { return degrees * (PI / 180.0f); }
+
+    static inline float Degrees(float radians) { return radians * (180.0f / PI); }
+
+    //
+    const float Y_SCALE = 1.0 / std::cos(Radians(-30.0));
+
     // Generics
     static inline float Min(float a, float b) { return a < b ? a : b; }
 

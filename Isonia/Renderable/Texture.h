@@ -23,7 +23,7 @@ namespace Isonia::Renderable
 		{
 			CreateTextureImage(textureFilepath);
 			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
-			CreateTextureSampler(VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 			UpdateDescriptor();
 		}
 		

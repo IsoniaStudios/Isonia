@@ -17,7 +17,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
-const float SIZE = 0.1;
+const float SIZE = 0.25;
 const float yScale = 1.0 / cos(radians(-30.0));
 
 void main()
@@ -31,22 +31,22 @@ void main()
 
 	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;
-	fragTexCoord = vec2(-1.0,  1.0);
+	fragTexCoord = vec2(0.0, 0.0);
 	EmitVertex();
   
 	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld - upWorld, 1.0);
 	fragNormalWorld = normal;
-	fragTexCoord = vec2(-1.0, -1.0);
+	fragTexCoord = vec2(0.0, 1.0);
 	EmitVertex();
   
 	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;
-	fragTexCoord = vec2( 1.0,  1.0);
+	fragTexCoord = vec2(1.0, 0.0);
 	EmitVertex();
   
 	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld - upWorld, 1.0);
 	fragNormalWorld = normal;
-	fragTexCoord = vec2( 1.0, -1.0);
+	fragTexCoord = vec2(1.0, 1.0);
 	EmitVertex();
 
 	EndPrimitive();

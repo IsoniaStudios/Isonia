@@ -44,7 +44,7 @@ extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 1;
+	const std::size_t GROUNDS = 2;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 	const float GRASS_DENSITY = 3.0f;
 
@@ -60,7 +60,6 @@ namespace Isonia::Pipeline::Systems
 			CreateGrassPipeline(renderPass);
 
 			Noise::Noise groundNoise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
-			Noise::Noise n1{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
 
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
@@ -73,7 +72,7 @@ namespace Isonia::Pipeline::Systems
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(groundNoise, device, xOffset, zOffset);
-					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, n1, GRASS_DENSITY);
+					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, GRASS_DENSITY);
 				}
 			}
 		}

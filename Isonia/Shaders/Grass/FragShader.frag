@@ -16,8 +16,18 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 
 layout (set = 0, binding = 1) uniform sampler1D colorMap;
 
+layout (set = 0, binding = 2) uniform sampler2D alphaMap;
+
+const float alphaMapSize = 8;
+
 void main()
 {
+	vec2 scaledFragTexCoord = fragTexCoord / alphaMapSize;
+	//outColor = texture(alphaMap, scaledFragTexCoord);
+	//return;
+	if (texture(alphaMap, scaledFragTexCoord).r < 1)
+		discard;
+
 	float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), ubo.ambientLightColor.w);
 	outColor = texture(colorMap, lightIntensity);
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+// internal
 #include "../Utilities/MathUtility.h"
 #include "../Utilities/HashUtility.h"
 
@@ -66,6 +67,11 @@ namespace Isonia::Noise
     static constexpr const inline int PrimeX = 501125321;
     static constexpr const inline int PrimeY = 1136930381;
     static constexpr const inline int PrimeZ = 1720413743;
+
+    static inline float Random(const float from, const float to)
+    {
+        return from + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (to - from)));
+    }
 
 	class Noise
 	{

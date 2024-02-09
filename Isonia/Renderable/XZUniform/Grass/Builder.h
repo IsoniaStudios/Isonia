@@ -17,9 +17,11 @@
 
 namespace Isonia::Renderable::XZUniform::Grass
 {
+	const float GRASS_SIZE = 0.25f;
+
 	struct Builder
 	{
-		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground, Noise::Noise& offsetNoise, const float density) :
+		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground, const float density) :
 			device(device), pointCountSide(density * QUADS), pointCount(pointCountSide * pointCountSide)
 		{
 			// alloc memory
@@ -32,8 +34,6 @@ namespace Isonia::Renderable::XZUniform::Grass
 				const size_t max_z = IMath::CeilToInt(mapped_z);
 				const float t_z = mapped_z - min_z;
 
-				const float world_z = mapped_z * QUAD_SIZE;
-
 				for (size_t x = 0; x < pointCountSide; x++)
 				{
 					const float mapped_x = x / density;
@@ -41,7 +41,13 @@ namespace Isonia::Renderable::XZUniform::Grass
 					const size_t max_x = IMath::CeilToInt(mapped_x);
 					const float t_x = mapped_x - min_x;
 
-					const float world_x = mapped_x * QUAD_SIZE;
+					const float size = QUAD_SIZE / (density * 2.0f);
+					const float randX = Noise::Random(-size, size);
+					const float randY = 0;
+					const float randZ = Noise::Random(-size, size);
+
+					const float world_x = mapped_x * QUAD_SIZE + randX;
+					const float world_z = mapped_z * QUAD_SIZE + randZ;
 
 					const size_t i_n_00 = min_x + min_z * VERTICES;
 					const size_t i_n_10 = max_x + min_z * VERTICES;
@@ -82,7 +88,7 @@ namespace Isonia::Renderable::XZUniform::Grass
 					vertices[i].yaw = yaw;
 					vertices[i].position = glm::vec3(
 						world_x + ground->positionalData.x,
-						y_l,
+						y_l - GRASS_SIZE * IMath::Y_SCALE,
 						world_z + ground->positionalData.z
 					);
 					vertices[i].gain = 0.0f;

@@ -147,6 +147,7 @@ namespace Isonia
 
 	private:
 		Renderable::Texture* palette;
+		Renderable::Texture* grass;
 		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
 		std::vector<VkDescriptorSet> globalDescriptorSets;
 		std::vector<Pipeline::Buffer*> uboBuffers;
@@ -155,6 +156,7 @@ namespace Isonia
 			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
 				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.Build();
 
@@ -172,20 +174,24 @@ namespace Isonia
 			}
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
+			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
 
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
 			globalDescriptorSets.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
 			for (int i = 0; i < globalDescriptorSets.size(); i++)
 			{
 				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
-				auto imageInfo = palette->GetImageInfo();
+				auto paletteInfo = palette->GetImageInfo();
+				auto grassInfo = grass->GetImageInfo();
 				Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
 					.WriteBuffer(0, &bufferInfo)
-					.WriteImage(1, &imageInfo)
+					.WriteImage(1, &paletteInfo)
+					.WriteImage(2, &grassInfo)
 					.Build(globalDescriptorSets[i]);
 			}
 		}
