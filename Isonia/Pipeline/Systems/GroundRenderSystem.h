@@ -44,8 +44,9 @@ extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 4;
+	const std::size_t GROUNDS = 1;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
+	const float GRASS_DENSITY = 3.0f;
 
 	class GroundRenderSystem
 	{
@@ -72,7 +73,7 @@ namespace Isonia::Pipeline::Systems
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(groundNoise, device, xOffset, zOffset);
-					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, n1, 2.0f);
+					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, n1, GRASS_DENSITY);
 				}
 			}
 		}

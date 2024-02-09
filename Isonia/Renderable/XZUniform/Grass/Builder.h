@@ -20,7 +20,7 @@ namespace Isonia::Renderable::XZUniform::Grass
 	struct Builder
 	{
 		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground, Noise::Noise& offsetNoise, const float density) :
-			device(device), pointCountSide(density * VERTICES), pointCount((density * VERTICES)* (density * VERTICES))
+			device(device), pointCountSide(density * QUADS), pointCount(pointCountSide * pointCountSide)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * pointCount));
@@ -32,12 +32,16 @@ namespace Isonia::Renderable::XZUniform::Grass
 				const size_t max_z = IMath::CeilToInt(mapped_z);
 				const float t_z = mapped_z - min_z;
 
+				const float world_z = mapped_z * QUAD_SIZE;
+
 				for (size_t x = 0; x < pointCountSide; x++)
 				{
 					const float mapped_x = x / density;
 					const size_t min_x = IMath::FloorToInt(mapped_x);
 					const size_t max_x = IMath::CeilToInt(mapped_x);
-					const float t_x = mapped_x - min_z;
+					const float t_x = mapped_x - min_x;
+
+					const float world_x = mapped_x * QUAD_SIZE;
 
 					const size_t i_n_00 = min_x + min_z * VERTICES;
 					const size_t i_n_10 = max_x + min_z * VERTICES;
@@ -77,9 +81,9 @@ namespace Isonia::Renderable::XZUniform::Grass
 					vertices[i].pitch = pitch;
 					vertices[i].yaw = yaw;
 					vertices[i].position = glm::vec3(
-						mapped_x + ground->positionalData.x,
+						world_x + ground->positionalData.x,
 						y_l,
-						mapped_z + ground->positionalData.z
+						world_z + ground->positionalData.z
 					);
 					vertices[i].gain = 0.0f;
 				}
@@ -163,8 +167,8 @@ namespace Isonia::Renderable::XZUniform::Grass
 			device.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 		}
 
-		const size_t pointCount;
 		const size_t pointCountSide;
+		const size_t pointCount;
 		Pipeline::Device& device;
 		Pipeline::Buffer* vertexBuffer;
 	};
