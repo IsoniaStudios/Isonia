@@ -4,6 +4,7 @@
 #include "KeyboardMovementController.h"
 #include "../Components/Transform.h"
 #include "../Window/Window.h"
+#include "../Utilities/MathUtility.h"
 
 // std
 #include <limits>
@@ -18,6 +19,8 @@ namespace Isonia::Controllers
 	public:
 		Player()
 		{
+			transform.rotation = glm::vec3{ Utilities::Math::Radians(-30.0), 0.0, 0.0};
+			controller.lookSpeed = 0.5f;
 		}
 
 		~Player()
@@ -29,7 +32,7 @@ namespace Isonia::Controllers
 
 		void Act(GLFWwindow* window, float frameTime)
 		{
-			controller.Move(window, frameTime, &transform);
+			controller.MoveIsometric(window, frameTime, &transform);
 			camera.SetViewYXZ(transform.position, transform.rotation);
 		}
 
@@ -40,12 +43,10 @@ namespace Isonia::Controllers
 
 		void OnAspectChange(Pipeline::Renderer* renderer)
 		{
-			float aspect = renderer->GetAspectRatio();
-			/*
-			const float orthoSize = 100.f;
+			const float aspect = renderer->GetAspectRatio();
+			const float orthoSize = 10.0f;
 			camera.SetOrthographicProjection(-orthoSize * aspect, orthoSize * aspect, -orthoSize, orthoSize, 0.f, 1000.f);
-			*/
-			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+			//camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 		}
 
 		KeyboardMovementController controller{};
