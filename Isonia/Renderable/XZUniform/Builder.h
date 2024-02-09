@@ -49,10 +49,10 @@ namespace Isonia::Renderable::XZUniform
 			for (size_t i_z = 0; i_z < SAMPLE; i_z++)
 			{
 				const size_t ii_z = i_z * SAMPLE;
-				const float z = (i_z / SAMPLE) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
+				const float z = static_cast<float>(i_z) * QUAD_SIZE + positionalData.z - QUAD_SIZE;
 				for (size_t i_x = 0; i_x < SAMPLE; i_x++)
 				{
-					const float x = (i_x % SAMPLE) * QUAD_SIZE + positionalData.x - QUAD_SIZE;
+					const float x = static_cast<float>(i_x) * QUAD_SIZE + positionalData.x - QUAD_SIZE;
 					sampleAltitudes[ii_z + i_x] = noise.GenerateFractalNoise(x, z) * 10.0f;
 				}
 			}

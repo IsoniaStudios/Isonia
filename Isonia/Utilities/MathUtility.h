@@ -32,6 +32,15 @@ namespace Isonia::Utilities::Math
     // Lerp
     static inline float Lerp(float a, float b, float t) { return a + t * (b - a); }
 
+    static inline glm::vec3 Lerp(glm::vec3 a, glm::vec3 b, float t)
+    {
+        return glm::vec3(
+            Lerp(a.x, b.x, t),
+            Lerp(a.y, b.y, t),
+            Lerp(a.z, b.z, t)
+        );
+    }
+
     static inline float CubicLerp(float a, float b, float c, float d, float t)
     {
         float p = (d - c) - (a - b);

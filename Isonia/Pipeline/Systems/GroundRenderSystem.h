@@ -60,7 +60,6 @@ namespace Isonia::Pipeline::Systems
 
 			Noise::Noise groundNoise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
 			Noise::Noise n1{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
-			Noise::Noise n2{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
 
 			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
 			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
@@ -73,7 +72,7 @@ namespace Isonia::Pipeline::Systems
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(groundNoise, device, xOffset, zOffset);
-					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, n1, n2);
+					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, n1, 2.0f);
 				}
 			}
 		}
