@@ -3,8 +3,10 @@
 // internal
 #include "KeyboardMovementController.h"
 #include "../Components/Transform.h"
+#include "../Components/Camera.h"
 #include "../Window/Window.h"
 #include "../Utilities/MathUtility.h"
+#include "../Pipeline/Renderer.h"
 
 // std
 #include <limits>

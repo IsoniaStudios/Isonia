@@ -22,7 +22,7 @@ namespace Isonia::Pipeline
 	class SwapChain
 	{
 	public:
-		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+		static constexpr std::uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 		SwapChain(Device& deviceRef, VkExtent2D extent)
 			: device(deviceRef), windowExtent(extent)
@@ -330,11 +330,11 @@ namespace Isonia::Pipeline
 			dependency.srcAccessMask = 0;
 			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
-			std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+			VkAttachmentDescription attachments[attachmentsLength] = {colorAttachment, depthAttachment};
 			VkRenderPassCreateInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-			renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-			renderPassInfo.pAttachments = attachments.data();
+			renderPassInfo.attachmentCount = attachmentsLength;
+			renderPassInfo.pAttachments = attachments;
 			renderPassInfo.subpassCount = 1;
 			renderPassInfo.pSubpasses = &subpass;
 			renderPassInfo.dependencyCount = 1;
@@ -351,14 +351,14 @@ namespace Isonia::Pipeline
 			swapChainFramebuffers.resize(ImageCount());
 			for (size_t i = 0; i < ImageCount(); i++)
 			{
-				std::array<VkImageView, 2> attachments = { swapChainImageViews[i], depthImageViews[i] };
+				VkImageView attachments[attachmentsLength] = {swapChainImageViews[i], depthImageViews[i]};
 
 				VkExtent2D swapChainExtent = GetSwapChainExtent();
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 				framebufferInfo.renderPass = renderPass;
-				framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-				framebufferInfo.pAttachments = attachments.data();
+				framebufferInfo.attachmentCount = attachmentsLength;
+				framebufferInfo.pAttachments = attachments;
 				framebufferInfo.width = swapChainExtent.width;
 				framebufferInfo.height = swapChainExtent.height;
 				framebufferInfo.layers = 1;
@@ -500,6 +500,8 @@ namespace Isonia::Pipeline
 				return actualExtent;
 			}
 		}
+
+		static constexpr const uint32_t attachmentsLength = 2;
 
 		VkFormat swapChainImageFormat;
 		VkFormat swapChainDepthFormat;

@@ -15,6 +15,7 @@
 #include "Window/Window.h"
 
 #include "Pipeline/Renderer.h"
+#include "Pipeline/PixelRenderer.h"
 #include "Pipeline/Buffer.h"
 #include "Pipeline/Device.h"
 #include "Pipeline/Descriptors/Descriptors.h"
@@ -149,8 +150,8 @@ namespace Isonia
 		Renderable::Texture* palette;
 		Renderable::Texture* grass;
 		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
-		std::vector<VkDescriptorSet> globalDescriptorSets;
-		std::vector<Pipeline::Buffer*> uboBuffers;
+		VkDescriptorSet globalDescriptorSets[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
+		Pipeline::Buffer* uboBuffers[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
 		void InitializeDescriptorPool()
 		{
 			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
@@ -160,8 +161,7 @@ namespace Isonia
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.Build();
 
-			uboBuffers.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
-			for (int i = 0; i < uboBuffers.size(); i++)
+			for (int i = 0; i < Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 			{
 				uboBuffers[i] = new Pipeline::Buffer(
 					device,
@@ -182,8 +182,7 @@ namespace Isonia
 				.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
-			globalDescriptorSets.resize(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT);
-			for (int i = 0; i < globalDescriptorSets.size(); i++)
+			for (int i = 0; i < Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 			{
 				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
 				auto paletteInfo = palette->GetImageInfo();
@@ -310,7 +309,7 @@ namespace Isonia
 		Controllers::Player player{};
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };
-		Pipeline::Renderer renderer{ window, device };
+		Pipeline::PixelRenderer renderer{ window, device, 128, 128, 2, 2 };
 		Pipeline::Descriptors::DescriptorPool* globalPool{};
 	};
 }
