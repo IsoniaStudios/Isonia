@@ -46,7 +46,7 @@ namespace Isonia::Pipeline::Systems
 {
 	const std::size_t GROUNDS = 2;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
-	const float GRASS_DENSITY = 3.0f;
+	const float GRASS_DENSITY = 4.0f;
 
 	class GroundRenderSystem
 	{
@@ -61,8 +61,8 @@ namespace Isonia::Pipeline::Systems
 
 			Noise::Noise groundNoise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
 
-			auto GROUNDS_LONG = static_cast<long>(GROUNDS);
-			auto QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
+			const long GROUNDS_LONG = static_cast<long>(GROUNDS);
+			const long QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
 			grasses = static_cast<Renderable::XZUniform::Grass::Builder*>(operator new[](sizeof(Renderable::XZUniform::Grass::Builder) * GROUNDS_COUNT));
 			for (long x = 0; x < GROUNDS; x++)

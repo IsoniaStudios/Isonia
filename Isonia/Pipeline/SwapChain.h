@@ -425,9 +425,6 @@ namespace Isonia::Pipeline
 
 		void CreateSyncObjects()
 		{
-			imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-			renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-			inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 			imagesInFlight.resize(ImageCount(), VK_NULL_HANDLE);
 
 			VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -473,14 +470,14 @@ namespace Isonia::Pipeline
 				}
 			}
 
-			//for (const auto& availablePresentMode : availablePresentModes)
-			//{
-			//	if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-			//	{
-			//		std::cout << "Present mode: Immediate" << std::endl;
-			//		return availablePresentMode;
-			//	}
-			//}
+			for (const auto& availablePresentMode : availablePresentModes)
+			{
+				if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+				{
+					std::cout << "Present mode: Immediate" << std::endl;
+					return availablePresentMode;
+				}
+			}
 
 			std::cout << "Present mode: V-Sync" << std::endl;
 			return VK_PRESENT_MODE_FIFO_KHR;
@@ -522,9 +519,9 @@ namespace Isonia::Pipeline
 		VkSwapchainKHR swapChain;
 		SwapChain* oldSwapChain;
 
-		std::vector<VkSemaphore> imageAvailableSemaphores;
-		std::vector<VkSemaphore> renderFinishedSemaphores;
-		std::vector<VkFence> inFlightFences;
+		VkSemaphore imageAvailableSemaphores[MAX_FRAMES_IN_FLIGHT];
+		VkSemaphore renderFinishedSemaphores[MAX_FRAMES_IN_FLIGHT];
+		VkFence inFlightFences[MAX_FRAMES_IN_FLIGHT];
 		std::vector<VkFence> imagesInFlight;
 		size_t currentFrame = 0;
 	};
