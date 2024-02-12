@@ -1,8 +1,12 @@
 if(EXISTS "${HEADER}")
-    if("${HEADER}" IS_NEWER_THAN "${PATH}")
-        return()
+    if(EXISTS "${PATH}")
+        if("${HEADER}" IS_NEWER_THAN "${PATH}")
+            return()
+        endif()
     endif()
 endif()
+
+message("Current source directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(EXISTS "${PATH}")
     file(READ "${PATH}" hex_content HEX)

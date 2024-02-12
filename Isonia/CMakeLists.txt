@@ -53,19 +53,24 @@ foreach(SHADER ${SHADERS})
     string(TOUPPER ${HEADER_NAME} GLOBAL_SHADER_VAR)
     set(TARGET_NAME "Isonia_Shader${SHADER_SUB_NAMESPACE}_${HEADER_NAME}")
 
-    set(SHADER_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Include${SHADER_SUB_DIRECTORY}/")
+    set(SHADER_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Shaders/Include${SHADER_SUB_DIRECTORY}")
     set(SHADER_HEADER "${SHADER_DIRECTORY}/${HEADER_NAME}.h")
     set(SHADER_SPV "${SHADER_DIRECTORY}/${SHADER_NAME}.spv")
 
     file(MAKE_DIRECTORY ${SHADER_DIRECTORY})
+ 
+    # Compile any GLSL shader into SPIR-V shader
+    # Make a C header file with the SPIR-V shader
+    # Rebuild the header file if the shader is updated
+    #execute_process(
+    #    COMMAND ${glslCompiler} ${SHADER} -o ${SHADER_SPV}
+    #    COMMAND ${CMAKE_COMMAND} -DPATH="${SHADER_SPV}" -DHEADER="${SHADER_HEADER}" -DGLOBAL="${GLOBAL_SHADER_VAR}" -DSUB_DIRECTORY="${SHADER_SUB_DIRECTORY}" -P "${CMAKE_CURRENT_SOURCE_DIR}/CMake/EmbedData.cmake"
+    #)
 
     add_custom_command(
         OUTPUT ${SHADER_SPV} ${SHADER_HEADER}
-        # Compile any GLSL shader into SPIR-V shader
         COMMAND ${glslCompiler} ${SHADER} -o ${SHADER_SPV}
-        # Make a C header file with the SPIR-V shader
         COMMAND ${CMAKE_COMMAND} -DPATH="${SHADER_SPV}" -DHEADER="${SHADER_HEADER}" -DGLOBAL="${GLOBAL_SHADER_VAR}" -DSUB_DIRECTORY="${SHADER_SUB_DIRECTORY}" -P "${CMAKE_CURRENT_SOURCE_DIR}/CMake/EmbedData.cmake"
-        # Rebuild the header file if the shader is updated
         DEPENDS ${SHADER}
         COMMENT "Building ${SHADER_SPV} and embedding it into ${SHADER_HEADER}"
     )

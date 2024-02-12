@@ -79,6 +79,7 @@ namespace Isonia
 
 		~Isonia()
 		{
+			delete debugger;
 			delete palette;
 			delete sphereModel;
 			delete debuggerRenderSystem;
