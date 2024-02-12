@@ -21,6 +21,7 @@
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/Systems/SimpleRenderSystem.h"
 #include "Pipeline/Systems/GroundRenderSystem.h"
+#include "Pipeline/Systems/DebuggerRenderSystem.h"
 
 #include "Physics/PhysicsSystem.h"
 
@@ -80,6 +81,7 @@ namespace Isonia
 		{
 			delete palette;
 			delete sphereModel;
+			delete debuggerRenderSystem;
 			delete groundRenderSystem;
 			delete gCoordinator;
 			delete globalSetLayout;
@@ -133,6 +135,7 @@ namespace Isonia
 					renderer.BeginSwapChainRenderPass(commandBuffer);
 					groundRenderSystem->Render(frameInfo);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
+					debuggerRenderSystem->Render(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.EndFrame();
 				}
@@ -149,6 +152,7 @@ namespace Isonia
 	private:
 		Renderable::Texture* palette;
 		Renderable::Texture* grass;
+		Renderable::Texture* debugger;
 		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
 		VkDescriptorSet globalDescriptorSets[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
 		Pipeline::Buffer* uboBuffers[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
@@ -157,6 +161,7 @@ namespace Isonia
 			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
 				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.Build();
@@ -175,11 +180,13 @@ namespace Isonia
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
 			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
+			debugger = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Debugger.png");
 
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
 			for (int i = 0; i < Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -187,10 +194,12 @@ namespace Isonia
 				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
 				auto paletteInfo = palette->GetImageInfo();
 				auto grassInfo = grass->GetImageInfo();
+				auto debuggerInfo = debugger->GetImageInfo();
 				Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
 					.WriteBuffer(0, &bufferInfo)
 					.WriteImage(1, &paletteInfo)
 					.WriteImage(2, &grassInfo)
+					.WriteImage(3, &debuggerInfo)
 					.Build(globalDescriptorSets[i]);
 			}
 		}
@@ -222,6 +231,7 @@ namespace Isonia
 
 		Pipeline::Systems::SimpleRenderSystem* simpleRenderSystem;
 		Pipeline::Systems::GroundRenderSystem* groundRenderSystem;
+		Pipeline::Systems::DebuggerRenderSystem* debuggerRenderSystem;
 		void InitializeRenderSystems()
 		{
 			simpleRenderSystem = new Pipeline::Systems::SimpleRenderSystem{
@@ -238,6 +248,12 @@ namespace Isonia
 			}
 
 			groundRenderSystem = new Pipeline::Systems::GroundRenderSystem{
+				device,
+				renderer.GetSwapChainRenderPass(),
+				globalSetLayout->GetDescriptorSetLayout()
+			};
+
+			debuggerRenderSystem = new Pipeline::Systems::DebuggerRenderSystem{
 				device,
 				renderer.GetSwapChainRenderPass(),
 				globalSetLayout->GetDescriptorSetLayout()

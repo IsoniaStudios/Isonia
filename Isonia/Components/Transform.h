@@ -5,6 +5,8 @@
 
 // external
 #include <glm/glm.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Isonia::Components
 {

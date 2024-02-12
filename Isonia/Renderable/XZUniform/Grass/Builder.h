@@ -6,6 +6,7 @@
 #include "../../../Noise/Noise.h"
 #include "../../../Pipeline/Buffer.h"
 #include "../../../Pipeline/Device.h"
+#include "../../../Utilities/PixelPerfectUtility.h"
 
 // external
 #include <glm/glm.hpp>
@@ -17,7 +18,7 @@
 
 namespace Isonia::Renderable::XZUniform::Grass
 {
-	const float GRASS_SIZE = 0.25f;
+	const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0 * 2.0);
 
 	struct Builder
 	{
@@ -88,36 +89,12 @@ namespace Isonia::Renderable::XZUniform::Grass
 					vertices[i].yaw = yaw;
 					vertices[i].position = glm::vec3(
 						world_x + ground->positionalData.x,
-						y_l - GRASS_SIZE * IMath::Y_SCALE,
+						y_l - GRASS_SIZE * Utilities::PixelPerfectUtility::Y_SCALE,
 						world_z + ground->positionalData.z
 					);
 					vertices[i].gain = 0.0f;
 				}
 			}
-
-			/*
-			for (size_t i = 0; i < pointCount; i++)
-			{
-				// calculate xz
-				const float x = static_cast<float>(i % density);
-				const float z = static_cast<float>(i / density);
-
-				const size_t x_min;
-				const size_t x_max;
-
-				vertices[i].position = glm::vec3(
-					static_cast<float>(x) * QUAD_SIZE + ground->positionalData.x,
-					ground->sampleAltitudes[(x + 1) + SAMPLE * (z + 1)],
-					static_cast<float>(z) * QUAD_SIZE + ground->positionalData.z
-				);
-
-				auto normal = ground->normals[x + VERTICES * z];
-				vertices[i].pitch = glm::atan(normal.y, normal.z);
-				vertices[i].yaw = glm::atan(normal.y, normal.x);
-
-				vertices[i].gain = 0.0f;
-			}
-			*/
 
 			// create the buffers
 			CreateVertexBuffers(vertices);

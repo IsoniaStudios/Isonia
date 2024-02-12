@@ -50,6 +50,7 @@ namespace Isonia::Pipeline
 
 		VkRenderPass GetSwapChainRenderPass() const { return swapChain->GetRenderPass(); }
 		float GetAspectRatio() const { return swapChain->ExtentAspectRatio(); }
+		VkExtent2D GetExtent() const { return swapChain->GetSwapChainExtent(); }
 		bool IsFrameInProgress() const { return isFrameStarted; }
 
 		VkCommandBuffer GetCurrentCommandBuffer() const

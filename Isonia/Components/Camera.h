@@ -1,5 +1,8 @@
 #pragma once
 
+// internal
+#include "../Pipeline/Renderer.h"
+
 // external
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -19,6 +22,7 @@ namespace Isonia::Components
 			projectionMatrix[3][0] = -(right + left) / (right - left);
 			projectionMatrix[3][1] = -(bottom + top) / (bottom - top);
 			projectionMatrix[3][2] = -near / (far - near);
+			inverseProjectionMatrix = glm::inverse(projectionMatrix);
 		}
 
 		void SetPerspectiveProjection(float fovy, float aspect, float near, float far)
@@ -31,6 +35,7 @@ namespace Isonia::Components
 			projectionMatrix[2][2] = far / (far - near);
 			projectionMatrix[2][3] = 1.f;
 			projectionMatrix[3][2] = -(far * near) / (far - near);
+			inverseProjectionMatrix = glm::inverse(projectionMatrix);
 		}
 
 		void SetViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
@@ -113,12 +118,19 @@ namespace Isonia::Components
 			inverseViewMatrix[3][2] = position.z;
 		}
 
+		virtual void SetProjection(Pipeline::Renderer* renderer)
+		{
+			const auto aspect = renderer->GetAspectRatio();
+			SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+		}
+
 		const glm::mat4& GetProjection() const { return projectionMatrix; }
 		const glm::mat4& GetView() const { return viewMatrix; }
 		const glm::mat4& GetInverseView() const { return inverseViewMatrix; }
 
-	private:
+	protected:
 		glm::mat4 projectionMatrix{ 1.f };
+		glm::mat4 inverseProjectionMatrix{ 1.f };
 		glm::mat4 viewMatrix{ 1.f };
 		glm::mat4 inverseViewMatrix{ 1.f };
 	};

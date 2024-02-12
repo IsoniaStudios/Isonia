@@ -2,11 +2,15 @@
 
 // internal
 #include "KeyboardMovementController.h"
+
 #include "../Components/Transform.h"
-#include "../Components/Camera.h"
+#include "../Components/CameraIsometric.h"
+
 #include "../Window/Window.h"
-#include "../Utilities/MathUtility.h"
 #include "../Pipeline/Renderer.h"
+
+#include "../Utilities/MathUtility.h"
+#include "../Utilities/PixelPerfectUtility.h"
 
 // std
 #include <limits>
@@ -21,8 +25,6 @@ namespace Isonia::Controllers
 	public:
 		Player()
 		{
-			transform.rotation = glm::vec3{ Utilities::Math::Radians(-30.0), 0.0, 0.0};
-			controller.lookSpeed = 0.5f;
 		}
 
 		~Player()
@@ -34,8 +36,8 @@ namespace Isonia::Controllers
 
 		void Act(GLFWwindow* window, float frameTime)
 		{
-			controller.MoveIsometric(window, frameTime, &transform);
-			camera.SetViewYXZ(transform.position, transform.rotation);
+			controller.Move(window, frameTime, &transform);
+			camera.SetViewIsometricLookAt(&transform);
 		}
 
 		Pipeline::Renderer::EventHandler GetOnAspectChangeCallback()
@@ -45,14 +47,11 @@ namespace Isonia::Controllers
 
 		void OnAspectChange(Pipeline::Renderer* renderer)
 		{
-			const float aspect = renderer->GetAspectRatio();
-			const float orthoSize = 10.0f;
-			camera.SetOrthographicProjection(-orthoSize * aspect, orthoSize * aspect, -orthoSize, orthoSize, 0.f, 1000.f);
-			//camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+			camera.SetProjection(renderer);
 		}
 
 		KeyboardMovementController controller{};
 		Components::Transform transform{};
-		Components::Camera camera{};
+		Components::CameraIsometric camera{};
 	};
 }

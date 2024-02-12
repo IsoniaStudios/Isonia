@@ -9,15 +9,14 @@
 namespace Isonia::Utilities::Math
 {
     // Constants
-    const float PI = 3.14159265359;
+    static const constexpr float PI = 3.14159265359f;
 
     // 
     static inline float Radians(float degrees) { return degrees * (PI / 180.0f); }
 
     static inline float Degrees(float radians) { return radians * (180.0f / PI); }
 
-    //
-    const float Y_SCALE = 1.0 / std::cos(Radians(-30.0));
+    static inline float ClampRotation(float rotation) { return std::fmodf(rotation + 360.0f, 360.0f); }
 
     // Generics
     static inline float Min(float a, float b) { return a < b ? a : b; }
@@ -34,6 +33,21 @@ namespace Isonia::Utilities::Math
     static inline int FloorToInt(float f) { return f >= 0 ? (int)f : (int)f - 1; }
 
     static inline int RoundToInt(float f) { return f >= 0 ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+
+    static inline int GetCeiledEvenNumber(float number)
+    {
+        int ceiledNumber = CeilToInt(number);
+        if (ceiledNumber % 2 != 0) // Check if the number is odd
+            ceiledNumber++;        // Increment by 1 to make it even
+        return ceiledNumber;
+    }
+    static inline int GetCeiledOddNumber(float number)
+    {
+        int ceiledNumber = CeilToInt(number);
+        if (ceiledNumber % 2 == 0) // Check if the number is even
+            ceiledNumber++;        // Increment by 1 to make it odd
+        return ceiledNumber;
+    }
 
     // Interpolation
     static inline float InterpolationHermite(float t) { return t * t * (3 - 2 * t); }
