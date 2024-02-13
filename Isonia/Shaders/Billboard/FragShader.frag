@@ -18,12 +18,12 @@ layout(set = 0, binding = 1) uniform GlobalClock {
   float frameTime;
 } clock;
 
-layout (set = 0, binding = 4) uniform sampler2D textureMap;
+layout (set = 0, binding = 5) uniform sampler2D textureMap;
 
 void main()
 {
 	vec4 textureValue = texture(textureMap, fragTexCoord);
-	if (textureValue.a < 1)
-		discard;
+	//if (textureValue.a < 1)
+	//	discard;
 	outColor = textureValue;
 }

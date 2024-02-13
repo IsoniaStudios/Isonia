@@ -20,7 +20,7 @@ layout(set = 0, binding = 1) uniform GlobalClock {
 } clock;
 
 const float PIXELS_PER_UNIT = 16.0;
-const float SIZE = 32.0 / PIXELS_PER_UNIT;
+const float SIZE = 512.0 / PIXELS_PER_UNIT;
 const float HALF_SIZE = SIZE / 2.0;
 const float Y_SCALE = 1.0 / cos(radians(-30.0));
 

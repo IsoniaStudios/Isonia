@@ -6,6 +6,8 @@
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
+#include "../../Utilities/PixelPerfectUtility.h"
+
 // external
 #include <glm/glm.hpp>
 
@@ -18,14 +20,21 @@ namespace Isonia::Renderable::Position
 {
 	struct Builder
 	{
-		Builder(Pipeline::Device& device) : device(device), pointCount(1)
+		Builder(Pipeline::Device& device) : device(device), pointCount(3 * 3)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex)* pointCount));
 
-			vertices[0].position.x = 0;
-			vertices[0].position.y = -10;
-			vertices[0].position.z = 0;
+			for (size_t x = 0; x < 3; x++)
+			{
+				for (size_t y = 0; y < 3; y++)
+				{
+					const auto i = x * 3 + y;
+					vertices[i].position.x = static_cast<float>(x * 512) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
+					vertices[i].position.y = -static_cast<float>(y * 512) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL * Utilities::PixelPerfectUtility::Y_SCALE;
+					vertices[i].position.z = 0;
+				}
+			}
 
 			// create the buffers
 			CreateVertexBuffers(vertices);

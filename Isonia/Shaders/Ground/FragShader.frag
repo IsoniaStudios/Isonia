@@ -26,8 +26,24 @@ layout(push_constant) uniform Push {
 
 layout (set = 0, binding = 2) uniform sampler1D colorMap;
 
+layout (set = 0, binding = 5) uniform sampler2D cloudShadowMap;
+
+const float CLOUD_HEIGHT = -100;
+
 void main()
 {
-	float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), ubo.ambientLightColor.w);
+    vec2 windDirection = vec2(4, 2);
+
+    // calculate the distance to travel along the light direction to reach CLOUD_HEIGHT
+    float distanceToTravel = (CLOUD_HEIGHT - fragPosWorld.y) / -ubo.lightDirection.y;
+    // calculate the position at this distance along the normal
+    vec2 cloudShadowXZ = (fragPosWorld + distanceToTravel * ubo.lightDirection).xz;
+    // scale to texcoord
+    vec2 cloudShadowMapTexCoord = (cloudShadowXZ + clock.time * windDirection) / 512.0;
+    // get the shadow intensity
+    float fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
+
+	float directionalLight = -dot(fragNormalWorld, ubo.lightDirection);
+	float lightIntensity = max(directionalLight * fragCloudShadow, ubo.ambientLightColor.w);
 	outColor = texture(colorMap, lightIntensity);
 }
