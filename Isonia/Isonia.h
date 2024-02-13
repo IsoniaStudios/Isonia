@@ -79,13 +79,22 @@ namespace Isonia
 
 		~Isonia()
 		{
+			delete cloud;
 			delete debugger;
+			delete grass;
 			delete palette;
+
 			delete sphereModel;
+
 			delete debuggerRenderSystem;
 			delete groundRenderSystem;
+
 			delete gCoordinator;
+
 			delete globalSetLayout;
+			for (Pipeline::Buffer* buffer : clockBuffers) {
+				delete buffer;
+			}
 			for (Pipeline::Buffer* buffer : uboBuffers) {
 				delete buffer;
 			}
@@ -96,6 +105,7 @@ namespace Isonia
 		Isonia& operator=(const Isonia&) = delete;
 
 		State::GlobalUbo ubo{};
+		State::Clock clock{};
 		void Run()
 		{
 			Debug::PerformanceTracker performanceTracker;
@@ -125,12 +135,19 @@ namespace Isonia
 					};
 
 					// update
-					ubo.lightDirection = glm::normalize(ubo.lightDirection - glm::vec3(0, frameTime * 0.01f, 0));
+					//ubo.lightDirection = glm::normalize(ubo.lightDirection - glm::vec3(0, frameTime * 0.01f, 0));
 					ubo.projection = player.camera.GetProjection();
 					ubo.view = player.camera.GetView();
 					ubo.inverseView = player.camera.GetInverseView();
+
 					uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 					uboBuffers[frameIndex]->Flush();
+
+					clock.frameTime = frameTime;
+					clock.time += frameTime;
+
+					clockBuffers[frameIndex]->WriteToBuffer(&clock);
+					clockBuffers[frameIndex]->Flush();
 
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
@@ -154,14 +171,18 @@ namespace Isonia
 		Renderable::Texture* palette;
 		Renderable::Texture* grass;
 		Renderable::Texture* debugger;
+		Renderable::Texture* cloud;
 		Pipeline::Descriptors::DescriptorSetLayout* globalSetLayout;
 		VkDescriptorSet globalDescriptorSets[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
 		Pipeline::Buffer* uboBuffers[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
+		Pipeline::Buffer* clockBuffers[Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT];
 		void InitializeDescriptorPool()
 		{
 			globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
 				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -177,30 +198,48 @@ namespace Isonia
 					VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
 				);
 				uboBuffers[i]->Map();
+
+				clockBuffers[i] = new Pipeline::Buffer(
+					device,
+					sizeof(State::Clock),
+					1,
+					VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+					VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+				);
+				clockBuffers[i]->Map();
 			}
+
+			Noise::Noise cloudNoise{ 69, 0.01f, 3, 2.0f, 0.5f, 0.0f };
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
 			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
 			debugger = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Debugger.png");
-
+			cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudNoise, 512, 512);
+			
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-				.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
 			for (int i = 0; i < Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 			{
-				auto bufferInfo = uboBuffers[i]->DescriptorInfo();
+				auto uboBufferInfo = uboBuffers[i]->DescriptorInfo();
+				auto clockBufferInfo = clockBuffers[i]->DescriptorInfo();
 				auto paletteInfo = palette->GetImageInfo();
 				auto grassInfo = grass->GetImageInfo();
 				auto debuggerInfo = debugger->GetImageInfo();
+				auto cloudInfo = cloud->GetImageInfo();
 				Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
-					.WriteBuffer(0, &bufferInfo)
-					.WriteImage(1, &paletteInfo)
-					.WriteImage(2, &grassInfo)
-					.WriteImage(3, &debuggerInfo)
+					.WriteBuffer(0, &uboBufferInfo)
+					.WriteBuffer(1, &clockBufferInfo)
+					.WriteImage(2, &paletteInfo)
+					.WriteImage(3, &grassInfo)
+					.WriteImage(4, &debuggerInfo)
+					.WriteImage(5, &cloudInfo)
 					.Build(globalDescriptorSets[i]);
 			}
 		}

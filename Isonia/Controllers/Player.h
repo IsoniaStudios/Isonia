@@ -36,7 +36,7 @@ namespace Isonia::Controllers
 
 		void Act(GLFWwindow* window, float frameTime)
 		{
-			controller.Move(window, frameTime, &transform);
+			controller.MoveIsometric(window, frameTime, &transform);
 			camera.SetViewIsometricLookAt(&transform);
 		}
 

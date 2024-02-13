@@ -6,8 +6,6 @@ if(EXISTS "${HEADER}")
     endif()
 endif()
 
-message("Current source directory: ${CMAKE_CURRENT_SOURCE_DIR}")
-
 if(EXISTS "${PATH}")
     file(READ "${PATH}" hex_content HEX)
 

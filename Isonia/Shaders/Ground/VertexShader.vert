@@ -16,13 +16,18 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+layout(set = 0, binding = 1) uniform GlobalClock {
+  float time;
+  float frameTime;
+} clock;
+
 layout(push_constant) uniform Push {
   float x;
   float z;
 } push;
 
 const float QUAD_SIZE = 1.0;
-const int QUADS = 256;
+const int QUADS = 64;
 const int VERTICES = QUADS + 1;
 const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 

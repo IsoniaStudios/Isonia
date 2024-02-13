@@ -2,7 +2,8 @@
 #extension GL_KHR_vulkan_glsl : enable
 
 layout (location = 0) in vec3 fragNormalWorld;
-layout (location = 1) in vec2 fragTexCoord;
+layout (location = 1) in float fragCloudShadow;
+layout (location = 2) in vec2 fragTexCoord;
 
 layout (location = 0) out vec4 outColor;
 
@@ -14,9 +15,14 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
-layout (set = 0, binding = 1) uniform sampler1D colorMap;
+layout(set = 0, binding = 1) uniform GlobalClock {
+  float time;
+  float frameTime;
+} clock;
 
-layout (set = 0, binding = 2) uniform sampler2D alphaMap;
+layout (set = 0, binding = 2) uniform sampler1D colorMap;
+
+layout (set = 0, binding = 3) uniform sampler2D alphaMap;
 
 const float alphaMapSize = 8;
 
@@ -28,6 +34,7 @@ void main()
 	if (texture(alphaMap, scaledFragTexCoord).r < 1)
 		discard;
 
-	float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), ubo.ambientLightColor.w);
+	float directionalLight = -dot(fragNormalWorld, ubo.lightDirection);
+	float lightIntensity = max(directionalLight * fragCloudShadow, ubo.ambientLightColor.w);
 	outColor = texture(colorMap, lightIntensity);
 }

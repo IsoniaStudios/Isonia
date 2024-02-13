@@ -18,6 +18,12 @@ namespace Isonia::State
 		glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, 3.f, -1.f });
 	};
 
+	struct Clock
+	{
+		float time{ 0 };
+		float frameTime{ 0 };
+	};
+
 	struct FrameInfo
 	{
 		int frameIndex;

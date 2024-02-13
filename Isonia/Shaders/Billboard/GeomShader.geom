@@ -14,6 +14,11 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+layout(set = 0, binding = 1) uniform GlobalClock {
+  float time;
+  float frameTime;
+} clock;
+
 const float PIXELS_PER_UNIT = 16.0;
 const float SIZE = 32.0 / PIXELS_PER_UNIT;
 const float HALF_SIZE = SIZE / 2.0;

@@ -1,7 +1,9 @@
 #pragma once
 
+// internal
 #include "../Pipeline/Device.h"
 #include "../../Renderable/Color/Color.h"
+#include "../Noise/Noise.h"
 
 // external
 #define STB_IMAGE_IMPLEMENTATION
@@ -26,95 +28,21 @@ namespace Isonia::Renderable
 			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 			UpdateDescriptor();
 		}
-		
-		Texture(Pipeline::Device& device, const Renderable::Color::Color colors[], const uint32_t texWidth) : device{ device }
+
+		Texture(Pipeline::Device& device, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight) : device{ device }
 		{
-			CreateTextureImage(colors, texWidth, 1);
-			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_1D);
-			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+			CreateTextureImage(noise, texWidth, texHeight);
+			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
+			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 			UpdateDescriptor();
 		}
 
-		Texture(Pipeline::Device& device, VkFormat format, VkExtent3D extent, VkImageUsageFlags usage, VkSampleCountFlagBits sampleCount)
-			: device{ device }, format{ format }, extent{ extent }
+		Texture(Pipeline::Device& device, const void* texture, const uint32_t texWidth, const uint32_t texHeight) : device{ device }
 		{
-			VkImageAspectFlags aspectMask = 0;
-			VkImageLayout imageLayout;
-
-			if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
-			{
-				aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			}
-			if (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
-			{
-				aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-				imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			}
-
-			// Don't like this, should I be using an image array instead of multiple images?
-			VkImageCreateInfo imageInfo{};
-			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.format = format;
-			imageInfo.extent = extent;
-			imageInfo.mipLevels = 1;
-			imageInfo.arrayLayers = 1;
-			imageInfo.samples = sampleCount;
-			imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-			imageInfo.usage = usage;
-			imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			device.CreateImageWithInfo(
-				imageInfo,
-				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-				textureImage,
-				textureImageMemory
-			);
-
-			VkImageViewCreateInfo viewInfo{};
-			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			viewInfo.format = format;
-			viewInfo.subresourceRange = {};
-			viewInfo.subresourceRange.aspectMask = aspectMask;
-			viewInfo.subresourceRange.baseMipLevel = 0;
-			viewInfo.subresourceRange.levelCount = 1;
-			viewInfo.subresourceRange.baseArrayLayer = 0;
-			viewInfo.subresourceRange.layerCount = 1;
-			viewInfo.image = textureImage;
-			if (vkCreateImageView(device.GetDevice(), &viewInfo, nullptr, &textureImageView) != VK_SUCCESS)
-			{
-				throw std::runtime_error("Failed to create texture image view!");
-			}
-
-			// Sampler should be seperated out
-			if (usage & VK_IMAGE_USAGE_SAMPLED_BIT)
-			{
-				// Create sampler to sample from the attachment in the fragment shader
-				VkSamplerCreateInfo samplerInfo{};
-				samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-				samplerInfo.magFilter = VK_FILTER_LINEAR;
-				samplerInfo.minFilter = VK_FILTER_LINEAR;
-				samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-				samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
-				samplerInfo.addressModeV = samplerInfo.addressModeU;
-				samplerInfo.addressModeW = samplerInfo.addressModeU;
-				samplerInfo.mipLodBias = 0.0f;
-				samplerInfo.maxAnisotropy = 1.0f;
-				samplerInfo.minLod = 0.0f;
-				samplerInfo.maxLod = 1.0f;
-				samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
-
-				if (vkCreateSampler(device.GetDevice(), &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
-				{
-					throw std::runtime_error("Failed to create sampler!");
-				}
-
-				VkImageLayout samplerImageLayout = imageLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-				descriptor.sampler = textureSampler;
-				descriptor.imageView = textureImageView;
-				descriptor.imageLayout = samplerImageLayout;
-			}
+			CreateTextureImage(texture, texWidth, texHeight);
+			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_1D);
+			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+			UpdateDescriptor();
 		}
 
 		~Texture()
@@ -141,9 +69,14 @@ namespace Isonia::Renderable
 			return new Texture(device, filepath);
 		}
 
+		static Texture* CreateTextureFromNoise(Pipeline::Device& device, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
+		{
+			return new Texture(device, noise, texWidth, texHeight);
+		}
+
 		static Texture* CreateTextureFromPalette(Pipeline::Device& device, const Renderable::Color::Color colors[], const uint32_t texWidth)
 		{
-			return new Texture(device, colors, texWidth);
+			return new Texture(device, (void*)colors, texWidth, 1);
 		}
 
 		void UpdateDescriptor()
@@ -264,7 +197,33 @@ namespace Isonia::Renderable
 			stbi_image_free(pixels);
 		}
 
-		void CreateTextureImage(const void* source, const uint32_t texWidth, const uint32_t texHeight, const uint32_t bytesPerPixel = 4)
+		void CreateTextureImage(const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
+		{
+			uint8_t* pixels = new uint8_t[texWidth * texHeight];
+			for (uint32_t h = 0; h < texHeight; h++)
+			{
+				const uint32_t h_i = h * texHeight;
+				for (uint32_t w = 0; w < texWidth; w++)
+				{
+					const float s = h / static_cast<float>(texHeight);
+					const float t = w / static_cast<float>(texWidth);
+
+					const float nx = cos(s * 2.0 * IMath::PI) / (2.0 * IMath::PI);
+					const float ny = cos(t * 2.0 * IMath::PI) / (2.0 * IMath::PI);
+					const float nz = sin(s * 2.0 * IMath::PI) / (2.0 * IMath::PI);
+					const float nt = sin(t * 2.0 * IMath::PI) / (2.0 * IMath::PI);
+
+					const uint32_t i = h_i + w;
+					const float noiseValue = noise.GenerateFractalNoise(nx, ny, nz, nt);
+					const float pushedValue = (noiseValue + 1.0f) * 0.5f;
+					pixels[i] = static_cast<std::uint8_t>(pushedValue * 255.0f + 0.5f);
+				}
+			}
+			CreateTextureImage(pixels, texWidth, texHeight, 1, VK_FORMAT_R8_UNORM);
+			delete pixels;
+		}
+
+		void CreateTextureImage(const void* source, const uint32_t texWidth, const uint32_t texHeight, const uint32_t bytesPerPixel = 4, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB)
 		{
 			VkDeviceSize imageSize = texWidth * texHeight * bytesPerPixel;
 
@@ -287,7 +246,7 @@ namespace Isonia::Renderable
 			memcpy(data, source, static_cast<size_t>(imageSize));
 			vkUnmapMemory(device.GetDevice(), stagingBufferMemory);
 
-			format = VK_FORMAT_R8G8B8A8_SRGB;
+			this->format = format;
 			extent = { texWidth, texHeight, 1 };
 
 			VkImageCreateInfo imageInfo{};
@@ -312,7 +271,7 @@ namespace Isonia::Renderable
 			);
 			device.TransitionImageLayout(
 				textureImage,
-				VK_FORMAT_R8G8B8A8_SRGB,
+				format,
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				mipLevels,
@@ -329,7 +288,7 @@ namespace Isonia::Renderable
 			// comment this out if using mips
 			device.TransitionImageLayout(
 				textureImage,
-				VK_FORMAT_R8G8B8A8_SRGB,
+				format,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 				mipLevels,
@@ -350,7 +309,7 @@ namespace Isonia::Renderable
 			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			viewInfo.image = textureImage;
 			viewInfo.viewType = viewType;
-			viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+			viewInfo.format = format;
 			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			viewInfo.subresourceRange.baseMipLevel = 0;
 			viewInfo.subresourceRange.levelCount = mipLevels;

@@ -11,6 +11,11 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+layout(set = 0, binding = 1) uniform GlobalClock {
+  float time;
+  float frameTime;
+} clock;
+
 void main()
 {
     gl_Position = vec4(position, 1);

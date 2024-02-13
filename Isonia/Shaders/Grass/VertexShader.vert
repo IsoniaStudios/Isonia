@@ -7,6 +7,7 @@ layout(location = 2) in float yaw;
 layout(location = 3) in float gain;
 
 layout(location = 0) out vec3 fragNormalWorld;
+layout(location = 1) out float fragCloudShadow;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
@@ -16,6 +17,15 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
+layout(set = 0, binding = 1) uniform GlobalClock {
+  float time;
+  float frameTime;
+} clock;
+
+layout (set = 0, binding = 5) uniform sampler2D cloudShadowMap;
+
+const float CLOUD_HEIGHT = -100;
+
 void main()
 {
     float xzLen = cos(pitch);
@@ -24,6 +34,17 @@ void main()
         sin(pitch),
         xzLen * sin(-yaw)
     );
+
+    vec2 windDirection = vec2(4, 2);
+
+    // calculate the distance to travel along the light direction to reach CLOUD_HEIGHT
+    float distanceToTravel = (CLOUD_HEIGHT - position.y) / -ubo.lightDirection.y;
+    // calculate the position at this distance along the normal
+    vec2 cloudShadowXZ = (position + distanceToTravel * ubo.lightDirection).xz;
+    // scale to texcoord
+    vec2 cloudShadowMapTexCoord = (cloudShadowXZ + clock.time * windDirection) / 512.0;
+    // get the shadow intensity
+    fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
     
     gl_Position = vec4(position, 1);
 }

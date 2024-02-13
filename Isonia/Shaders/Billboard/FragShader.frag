@@ -13,7 +13,12 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
   vec3 lightDirection;
 } ubo;
 
-layout (set = 0, binding = 3) uniform sampler2D textureMap;
+layout(set = 0, binding = 1) uniform GlobalClock {
+  float time;
+  float frameTime;
+} clock;
+
+layout (set = 0, binding = 4) uniform sampler2D textureMap;
 
 void main()
 {
