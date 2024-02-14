@@ -39,7 +39,7 @@ namespace Isonia::Renderable::XZUniform
 		float* sampleAltitudes;
 		glm::vec3* normals;
 
-		Builder(Noise::Noise& noise, Pipeline::Device& device, const float x, const float z) : device(device), positionalData(x, z)
+		Builder(Pipeline::Device& device, Noise::Noise& noise, const float x, const float z) : device(device), positionalData(x, z)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
@@ -53,7 +53,7 @@ namespace Isonia::Renderable::XZUniform
 				for (size_t i_x = 0; i_x < SAMPLE; i_x++)
 				{
 					const float x = i_x * QUAD_SIZE + positionalData.x - QUAD_SIZE;
-					sampleAltitudes[ii_z + i_x] = noise.GenerateFractalNoise(x, z) * 10.0f;
+					sampleAltitudes[ii_z + i_x] = noise.GenerateNoise(x, z) * 10.0f;
 				}
 			}
 

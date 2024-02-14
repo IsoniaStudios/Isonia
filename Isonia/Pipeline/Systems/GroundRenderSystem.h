@@ -18,6 +18,8 @@
 #include "../../Renderable/XZUniform/Grass/Builder.h"
 #include "../../Renderable/Color/Color.h"
 
+#include "../../Noise/FractalPerlinNoise.h"
+
 // shaders
 #include "../../Shaders/Include/Ground/FragShader_frag.h"
 #include "../../Shaders/Include/Ground/VertexShader_vert.h"
@@ -59,7 +61,7 @@ namespace Isonia::Pipeline::Systems
 			CreateGrassPipelineLayout(globalSetLayout);
 			CreateGrassPipeline(renderPass);
 
-			Noise::Noise groundNoise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
+			Noise::FractalPerlinNoise groundNoise{ 69, 0.05f, 3, 2.0f, 0.5f, 0.0f };
 
 			const long GROUNDS_LONG = static_cast<long>(GROUNDS);
 			const long QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
@@ -71,7 +73,7 @@ namespace Isonia::Pipeline::Systems
 				{
 					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
 					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
-					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(groundNoise, device, xOffset, zOffset);
+					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(device, groundNoise, xOffset, zOffset);
 					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, GRASS_DENSITY);
 				}
 			}

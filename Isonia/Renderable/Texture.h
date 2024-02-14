@@ -214,7 +214,7 @@ namespace Isonia::Renderable
 					const float nt = sin(t * 2.0 * IMath::PI) / (2.0 * IMath::PI);
 
 					const uint32_t i = h_i + w;
-					const float noiseValue = noise.GenerateFractalNoise(nx, ny, nz, nt);
+					const float noiseValue = noise.GenerateNoise(nx, ny, nz, nt);
 					const float pushedValue = (noiseValue + 1.0f) * 0.5f;
 					pixels[i] = static_cast<std::uint8_t>(pushedValue * 255.0f + 0.5f);
 				}

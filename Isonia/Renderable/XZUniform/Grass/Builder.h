@@ -3,7 +3,7 @@
 // internal
 #include "Vertex.h"
 #include "../Builder.h"
-#include "../../../Noise/Noise.h"
+#include "../../../Noise/WhiteNoise.h"
 #include "../../../Pipeline/Buffer.h"
 #include "../../../Pipeline/Device.h"
 #include "../../../Utilities/PixelPerfectUtility.h"
@@ -28,6 +28,8 @@ namespace Isonia::Renderable::XZUniform::Grass
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * pointCount));
 
+			Noise::WhiteNoise offsetNoise = {};
+
 			for (size_t z = 0; z < pointCountSide; z++)
 			{
 				const float mapped_z = z / density;
@@ -43,9 +45,9 @@ namespace Isonia::Renderable::XZUniform::Grass
 					const float t_x = mapped_x - min_x;
 
 					const float size = QUAD_SIZE / (density * 2.0f);
-					const float randX = Noise::Random(-size, size);
+					const float randX = offsetNoise.GenerateNoise(mapped_x, mapped_z) * size;
 					const float randY = 0;
-					const float randZ = Noise::Random(-size, size);
+					const float randZ = offsetNoise.GenerateNoise(mapped_x, mapped_z) * size;
 
 					const float world_x = mapped_x * QUAD_SIZE + randX;
 					const float world_z = mapped_z * QUAD_SIZE + randZ;

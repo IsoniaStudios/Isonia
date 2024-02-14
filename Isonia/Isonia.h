@@ -30,6 +30,8 @@
 #include "Renderable/Texture.h"
 #include "Renderable/Color/PaletteFactory.h"
 
+#include "Noise/FractalPerlinNoise.h"
+
 #include "ECS/Definitions.h"
 #include "ECS/Coordinator.h"
 #include "ECS/Coordinator.h"
@@ -209,7 +211,7 @@ namespace Isonia
 				clockBuffers[i]->Map();
 			}
 
-			Noise::Noise cloudNoise{ 69, 10.0f, 3, 2.0f, 0.5f, 0.0f };
+			Noise::FractalPerlinNoise cloudNoise{ 69, 10.0f, 3, 2.0f, 0.5f, 0.0f };
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
 			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
