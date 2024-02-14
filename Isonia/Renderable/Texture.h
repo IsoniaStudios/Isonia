@@ -208,10 +208,10 @@ namespace Isonia::Renderable
 					const float s = h / static_cast<float>(texHeight);
 					const float t = w / static_cast<float>(texWidth);
 
-					const float nx = cos(s * 2.0 * IMath::PI) / (2.0 * IMath::PI);
-					const float ny = cos(t * 2.0 * IMath::PI) / (2.0 * IMath::PI);
-					const float nz = sin(s * 2.0 * IMath::PI) / (2.0 * IMath::PI);
-					const float nt = sin(t * 2.0 * IMath::PI) / (2.0 * IMath::PI);
+					const float nx = cos(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					const float ny = cos(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					const float nz = sin(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					const float nt = sin(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
 
 					const uint32_t i = h_i + w;
 					const float noiseValue = noise.GenerateNoise(nx, ny, nz, nt);

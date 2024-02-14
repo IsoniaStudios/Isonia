@@ -53,7 +53,7 @@ namespace Isonia::Renderable::XZUniform
 				for (size_t i_x = 0; i_x < SAMPLE; i_x++)
 				{
 					const float x = i_x * QUAD_SIZE + positionalData.x - QUAD_SIZE;
-					sampleAltitudes[ii_z + i_x] = noise.GenerateNoise(x, z) * 10.0f;
+					sampleAltitudes[ii_z + i_x] = noise.GenerateNoise(x, z) * 7.5f;
 				}
 			}
 

@@ -23,7 +23,7 @@ namespace Isonia::Renderable::XZUniform::Grass
 	struct Builder
 	{
 		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground, const float density) :
-			device(device), pointCountSide(density * QUADS), pointCount(pointCountSide * pointCountSide)
+				device(device), pointCountSide(density * QUADS), pointCount(pointCountSide * pointCountSide)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * pointCount));
