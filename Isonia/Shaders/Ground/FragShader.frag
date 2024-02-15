@@ -39,7 +39,7 @@ void main()
     // calculate the position at this distance along the normal
     vec2 cloudShadowXZ = (fragPosWorld + distanceToTravel * ubo.lightDirection).xz;
     // scale to texcoord
-    vec2 cloudShadowMapTexCoord = (cloudShadowXZ + clock.time * windDirection) / 512.0;
+    vec2 cloudShadowMapTexCoord = (cloudShadowXZ + clock.time * windDirection) / 32.0;
     // get the shadow intensity
     float fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
 

@@ -20,19 +20,19 @@ namespace Isonia::Renderable::Position
 {
 	struct Builder
 	{
-		Builder(Pipeline::Device& device) : device(device), pointCount(3 * 3)
+		Builder(Pipeline::Device& device) : device(device), pointCount(7 * 7)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex)* pointCount));
 
-			for (size_t x = 0; x < 3; x++)
+			for (int z = -3; z <= 3; z++)
 			{
-				for (size_t y = 0; y < 3; y++)
+				for (int x = -3; x <= 3; x++)
 				{
-					const auto i = x * 3 + y;
-					vertices[i].position.x = static_cast<float>(x * 512) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
-					vertices[i].position.y = -static_cast<float>(y * 512) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL * Utilities::PixelPerfectUtility::Y_SCALE;
-					vertices[i].position.z = 0;
+					const auto i = (x + 3) + (z + 3) * 7;
+					vertices[i].position.x = static_cast<float>(x * 64) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
+					vertices[i].position.y = -10.0 * Utilities::PixelPerfectUtility::Y_SCALE;
+					vertices[i].position.z = static_cast<float>(z * 64) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
 				}
 			}
 
