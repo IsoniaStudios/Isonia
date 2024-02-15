@@ -31,21 +31,6 @@ namespace Isonia::Noise
             return GenerateWhiteNoise(x, y, z, t);
         }
 
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y) const
-        {
-            return GenerateWhiteNoise(x, y);
-        }
-
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z) const
-        {
-            return GenerateWhiteNoise(x, y, z);
-        }
-
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z, float& t) const
-        {
-            return GenerateWhiteNoise(x, y, z, t);
-        }
-
     protected:
         const float xConstant;
         const float yConstant;

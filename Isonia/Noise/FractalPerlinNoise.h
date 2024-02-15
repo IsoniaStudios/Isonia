@@ -36,27 +36,6 @@ namespace Isonia::Noise
             return GenerateFractalPerlinNoise(x, y, z, t);
         }
 
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y) const
-        {
-            TransformCoordinate(x, y);
-
-            return GenerateFractalPerlinNoise(x, y);
-        }
-
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z) const
-        {
-            TransformCoordinate(x, y, z);
-
-            return GenerateFractalPerlinNoise(x, y, z);
-        }
-
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z, float& t) const
-        {
-            TransformCoordinate(x, y, z, t);
-
-            return GenerateFractalPerlinNoise(x, y, z, t);
-        }
-
 	protected:
         const int octaves;
         const float lacunarity;

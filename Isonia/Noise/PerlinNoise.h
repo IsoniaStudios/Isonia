@@ -2,6 +2,7 @@
 
 // internal
 #include "Noise.h"
+#include "ConstantScalarWarpNoise.h"
 
 namespace Isonia::Noise
 {
@@ -86,10 +87,10 @@ namespace Isonia::Noise
     static constexpr const inline int PrimeZ = 1720413743;
     static constexpr const inline int PrimeT = 2527031053;
 
-	class PerlinNoise : public Noise
+	class PerlinNoise : public Noise, public ConstantScalarWarpNoise
 	{
 	public:
-        PerlinNoise(const int seed, const float frequency) : Noise(seed), frequency(frequency)
+        PerlinNoise(const int seed, const float frequency) : Noise(seed), ConstantScalarWarpNoise(frequency)
         {
         }
 
@@ -114,51 +115,7 @@ namespace Isonia::Noise
             return GeneratePerlinNoise(seed, x, y, z, t);
         }
 
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y) const
-        {
-            TransformCoordinate(x, y);
-
-            return GeneratePerlinNoise(seed, x, y);
-        }
-
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z) const
-        {
-            TransformCoordinate(x, y, z);
-
-            return GeneratePerlinNoise(seed, x, y, z);
-        }
-
-        inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z, float& t) const
-        {
-            TransformCoordinate(x, y, z, t);
-
-            return GeneratePerlinNoise(seed, x, y, z, t);
-        }
-
 	protected:
-        const float frequency;
-
-        const inline void TransformCoordinate(float& x, float& y) const
-        {
-            x *= frequency;
-            y *= frequency;
-        }
-
-        const inline void TransformCoordinate(float& x, float& y, float& z) const
-        {
-            x *= frequency;
-            y *= frequency;
-            z *= frequency;
-        }
-
-        const inline void TransformCoordinate(float& x, float& y, float& z, float& t) const
-        {
-            x *= frequency;
-            y *= frequency;
-            z *= frequency;
-            t *= frequency;
-        }
-
         static const inline float GeneratePerlinNoise(const int seed, const float x, const float y)
         {
             int x0 = IMath::FloorToInt(x);

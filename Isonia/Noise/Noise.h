@@ -19,10 +19,6 @@ namespace Isonia::Noise
         virtual inline float GenerateNoise(float x, float y, float z) const = 0;
         virtual inline float GenerateNoise(float x, float y, float z, float t) const = 0;
 
-        virtual inline float GenerateNoiseAndModifyCoordinate(float& x, float& y) const = 0;
-        virtual inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z) const = 0;
-        virtual inline float GenerateNoiseAndModifyCoordinate(float& x, float& y, float& z, float& t) const = 0;
-
     protected:
         const int seed;
     };
