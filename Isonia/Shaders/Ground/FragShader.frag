@@ -32,7 +32,7 @@ const float CLOUD_HEIGHT = -100;
 
 void main()
 {
-    vec2 windDirection = vec2(4, 2);
+    vec2 windDirection = vec2(2, 1);
 
     // calculate the distance to travel along the light direction to reach CLOUD_HEIGHT
     float distanceToTravel = (CLOUD_HEIGHT - fragPosWorld.y) / -ubo.lightDirection.y;

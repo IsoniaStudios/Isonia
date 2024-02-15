@@ -48,7 +48,7 @@ namespace Isonia::Pipeline::Systems
 {
 	const std::size_t GROUNDS = 2;
 	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
-	const float GRASS_DENSITY = 4.0f;
+	const float GRASS_DENSITY = 3.0f;
 
 	class GroundRenderSystem
 	{

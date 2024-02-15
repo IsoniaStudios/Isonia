@@ -35,7 +35,7 @@ void main()
         xzLen * sin(-yaw)
     );
 
-    vec2 windDirection = vec2(4, 2);
+    vec2 windDirection = vec2(2, 1);
 
     // calculate the distance to travel along the light direction to reach CLOUD_HEIGHT
     float distanceToTravel = (CLOUD_HEIGHT - position.y) / -ubo.lightDirection.y;

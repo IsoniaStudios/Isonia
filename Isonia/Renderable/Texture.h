@@ -21,9 +21,9 @@ namespace Isonia::Renderable
 	class Texture
 	{
 	public:
-		Texture(Pipeline::Device& device, const std::string& textureFilepath) : device{ device }
+		Texture(Pipeline::Device& device, const std::string& textureFilepath, const int format = STBI_rgb_alpha) : device{ device }
 		{
-			CreateTextureImage(textureFilepath);
+			CreateTextureImage(textureFilepath, format);
 			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
 			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 			UpdateDescriptor();
@@ -64,9 +64,9 @@ namespace Isonia::Renderable
 		VkExtent3D GetExtent() const { return extent; }
 		VkFormat GetFormat() const { return format; }
 
-		static Texture* CreateTextureFromFile(Pipeline::Device& device, const std::string& filepath)
+		static Texture* CreateTextureFromFile(Pipeline::Device& device, const std::string& filepath, const int format = STBI_rgb_alpha)
 		{
-			return new Texture(device, filepath);
+			return new Texture(device, filepath, format);
 		}
 
 		static Texture* CreateTextureFromNoise(Pipeline::Device& device, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
@@ -181,18 +181,21 @@ namespace Isonia::Renderable
 		}
 
 	private:
-		void CreateTextureImage(const std::string& filepath)
+		void CreateTextureImage(const std::string& filepath, const int format = STBI_rgb_alpha)
 		{
 			int texWidth, texHeight, texChannels;
 			// stbi_set_flip_vertically_on_load(1);  // todo determine why texture coordinates are flipped
-			stbi_uc* pixels = stbi_load(filepath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+			stbi_uc* pixels = stbi_load(filepath.c_str(), &texWidth, &texHeight, &texChannels, format);
 
 			if (!pixels)
 			{
 				throw std::runtime_error("Failed to load texture image!");
 			}
 
-			CreateTextureImage(pixels, texWidth, texHeight);
+			if (format == STBI_grey)
+				CreateTextureImage(pixels, texWidth, texHeight, 1, VK_FORMAT_R8_UNORM);
+			else
+				CreateTextureImage(pixels, texWidth, texHeight);
 
 			stbi_image_free(pixels);
 		}

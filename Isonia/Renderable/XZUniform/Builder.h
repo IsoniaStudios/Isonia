@@ -115,15 +115,11 @@ namespace Isonia::Renderable::XZUniform
 			vkCmdDraw(commandBuffer, VERTICES_COUNT, 1, 0, 0);
 		}
 
-		float MapWorldToHeight(float world_x, float world_z) const
+		float MapWorldToHeight(const float world_x, const float world_z) const
 		{
-			// offset world with quadsize
-			world_x += QUAD_SIZE;
-			world_z += QUAD_SIZE;
-
 			// get local
-			const float local_x = world_x - positionalData.x;
-			const float local_z = world_z - positionalData.z;
+			const float local_x = world_x + QUAD_SIZE - positionalData.x;
+			const float local_z = world_z + QUAD_SIZE - positionalData.z;
 
 			// map local to indices
 			const size_t min_x = IMath::FloorToInt(local_x);
@@ -149,7 +145,7 @@ namespace Isonia::Renderable::XZUniform
 			return IMath::Lerp(h_l_0, h_l_1, t_z);
 		}
 
-		glm::vec3 MapWorldToNormal(float world_x, float world_z) const
+		glm::vec3 MapWorldToNormal(const float world_x, const float world_z) const
 		{
 			// get local
 			const float local_x = world_x - positionalData.x;

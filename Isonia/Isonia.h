@@ -211,10 +211,10 @@ namespace Isonia
 				clockBuffers[i]->Map();
 			}
 
-			Noise::FractalPerlinNoise cloudNoise{ 69, 10.0f, 3, 2.0f, 0.5f, 0.0f };
+			Noise::FractalPerlinNoise cloudNoise{ 69, 5.0f, 3, 2.0f, 0.5f, 0.0f };
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
-			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
+			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png", STBI_grey);
 			debugger = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Debugger.png");
 			cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudNoise, 512, 512);
 			
