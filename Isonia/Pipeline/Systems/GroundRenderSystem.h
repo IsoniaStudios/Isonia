@@ -104,8 +104,8 @@ namespace Isonia::Pipeline::Systems
 
 		void Render(State::FrameInfo& frameInfo)
 		{
-			RenderGround(frameInfo);
-			RenderGrass(frameInfo);
+			//RenderGround(frameInfo);
+			//RenderGrass(frameInfo);
 		}
 
 	private:

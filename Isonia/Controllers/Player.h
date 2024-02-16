@@ -53,7 +53,7 @@ namespace Isonia::Controllers
 		}
 
 		Components::Transform transform{};
-		Components::CameraIsometric camera{};
-		KeyboardControllerIsometric controller{};
+		Components::Camera camera{};
+		KeyboardController controller{};
 	};
 }
