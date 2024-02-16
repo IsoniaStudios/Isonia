@@ -23,7 +23,7 @@ layout (set = 0, binding = 4) uniform sampler2D textureMap;
 void main()
 {
 	vec4 textureValue = texture(textureMap, fragTexCoord);
-	if (textureValue.r < 1)
+	if (textureValue.a < 1)
 		discard;
 	outColor = textureValue;
 }
