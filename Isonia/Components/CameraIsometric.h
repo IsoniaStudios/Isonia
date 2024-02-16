@@ -19,7 +19,7 @@ namespace Isonia::Components
 	struct CameraIsometric : public Camera
 	{
 	public:
-		glm::vec2 SetViewIsometricLookAt(Components::Transform* transform)
+		void SetView(Components::Transform* transform) override
 		{
 			// set final rotation
 			transform->rotation.x = Utilities::Math::Radians(-30.0);
@@ -62,9 +62,6 @@ namespace Isonia::Components
 
 			// set view and position
 			SetViewYXZ(position, transform->rotation);
-
-			// and return it
-			return {};//scaledUnrotatedDifference;
 		}
 
 		void SetProjection(Pipeline::Renderer* renderer) override

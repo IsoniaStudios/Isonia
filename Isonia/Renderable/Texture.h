@@ -4,6 +4,7 @@
 #include "../Pipeline/Device.h"
 #include "../../Renderable/Color/Color.h"
 #include "../Noise/Noise.h"
+#include "../Noise/WarpNoise.h"
 
 // external
 #define STB_IMAGE_IMPLEMENTATION
@@ -29,9 +30,9 @@ namespace Isonia::Renderable
 			UpdateDescriptor();
 		}
 
-		Texture(Pipeline::Device& device, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight) : device{ device }
+		Texture(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight) : device{ device }
 		{
-			CreateTextureImage(noise, texWidth, texHeight);
+			CreateTextureImage(warpNoise, noise, texWidth, texHeight);
 			CreateTextureImageView(VK_IMAGE_VIEW_TYPE_2D);
 			CreateTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 			UpdateDescriptor();
@@ -69,9 +70,9 @@ namespace Isonia::Renderable
 			return new Texture(device, filepath, format);
 		}
 
-		static Texture* CreateTextureFromNoise(Pipeline::Device& device, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
+		static Texture* CreateTextureFromNoise(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
 		{
-			return new Texture(device, noise, texWidth, texHeight);
+			return new Texture(device, warpNoise, noise, texWidth, texHeight);
 		}
 
 		static Texture* CreateTextureFromPalette(Pipeline::Device& device, const Renderable::Color::Color colors[], const uint32_t texWidth)
@@ -200,7 +201,7 @@ namespace Isonia::Renderable
 			stbi_image_free(pixels);
 		}
 
-		void CreateTextureImage(const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
+		void CreateTextureImage(const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const uint32_t texWidth, const uint32_t texHeight)
 		{
 			uint8_t* pixels = new uint8_t[texWidth * texHeight];
 			for (uint32_t h = 0; h < texHeight; h++)
@@ -211,12 +212,13 @@ namespace Isonia::Renderable
 					const float s = h / static_cast<float>(texHeight);
 					const float t = w / static_cast<float>(texWidth);
 
-					const float nx = cos(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
-					const float ny = cos(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
-					const float nz = sin(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
-					const float nt = sin(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					float nx = cos(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					float ny = cos(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					float nz = sin(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					float nt = sin(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
 
 					const uint32_t i = h_i + w;
+					warpNoise.TransformCoordinate(nx, ny, nz, nt);
 					const float noiseValue = noise.GenerateNoise(nx, ny, nz, nt);
 					const float pushedValue = (noiseValue + 1.0f) * 0.5f;
 					pixels[i] = static_cast<std::uint8_t>(pushedValue * 255.0f + 0.5f);

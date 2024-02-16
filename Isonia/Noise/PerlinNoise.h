@@ -87,31 +87,25 @@ namespace Isonia::Noise
     static constexpr const inline int PrimeZ = 1720413743;
     static constexpr const inline int PrimeT = 2527031053;
 
-	class PerlinNoise : public Noise, public ConstantScalarWarpNoise
+	class PerlinNoise : public Noise
 	{
 	public:
-        PerlinNoise(const int seed, const float frequency) : Noise(seed), ConstantScalarWarpNoise(frequency)
+        PerlinNoise(const int seed) : Noise(seed)
         {
         }
 
         inline float GenerateNoise(float x, float y) const
         {
-            TransformCoordinate(x, y);
-
             return GeneratePerlinNoise(seed, x, y);
         }
 
         inline float GenerateNoise(float x, float y, float z) const
         {
-            TransformCoordinate(x, y, z);
-
             return GeneratePerlinNoise(seed, x, y, z);
         }
 
         inline float GenerateNoise(float x, float y, float z, float t) const
         {
-            TransformCoordinate(x, y, z, t);
-
             return GeneratePerlinNoise(seed, x, y, z, t);
         }
 

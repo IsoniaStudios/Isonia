@@ -3,6 +3,7 @@
 // internal
 #include "Vertex.h"
 #include "Builder.h"
+#include "Primitive.h"
 
 // external
 #include "../../External/tinyobjloader/tiny_obj_loader.h"

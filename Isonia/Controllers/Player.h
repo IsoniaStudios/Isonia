@@ -1,8 +1,10 @@
 #pragma once
 
 // internal
-#include "KeyboardMovementController.h"
+#include "KeyboardController.h"
+#include "KeyboardControllerIsometric.h"
 
+#include "../Components/Camera.h"
 #include "../Components/Transform.h"
 #include "../Components/CameraIsometric.h"
 
@@ -36,8 +38,8 @@ namespace Isonia::Controllers
 
 		void Act(GLFWwindow* window, float frameTime)
 		{
-			controller.MoveIsometric(window, frameTime, &transform);
-			camera.SetViewIsometricLookAt(&transform);
+			controller.Move(window, frameTime, &transform);
+			camera.SetView(&transform);
 		}
 
 		Pipeline::Renderer::EventHandler GetOnAspectChangeCallback()
@@ -50,8 +52,8 @@ namespace Isonia::Controllers
 			camera.SetProjection(renderer);
 		}
 
-		KeyboardMovementController controller{};
 		Components::Transform transform{};
 		Components::CameraIsometric camera{};
+		KeyboardControllerIsometric controller{};
 	};
 }

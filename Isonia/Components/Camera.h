@@ -1,6 +1,7 @@
 #pragma once
 
 // internal
+#include "Transform.h"
 #include "../Pipeline/Renderer.h"
 
 // external
@@ -78,6 +79,22 @@ namespace Isonia::Components
 			SetViewDirection(position, target - position, up);
 		}
 
+		virtual void SetView(Components::Transform* transform)
+		{
+			SetViewYXZ(transform->position, transform->rotation);
+		}
+
+		virtual void SetProjection(Pipeline::Renderer* renderer)
+		{
+			const auto aspect = renderer->GetAspectRatio();
+			SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+		}
+
+		const glm::mat4& GetProjection() const { return projectionMatrix; }
+		const glm::mat4& GetView() const { return viewMatrix; }
+		const glm::mat4& GetInverseView() const { return inverseViewMatrix; }
+
+	protected:
 		void SetViewYXZ(glm::vec3 position, glm::vec3 rotation)
 		{
 			const float c3 = glm::cos(rotation.z);
@@ -118,17 +135,6 @@ namespace Isonia::Components
 			inverseViewMatrix[3][2] = position.z;
 		}
 
-		virtual void SetProjection(Pipeline::Renderer* renderer)
-		{
-			const auto aspect = renderer->GetAspectRatio();
-			SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
-		}
-
-		const glm::mat4& GetProjection() const { return projectionMatrix; }
-		const glm::mat4& GetView() const { return viewMatrix; }
-		const glm::mat4& GetInverseView() const { return inverseViewMatrix; }
-
-	protected:
 		glm::mat4 projectionMatrix{ 1.f };
 		glm::mat4 inverseProjectionMatrix{ 1.f };
 		glm::mat4 viewMatrix{ 1.f };

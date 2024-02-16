@@ -8,31 +8,25 @@ namespace Isonia::Noise
 	class FractalPerlinNoise : public PerlinNoise
 	{
 	public:
-        FractalPerlinNoise(const int seed, const float frequency,
+        FractalPerlinNoise(const int seed,
                            const int octaves, const float lacunarity, const float gain, const float weightedStrength) :
-                           PerlinNoise(seed, frequency),
+                           PerlinNoise(seed),
                            octaves(octaves), lacunarity(lacunarity), gain(gain), weightedStrength(weightedStrength), fractalBounding(CalculateFractalBounding())
         {
         }
 
         inline float GenerateNoise(float x, float y) const
         {
-            TransformCoordinate(x, y);
-
             return GenerateFractalPerlinNoise(x, y);
         }
 
         inline float GenerateNoise(float x, float y, float z) const
         {
-            TransformCoordinate(x, y, z);
-
             return GenerateFractalPerlinNoise(x, y, z);
         }
 
         inline float GenerateNoise(float x, float y, float z, float t) const
         {
-            TransformCoordinate(x, y, z, t);
-
             return GenerateFractalPerlinNoise(x, y, z, t);
         }
 

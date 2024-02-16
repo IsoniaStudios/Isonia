@@ -11,7 +11,6 @@
 // internal
 #include "Debug/PerformanceTracker.h"
 
-#include "Controllers/KeyboardMovementController.h"
 #include "Window/Window.h"
 
 #include "Pipeline/Renderer.h"
@@ -211,12 +210,13 @@ namespace Isonia
 				clockBuffers[i]->Map();
 			}
 
-			Noise::FractalPerlinNoise cloudNoise{ 69, 5.0f, 3, 2.0f, 0.5f, 0.0f };
+			Noise::ConstantScalarWarpNoise cloudWarpNoise{ 5.0f };
+			Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
 			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png", STBI_grey);
 			debugger = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Debugger.png");
-			cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudNoise, 512, 512);
+			cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudWarpNoise, cloudNoise, 512, 512);
 			
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
 				.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -310,7 +310,7 @@ namespace Isonia
 			std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
 			std::uniform_real_distribution<float> randScale(1.0f, 2.0f);
 
-			sphereModel = Renderable::Complete::Model::CreateModelFromFile(device, "Resources/Models/Sphere.obj");
+			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Type::Quad);
 
 			for (int i = 0; i < 10; ++i)
 			{

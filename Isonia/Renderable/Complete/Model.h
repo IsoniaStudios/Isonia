@@ -22,6 +22,12 @@ namespace Isonia::Renderable::Complete
 			CreateIndexBuffers(builder.indices);
 		}
 
+		Model(Pipeline::Device& device, const Primitive::Type primitive) : device(device)
+		{
+			CreateVertexBuffers(Primitive::Vertices(primitive), Primitive::VerticesCount(primitive));
+			CreateIndexBuffers(Primitive::Indices(primitive), Primitive::IndicesCount(primitive));
+		}
+
 		~Model()
 		{
 			delete vertexBuffer;
@@ -36,6 +42,11 @@ namespace Isonia::Renderable::Complete
 			Builder builder{};
 			builder.LoadModel(filepath);
 			return new Model(device, builder);
+		}
+
+		static Model* CreatePrimitive(Pipeline::Device& device, const Primitive::Type primitive)
+		{
+			return new Model(device, primitive);
 		}
 
 		void Bind(VkCommandBuffer commandBuffer)
@@ -65,11 +76,21 @@ namespace Isonia::Renderable::Complete
 	private:
 		void CreateVertexBuffers(const std::vector<Vertex>& vertices)
 		{
-			vertexCount = static_cast<uint32_t>(vertices.size());
+			CreateVertexBuffers(vertices.data(), vertices.size());
+		}
+
+		void CreateIndexBuffers(const std::vector<uint32_t>& indices)
+		{
+			CreateIndexBuffers(indices.data(), indices.size());
+		}
+
+		void CreateVertexBuffers(const Vertex* vertices, const uint32_t vertexCount)
+		{
+			this->vertexCount = vertexCount;
 			assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
-			VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
-			uint32_t vertexSize = sizeof(Vertex);
+			const uint32_t vertexSize = sizeof(Vertex);
+			const VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
 
 			Pipeline::Buffer stagingBuffer{
 				device,
@@ -80,7 +101,7 @@ namespace Isonia::Renderable::Complete
 			};
 
 			stagingBuffer.Map();
-			stagingBuffer.WriteToBuffer((void*)vertices.data());
+			stagingBuffer.WriteToBuffer((void*)vertices);
 
 			vertexBuffer = new Pipeline::Buffer(
 				device,
@@ -93,16 +114,16 @@ namespace Isonia::Renderable::Complete
 			device.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 		}
 
-		void CreateIndexBuffers(const std::vector<uint32_t>& indices)
+		void CreateIndexBuffers(const uint32_t* indices, const uint32_t indexCount)
 		{
-			indexCount = static_cast<uint32_t>(indices.size());
+			this->indexCount = indexCount;
 			hasIndexBuffer = indexCount > 0;
 
 			if (!hasIndexBuffer)
 				return;
 
-			VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
-			uint32_t indexSize = sizeof(indices[0]);
+			const uint32_t indexSize = sizeof(uint32_t);
+			const VkDeviceSize bufferSize = sizeof(uint32_t) * indexCount;
 
 			Pipeline::Buffer stagingBuffer{
 				device,
@@ -113,7 +134,7 @@ namespace Isonia::Renderable::Complete
 			};
 
 			stagingBuffer.Map();
-			stagingBuffer.WriteToBuffer((void*)indices.data());
+			stagingBuffer.WriteToBuffer((void*)indices);
 
 			indexBuffer = new Pipeline::Buffer(
 				device,
