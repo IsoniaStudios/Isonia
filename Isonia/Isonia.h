@@ -310,7 +310,7 @@ namespace Isonia
 			std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
 			std::uniform_real_distribution<float> randScale(1.0f, 2.0f);
 
-			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Type::Quad);
+			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Type::Icosahedron);
 
 			for (int i = 0; i < 0; ++i)
 			{
