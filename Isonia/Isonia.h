@@ -312,7 +312,7 @@ namespace Isonia
 
 			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Type::Icosahedron);
 
-			for (int i = 0; i < 0; ++i)
+			for (int i = 0; i < 10; ++i)
 			{
 				ECS::Entity entity = gCoordinator->CreateEntity();
 

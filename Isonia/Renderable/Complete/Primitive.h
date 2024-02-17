@@ -22,11 +22,11 @@ namespace Isonia::Renderable::Complete
 			switch (type)
 			{
 			case Type::Quad:
-				return PrimitiveQuad::Vertices();
+				return PrimitiveQuad::Vertices;
 			case Type::Cube:
-				return PrimitiveCube::Vertices();
+				return PrimitiveCube::Vertices;
 			case Type::Icosahedron:
-				return PrimitiveIcosahedron::Vertices();
+				return PrimitiveIcosahedron::Vertices;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -35,11 +35,11 @@ namespace Isonia::Renderable::Complete
 			switch (type)
 			{
 			case Type::Quad:
-				return PrimitiveQuad::VerticesCount();
+				return PrimitiveQuad::VerticesCount;
 			case Type::Cube:
-				return PrimitiveCube::VerticesCount();
+				return PrimitiveCube::VerticesCount;
 			case Type::Icosahedron:
-				return PrimitiveIcosahedron::VerticesCount();
+				return PrimitiveIcosahedron::VerticesCount;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -49,11 +49,11 @@ namespace Isonia::Renderable::Complete
 			switch (type)
 			{
 			case Type::Quad:
-				return PrimitiveQuad::Indices();
+				return PrimitiveQuad::Indices;
 			case Type::Cube:
-				return PrimitiveCube::Indices();
+				return PrimitiveCube::Indices;
 			case Type::Icosahedron:
-				return PrimitiveIcosahedron::Indices();
+				return PrimitiveIcosahedron::Indices;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -62,11 +62,11 @@ namespace Isonia::Renderable::Complete
 			switch (type)
 			{
 			case Type::Quad:
-				return PrimitiveQuad::IndicesCount();
+				return PrimitiveQuad::IndicesCount;
 			case Type::Cube:
-				return PrimitiveCube::IndicesCount();
+				return PrimitiveCube::IndicesCount;
 			case Type::Icosahedron:
-				return PrimitiveIcosahedron::IndicesCount();
+				return PrimitiveIcosahedron::IndicesCount;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -74,166 +74,125 @@ namespace Isonia::Renderable::Complete
 	private:
 		struct PrimitiveQuad
 		{
-			static constexpr const Vertex* Vertices()
-			{
-				constexpr const Vertex vertices[] = {
-					{ { -0.5f, 0.0f,  0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } },
-					{ {  0.5f, 0.0f,  0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } },
-					{ { -0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
-					{ {  0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } }
-				};
-				return vertices;
+			static constexpr const Vertex Vertices[] = {
+				{ { -0.5f, 0.0f,  0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f } },
+				{ {  0.5f, 0.0f,  0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f } },
+				{ { -0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f } },
+				{ {  0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f } }
 			};
-			static constexpr const uint32_t VerticesCount()
-			{
-				return 4;
-			};
+			static constexpr const uint32_t VerticesCount = 4;
 
-			static constexpr const uint32_t* Indices()
-			{
-				constexpr const uint32_t indices[] = {
-					2, 1, 0,
-					1, 2, 3
-				};
-				return indices;
+			static constexpr const uint32_t Indices[] = {
+				2, 1, 0,
+				1, 2, 3
 			};
-			static constexpr const uint32_t IndicesCount()
-			{
-				return 3 * 2;
-			};
+			static constexpr const uint32_t IndicesCount = 3 * 2;
 		};
 
 		struct PrimitiveCube
 		{
-			static constexpr const Vertex* Vertices()
-			{
-				constexpr const Vertex vertices[] = {
-					// front
-					{ {-1.0f, +1.0f, +1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f} },
-					{ {+1.0f, +1.0f, +1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f} },
-					{ {-1.0f, -1.0f, +1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f} },
-					{ {+1.0f, -1.0f, +1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f} },
-					// back
-					{ {+1.0f, +1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f} },
-					{ {-1.0f, +1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f} },
-					{ {+1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f} },
-					{ {-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f} },
-					// right
-					{ {+1.0f, +1.0f, +1.0f}, {1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} },
-					{ {+1.0f, +1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} },
-					{ {+1.0f, -1.0f, +1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} },
-					{ {+1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f} },
-					// left
-					{ {-1.0f, +1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} },
-					{ {-1.0f, +1.0f, +1.0f}, {0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} },
-					{ {-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} },
-					{ {-1.0f, -1.0f, +1.0f}, {0.0f, 1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f} },
-					// top
-					{ {-1.0f, -1.0f, +1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f} },
-					{ {+1.0f, -1.0f, +1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f} },
-					{ {-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f} },
-					{ {+1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f} },
-					// bottom
-					{ {-1.0f, +1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f} },
-					{ {+1.0f, +1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f} },
-					{ {-1.0f, +1.0f, +1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f} },
-					{ {+1.0f, +1.0f, +1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f} } 
-				};
-				return vertices;
+			static constexpr const Vertex Vertices[] = {
+				// front
+				{ {-1.0f, +1.0f, +1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f} },
+				{ {+1.0f, +1.0f, +1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f} },
+				{ {-1.0f, -1.0f, +1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f} },
+				{ {+1.0f, -1.0f, +1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f} },
+				// back
+				{ {+1.0f, +1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f} },
+				{ {-1.0f, +1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f} },
+				{ {+1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f} },
+				{ {-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f} },
+				// right
+				{ {+1.0f, +1.0f, +1.0f}, {1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} },
+				{ {+1.0f, +1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} },
+				{ {+1.0f, -1.0f, +1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} },
+				{ {+1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f} },
+				// left
+				{ {-1.0f, +1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f} },
+				{ {-1.0f, +1.0f, +1.0f}, {0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f} },
+				{ {-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f} },
+				{ {-1.0f, -1.0f, +1.0f}, {0.0f, 1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f} },
+				// top
+				{ {-1.0f, -1.0f, +1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f} },
+				{ {+1.0f, -1.0f, +1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f} },
+				{ {-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f} },
+				{ {+1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f} },
+				// bottom
+				{ {-1.0f, +1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f} },
+				{ {+1.0f, +1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f} },
+				{ {-1.0f, +1.0f, +1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f} },
+				{ {+1.0f, +1.0f, +1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f} } 
 			};
-			static constexpr const uint32_t VerticesCount()
-			{
-				return 4 * 6;
-			};
+			static constexpr const uint32_t VerticesCount = 4 * 6;
 
-			static constexpr const uint32_t* Indices()
-			{
-				constexpr const uint32_t indices[] = {
-					// front
-					2 +  0, 1 +  0, 0 +  0,
-					1 +  0, 2 +  0, 3 +  0,
-					// back
-					2 +  4, 1 +  4, 0 +  4,
-					1 +  4, 2 +  4, 3 +  4,
-					// right
-					2 +  8, 1 +  8, 0 +  8,
-					1 +  8, 2 +  8, 3 +  8,
-					// left
-					2 + 12, 1 + 12, 0 + 12,
-					1 + 12, 2 + 12, 3 + 12,
-					// top
-					2 + 16, 1 + 16, 0 + 16,
-					1 + 16, 2 + 16, 3 + 16,
-					// bottom
-					2 + 20, 1 + 20, 0 + 20,
-					1 + 20, 2 + 20, 3 + 20,
-				};
-				return indices;
+			static constexpr const uint32_t Indices[] = {
+				// front
+				2 +  0, 1 +  0, 0 +  0,
+				1 +  0, 2 +  0, 3 +  0,
+				// back
+				2 +  4, 1 +  4, 0 +  4,
+				1 +  4, 2 +  4, 3 +  4,
+				// right
+				2 +  8, 1 +  8, 0 +  8,
+				1 +  8, 2 +  8, 3 +  8,
+				// left
+				2 + 12, 1 + 12, 0 + 12,
+				1 + 12, 2 + 12, 3 + 12,
+				// top
+				2 + 16, 1 + 16, 0 + 16,
+				1 + 16, 2 + 16, 3 + 16,
+				// bottom
+				2 + 20, 1 + 20, 0 + 20,
+				1 + 20, 2 + 20, 3 + 20,
 			};
-			static constexpr const uint32_t IndicesCount()
-			{
-				return 3 * 12;
-			};
+			static constexpr const uint32_t IndicesCount = 3 * 12;
 		};
 
 		struct PrimitiveIcosahedron
 		{
-			static constexpr const Vertex* Vertices()
-			{
-				constexpr const float s = 0.3f;
-				constexpr const float t = (1.0f + 2.2360679775f) / 2.0f; // (1 + sqrt(5)) / 2
+		private:
+			static constexpr const float s = 0.3f;
+			static constexpr const float t = ((1.0f + 2.2360679775f) / 2.0f) * s; // (1 + sqrt(5)) / 2
+		public:
+			static constexpr const Vertex Vertices[] = {
+				{ {    -s,     t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.875f,  0.5f } },
+				{ {     s,     t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f, 0.75f } },
+				{ {    -s,    -t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f,  0.5f } },
+				{ {     s,    -t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f,  1.0f } },
+				{ {  0.0f,    -s,     t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f, 0.75f } },
+				{ {  0.0f,     s,     t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f,  0.0f } },
+				{ {  0.0f,    -s,    -t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f, 0.25f } },
+				{ {  0.0f,     s,    -t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f,  0.0f } },
+				{ {     t, -0.0f,    -s }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.875f,  0.5f } },
+				{ {     t, -0.0f,     s }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f, 0.75f } },
+				{ {    -t, -0.0f,    -s }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f,  0.5f } },
+				{ {    -t, -0.0f,     s }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f,  1.0f } }
+			};
+			static constexpr const uint32_t VerticesCount = 12;
 
-				constexpr const Vertex vertices[] = {
-					{ { -1.0f,     t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.875f,  0.5f } },
-					{ {  1.0f,     t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f, 0.75f } },
-					{ { -1.0f,    -t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f,  0.5f } },
-					{ {  1.0f,    -t,  0.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f,  1.0f } },
-					{ {  0.0f, -1.0f,     t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f, 0.75f } },
-					{ {  0.0f,  1.0f,     t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f,  0.0f } },
-					{ {  0.0f, -1.0f,    -t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f, 0.25f } },
-					{ {  0.0f,  1.0f,    -t }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f,  0.0f } },
-					{ {     t, -0.0f, -1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.875f,  0.5f } },
-					{ {     t, -0.0f,  1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f, 0.75f } },
-					{ {    -t, -0.0f, -1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.625f,  0.5f } },
-					{ {    -t, -0.0f,  1.0f }, { 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, { 0.375f,  1.0f } }
-				};
-				return vertices;
+			static constexpr const uint32_t Indices[] = {
+				0, 11,  5,
+				0,  5,  1,
+				0,  1,  7,
+				0,  7, 10,
+				0, 10, 11,
+				1,  5,  9,
+				5, 11,  4,
+				11, 10,  2,
+				10,  7,  6,
+				7,  1,  8,
+				3,  9,  4,
+				3,  4,  2,
+				3,  2,  6,
+				3,  6,  8,
+				3,  8,  9,
+				4,  9,  5,
+				2,  4, 11,
+				6,  2, 10,
+				8,  6,  7,
+				9,  8,  1
 			};
-			static constexpr const uint32_t VerticesCount()
-			{
-				return 12;
-			};
-
-			static constexpr const uint32_t* Indices()
-			{
-				constexpr const uint32_t indices[] = {
-					0, 11,  5,
-					0,  5,  1,
-					0,  1,  7,
-					0,  7, 10,
-					0, 10, 11,
-					1,  5,  9,
-					5, 11,  4,
-				   11, 10,  2,
-				   10,  7,  6,
-					7,  1,  8,
-					3,  9,  4,
-					3,  4,  2,
-					3,  2,  6,
-					3,  6,  8,
-					3,  8,  9,
-					4,  9,  5,
-					2,  4, 11,
-					6,  2, 10,
-					8,  6,  7,
-					9,  8,  1
-				};
-				return indices;
-			};
-			static constexpr const uint32_t IndicesCount()
-			{
-				return 3 * 20;
-			};
+			static constexpr const uint32_t IndicesCount = 3 * 20;
 		};
 	};
 }
