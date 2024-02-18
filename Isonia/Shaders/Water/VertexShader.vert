@@ -20,11 +20,12 @@ layout(set = 0, binding = 1) uniform GlobalClock {
 
 layout(push_constant) uniform Push {
   float x;
+  float y;
   float z;
 } push;
 
-const float QUAD_SIZE = 1.0;
-const int QUADS = 64;
+const float QUAD_SIZE = 4.0;
+const int QUADS = 32;
 const int VERTICES = QUADS + 1;
 const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 
@@ -47,7 +48,7 @@ void main()
     int row = calculateRow(gl_VertexIndex, strip);
     int col = calculateCol(gl_VertexIndex, strip);
 
-    fragPosWorld = vec3(col * QUAD_SIZE + push.x, amplitude, row * QUAD_SIZE + push.z);
+    fragPosWorld = vec3(col * QUAD_SIZE + push.x, 0, row * QUAD_SIZE + push.z);
 
     gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);
 }

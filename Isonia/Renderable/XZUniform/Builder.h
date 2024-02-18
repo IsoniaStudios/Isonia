@@ -17,8 +17,8 @@
 
 namespace Isonia::Renderable::XZUniform
 {
-	static constexpr const float QUAD_SIZE = 1.0f;
-	static constexpr const uint32_t QUADS = 64;
+	static constexpr const float QUAD_SIZE = 4.0f;
+	static constexpr const uint32_t QUADS = 32;
 	static constexpr const uint32_t VERTICES = QUADS + 1;
 	static constexpr const uint32_t UNIQUE_VERTICES_COUNT = VERTICES * VERTICES;
 	static constexpr const uint32_t SAMPLE = VERTICES + 2;
@@ -26,18 +26,21 @@ namespace Isonia::Renderable::XZUniform
 	static constexpr const uint32_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 	static constexpr const uint32_t TRIANGLE_COUNT = VERTICES_COUNT - 2;
 
-	struct XZPositionalData
-	{
-		XZPositionalData(const float x, const float z) : x(x), z(z) { }
-		float x;
-		float z;
-	};
-
 	struct Builder
 	{
-		XZPositionalData positionalData;
+		glm::vec3 position;
 
-		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float amplitude, const float x, const float z) : device(device), positionalData(x, z)
+		Builder(Pipeline::Device& device) : device(device)
+		{
+			// alloc memory
+			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
+			// create the buffers
+			CreateVertexBuffers(vertices);
+			// cleanup
+			delete vertices;
+		}
+
+		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float amplitude, const glm::vec3 position) : device(device), position(position)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
@@ -51,8 +54,8 @@ namespace Isonia::Renderable::XZUniform
 				const int row = CalculateRow(i, strip); // is z
 
 				// calculate noise and assign
-				float z = row * QUAD_SIZE + positionalData.z - QUAD_SIZE;
-				float x = col * QUAD_SIZE + positionalData.x - QUAD_SIZE;
+				float z = row * QUAD_SIZE + position.z - QUAD_SIZE;
+				float x = col * QUAD_SIZE + position.x - QUAD_SIZE;
 				warpNoise.TransformCoordinate(x, z);
 				vertices[i].altitude = noise.GenerateNoise(x, z) * amplitude;
 			}

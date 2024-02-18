@@ -11,6 +11,9 @@
 
 #include "../../Noise/FractalPerlinNoise.h"
 
+// external
+#include <glm/gtx/intersect.hpp>
+
 // shaders
 #include "../../Shaders/Include/Water/FragShader_frag.h"
 #include "../../Shaders/Include/Water/VertexShader_vert.h"
@@ -25,10 +28,7 @@ namespace Isonia::Pipeline::Systems
 			CreatepipelineLayout(globalSetLayout);
 			Createpipeline(renderPass);
 
-			Noise::ConstantScalarWarpNoise groundWarpNoise{ 0.05f };
-			Noise::FractalPerlinNoise groundNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
-
-			water = new Renderable::XZUniform::Builder(device, groundWarpNoise, groundNoise, 0.5f, 0, 0);
+			water = new Renderable::XZUniform::Builder(device);
 		}
 
 		~WaterRenderSystem()
@@ -57,15 +57,31 @@ namespace Isonia::Pipeline::Systems
 				nullptr
 			);
 
-			water->positionalData.x = -(Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f);
-			water->positionalData.z = -(Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f);
+			constexpr const float offsetToCenter = -(Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f);
+			const glm::vec3 cameraForward = camera.GetForwardVector();
+			const glm::vec3 cameraPosition = camera.GetPositionVector();
+			float intersectionDistance;
+			const bool intersects = glm::intersectRayPlane(
+				cameraForward,
+				cameraPosition,
+				glm::vec3{ 0.0f, -5.0f, 0.0f },
+				glm::vec3{ 0.0f, -1.0f, 0.0f },
+				intersectionDistance
+			);
+			glm::vec3 intersectionPoint = cameraPosition + cameraForward * intersectionDistance;
+			water->position = {
+				offsetToCenter - intersectionPoint.x,
+				-5,
+				offsetToCenter - intersectionPoint.z
+			};
+
 			vkCmdPushConstants(
 				frameInfo.commandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
-				sizeof(Renderable::XZUniform::XZPositionalData),
-				&(water->positionalData)
+				sizeof(glm::vec3),
+				&(water->position)
 			);
 			water->Bind(frameInfo.commandBuffer);
 			water->Draw(frameInfo.commandBuffer);
@@ -77,7 +93,7 @@ namespace Isonia::Pipeline::Systems
 			VkPushConstantRange pushConstantRange{};
 			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			pushConstantRange.offset = 0;
-			pushConstantRange.size = sizeof(Renderable::XZUniform::XZPositionalData);
+			pushConstantRange.size = sizeof(glm::vec3);
 
 			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
 				globalSetLayout

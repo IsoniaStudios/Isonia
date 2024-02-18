@@ -94,6 +94,12 @@ namespace Isonia::Components
 		const glm::mat4& GetView() const { return viewMatrix; }
 		const glm::mat4& GetInverseView() const { return inverseViewMatrix; }
 
+		const glm::vec3 GetForwardVector() const { return glm::vec3{ inverseViewMatrix[2][0], inverseViewMatrix[2][1], inverseViewMatrix[2][2] }; }
+		const glm::vec3 GetUpVector() const { return glm::vec3{ inverseViewMatrix[1][0], inverseViewMatrix[1][1], inverseViewMatrix[1][2] }; }
+		const glm::vec3 GetRightVector() const { return glm::vec3{ inverseViewMatrix[0][0], inverseViewMatrix[0][1], inverseViewMatrix[0][2] }; }
+
+		const glm::vec3 GetPositionVector() const { return glm::vec3{ inverseViewMatrix[3][0], inverseViewMatrix[3][1], inverseViewMatrix[3][2] }; }
+
 	protected:
 		void SetViewYXZ(glm::vec3 position, glm::vec3 rotation)
 		{
