@@ -71,12 +71,16 @@ namespace Isonia
 
 		Isonia()
 		{
+			auto start_time = std::chrono::high_resolution_clock::now();
 			InitializeDescriptorPool();
 			InitializeCoordinator();
 			InitializePhysicsSystem();
 			InitializeRenderSystems();
 			InitializeEntities();
 			InitializePlayer();
+			auto end_time = std::chrono::high_resolution_clock::now();
+			float initilize_time = std::chrono::duration<float, std::chrono::milliseconds::period>(end_time - start_time).count();
+			std::cout << "Initilize Time: " << initilize_time << " ms" << std::endl;
 		}
 
 		~Isonia()

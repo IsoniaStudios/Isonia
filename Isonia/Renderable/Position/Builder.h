@@ -90,7 +90,7 @@ namespace Isonia::Renderable::Position
 			device.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 		}
 
-		const size_t pointCount;
+		const uint32_t pointCount;
 		Pipeline::Device& device;
 		Pipeline::Buffer* vertexBuffer;
 	};

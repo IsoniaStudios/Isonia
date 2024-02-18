@@ -66,7 +66,7 @@ namespace Isonia::Pipeline
 			vkDestroyRenderPass(device.GetDevice(), renderPass, nullptr);
 
 			// cleanup synchronization objects
-			for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+			for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 			{
 				vkDestroySemaphore(device.GetDevice(), renderFinishedSemaphores[i], nullptr);
 				vkDestroySemaphore(device.GetDevice(), imageAvailableSemaphores[i], nullptr);
@@ -88,7 +88,7 @@ namespace Isonia::Pipeline
 		VkFramebuffer GetFrameBuffer(int index) const { return swapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() const { return renderPass; }
 		VkImageView GetImageView(int index) const { return swapChainImageViews[index]; }
-		size_t ImageCount() const { return swapChainImages.size(); }
+		uint32_t ImageCount() const { return static_cast<uint32_t>(swapChainImages.size()); }
 		VkFormat GetSwapChainImageFormat() const { return swapChainImageFormat; }
 		VkExtent2D GetSwapChainExtent() const { return swapChainExtent; }
 		uint32_t Width() const { return swapChainExtent.width; }
@@ -349,9 +349,9 @@ namespace Isonia::Pipeline
 		void CreateFramebuffers()
 		{
 			swapChainFramebuffers.resize(ImageCount());
-			for (size_t i = 0; i < ImageCount(); i++)
+			for (uint32_t i = 0; i < ImageCount(); i++)
 			{
-				VkImageView attachments[attachmentsLength] = {swapChainImageViews[i], depthImageViews[i]};
+				VkImageView attachments[attachmentsLength] = { swapChainImageViews[i], depthImageViews[i] };
 
 				VkExtent2D swapChainExtent = GetSwapChainExtent();
 				VkFramebufferCreateInfo framebufferInfo = {};
@@ -434,7 +434,7 @@ namespace Isonia::Pipeline
 			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 			fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-			for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+			for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 			{
 				if (vkCreateSemaphore(device.GetDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
 					vkCreateSemaphore(device.GetDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
@@ -523,6 +523,6 @@ namespace Isonia::Pipeline
 		VkSemaphore renderFinishedSemaphores[MAX_FRAMES_IN_FLIGHT];
 		VkFence inFlightFences[MAX_FRAMES_IN_FLIGHT];
 		std::vector<VkFence> imagesInFlight;
-		size_t currentFrame = 0;
+		uint32_t currentFrame = 0;
 	};
 }

@@ -20,8 +20,8 @@ namespace Isonia::Renderable::XZUniform::Grass
 {
 	static constexpr const float GRASS_DENSITY = 4.0f;
 	static constexpr const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0f * 2.0f);
-	static constexpr const size_t GRASS_COUNT_SIDE = GRASS_DENSITY * QUADS;
-	static constexpr const size_t GRASS_COUNT = GRASS_COUNT_SIDE * GRASS_COUNT_SIDE;
+	static constexpr const uint32_t GRASS_COUNT_SIDE = GRASS_DENSITY * QUADS;
+	static constexpr const uint32_t GRASS_COUNT = GRASS_COUNT_SIDE * GRASS_COUNT_SIDE;
 
 	struct Builder
 	{
@@ -35,9 +35,9 @@ namespace Isonia::Renderable::XZUniform::Grass
 			const float size = QUAD_SIZE / GRASS_DENSITY;
 			const float half_size = size * 0.5f;
 
-			for (size_t z = 0; z < GRASS_COUNT_SIDE; z++)
+			for (uint32_t z = 0; z < GRASS_COUNT_SIDE; z++)
 			{
-				for (size_t x = 0; x < GRASS_COUNT_SIDE; x++)
+				for (uint32_t x = 0; x < GRASS_COUNT_SIDE; x++)
 				{
 					float world_z = z * size + ground->positionalData.z;
 					float world_x = x * size + ground->positionalData.x;
@@ -51,7 +51,7 @@ namespace Isonia::Renderable::XZUniform::Grass
 					const float pitch = glm::atan(world_normal.y, world_normal.z);
 					const float yaw = glm::atan(world_normal.y, world_normal.x);
 
-					const size_t i = x + z * GRASS_COUNT_SIDE;
+					const uint32_t i = x + z * GRASS_COUNT_SIDE;
 
 					vertices[i].pitch = pitch;
 					vertices[i].yaw = yaw;

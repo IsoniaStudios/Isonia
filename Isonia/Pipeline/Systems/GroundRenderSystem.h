@@ -46,8 +46,8 @@ extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	static constexpr const std::size_t GROUNDS = 3;
-	static constexpr const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
+	static constexpr const uint32_t GROUNDS = 3;
+	static constexpr const uint32_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
 	{
@@ -63,18 +63,18 @@ namespace Isonia::Pipeline::Systems
 			Noise::ConstantScalarWarpNoise groundWarpNoise{ 0.05f };
 			Noise::FractalPerlinNoise groundNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
-			const long GROUNDS_LONG = static_cast<long>(GROUNDS);
-			const long QUADS_LONG = static_cast<long>(Renderable::XZUniform::QUADS);
+			const int32_t S_GROUNDS = static_cast<int32_t>(GROUNDS);
+			const int32_t S_QUADS = static_cast<int32_t>(Renderable::XZUniform::QUADS);
 			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
 			grasses = static_cast<Renderable::XZUniform::Grass::Builder*>(operator new[](sizeof(Renderable::XZUniform::Grass::Builder) * GROUNDS_COUNT));
-			for (long x = 0; x < GROUNDS; x++)
+			for (int32_t x = 0; x < GROUNDS; x++)
 			{
-				for (long z = 0; z < GROUNDS; z++)
+				for (int32_t z = 0; z < GROUNDS; z++)
 				{
-					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE - QUADS_LONG * Renderable::XZUniform::QUAD_SIZE * 0.5f;
-					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE - QUADS_LONG * Renderable::XZUniform::QUAD_SIZE * 0.5f;
-					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(device, groundWarpNoise, groundNoise, 7.5f, xOffset, zOffset);
-					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground);
+					float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniform::QUAD_SIZE - S_QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f;
+					float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniform::QUAD_SIZE - S_QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f;
+					auto ground = new (grounds + x * S_GROUNDS + z) Renderable::XZUniform::Builder(device, groundWarpNoise, groundNoise, 7.5f, xOffset, zOffset);
+					auto grass = new (grasses + x * S_GROUNDS + z) Renderable::XZUniform::Grass::Builder(device, ground);
 				}
 			}
 		}
@@ -103,8 +103,8 @@ namespace Isonia::Pipeline::Systems
 
 		Renderable::XZUniform::Builder* MapWorldToGround(const float world_x, const float world_z) const
 		{
-			std::size_t i_x = world_x / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
-			std::size_t i_z = world_z / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
+			uint32_t i_x = world_x / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
+			uint32_t i_z = world_z / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
 			return &grounds[i_x * GROUNDS + i_z];
 		}
 

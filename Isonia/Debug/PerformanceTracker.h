@@ -9,8 +9,11 @@ namespace Isonia::Debug
     class PerformanceTracker
     {
     public:
-        void LogFrameTime(float frameTime)
+        void LogFrameTime(float frameTime_s)
         {
+            // Convert to ms
+            float frameTime = frameTime_s * 1000.0f;
+
             // New frame
             ++frameCount;
 

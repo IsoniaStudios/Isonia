@@ -28,20 +28,20 @@ namespace Isonia::Utilities::Math
     static inline float Sqrt(float f) { return sqrtf(f); }
 
     // To-Int Generics
-    static inline int CeilToInt(float f) { return f >= 0 ? (int)(f + 0.999999f) : (int)f; }
+    static inline int32_t CeilToInt(float f) { return f >= 0 ? (int)(f + 0.999999f) : (int)f; }
 
-    static inline int FloorToInt(float f) { return f >= 0 ? (int)f : (int)f - 1; }
+    static inline int32_t FloorToInt(float f) { return f >= 0 ? (int)f : (int)f - 1; }
 
-    static inline int RoundToInt(float f) { return f >= 0 ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+    static inline int32_t RoundToInt(float f) { return f >= 0 ? (int)(f + 0.5f) : (int)(f - 0.5f); }
 
-    static inline int GetCeiledEvenNumber(float number)
+    static inline int32_t GetCeiledEvenNumber(float number)
     {
         int ceiledNumber = CeilToInt(number);
         if (ceiledNumber % 2 != 0) // Check if the number is odd
             ceiledNumber++;        // Increment by 1 to make it even
         return ceiledNumber;
     }
-    static inline int GetCeiledOddNumber(float number)
+    static inline int32_t GetCeiledOddNumber(float number)
     {
         int ceiledNumber = CeilToInt(number);
         if (ceiledNumber % 2 == 0) // Check if the number is even

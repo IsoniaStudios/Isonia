@@ -17,14 +17,14 @@
 
 namespace Isonia::Renderable::XZUniform
 {
-	const float QUAD_SIZE = 1.0f;
-	const std::size_t QUADS = 64;
-	const std::size_t VERTICES = QUADS + 1;
-	const std::size_t UNIQUE_VERTICES_COUNT = VERTICES * VERTICES;
-	const std::size_t SAMPLE = VERTICES + 2;
-	const std::size_t SAMPLE_COUNT = SAMPLE * SAMPLE;
-	const std::size_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
-	const std::size_t TRIANGLE_COUNT = VERTICES_COUNT - 2;
+	static constexpr const float QUAD_SIZE = 1.0f;
+	static constexpr const uint32_t QUADS = 64;
+	static constexpr const uint32_t VERTICES = QUADS + 1;
+	static constexpr const uint32_t UNIQUE_VERTICES_COUNT = VERTICES * VERTICES;
+	static constexpr const uint32_t SAMPLE = VERTICES + 2;
+	static constexpr const uint32_t SAMPLE_COUNT = SAMPLE * SAMPLE;
+	static constexpr const uint32_t VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
+	static constexpr const uint32_t TRIANGLE_COUNT = VERTICES_COUNT - 2;
 
 	struct XZPositionalData
 	{
@@ -46,9 +46,9 @@ namespace Isonia::Renderable::XZUniform
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
 			
 			// calculate perlin
-			for (size_t i_z = 0; i_z < SAMPLE; i_z++)
+			for (uint32_t i_z = 0; i_z < SAMPLE; i_z++)
 			{
-				for (size_t i_x = 0; i_x < SAMPLE; i_x++)
+				for (uint32_t i_x = 0; i_x < SAMPLE; i_x++)
 				{
 					float z = i_z * QUAD_SIZE + positionalData.z - QUAD_SIZE;
 					float x = i_x * QUAD_SIZE + positionalData.x - QUAD_SIZE;
@@ -58,9 +58,9 @@ namespace Isonia::Renderable::XZUniform
 			}
 
 			// calculate normal
-			for (size_t z = 0; z < VERTICES; z++)
+			for (uint32_t z = 0; z < VERTICES; z++)
 			{
-				for (size_t x = 0; x < VERTICES; x++)
+				for (uint32_t x = 0; x < VERTICES; x++)
 				{
 					// create the 5 points used in calculating normal
 					const glm::vec3 v10 = { -QUAD_SIZE, sampleAltitudes[z + 0][x + 1],	     0.0f };
@@ -124,11 +124,11 @@ namespace Isonia::Renderable::XZUniform
 			const float local_z = world_z + QUAD_SIZE - positionalData.z;
 
 			// map local to indices
-			const size_t min_x = IMath::FloorToInt(local_x);
-			const size_t max_x = IMath::CeilToInt(local_x);
+			const uint32_t min_x = IMath::FloorToInt(local_x);
+			const uint32_t max_x = IMath::CeilToInt(local_x);
 
-			const size_t min_z = IMath::FloorToInt(local_z);
-			const size_t max_z = IMath::CeilToInt(local_z);
+			const uint32_t min_z = IMath::FloorToInt(local_z);
+			const uint32_t max_z = IMath::CeilToInt(local_z);
 
 			// get heights from indices
 			const float h_00 = sampleAltitudes[min_z][min_x];
@@ -155,10 +155,10 @@ namespace Isonia::Renderable::XZUniform
 
 			// map local to indices
 			const size_t min_x = std::max(IMath::FloorToInt(local_x), 0);
-			const size_t max_x = std::min(IMath::CeilToInt(local_x), static_cast<int>(VERTICES));
+			const size_t max_x = std::min(IMath::CeilToInt(local_x), static_cast<int32_t>(VERTICES));
 
 			const size_t min_z = std::max(IMath::FloorToInt(local_z), 0);
-			const size_t max_z = std::min(IMath::CeilToInt(local_z), static_cast<int>(VERTICES));
+			const size_t max_z = std::min(IMath::CeilToInt(local_z), static_cast<int32_t>(VERTICES));
 
 			// get normals from indices
 			const glm::vec3 n_00 = normals[min_z][min_x];

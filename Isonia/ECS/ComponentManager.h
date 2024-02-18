@@ -18,7 +18,7 @@ namespace Isonia::ECS
     public:
         ~ComponentManager()
         {
-            for (size_t i = 0; i < MAX_COMPONENTS; ++i)
+            for (ComponentType i = 0; i < MAX_COMPONENTS; ++i)
             {
                 delete componentArrays[i];
             }

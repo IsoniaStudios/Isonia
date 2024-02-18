@@ -27,7 +27,7 @@ namespace Isonia::Pipeline
 			{
 			};
 
-			Builder& AddShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const std::size_t size)
+			Builder& AddShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const size_t size)
 			{
 				VkShaderModule shaderModule = CreateShaderModule(code, size);
 
@@ -51,7 +51,7 @@ namespace Isonia::Pipeline
 			}
 
 		private:
-			VkShaderModule CreateShaderModule(const unsigned char* const code, const std::size_t size)
+			VkShaderModule CreateShaderModule(const unsigned char* const code, const size_t size)
 			{
 				VkShaderModuleCreateInfo createInfo{};
 				createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
