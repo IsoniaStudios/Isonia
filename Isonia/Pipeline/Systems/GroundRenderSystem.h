@@ -14,8 +14,8 @@
 #include "../../Components/Camera.h"
 #include "../../Components/Transform.h"
 
-#include "../../Renderable/XZUniform/Builder.h"
-#include "../../Renderable/XZUniform/Grass/Builder.h"
+#include "../../Renderable/XZUniformN/Builder.h"
+#include "../../Renderable/XZUniformN/Grass/Builder.h"
 #include "../../Renderable/Color/Color.h"
 
 #include "../../Noise/FractalPerlinNoise.h"
@@ -64,17 +64,17 @@ namespace Isonia::Pipeline::Systems
 			Noise::FractalPerlinNoise groundNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 			const int32_t S_GROUNDS = static_cast<int32_t>(GROUNDS);
-			const int32_t S_QUADS = static_cast<int32_t>(Renderable::XZUniform::QUADS);
-			grounds = static_cast<Renderable::XZUniform::Builder*>(operator new[](sizeof(Renderable::XZUniform::Builder) * GROUNDS_COUNT));
-			grasses = static_cast<Renderable::XZUniform::Grass::Builder*>(operator new[](sizeof(Renderable::XZUniform::Grass::Builder) * GROUNDS_COUNT));
+			const int32_t S_QUADS = static_cast<int32_t>(Renderable::XZUniformN::QUADS);
+			grounds = static_cast<Renderable::XZUniformN::Builder*>(operator new[](sizeof(Renderable::XZUniformN::Builder) * GROUNDS_COUNT));
+			grasses = static_cast<Renderable::XZUniformN::Grass::Builder*>(operator new[](sizeof(Renderable::XZUniformN::Grass::Builder) * GROUNDS_COUNT));
 			for (int32_t x = 0; x < GROUNDS; x++)
 			{
 				for (int32_t z = 0; z < GROUNDS; z++)
 				{
-					float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniform::QUAD_SIZE - S_QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f;
-					float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniform::QUAD_SIZE - S_QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f;
-					auto ground = new (grounds + x * S_GROUNDS + z) Renderable::XZUniform::Builder(device, groundWarpNoise, groundNoise, 7.5f, xOffset, zOffset);
-					auto grass = new (grasses + x * S_GROUNDS + z) Renderable::XZUniform::Grass::Builder(device, ground);
+					float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniformN::QUAD_SIZE - S_QUADS * Renderable::XZUniformN::QUAD_SIZE * 0.5f;
+					float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniformN::QUAD_SIZE - S_QUADS * Renderable::XZUniformN::QUAD_SIZE * 0.5f;
+					auto ground = new (grounds + x * S_GROUNDS + z) Renderable::XZUniformN::Builder(device, groundWarpNoise, groundNoise, 7.5f, xOffset, zOffset);
+					auto grass = new (grasses + x * S_GROUNDS + z) Renderable::XZUniformN::Grass::Builder(device, ground);
 				}
 			}
 		}
@@ -101,10 +101,10 @@ namespace Isonia::Pipeline::Systems
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
-		Renderable::XZUniform::Builder* MapWorldToGround(const float world_x, const float world_z) const
+		Renderable::XZUniformN::Builder* MapWorldToGround(const float world_x, const float world_z) const
 		{
-			uint32_t i_x = world_x / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
-			uint32_t i_z = world_z / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
+			uint32_t i_x = world_x / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + GROUNDS / 2;
+			uint32_t i_z = world_z / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + GROUNDS / 2;
 			return &grounds[i_x * GROUNDS + i_z];
 		}
 
@@ -146,14 +146,14 @@ namespace Isonia::Pipeline::Systems
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					Renderable::XZUniform::Builder* ground = &grounds[x * GROUNDS + z];
+					Renderable::XZUniformN::Builder* ground = &grounds[x * GROUNDS + z];
 
 					vkCmdPushConstants(
 						frameInfo.commandBuffer,
 						groundPipelineLayout,
 						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 						0,
-						sizeof(Renderable::XZUniform::XZPositionalData),
+						sizeof(Renderable::XZUniformN::XZPositionalData),
 						&(ground->positionalData)
 					);
 					ground->Bind(frameInfo.commandBuffer);
@@ -181,7 +181,7 @@ namespace Isonia::Pipeline::Systems
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					Renderable::XZUniform::Grass::Builder* grass = &grasses[x * GROUNDS + z];
+					Renderable::XZUniformN::Grass::Builder* grass = &grasses[x * GROUNDS + z];
 
 					grass->Bind(frameInfo.commandBuffer);
 					grass->Draw(frameInfo.commandBuffer);
@@ -194,7 +194,7 @@ namespace Isonia::Pipeline::Systems
 			VkPushConstantRange pushConstantRange{};
 			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			pushConstantRange.offset = 0;
-			pushConstantRange.size = sizeof(Renderable::XZUniform::XZPositionalData);
+			pushConstantRange.size = sizeof(Renderable::XZUniformN::XZPositionalData);
 
 			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
 				globalSetLayout
@@ -217,7 +217,7 @@ namespace Isonia::Pipeline::Systems
 			assert(groundPipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 
 			PipelineConfigInfo pipelineConfig{};
-			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
+			Pipeline::PixelPipelineTriangleStripNormalConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = groundPipelineLayout;
 			groundPipeline = Pipeline::Builder(device)
@@ -280,8 +280,8 @@ namespace Isonia::Pipeline::Systems
 
 			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 
-			configInfo.bindingDescriptions = Renderable::XZUniform::Grass::Vertex::GetBindingDescriptions();
-			configInfo.attributeDescriptions = Renderable::XZUniform::Grass::Vertex::GetAttributeDescriptions();
+			configInfo.bindingDescriptions = Renderable::XZUniformN::Grass::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniformN::Grass::Vertex::GetAttributeDescriptions();
 		}
 
 		Device& device;
@@ -291,7 +291,7 @@ namespace Isonia::Pipeline::Systems
 		VkPipelineLayout groundPipelineLayout;
 		VkPipelineLayout grassPipelineLayout;
 
-		Renderable::XZUniform::Builder* grounds;
-		Renderable::XZUniform::Grass::Builder* grasses;
+		Renderable::XZUniformN::Builder* grounds;
+		Renderable::XZUniformN::Grass::Builder* grasses;
 	};
 }

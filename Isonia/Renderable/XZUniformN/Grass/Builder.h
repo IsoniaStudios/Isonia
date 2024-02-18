@@ -16,7 +16,7 @@
 #include <bitset>
 #include <cmath>
 
-namespace Isonia::Renderable::XZUniform::Grass
+namespace Isonia::Renderable::XZUniformN::Grass
 {
 	static constexpr const float GRASS_DENSITY = 4.0f;
 	static constexpr const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0f * 2.0f);
@@ -25,7 +25,7 @@ namespace Isonia::Renderable::XZUniform::Grass
 
 	struct Builder
 	{
-		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground) :
+		Builder(Pipeline::Device& device, Renderable::XZUniformN::Builder* ground) :
 				device(device)
 		{
 			// alloc memory

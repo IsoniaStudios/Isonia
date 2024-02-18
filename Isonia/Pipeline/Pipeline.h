@@ -6,6 +6,7 @@
 #include "../Renderable/Complete/Model.h"
 #include "../Renderable/Complete/Vertex.h"
 #include "../Renderable/XZUniform/Vertex.h"
+#include "../Renderable/XZUniformN/Vertex.h"
 
 // std
 #include <cassert>
@@ -98,7 +99,7 @@ namespace Isonia::Pipeline
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 		}
 
-		static void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
+		static constexpr void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
 		{
 			Pipeline::PixelPipelineConfigInfo(configInfo);
 
@@ -109,7 +110,18 @@ namespace Isonia::Pipeline
 			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
 		}
 
-		static void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
+		static constexpr void PixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			Pipeline::PixelPipelineConfigInfo(configInfo);
+
+			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+			configInfo.bindingDescriptions = Renderable::XZUniformN::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniformN::Vertex::GetAttributeDescriptions();
+		}
+
+		static constexpr void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
 		{
 			Pipeline::DefaultPipelineConfigInfo(configInfo);
 
@@ -124,7 +136,7 @@ namespace Isonia::Pipeline
 			configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
 		}
 
-		static void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
+		static constexpr void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
 		{
 			configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;

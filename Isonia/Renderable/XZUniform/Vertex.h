@@ -20,10 +20,8 @@ namespace Isonia::Renderable::XZUniform
 	struct Vertex
 	{
 		float altitude;
-		float pitch;
-		float yaw;
 
-		static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions()
+		static constexpr std::vector<VkVertexInputBindingDescription> GetBindingDescriptions()
 		{
 			std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 			bindingDescriptions[0].binding = 0;
@@ -32,13 +30,11 @@ namespace Isonia::Renderable::XZUniform
 			return bindingDescriptions;
 		}
 
-		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
+		static constexpr std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
 		{
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
 			attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, altitude) });
-			attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, pitch) });
-			attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, yaw) });
 
 			return attributeDescriptions;
 		}

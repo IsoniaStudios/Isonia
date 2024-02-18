@@ -23,7 +23,7 @@ namespace Isonia::Renderable::Complete
 		glm::vec3 normal{};
 		glm::vec2 uv{};
 
-		static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions()
+		static constexpr std::vector<VkVertexInputBindingDescription> GetBindingDescriptions()
 		{
 			std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
 			bindingDescriptions[0].binding = 0;
@@ -32,7 +32,7 @@ namespace Isonia::Renderable::Complete
 			return bindingDescriptions;
 		}
 
-		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
+		static constexpr std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
 		{
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 

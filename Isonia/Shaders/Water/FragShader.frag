@@ -2,7 +2,6 @@
 #extension GL_KHR_vulkan_glsl : enable
 
 layout (location = 0) in vec3 fragPosWorld;
-layout (location = 1) in vec3 fragNormalWorld;
 
 layout (location = 0) out vec4 outColor;
 
@@ -28,7 +27,5 @@ layout (set = 0, binding = 2) uniform sampler1D colorMap;
 
 void main()
 {
-	float directionalLight = -dot(fragNormalWorld, ubo.lightDirection);
-	float lightIntensity = max(directionalLight, ubo.ambientLightColor.w);
-	outColor = texture(colorMap, lightIntensity);
+	outColor = texture(colorMap, 0);
 }

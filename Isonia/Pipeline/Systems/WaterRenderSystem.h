@@ -8,7 +8,6 @@
 #include "../../State/FrameInfo.h"
 
 #include "../../Renderable/XZUniform/Builder.h"
-#include "../../Renderable/XZUniform/Grass/Builder.h"
 
 #include "../../Noise/FractalPerlinNoise.h"
 
@@ -42,16 +41,6 @@ namespace Isonia::Pipeline::Systems
 
 		WaterRenderSystem(const WaterRenderSystem&) = delete;
 		WaterRenderSystem& operator=(const WaterRenderSystem&) = delete;
-
-		float MapWorldToHeight(const float world_x, const float world_z) const
-		{
-			return water->MapWorldToHeight(world_x, world_z);
-		}
-
-		glm::vec3 MapWorldToNormal(const float world_x, const float world_z) const
-		{
-			return water->MapWorldToNormal(world_x, world_z);
-		}
 
 		void Render(State::FrameInfo& frameInfo, Components::Camera& camera)
 		{

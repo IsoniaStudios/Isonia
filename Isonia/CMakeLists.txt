@@ -29,6 +29,9 @@ else()
     target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
 endif()
 
+# Compile shaders
+add_subdirectory(Shaders)
+
 # Find all cpp files recursively
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS 
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"

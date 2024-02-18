@@ -28,8 +28,5 @@ endif()
 # Link time optimization, only for our
 set(TARGET ${PROJECT_NAME} CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-# Compile shaders
-add_subdirectory(Isonia/Shaders)
-
 # Include sub-projects.
 add_subdirectory(Isonia)
