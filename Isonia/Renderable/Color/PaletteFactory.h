@@ -6,7 +6,7 @@
 
 namespace Isonia::Renderable::Color
 {
-    static constexpr const int PALETTE_LENGTH = 10;
+    static constexpr const uint32_t PALETTE_LENGTH = 10;
 
     class PaletteFactory
     {

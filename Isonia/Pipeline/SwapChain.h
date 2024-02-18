@@ -22,7 +22,7 @@ namespace Isonia::Pipeline
 	class SwapChain
 	{
 	public:
-		static constexpr std::uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+		static constexpr const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 		SwapChain(Device& deviceRef, VkExtent2D extent)
 			: device(deviceRef), windowExtent(extent)

@@ -29,6 +29,7 @@
 
 #include "Renderable/Texture.h"
 #include "Renderable/Color/PaletteFactory.h"
+#include "Renderable/Color/TextureFactory.h"
 
 #include "Noise/FractalPerlinNoise.h"
 
@@ -65,19 +66,21 @@ namespace Isonia
 	class Isonia
 	{
 	public:
-		static constexpr int WIDTH = 1024;
-		static constexpr int HEIGHT = 576;
+		static constexpr const int WIDTH = 1024;
+		static constexpr const int HEIGHT = 576;
 		static constexpr const char* NAME = "Isonia";
 
 		Isonia()
 		{
 			auto start_time = std::chrono::high_resolution_clock::now();
+
 			InitializeDescriptorPool();
 			InitializeCoordinator();
 			InitializePhysicsSystem();
 			InitializeRenderSystems();
 			InitializeEntities();
 			InitializePlayer();
+
 			auto end_time = std::chrono::high_resolution_clock::now();
 			float initilize_time = std::chrono::duration<float, std::chrono::milliseconds::period>(end_time - start_time).count();
 			std::cout << "Initilize Time: " << initilize_time << " ms" << std::endl;
@@ -85,6 +88,8 @@ namespace Isonia
 
 		~Isonia()
 		{
+			auto start_time = std::chrono::high_resolution_clock::now();
+
 			delete cloud;
 			delete debugger;
 			delete grass;
@@ -106,6 +111,10 @@ namespace Isonia
 				delete buffer;
 			}
 			delete globalPool;
+
+			auto end_time = std::chrono::high_resolution_clock::now();
+			float initilize_time = std::chrono::duration<float, std::chrono::milliseconds::period>(end_time - start_time).count();
+			std::cout << std::endl << "Uninitialize Time: " << initilize_time << " ms" << std::endl;
 		}
 
 		Isonia(const Isonia&) = delete;
@@ -221,8 +230,8 @@ namespace Isonia
 			Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
-			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png", STBI_grey);
-			debugger = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Debugger.png");
+			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
+			debugger = Renderable::Color::TextureFactory::CreateDebugTexture(device);
 			cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudWarpNoise, cloudNoise, 512, 512);
 			
 			globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
@@ -326,7 +335,7 @@ namespace Isonia
 
 			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Type::Icosahedron);
 
-			for (int i = 0; i < 10; ++i)
+			for (int i = 0; i < 0; ++i)
 			{
 				ECS::Entity entity = gCoordinator->CreateEntity();
 
