@@ -98,6 +98,17 @@ namespace Isonia::Pipeline
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 		}
 
+		static void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			Pipeline::PixelPipelineConfigInfo(configInfo);
+
+			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+			configInfo.bindingDescriptions = Renderable::XZUniform::Vertex::GetBindingDescriptions();
+			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
+		}
+
 		static void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
 		{
 			Pipeline::DefaultPipelineConfigInfo(configInfo);
@@ -208,7 +219,7 @@ namespace Isonia::Pipeline
 
 			VkGraphicsPipelineCreateInfo pipelineInfo{};
 			pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-			pipelineInfo.stageCount = shaderStages.size();
+			pipelineInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
 			pipelineInfo.pStages = shaderStages.data();
 			pipelineInfo.pVertexInputState = &vertexInputInfo;
 			pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;

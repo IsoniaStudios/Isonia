@@ -76,12 +76,12 @@ namespace Isonia::Renderable::Complete
 	private:
 		void CreateVertexBuffers(const std::vector<Vertex>& vertices)
 		{
-			CreateVertexBuffers(vertices.data(), vertices.size());
+			CreateVertexBuffers(vertices.data(), static_cast<uint32_t>(vertices.size()));
 		}
 
 		void CreateIndexBuffers(const std::vector<uint32_t>& indices)
 		{
-			CreateIndexBuffers(indices.data(), indices.size());
+			CreateIndexBuffers(indices.data(), static_cast<uint32_t>(indices.size()));
 		}
 
 		void CreateVertexBuffers(const Vertex* vertices, const uint32_t vertexCount)

@@ -14,13 +14,13 @@
 namespace Isonia::Utilities::PixelPerfectUtility
 {
     // Constants
-    const float Y_SCALE = 1.0f / std::cos(Math::Radians(-30.0f));
+    static constexpr const float Y_SCALE = 1.154700538379252f; //1.0f / std::cos(Math::Radians(-30.0f));
 
-    const float PIXELS_PER_UNIT = 16.0f;
-    const float UNITS_PER_PIXEL = 1.0f / PIXELS_PER_UNIT;
+    static constexpr const float PIXELS_PER_UNIT = 16.0f;
+    static constexpr const float UNITS_PER_PIXEL = 1.0f / PIXELS_PER_UNIT;
 
-    const float ROTATION_GRID = 30.0f / 16.0f;
-    const float INVERSE_ROTATION_GRID = 1.0f / ROTATION_GRID;
+    static constexpr const float ROTATION_GRID = 30.0f / 16.0f;
+    static constexpr const float INVERSE_ROTATION_GRID = 1.0f / ROTATION_GRID;
 
     static inline glm::vec3 RoundToPixel(const glm::vec3 position)
     {

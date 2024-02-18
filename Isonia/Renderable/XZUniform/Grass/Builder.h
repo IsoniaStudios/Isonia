@@ -18,23 +18,26 @@
 
 namespace Isonia::Renderable::XZUniform::Grass
 {
-	const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0 * 2.0);
+	static constexpr const float GRASS_DENSITY = 4.0f;
+	static constexpr const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0f * 2.0f);
+	static constexpr const size_t GRASS_COUNT_SIDE = GRASS_DENSITY * QUADS;
+	static constexpr const size_t GRASS_COUNT = GRASS_COUNT_SIDE * GRASS_COUNT_SIDE;
 
 	struct Builder
 	{
-		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground, const float density) :
-				device(device), pointCountSide(density * QUADS), pointCount(pointCountSide * pointCountSide)
+		Builder(Pipeline::Device& device, Renderable::XZUniform::Builder* ground) :
+				device(device)
 		{
 			// alloc memory
-			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * pointCount));
+			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * GRASS_COUNT));
 			
 			const Noise::WhiteNoise offsetNoise = {};
-			const float size = QUAD_SIZE / density;
+			const float size = QUAD_SIZE / GRASS_DENSITY;
 			const float half_size = size * 0.5f;
 
-			for (size_t z = 0; z < pointCountSide; z++)
+			for (size_t z = 0; z < GRASS_COUNT_SIDE; z++)
 			{
-				for (size_t x = 0; x < pointCountSide; x++)
+				for (size_t x = 0; x < GRASS_COUNT_SIDE; x++)
 				{
 					float world_z = z * size + ground->positionalData.z;
 					float world_x = x * size + ground->positionalData.x;
@@ -48,7 +51,7 @@ namespace Isonia::Renderable::XZUniform::Grass
 					const float pitch = glm::atan(world_normal.y, world_normal.z);
 					const float yaw = glm::atan(world_normal.y, world_normal.x);
 
-					const int i = x + z * pointCountSide;
+					const size_t i = x + z * GRASS_COUNT_SIDE;
 
 					vertices[i].pitch = pitch;
 					vertices[i].yaw = yaw;
@@ -82,15 +85,15 @@ namespace Isonia::Renderable::XZUniform::Grass
 
 		void Draw(VkCommandBuffer commandBuffer)
 		{
-			vkCmdDraw(commandBuffer, pointCount, 1, 0, 0);
+			vkCmdDraw(commandBuffer, GRASS_COUNT, 1, 0, 0);
 		}
 
 	private:
 		void CreateVertexBuffers(void* vertices)
 		{
-			const uint32_t vertexCount = static_cast<uint32_t>(pointCount);
+			const uint32_t vertexCount = static_cast<uint32_t>(GRASS_COUNT);
 
-			const VkDeviceSize bufferSize = sizeof(Vertex) * pointCount;
+			const VkDeviceSize bufferSize = sizeof(Vertex) * GRASS_COUNT;
 			const uint32_t vertexSize = sizeof(Vertex);
 
 			Pipeline::Buffer stagingBuffer{
@@ -115,8 +118,6 @@ namespace Isonia::Renderable::XZUniform::Grass
 			device.CopyBuffer(stagingBuffer.GetBuffer(), vertexBuffer->GetBuffer(), bufferSize);
 		}
 
-		const size_t pointCountSide;
-		const size_t pointCount;
 		Pipeline::Device& device;
 		Pipeline::Buffer* vertexBuffer;
 	};

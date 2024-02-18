@@ -46,9 +46,8 @@ extern Isonia::ECS::Coordinator* gCoordinator;
 
 namespace Isonia::Pipeline::Systems
 {
-	const std::size_t GROUNDS = 2;
-	const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
-	const float GRASS_DENSITY = 4.0f;
+	static constexpr const std::size_t GROUNDS = 3;
+	static constexpr const std::size_t GROUNDS_COUNT = GROUNDS * GROUNDS;
 
 	class GroundRenderSystem
 	{
@@ -72,10 +71,10 @@ namespace Isonia::Pipeline::Systems
 			{
 				for (long z = 0; z < GROUNDS; z++)
 				{
-					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
-					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE;
-					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(device, groundWarpNoise, groundNoise, xOffset, zOffset);
-					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground, GRASS_DENSITY);
+					float xOffset = (x - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE - QUADS_LONG * Renderable::XZUniform::QUAD_SIZE * 0.5f;
+					float zOffset = (z - GROUNDS_LONG / 2l) * QUADS_LONG * Renderable::XZUniform::QUAD_SIZE - QUADS_LONG * Renderable::XZUniform::QUAD_SIZE * 0.5f;
+					auto ground = new (grounds + x * GROUNDS_LONG + z) Renderable::XZUniform::Builder(device, groundWarpNoise, groundNoise, 7.5f, xOffset, zOffset);
+					auto grass = new (grasses + x * GROUNDS_LONG + z) Renderable::XZUniform::Grass::Builder(device, ground);
 				}
 			}
 		}
@@ -101,6 +100,25 @@ namespace Isonia::Pipeline::Systems
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
+
+		Renderable::XZUniform::Builder* MapWorldToGround(const float world_x, const float world_z) const
+		{
+			std::size_t i_x = world_x / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
+			std::size_t i_z = world_z / (Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE) + GROUNDS / 2;
+			return &grounds[i_x * GROUNDS + i_z];
+		}
+
+		float MapWorldToHeight(const float world_x, const float world_z) const
+		{
+			const auto ground = MapWorldToGround(world_x, world_z);
+			return ground->MapWorldToHeight(world_x, world_z);
+		}
+
+		glm::vec3 MapWorldToNormal(const float world_x, const float world_z) const
+		{
+			const auto ground = MapWorldToGround(world_x, world_z);
+			return ground->MapWorldToNormal(world_x, world_z);
+		}
 
 		void Render(State::FrameInfo& frameInfo)
 		{
@@ -199,7 +217,7 @@ namespace Isonia::Pipeline::Systems
 			assert(groundPipelineLayout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 
 			PipelineConfigInfo pipelineConfig{};
-			PixelPipelineTriangleStripConfigInfo(pipelineConfig);
+			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = groundPipelineLayout;
 			groundPipeline = Pipeline::Builder(device)
@@ -212,17 +230,6 @@ namespace Isonia::Pipeline::Systems
 					Shaders::Ground::FRAGSHADER_FRAG,
 					sizeof(Shaders::Ground::FRAGSHADER_FRAG) / sizeof(unsigned char)
 				).CreateGraphicsPipeline(pipelineConfig);
-		}
-
-		static void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
-		{
-			Pipeline::PixelPipelineConfigInfo(configInfo);
-
-			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
-
-			configInfo.bindingDescriptions = Renderable::XZUniform::Vertex::GetBindingDescriptions();
-			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
 		}
 
 		void CreateGrassPipelineLayout(VkDescriptorSetLayout globalSetLayout)

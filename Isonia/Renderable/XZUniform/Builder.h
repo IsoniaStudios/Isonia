@@ -29,18 +29,18 @@ namespace Isonia::Renderable::XZUniform
 	struct XZPositionalData
 	{
 		XZPositionalData(const float x, const float z) : x(x), z(z) { }
-		const float x;
-		const float z;
+		float x;
+		float z;
 	};
 
 	struct Builder
 	{
-		const XZPositionalData positionalData;
+		XZPositionalData positionalData;
 
 		float sampleAltitudes[SAMPLE][SAMPLE];
 		glm::vec3 normals[VERTICES][VERTICES];
 
-		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float x, const float z) : device(device), positionalData(x, z)
+		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float amplitude, const float x, const float z) : device(device), positionalData(x, z)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));
@@ -53,7 +53,7 @@ namespace Isonia::Renderable::XZUniform
 					float z = i_z * QUAD_SIZE + positionalData.z - QUAD_SIZE;
 					float x = i_x * QUAD_SIZE + positionalData.x - QUAD_SIZE;
 					warpNoise.TransformCoordinate(x, z);
-					sampleAltitudes[i_z][i_x] = noise.GenerateNoise(x, z) * 7.5f;
+					sampleAltitudes[i_z][i_x] = noise.GenerateNoise(x, z) * amplitude;
 				}
 			}
 

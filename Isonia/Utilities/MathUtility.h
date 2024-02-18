@@ -9,7 +9,7 @@
 namespace Isonia::Utilities::Math
 {
     // Constants
-    static const constexpr float PI = 3.14159265359f;
+    static constexpr const float PI = 3.14159265359f;
 
     // 
     static inline float Radians(float degrees) { return degrees * (PI / 180.0f); }

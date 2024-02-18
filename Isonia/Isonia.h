@@ -20,6 +20,7 @@
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/Systems/SimpleRenderSystem.h"
 #include "Pipeline/Systems/GroundRenderSystem.h"
+#include "Pipeline/Systems/WaterRenderSystem.h"
 #include "Pipeline/Systems/DebuggerRenderSystem.h"
 
 #include "Physics/PhysicsSystem.h"
@@ -89,6 +90,7 @@ namespace Isonia
 
 			delete debuggerRenderSystem;
 			delete groundRenderSystem;
+			delete waterRenderSystem;
 
 			delete gCoordinator;
 
@@ -153,6 +155,7 @@ namespace Isonia
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
 					groundRenderSystem->Render(frameInfo);
+					waterRenderSystem->Render(frameInfo, player.camera);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					debuggerRenderSystem->Render(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
@@ -273,6 +276,7 @@ namespace Isonia
 
 		Pipeline::Systems::SimpleRenderSystem* simpleRenderSystem;
 		Pipeline::Systems::GroundRenderSystem* groundRenderSystem;
+		Pipeline::Systems::WaterRenderSystem* waterRenderSystem;
 		Pipeline::Systems::DebuggerRenderSystem* debuggerRenderSystem;
 		void InitializeRenderSystems()
 		{
@@ -290,6 +294,12 @@ namespace Isonia
 			}
 
 			groundRenderSystem = new Pipeline::Systems::GroundRenderSystem{
+				device,
+				renderer.GetSwapChainRenderPass(),
+				globalSetLayout->GetDescriptorSetLayout()
+			};
+
+			waterRenderSystem = new Pipeline::Systems::WaterRenderSystem{
 				device,
 				renderer.GetSwapChainRenderPass(),
 				globalSetLayout->GetDescriptorSetLayout()

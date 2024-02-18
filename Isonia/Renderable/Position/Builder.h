@@ -31,7 +31,7 @@ namespace Isonia::Renderable::Position
 				{
 					const auto i = (x + 3) + (z + 3) * 7;
 					vertices[i].position.x = static_cast<float>(x * 64) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
-					vertices[i].position.y = -10.0 * Utilities::PixelPerfectUtility::Y_SCALE;
+					vertices[i].position.y = -10.0f * Utilities::PixelPerfectUtility::Y_SCALE;
 					vertices[i].position.z = static_cast<float>(z * 64) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
 				}
 			}
@@ -57,7 +57,7 @@ namespace Isonia::Renderable::Position
 
 		void Draw(VkCommandBuffer commandBuffer)
 		{
-			vkCmdDraw(commandBuffer, pointCount, 1, 0, 0);
+			vkCmdDraw(commandBuffer, static_cast<uint32_t>(pointCount), 1, 0, 0);
 		}
 
 	private:
