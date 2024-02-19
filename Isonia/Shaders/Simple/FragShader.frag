@@ -1,10 +1,11 @@
 #version 450
 #extension GL_KHR_vulkan_glsl : enable
 
-layout (location = 0) in vec3 fragPosWorld;
-layout (location = 1) in vec3 fragNormalWorld;
+layout(location = 0) in vec3 fragPosWorld;
+layout(location = 1) in vec3 fragNormalWorld;
+layout(location = 2) in vec3 fragColor;
 
-layout (location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
@@ -29,5 +30,6 @@ layout (set = 0, binding = 2) uniform sampler1D colorMap;
 void main()
 {
 	float lightIntensity = max(-dot(fragNormalWorld, ubo.lightDirection), ubo.ambientLightColor.w);
-	outColor = texture(colorMap, lightIntensity);
+	//outColor = texture(colorMap, lightIntensity);
+	outColor = vec4(fragColor, 1);
 }

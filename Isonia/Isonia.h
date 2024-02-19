@@ -43,6 +43,9 @@
 #include "Components/MeshRenderer.h"
 #include "Components/RigidBody.h"
 
+#include "Renderable/Complete/PrimitiveFace.h"
+#include "Renderable/Complete/PrimitivePrism.h"
+
 // std
 #include <array>
 #include <cassert>
@@ -340,7 +343,7 @@ namespace Isonia
 			std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
 			std::uniform_real_distribution<float> randScale(1.0f, 2.0f);
 
-			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Type::Icosahedron);
+			sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Icosahedron);
 
 			for (int i = 0; i < 0; ++i)
 			{
@@ -371,21 +374,25 @@ namespace Isonia
 				);
 			}
 
-			ECS::Entity sphere = gCoordinator->CreateEntity();
+			for (uint32_t i = 3; i <= 20; i++)
+			{
+				Renderable::Complete::Model* model = Renderable::Complete::Model::CreatePrimitiveFace(device, i);
+				ECS::Entity sphere = gCoordinator->CreateEntity();
 
-			gCoordinator->AddComponent(
-				sphere,
-				Components::Transform{
-				   glm::vec3{ 0, -5, 0 },
-				   glm::vec3{ 0 },
-				   glm::vec3{ 1 }
-				}
-			);
+				gCoordinator->AddComponent(
+					sphere,
+					Components::Transform{
+					   glm::vec3{ i, -5, 0 },
+					   glm::vec3{ 0 },
+					   glm::vec3{ 1 }
+					}
+				);
 
-			gCoordinator->AddComponent(
-				sphere,
-				Components::Mesh{ sphereModel }
-			);
+				gCoordinator->AddComponent(
+					sphere,
+					Components::Mesh{ model }
+				);
+			}
 		}
 
 		void InitializePlayer()

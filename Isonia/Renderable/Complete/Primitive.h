@@ -3,6 +3,7 @@
 // internal
 #include "Vertex.h"
 #include "Builder.h"
+#include "../../Utilities/MathUtility.h"
 
 // std
 #include <stdexcept>
@@ -15,6 +16,7 @@ namespace Isonia::Renderable::Complete
 			Quad,
 			Cube,
 			Icosahedron,
+			HexagonalPrism,
 		};
 
 		static constexpr const Vertex* Vertices(const Type type)
@@ -27,6 +29,8 @@ namespace Isonia::Renderable::Complete
 				return PrimitiveCube::Vertices;
 			case Type::Icosahedron:
 				return PrimitiveIcosahedron::Vertices;
+			case Type::HexagonalPrism:
+				return PrimitiveHexagonalPrism::Vertices;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -40,6 +44,8 @@ namespace Isonia::Renderable::Complete
 				return PrimitiveCube::VerticesCount;
 			case Type::Icosahedron:
 				return PrimitiveIcosahedron::VerticesCount;
+			case Type::HexagonalPrism:
+				return PrimitiveHexagonalPrism::VerticesCount;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -54,6 +60,8 @@ namespace Isonia::Renderable::Complete
 				return PrimitiveCube::Indices;
 			case Type::Icosahedron:
 				return PrimitiveIcosahedron::Indices;
+			case Type::HexagonalPrism:
+				return PrimitiveHexagonalPrism::Indices;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -67,6 +75,8 @@ namespace Isonia::Renderable::Complete
 				return PrimitiveCube::IndicesCount;
 			case Type::Icosahedron:
 				return PrimitiveIcosahedron::IndicesCount;
+			case Type::HexagonalPrism:
+				return PrimitiveHexagonalPrism::IndicesCount;
 			}
 			throw std::invalid_argument("Unknown Primitive Type");
 		};
@@ -193,6 +203,48 @@ namespace Isonia::Renderable::Complete
 				9,  8,  1
 			};
 			static constexpr const uint32_t IndicesCount = 3 * 20;
+		};
+
+		struct PrimitiveHexagonalPrism
+		{
+			static constexpr const Vertex Vertices[] = {
+				// Top hexagon
+				{ {0.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.5f, 1.0f} },
+				{ {0.866f, 0.5f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.75f} },
+				{ {0.866f, -0.5f, -1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.25f} },
+				{ {0.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, -1.0f}, {0.5f, 0.0f} },
+				{ {-0.866f, -0.5f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.25f} },
+				{ {-0.866f, 0.5f, -1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.75f} },
+				// Bottom hexagon
+				{ {0.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 1.0f} },
+				{ {0.866f, 0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.75f} },
+				{ {0.866f, -0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.25f} },
+				{ {0.0f, -1.0f, 1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 0.0f} },
+				{ {-0.866f, -0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.25f} },
+				{ {-0.866f, 0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.75f} }
+			};
+			static constexpr const uint32_t VerticesCount = 6 * 2;
+
+			static constexpr const uint32_t Indices[] = {
+				// Top face
+				0, 1, 5,
+				1, 2, 5,
+				2, 3, 5,
+				3, 4, 5,
+				// Bottom face
+				6, 7, 11,
+				7, 8, 11,
+				8, 9, 11,
+				9, 10, 11,
+				// Side faces
+				0, 6, 1,
+				1, 7, 2,
+				2, 8, 3,
+				3, 9, 4,
+				4, 10, 5,
+				5, 11, 0
+			};
+			static constexpr const uint32_t IndicesCount = 3 * 18;
 		};
 	};
 }

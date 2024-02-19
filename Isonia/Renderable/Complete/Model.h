@@ -1,9 +1,13 @@
 #pragma once
 
 // internal
+#include "Builder.h"
+
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
-#include "Builder.h"
+
+#include "../../Renderable/Complete/PrimitiveFace.h"
+#include "../../Renderable/Complete/PrimitivePrism.h"
 
 // std
 #include <memory>
@@ -28,6 +32,12 @@ namespace Isonia::Renderable::Complete
 			CreateIndexBuffers(Primitive::Indices(primitive), Primitive::IndicesCount(primitive));
 		}
 
+		Model(Pipeline::Device& device, const std::vector<Vertex> vertices, const std::vector<uint32_t> indices) : device(device)
+		{
+			CreateVertexBuffers(vertices);
+			CreateIndexBuffers(indices);
+		}
+
 		~Model()
 		{
 			delete vertexBuffer;
@@ -47,6 +57,16 @@ namespace Isonia::Renderable::Complete
 		static Model* CreatePrimitive(Pipeline::Device& device, const Primitive::Type primitive)
 		{
 			return new Model(device, primitive);
+		}
+
+		static Model* CreatePrimitiveFace(Pipeline::Device& device, const uint32_t numSides)
+		{
+			return new Model(device, PrimitiveFace::GenerateFaceVertices(numSides), PrimitiveFace::GenerateFaceIndices(numSides));
+		}
+
+		static Model* CreatePrimitivePrism(Pipeline::Device& device, const uint32_t numSides)
+		{
+			return new Model(device, PrimitivePrism::GenerateFaceVertices(numSides), PrimitivePrism::GenerateFaceIndices(numSides));
 		}
 
 		void Bind(VkCommandBuffer commandBuffer)
