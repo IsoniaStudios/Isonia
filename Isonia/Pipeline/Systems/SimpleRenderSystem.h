@@ -119,7 +119,6 @@ namespace Isonia::Pipeline::Systems
 
 			PipelineConfigInfo pipelineConfig{};
 			Pipeline::PixelPipelineConfigInfo(pipelineConfig);
-			pipelineConfig.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = pipelineLayout;
 			pipeline = Pipeline::Builder(device)

@@ -36,34 +36,26 @@ namespace Isonia::Renderable::Complete
 			return vertices;
 		}
 		
-		static constexpr const std::vector<uint32_t> GenerateFaceIndices(const uint32_t numSides)
+		static constexpr const std::vector<uint32_t> GenerateFaceIndices(const uint32_t numSides, const uint32_t offset = 0, const bool faceUp = true)
 		{
-			// 3 -> 3 (3 * 1)
-			// 4 -> 6 (3 * 2)
-			// 5 -> 9 (3 * 3)
-			// 6 -> 12 (3 * 4)
-			// 6 -> 15 (3 * 5)
-
 			assert(numSides > 2 && "Invalid number of sides");
 
 			const uint32_t numTriangles = numSides - 2;
-			const uint32_t numOuterTriangles = (numSides) / 2;
-			// 3, 4, 5, 6, 7, 8, 9, 10, 11
-			// 1, 2, 2, 3, 3, 4, 4,  5,  5
 
 			std::vector<uint32_t> indices;
-
-			// for every outer triangle
-			indices.push_back(0);
-			indices.push_back(2);
-			indices.push_back(1);
-			for (int32_t i = 1; i < numOuterTriangles; i++)
+			for (uint32_t i = 0; i < numTriangles; i++)
 			{
-				int32_t index = i * 3 - i;
-
-				indices.push_back(index + 0);
-				indices.push_back((index + 2) % numSides);
-				indices.push_back(index + 1);
+				indices.push_back(0 + offset);
+				if (faceUp)
+				{
+					indices.push_back(i + 2 + offset);
+					indices.push_back(i + 1 + offset);
+				}
+				else
+				{
+					indices.push_back(i + 1 + offset);
+					indices.push_back(i + 2 + offset);
+				}
 			}
 
 			return indices;

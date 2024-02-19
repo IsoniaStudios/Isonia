@@ -376,7 +376,7 @@ namespace Isonia
 
 			for (uint32_t i = 3; i <= 20; i++)
 			{
-				Renderable::Complete::Model* model = Renderable::Complete::Model::CreatePrimitiveFace(device, i);
+				Renderable::Complete::Model* model = Renderable::Complete::Model::CreatePrimitivePrism(device, i);
 				ECS::Entity sphere = gCoordinator->CreateEntity();
 
 				gCoordinator->AddComponent(

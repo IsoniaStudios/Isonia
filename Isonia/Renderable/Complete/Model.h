@@ -66,7 +66,7 @@ namespace Isonia::Renderable::Complete
 
 		static Model* CreatePrimitivePrism(Pipeline::Device& device, const uint32_t numSides)
 		{
-			return new Model(device, PrimitivePrism::GenerateFaceVertices(numSides), PrimitivePrism::GenerateFaceIndices(numSides));
+			return new Model(device, PrimitivePrism::GeneratePrismVertices(numSides), PrimitivePrism::GeneratePrismIndices(numSides));
 		}
 
 		void Bind(VkCommandBuffer commandBuffer)
