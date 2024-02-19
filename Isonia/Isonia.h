@@ -93,7 +93,8 @@ namespace Isonia
 			delete cloud;
 			delete debugger;
 			delete grass;
-			delete palette;
+			delete grassDayPalette;
+			delete waterDayPalette;
 
 			delete sphereModel;
 
@@ -185,7 +186,8 @@ namespace Isonia
 		}
 
 	private:
-		Renderable::Texture* palette;
+		Renderable::Texture* grassDayPalette;
+		Renderable::Texture* waterDayPalette;
 		Renderable::Texture* grass;
 		Renderable::Texture* debugger;
 		Renderable::Texture* cloud;
@@ -199,6 +201,7 @@ namespace Isonia
 				.SetMaxSets(Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
 				.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -229,7 +232,8 @@ namespace Isonia
 			Noise::ConstantScalarWarpNoise cloudWarpNoise{ 5.0f };
 			Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
-			palette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
+			grassDayPalette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
+			waterDayPalette = Renderable::Color::PaletteFactory::CreateWaterDayPalette(device);
 			grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
 			debugger = Renderable::Color::TextureFactory::CreateDebugTexture(device);
 			cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudWarpNoise, cloudNoise, 512, 512);
@@ -241,23 +245,26 @@ namespace Isonia
 				.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.AddBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+				.AddBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 				.Build();
 
 			for (int i = 0; i < Pipeline::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 			{
 				auto uboBufferInfo = uboBuffers[i]->DescriptorInfo();
 				auto clockBufferInfo = clockBuffers[i]->DescriptorInfo();
-				auto paletteInfo = palette->GetImageInfo();
+				auto grassDayPaletteInfo = grassDayPalette->GetImageInfo();
 				auto grassInfo = grass->GetImageInfo();
 				auto debuggerInfo = debugger->GetImageInfo();
 				auto cloudInfo = cloud->GetImageInfo();
+				auto waterDayPaletteInfo = waterDayPalette->GetImageInfo();
 				Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
 					.WriteBuffer(0, &uboBufferInfo)
 					.WriteBuffer(1, &clockBufferInfo)
-					.WriteImage(2, &paletteInfo)
+					.WriteImage(2, &grassDayPaletteInfo)
 					.WriteImage(3, &grassInfo)
 					.WriteImage(4, &debuggerInfo)
 					.WriteImage(5, &cloudInfo)
+					.WriteImage(6, &waterDayPaletteInfo)
 					.Build(globalDescriptorSets[i]);
 			}
 		}

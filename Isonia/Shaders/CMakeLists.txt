@@ -34,25 +34,18 @@ foreach(SHADER ${SHADERS})
     execute_process(
         COMMAND ${glslCompiler} ${SHADER} -o ${SHADER_SPV}
     )
-    set(PATH ${SHADER_SPV})
-    set(HEADER ${SHADER_HEADER})
-    set(GLOBAL ${GLOBAL_SHADER_VAR})
-    set(SUB_DIRECTORY ${SHADER_SUB_DIRECTORY})
     include(../CMake/EmbedData.cmake)
 
     add_custom_command(
         OUTPUT ${SHADER_SPV} ${SHADER_HEADER}
         COMMAND ${glslCompiler} ${SHADER} -o ${SHADER_SPV}
-        COMMAND ${CMAKE_COMMAND} -DPATH="${SHADER_SPV}" -DHEADER="${SHADER_HEADER}" -DGLOBAL="${GLOBAL_SHADER_VAR}" -DSUB_DIRECTORY="${SHADER_SUB_DIRECTORY}" -P "${CMAKE_CURRENT_SOURCE_DIR}/../CMake/EmbedData.cmake"
+        COMMAND ${CMAKE_COMMAND} -DSHADER_SPV="${SHADER_SPV}" -DSHADER_HEADER="${SHADER_HEADER}" -DGLOBAL_SHADER_VAR="${GLOBAL_SHADER_VAR}" -DSHADER_SUB_DIRECTORY="${SHADER_SUB_DIRECTORY}" -P "${CMAKE_CURRENT_SOURCE_DIR}/../CMake/EmbedData.cmake"
         DEPENDS ${SHADER}
         COMMENT "Building ${SHADER_SPV} and embedding it into ${SHADER_HEADER}"
     )
 
     # Add the custom command as a target
-    add_custom_target(${TARGET_NAME} DEPENDS ${SHADER_HEADER})
-
-    # Add the shader header to MY_SOURCES
-    list(APPEND MY_SOURCES CONFIGURE_DEPENDS ${SHADER_HEADER})
+    add_custom_target(${TARGET_NAME} ALL DEPENDS ${SHADER})
 
     message(STATUS "Generating build commands for ${SHADER}")
 endforeach()

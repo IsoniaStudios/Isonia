@@ -1,9 +1,9 @@
 #version 450
 #extension GL_KHR_vulkan_glsl : enable
 
-layout (location = 0) in vec3 fragPosWorld;
+layout(location = 0) in vec3 fragPosWorld;
 
-layout (location = 0) out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
@@ -20,12 +20,13 @@ layout(set = 0, binding = 1) uniform GlobalClock {
 
 layout(push_constant) uniform Push {
   float x;
+  float y;
   float z;
 } push;
 
-layout (set = 0, binding = 2) uniform sampler1D colorMap;
+layout (set = 0, binding = 6) uniform sampler1D colorMap;
 
 void main()
 {
-	outColor = texture(colorMap, 0);
+	outColor = vec4(texture(colorMap, 0).rgb, 0.1);
 }

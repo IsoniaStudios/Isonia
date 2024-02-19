@@ -58,21 +58,21 @@ namespace Isonia::Pipeline::Systems
 			);
 
 			constexpr const float offsetToCenter = -(Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f);
-			const glm::vec3 cameraForward = camera.GetForwardVector();
 			const glm::vec3 cameraPosition = camera.GetPositionVector();
+			const glm::vec3 cameraForward = camera.GetForwardVector();
 			float intersectionDistance;
 			const bool intersects = glm::intersectRayPlane(
-				cameraForward,
 				cameraPosition,
+				cameraForward,
 				glm::vec3{ 0.0f, -5.0f, 0.0f },
 				glm::vec3{ 0.0f, -1.0f, 0.0f },
 				intersectionDistance
 			);
 			glm::vec3 intersectionPoint = cameraPosition + cameraForward * intersectionDistance;
 			water->position = {
-				offsetToCenter - intersectionPoint.x,
+				offsetToCenter + intersectionPoint.x,
 				-5,
-				offsetToCenter - intersectionPoint.z
+				offsetToCenter + intersectionPoint.z
 			};
 
 			vkCmdPushConstants(
@@ -117,6 +117,7 @@ namespace Isonia::Pipeline::Systems
 
 			PipelineConfigInfo pipelineConfig{};
 			Pipeline::PixelPipelineTriangleStripConfigInfo(pipelineConfig);
+			Pipeline::MakeTransparentConfigInfo(pipelineConfig);
 			pipelineConfig.renderPass = renderPass;
 			pipelineConfig.pipelineLayout = pipelineLayout;
 			pipeline = Pipeline::Builder(device)

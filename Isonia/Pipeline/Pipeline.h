@@ -91,6 +91,7 @@ namespace Isonia::Pipeline
 			return stageFlags;
 		}
 
+		Pipeline() = default;
 		Pipeline(const Pipeline&) = delete;
 		Pipeline& operator=(const Pipeline&) = delete;
 
@@ -101,10 +102,9 @@ namespace Isonia::Pipeline
 
 		static constexpr void PixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
 		{
-			Pipeline::PixelPipelineConfigInfo(configInfo);
-
-			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+			Pipeline::DefaultPipelineConfigInfo(configInfo);
+			Pipeline::MakePixelPerfectConfigInfo(configInfo);
+			Pipeline::MakeTriangleStripConfigInfo(configInfo);
 
 			configInfo.bindingDescriptions = Renderable::XZUniform::Vertex::GetBindingDescriptions();
 			configInfo.attributeDescriptions = Renderable::XZUniform::Vertex::GetAttributeDescriptions();
@@ -112,10 +112,9 @@ namespace Isonia::Pipeline
 
 		static constexpr void PixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo& configInfo)
 		{
-			Pipeline::PixelPipelineConfigInfo(configInfo);
-
-			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+			Pipeline::DefaultPipelineConfigInfo(configInfo);
+			Pipeline::MakePixelPerfectConfigInfo(configInfo);
+			Pipeline::MakeTriangleStripConfigInfo(configInfo);
 
 			configInfo.bindingDescriptions = Renderable::XZUniformN::Vertex::GetBindingDescriptions();
 			configInfo.attributeDescriptions = Renderable::XZUniformN::Vertex::GetAttributeDescriptions();
@@ -124,16 +123,7 @@ namespace Isonia::Pipeline
 		static constexpr void PixelPipelineConfigInfo(PipelineConfigInfo& configInfo)
 		{
 			Pipeline::DefaultPipelineConfigInfo(configInfo);
-
-			configInfo.rasterizationInfo.lineWidth = 1.0f;
-
-			configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-			configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
-
-			configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
-
-			configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
-			configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
+			Pipeline::MakePixelPerfectConfigInfo(configInfo);
 		}
 
 		static constexpr void DefaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
@@ -206,6 +196,37 @@ namespace Isonia::Pipeline
 
 			configInfo.bindingDescriptions = Renderable::Complete::Vertex::GetBindingDescriptions();
 			configInfo.attributeDescriptions = Renderable::Complete::Vertex::GetAttributeDescriptions();
+		}
+
+		static constexpr void MakePixelPerfectConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			configInfo.rasterizationInfo.lineWidth = 1.0f;
+
+			configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+			configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
+
+			configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
+
+			configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
+			configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
+		}
+
+		static constexpr void MakeTransparentConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+			configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+			configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			configInfo.colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+			configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+			configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+			configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+		}
+
+		static constexpr void MakeTriangleStripConfigInfo(PipelineConfigInfo& configInfo)
+		{
+			configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+			configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		}
 
 	private:
