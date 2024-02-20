@@ -3,6 +3,7 @@
 // internal
 #include "Transform.h"
 #include "../Pipeline/Renderer.h"
+#include "../Pipeline/PixelRenderer.h"
 
 // external
 #define GLM_FORCE_RADIANS
@@ -84,7 +85,7 @@ namespace Isonia::Components
 			SetViewYXZ(transform->position, transform->rotation);
 		}
 
-		virtual void SetProjection(Pipeline::Renderer* renderer)
+		virtual void SetProjection(Pipeline::PixelRenderer* renderer)
 		{
 			const auto aspect = renderer->GetAspectRatio();
 			SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);

@@ -5,6 +5,7 @@
 #include "Transform.h"
 
 #include "../Pipeline/Renderer.h"
+#include "../Pipeline/PixelRenderer.h"
 
 #include "../Utilities/MathUtility.h"
 #include "../Utilities/PixelPerfectUtility.h"
@@ -64,7 +65,7 @@ namespace Isonia::Components
 			SetViewYXZ(position, transform->rotation);
 		}
 
-		void SetProjection(Pipeline::Renderer* renderer) override
+		void SetProjection(Pipeline::PixelRenderer* renderer) override
 		{
 			// get extent
 			const auto extent = renderer->GetExtent();

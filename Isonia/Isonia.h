@@ -404,7 +404,7 @@ namespace Isonia
 		Controllers::Player player{};
 		Window::Window window{ WIDTH, HEIGHT, NAME };
 		Pipeline::Device device{ window };
-		Pipeline::PixelRenderer renderer{ window, device, 128, 128, 2, 2 };
+		Pipeline::PixelRenderer renderer{ window, device };
 		Pipeline::Descriptors::DescriptorPool* globalPool{};
 	};
 }

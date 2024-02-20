@@ -10,6 +10,7 @@
 
 #include "../Window/Window.h"
 #include "../Pipeline/Renderer.h"
+#include "../Pipeline/PixelRenderer.h"
 
 #include "../Utilities/MathUtility.h"
 #include "../Utilities/PixelPerfectUtility.h"
@@ -42,18 +43,18 @@ namespace Isonia::Controllers
 			camera.SetView(&transform);
 		}
 
-		Pipeline::Renderer::EventHandler GetOnAspectChangeCallback()
+		Pipeline::PixelRenderer::EventHandler GetOnAspectChangeCallback()
 		{
-			return [&](Pipeline::Renderer* renderer) { this->OnAspectChange(renderer); };
+			return [&](Pipeline::PixelRenderer* renderer) { this->OnAspectChange(renderer); };
 		}
 
-		void OnAspectChange(Pipeline::Renderer* renderer)
+		void OnAspectChange(Pipeline::PixelRenderer* renderer)
 		{
 			camera.SetProjection(renderer);
 		}
 
 		Components::Transform transform{};
-		Components::Camera camera{};
-		KeyboardController controller{};
+		Components::CameraIsometric camera{};
+		KeyboardControllerIsometric controller{};
 	};
 }
