@@ -159,6 +159,7 @@ namespace Isonia::Pipeline
 		{
 			assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
 			assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
+
 			vkCmdEndRenderPass(commandBuffer);
 		}
 

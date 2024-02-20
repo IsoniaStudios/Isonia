@@ -26,12 +26,6 @@ namespace Isonia::Renderable::Complete
 			CreateIndexBuffers(builder.indices);
 		}
 
-		Model(Pipeline::Device& device, const Primitive::Type primitive) : device(device)
-		{
-			CreateVertexBuffers(Primitive::Vertices(primitive), Primitive::VerticesCount(primitive));
-			CreateIndexBuffers(Primitive::Indices(primitive), Primitive::IndicesCount(primitive));
-		}
-
 		Model(Pipeline::Device& device, const std::vector<Vertex> vertices, const std::vector<uint32_t> indices) : device(device)
 		{
 			CreateVertexBuffers(vertices);
@@ -56,7 +50,7 @@ namespace Isonia::Renderable::Complete
 
 		static Model* CreatePrimitive(Pipeline::Device& device, const Primitive::Type primitive)
 		{
-			return new Model(device, primitive);
+			return new Model(device, Primitive::Vertices(primitive), Primitive::Indices(primitive));
 		}
 
 		static Model* CreatePrimitiveFace(Pipeline::Device& device, const uint32_t numSides)
@@ -67,6 +61,11 @@ namespace Isonia::Renderable::Complete
 		static Model* CreatePrimitivePrism(Pipeline::Device& device, const uint32_t numSides)
 		{
 			return new Model(device, PrimitivePrism::GeneratePrismVertices(numSides), PrimitivePrism::GeneratePrismIndices(numSides));
+		}
+
+		static Model* CreatePrimitiveSphere(Pipeline::Device& device, const uint32_t subDivisions)
+		{
+			return new Model(device, PrimitiveSphere::GenerateSphereVertices(subDivisions), PrimitiveSphere::GenerateSphereIndices(subDivisions));
 		}
 
 		void Bind(VkCommandBuffer commandBuffer)

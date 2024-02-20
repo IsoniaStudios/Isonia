@@ -43,8 +43,8 @@ namespace Isonia::Pipeline
 		uint8_t height_scale;
 
 		// For storing the client size of the rendering surface
-		std::uint32_t surface_width;
-		std::uint32_t surface_height;
+		uint32_t surface_width;
+		uint32_t surface_height;
 
 		// This function handles changes that need to be done when the surface area changes
 		void OnResize()
