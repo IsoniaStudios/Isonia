@@ -463,18 +463,18 @@ namespace Isonia::Pipeline
 		{
 			for (const auto& availablePresentMode : availablePresentModes)
 			{
-				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+				if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
 				{
-					std::cout << "Present mode: Mailbox" << std::endl;
+					std::cout << "Present mode: Immediate" << std::endl;
 					return availablePresentMode;
 				}
 			}
 
 			for (const auto& availablePresentMode : availablePresentModes)
 			{
-				if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 				{
-					std::cout << "Present mode: Immediate" << std::endl;
+					std::cout << "Present mode: Mailbox" << std::endl;
 					return availablePresentMode;
 				}
 			}
@@ -486,16 +486,12 @@ namespace Isonia::Pipeline
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
 		{
 			if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-			{
 				return capabilities.currentExtent;
-			}
-			else
-			{
-				VkExtent2D actualExtent = windowExtent;
-				actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-				actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
-				return actualExtent;
-			}
+
+			return {
+				std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, windowExtent.width)),
+				std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, windowExtent.height))
+			};
 		}
 
 		static constexpr const uint32_t attachmentsLength = 2;
