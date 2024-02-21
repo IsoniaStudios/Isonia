@@ -70,14 +70,15 @@ namespace Isonia::Pipeline::Systems
 	private:
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout)
 		{
-			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
+			const constexpr uint32_t descriptorSetLayoutsLength = 1;
+			const VkDescriptorSetLayout descriptorSetLayouts[descriptorSetLayoutsLength]{
 				globalSetLayout
 			};
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+			pipelineLayoutInfo.setLayoutCount = descriptorSetLayoutsLength;
+			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
 			pipelineLayoutInfo.pushConstantRangeCount = 0;
 			pipelineLayoutInfo.pPushConstantRanges = nullptr;
 			if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)

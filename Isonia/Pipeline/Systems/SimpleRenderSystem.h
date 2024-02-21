@@ -99,12 +99,15 @@ namespace Isonia::Pipeline::Systems
 			pushConstantRange.offset = 0;
 			pushConstantRange.size = sizeof(SimplePushConstantData);
 
-			std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+			const constexpr uint32_t descriptorSetLayoutsLength = 1;
+			const VkDescriptorSetLayout descriptorSetLayouts[descriptorSetLayoutsLength]{
+				globalSetLayout
+			};
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-			pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
-			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
+			pipelineLayoutInfo.setLayoutCount = descriptorSetLayoutsLength;
+			pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts;
 			pipelineLayoutInfo.pushConstantRangeCount = 1;
 			pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 			if (vkCreatePipelineLayout(device.GetDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)

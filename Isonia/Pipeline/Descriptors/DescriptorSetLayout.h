@@ -49,16 +49,18 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorSetLayout(Device& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings)
 			: device(device), bindings(bindings)
 		{
-			std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-			for (auto kv : bindings)
+			VkDescriptorSetLayoutBinding* setLayoutBindings = new VkDescriptorSetLayoutBinding[bindings.size()];
+
+			uint32_t index = 0;
+			for (const auto& kv : bindings)
 			{
-				setLayoutBindings.push_back(kv.second);
+				setLayoutBindings[index++] = kv.second;
 			}
 
 			VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
 			descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
-			descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
+			descriptorSetLayoutInfo.bindingCount = index;
+			descriptorSetLayoutInfo.pBindings = setLayoutBindings;
 
 			if (vkCreateDescriptorSetLayout(
 				device.GetDevice(),
@@ -66,8 +68,10 @@ namespace Isonia::Pipeline::Descriptors
 				nullptr,
 				&descriptorSetLayout) != VK_SUCCESS)
 			{
+				delete[] setLayoutBindings;
 				throw std::runtime_error("Failed to create descriptor set layout!");
 			}
+			delete[] setLayoutBindings;
 		}
 
 		~DescriptorSetLayout()

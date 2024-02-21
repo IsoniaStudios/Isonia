@@ -391,17 +391,16 @@ namespace Isonia::Pipeline
 		{
 			uint32_t layerCount;
 			vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-			std::vector<VkLayerProperties> availableLayers(layerCount);
-			vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+			VkLayerProperties* availableLayers = new VkLayerProperties[layerCount];
+			vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
 
 			for (const char* layerName : validationLayers)
 			{
 				bool layerFound = false;
 
-				for (const auto& layerProperties : availableLayers)
+				for (uint32_t i = 0; i < layerCount; ++i)
 				{
-					if (strcmp(layerName, layerProperties.layerName) == 0)
+					if (strcmp(layerName, availableLayers[i].layerName) == 0)
 					{
 						layerFound = true;
 						break;
@@ -410,10 +409,12 @@ namespace Isonia::Pipeline
 
 				if (!layerFound)
 				{
+					delete[] availableLayers;
 					return false;
 				}
 			}
 
+			delete[] availableLayers;
 			return true;
 		}
 #endif
@@ -437,16 +438,18 @@ namespace Isonia::Pipeline
 		{
 			uint32_t extensionCount = 0;
 			vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-			std::vector<VkExtensionProperties> extensions(extensionCount);
-			vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
+			VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+			vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
 
 			std::cout << "available extensions:" << std::endl;
 			std::unordered_set<std::string> available;
-			for (const auto& extension : extensions)
+			for (uint32_t i = 0; i < extensionCount; ++i)
 			{
-				std::cout << "\t" << extension.extensionName << std::endl;
-				available.insert(extension.extensionName);
+				std::cout << "\t" << extensions[i].extensionName << std::endl;
+				available.insert(extensions[i].extensionName);
 			}
+
+			delete[] extensions;
 
 			std::cout << "required extensions:" << std::endl;
 			auto requiredExtensions = GetRequiredExtensions();
@@ -464,21 +467,22 @@ namespace Isonia::Pipeline
 		{
 			uint32_t extensionCount;
 			vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-			std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+			VkExtensionProperties* availableExtensions = new VkExtensionProperties[extensionCount];
 			vkEnumerateDeviceExtensionProperties(
 				device,
 				nullptr,
 				&extensionCount,
-				availableExtensions.data()
+				availableExtensions
 			);
 
 			std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-			for (const auto& extension : availableExtensions)
+			for (uint32_t i = 0; i < extensionCount; ++i)
 			{
-				requiredExtensions.erase(extension.extensionName);
+				requiredExtensions.erase(availableExtensions[i].extensionName);
 			}
+
+			delete[] availableExtensions;
 
 			return requiredExtensions.empty();
 		}
@@ -489,21 +493,19 @@ namespace Isonia::Pipeline
 
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+			VkQueueFamilyProperties* queueFamilies = new VkQueueFamilyProperties[queueFamilyCount];
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
 
-			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-			int i = 0;
-			for (const auto& queueFamily : queueFamilies)
+			for (uint32_t i = 0; i < queueFamilyCount; ++i)
 			{
-				if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+				if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 				{
 					indices.graphicsFamily = i;
 					indices.graphicsFamilyHasValue = true;
 				}
 				VkBool32 presentSupport = false;
 				vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-				if (queueFamily.queueCount > 0 && presentSupport)
+				if (queueFamilies[i].queueCount > 0 && presentSupport)
 				{
 					indices.presentFamily = i;
 					indices.presentFamilyHasValue = true;
@@ -512,9 +514,9 @@ namespace Isonia::Pipeline
 				{
 					break;
 				}
-
-				i++;
 			}
+
+			delete[] queueFamilies;
 
 			return indices;
 		}
@@ -603,17 +605,19 @@ namespace Isonia::Pipeline
 				throw std::runtime_error("Failed to find GPUs with Vulkan support!");
 			}
 			std::cout << "Device count: " << deviceCount << std::endl;
-			std::vector<VkPhysicalDevice> devices(deviceCount);
-			vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+			VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
+			vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
 
-			for (const auto& device : devices)
+			for (uint32_t i = 0; i < deviceCount; ++i)
 			{
-				if (IsDeviceSuitable(device))
+				if (IsDeviceSuitable(devices[i]))
 				{
-					physicalDevice = device;
+					physicalDevice = devices[i];
 					break;
 				}
 			}
+
+			delete[] devices;
 
 			if (physicalDevice == VK_NULL_HANDLE)
 			{

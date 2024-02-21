@@ -229,7 +229,7 @@ namespace Isonia::Pipeline
 			createInfo.imageColorSpace = surfaceFormat.colorSpace;
 			createInfo.imageExtent = extent;
 			createInfo.imageArrayLayers = 1;
-			createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
 			QueueFamilyIndices indices = device.FindPhysicalQueueFamilies();
 			uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
@@ -401,7 +401,7 @@ namespace Isonia::Pipeline
 				imageInfo.format = colorFormat;
 				imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 				imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-				imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+				imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 				imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 				imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 				imageInfo.flags = 0;
