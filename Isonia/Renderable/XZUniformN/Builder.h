@@ -75,12 +75,12 @@ namespace Isonia::Renderable::XZUniformN
 			}
 
 			// assign normal and altitude
-			for (size_t i = 0; i < VERTICES_COUNT; i++)
+			for (uint32_t i = 0; i < VERTICES_COUNT; i++)
 			{
 				// calculate strip row and col
-				const int strip = CalculateStrip(i);
-				const int col = CalculateCol(i, strip); // is x
-				const int row = CalculateRow(i, strip); // is z
+				const int32_t strip = CalculateStrip(i);
+				const int32_t col = CalculateCol(i, strip); // is x
+				const int32_t row = CalculateRow(i, strip); // is z
 
 				// get precalculated perlin noise and set it to altitude
 				vertices[i].altitude = sampleAltitudes[row + 1][col + 1];
@@ -178,15 +178,15 @@ namespace Isonia::Renderable::XZUniformN
 		}
 
 	private:
-		int CalculateCol(const int index, const int strip) const
+		int32_t CalculateCol(const int32_t index, const int32_t strip) const
 		{
 			return abs(((strip + 1) / 2) * (int(VERTICES) * 2 - 1) - ((index + (strip % 2)) / 2));
 		}
-		int CalculateRow(const int index, const int strip) const
+		int32_t CalculateRow(const int32_t index, const int32_t strip) const
 		{
 			return ((index + strip) % 2) + strip;
 		}
-		int CalculateStrip(const int index) const
+		int32_t CalculateStrip(const int32_t index) const
 		{
 			return (index - 1) / (int(VERTICES) * 2 - 1);
 		}

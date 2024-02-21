@@ -20,7 +20,7 @@ namespace Isonia::Renderable::XZUniformN::Grass
 {
 	static constexpr const float GRASS_DENSITY = 4.0f;
 	static constexpr const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0f * 2.0f);
-	static constexpr const uint32_t GRASS_COUNT_SIDE = GRASS_DENSITY * QUADS;
+	static constexpr const uint32_t GRASS_COUNT_SIDE = static_cast<uint32_t>(GRASS_DENSITY * static_cast<float>(QUADS));
 	static constexpr const uint32_t GRASS_COUNT = GRASS_COUNT_SIDE * GRASS_COUNT_SIDE;
 
 	struct Builder

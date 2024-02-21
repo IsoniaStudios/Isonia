@@ -11,7 +11,7 @@ namespace Isonia::Noise
     class Noise
     {
     public:
-        Noise(const int seed) : seed(seed)
+        Noise(const int32_t seed) : seed(seed)
         {
         }
 
@@ -20,6 +20,6 @@ namespace Isonia::Noise
         virtual inline float GenerateNoise(float x, float y, float z, float t) const = 0;
 
     protected:
-        const int seed;
+        const int32_t seed;
     };
 }

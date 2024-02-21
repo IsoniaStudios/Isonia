@@ -69,8 +69,8 @@ namespace Isonia
 	class Isonia
 	{
 	public:
-		static constexpr const int WIDTH = 1024;
-		static constexpr const int HEIGHT = 576;
+		static constexpr const uint32_t WIDTH = 1024;
+		static constexpr const uint32_t HEIGHT = 576;
 		static constexpr const char* NAME = "Isonia";
 
 		Isonia()

@@ -8,7 +8,7 @@ namespace Isonia::Noise
     class WhiteNoise : public Noise
     {
     public:
-        WhiteNoise(const int seed = 1) : Noise(seed),
+        WhiteNoise(const int32_t seed = 1) : Noise(seed),
             xConstant(static_cast<float>(seed) + 12.9898f),
             yConstant(static_cast<float>(seed) + 78.2332f),
             zConstant(static_cast<float>(seed) + 53.5395f),

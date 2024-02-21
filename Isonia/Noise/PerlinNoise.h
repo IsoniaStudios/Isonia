@@ -82,15 +82,15 @@ namespace Isonia::Noise
         0, 1, 1, 0,  0,-1, 1, 0, -1, 1, 0, 0,  0,-1,-1, 0,
     };
 
-    static constexpr const inline int PrimeX = 501125321;
-    static constexpr const inline int PrimeY = 1136930381;
-    static constexpr const inline int PrimeZ = 1720413743;
-    static constexpr const inline int PrimeT = 2527031053;
+    static constexpr const inline int32_t PrimeX = 501125321;
+    static constexpr const inline int32_t PrimeY = 1136930381;
+    static constexpr const inline int32_t PrimeZ = 1338452629;
+    static constexpr const inline int32_t PrimeT = 1720413743;
 
 	class PerlinNoise : public Noise
 	{
 	public:
-        PerlinNoise(const int seed) : Noise(seed)
+        PerlinNoise(const int32_t seed) : Noise(seed)
         {
         }
 
@@ -110,10 +110,10 @@ namespace Isonia::Noise
         }
 
 	protected:
-        static const inline float GeneratePerlinNoise(const int seed, const float x, const float y)
+        static const inline float GeneratePerlinNoise(const int32_t seed, const float x, const float y)
         {
-            int x0 = IMath::FloorToInt(x);
-            int y0 = IMath::FloorToInt(y);
+            int32_t x0 = IMath::FloorToInt(x);
+            int32_t y0 = IMath::FloorToInt(y);
 
             float xd0 = (float)(x - x0);
             float yd0 = (float)(y - y0);
@@ -125,8 +125,8 @@ namespace Isonia::Noise
 
             x0 *= PrimeX;
             y0 *= PrimeY;
-            int x1 = x0 + PrimeX;
-            int y1 = y0 + PrimeY;
+            int32_t x1 = x0 + PrimeX;
+            int32_t y1 = y0 + PrimeY;
 
             float xf0 = IMath::Lerp(GradCoord(seed, x0, y0, xd0, yd0),
                                     GradCoord(seed, x1, y0, xd1, yd0), xs);
@@ -136,11 +136,11 @@ namespace Isonia::Noise
             return IMath::Lerp(xf0, xf1, ys) * 1.4247691104677813f;
         }
 
-        static const inline float GeneratePerlinNoise(const int seed, const float x, const float y, const float z)
+        static const inline float GeneratePerlinNoise(const int32_t seed, const float x, const float y, const float z)
         {
-            int x0 = IMath::FloorToInt(x);
-            int y0 = IMath::FloorToInt(y);
-            int z0 = IMath::FloorToInt(z);
+            int32_t x0 = IMath::FloorToInt(x);
+            int32_t y0 = IMath::FloorToInt(y);
+            int32_t z0 = IMath::FloorToInt(z);
 
             float xd0 = (float)(x - x0);
             float yd0 = (float)(y - y0);
@@ -156,9 +156,9 @@ namespace Isonia::Noise
             x0 *= PrimeX;
             y0 *= PrimeY;
             z0 *= PrimeZ;
-            int x1 = x0 + PrimeX;
-            int y1 = y0 + PrimeY;
-            int z1 = z0 + PrimeZ;
+            int32_t x1 = x0 + PrimeX;
+            int32_t y1 = y0 + PrimeY;
+            int32_t z1 = z0 + PrimeZ;
 
             float xf00 = IMath::Lerp(GradCoord(seed, x0, y0, z0, xd0, yd0, zd0),
                                      GradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
@@ -175,12 +175,12 @@ namespace Isonia::Noise
             return IMath::Lerp(yf0, yf1, zs) * 0.964921414852142333984375f;
         }
 
-        static const inline float GeneratePerlinNoise(const int seed, const float x, const float y, const float z, const float t)
+        static const inline float GeneratePerlinNoise(const int32_t seed, const float x, const float y, const float z, const float t)
         {
-            int x0 = IMath::FloorToInt(x);
-            int y0 = IMath::FloorToInt(y);
-            int z0 = IMath::FloorToInt(z);
-            int t0 = IMath::FloorToInt(t);
+            int32_t x0 = IMath::FloorToInt(x);
+            int32_t y0 = IMath::FloorToInt(y);
+            int32_t z0 = IMath::FloorToInt(z);
+            int32_t t0 = IMath::FloorToInt(t);
 
             float xd0 = (float)(x - x0);
             float yd0 = (float)(y - y0);
@@ -200,10 +200,10 @@ namespace Isonia::Noise
             y0 *= PrimeY;
             z0 *= PrimeZ;
             t0 *= PrimeT;
-            int x1 = x0 + PrimeX;
-            int y1 = y0 + PrimeY;
-            int z1 = z0 + PrimeZ;
-            int t1 = t0 + PrimeT;
+            int32_t x1 = x0 + PrimeX;
+            int32_t y1 = y0 + PrimeY;
+            int32_t z1 = z0 + PrimeZ;
+            int32_t t1 = t0 + PrimeT;
 
             float xf000 = IMath::Lerp(GradCoord(seed, x0, y0, z0, t0, xd0, yd0, zd0, td0),
                                       GradCoord(seed, x1, y0, z0, t0, xd1, yd0, zd0, td0), xs);
@@ -233,60 +233,60 @@ namespace Isonia::Noise
             return IMath::Lerp(zf0, zf1, ts) * 0.964921414852142333984375f;
         }
 
-        static const inline int Hash(const int seed, const int xPrimed, const int yPrimed)
+        static const inline int32_t Hash(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed)
         {
-            int hash = seed ^ xPrimed ^ yPrimed;
+            int32_t hash = seed ^ xPrimed ^ yPrimed;
 
             hash *= 0x27d4eb2d;
             return hash;
         }
 
-        static const inline int Hash(const int seed, const int xPrimed, const int yPrimed, const int zPrimed)
+        static const inline int32_t Hash(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const int32_t zPrimed)
         {
-            int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
+            int32_t hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
             hash *= 0x27d4eb2d;
             return hash;
         }
 
-        static const inline int Hash(const int seed, const int xPrimed, const int yPrimed, const int zPrimed, const int tPrimed)
+        static const inline int32_t Hash(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const int32_t zPrimed, const int32_t tPrimed)
         {
-            int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed ^ tPrimed;
+            int32_t hash = seed ^ xPrimed ^ yPrimed ^ zPrimed ^ tPrimed;
 
             hash *= 0x27d4eb2d;
             return hash;
         }
 
-        static const inline float ValCoord(const int seed, const int xPrimed, const int yPrimed)
+        static const inline float ValCoord(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed)
         {
-            int hash = Hash(seed, xPrimed, yPrimed);
+            int32_t hash = Hash(seed, xPrimed, yPrimed);
 
             hash *= hash;
             hash ^= hash << 19;
             return hash * (1 / 2147483648.0f);
         }
 
-        static const inline float ValCoord(const int seed, const int xPrimed, const int yPrimed, const int zPrimed)
+        static const inline float ValCoord(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const int32_t zPrimed)
         {
-            int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+            int32_t hash = Hash(seed, xPrimed, yPrimed, zPrimed);
 
             hash *= hash;
             hash ^= hash << 19;
             return hash * (1 / 2147483648.0f);
         }
 
-        static const inline float ValCoord(const int seed, const int xPrimed, const int yPrimed, const int zPrimed, const int tPrimed)
+        static const inline float ValCoord(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const int32_t zPrimed, const int32_t tPrimed)
         {
-            int hash = Hash(seed, xPrimed, yPrimed, zPrimed, tPrimed);
+            int32_t hash = Hash(seed, xPrimed, yPrimed, zPrimed, tPrimed);
 
             hash *= hash;
             hash ^= hash << 19;
             return hash * (1 / 2147483648.0f);
         }
 
-        static const inline float GradCoord(const int seed, const int xPrimed, const int yPrimed, const float xd, const float yd)
+        static const inline float GradCoord(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const float xd, const float yd)
         {
-            int hash = Hash(seed, xPrimed, yPrimed);
+            int32_t hash = Hash(seed, xPrimed, yPrimed);
             hash ^= hash >> 15;
             hash &= 127 << 1;
 
@@ -296,9 +296,9 @@ namespace Isonia::Noise
             return xd * xg + yd * yg;
         }
 
-        static const inline float GradCoord(const int seed, const int xPrimed, const int yPrimed, const int zPrimed, const float xd, const float yd, const float zd)
+        static const inline float GradCoord(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const int32_t zPrimed, const float xd, const float yd, const float zd)
         {
-            int hash = Hash(seed, xPrimed, yPrimed, zPrimed);
+            int32_t hash = Hash(seed, xPrimed, yPrimed, zPrimed);
             hash ^= hash >> 15;
             hash &= 63 << 2;
 
@@ -309,9 +309,9 @@ namespace Isonia::Noise
             return xd * xg + yd * yg + zd * zg;
         }
 
-        static const inline float GradCoord(const int seed, const int xPrimed, const int yPrimed, const int zPrimed, const int tPrimed, const float xd, const float yd, const float zd, const float td)
+        static const inline float GradCoord(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed, const int32_t zPrimed, const int32_t tPrimed, const float xd, const float yd, const float zd, const float td)
         {
-            int hash = Hash(seed, xPrimed, yPrimed, zPrimed, tPrimed);
+            int32_t hash = Hash(seed, xPrimed, yPrimed, zPrimed, tPrimed);
             hash ^= hash >> 15;
             hash &= 31 << 2;
 

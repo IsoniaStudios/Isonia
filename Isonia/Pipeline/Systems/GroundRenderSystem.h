@@ -103,8 +103,8 @@ namespace Isonia::Pipeline::Systems
 
 		Renderable::XZUniformN::Builder* MapWorldToGround(const float world_x, const float world_z) const
 		{
-			uint32_t i_x = world_x / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + GROUNDS / 2;
-			uint32_t i_z = world_z / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + GROUNDS / 2;
+			uint32_t i_x = static_cast<uint32_t>(world_x / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + GROUNDS / 2);
+			uint32_t i_z = static_cast<uint32_t>(world_z / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + GROUNDS / 2);
 			return &grounds[i_x * GROUNDS + i_z];
 		}
 

@@ -8,8 +8,8 @@ namespace Isonia::Noise
 	class FractalPerlinNoise : public PerlinNoise
 	{
 	public:
-        FractalPerlinNoise(const int seed,
-                           const int octaves, const float lacunarity, const float gain, const float weightedStrength) :
+        FractalPerlinNoise(const int32_t seed,
+                           const uint32_t octaves, const float lacunarity, const float gain, const float weightedStrength) :
                            PerlinNoise(seed),
                            octaves(octaves), lacunarity(lacunarity), gain(gain), weightedStrength(weightedStrength), fractalBounding(CalculateFractalBounding())
         {
@@ -31,7 +31,7 @@ namespace Isonia::Noise
         }
 
 	protected:
-        const int octaves;
+        const uint32_t octaves;
         const float lacunarity;
         const float gain;
         const float weightedStrength;
@@ -52,11 +52,11 @@ namespace Isonia::Noise
 
         const inline float GenerateFractalPerlinNoise(float x, float y) const
         {
-            int seed = this->seed;
+            int32_t seed = this->seed;
             float sum = 0;
             float amp = fractalBounding;
 
-            for (int i = 0; i < octaves; i++)
+            for (uint32_t i = 0; i < octaves; i++)
             {
                 float noise = GeneratePerlinNoise(seed++, x, y);
                 sum += noise * amp;
@@ -72,11 +72,11 @@ namespace Isonia::Noise
 
         const inline float GenerateFractalPerlinNoise(float x, float y, float z) const
         {
-            int seed = this->seed;
+            int32_t seed = this->seed;
             float sum = 0;
             float amp = fractalBounding;
 
-            for (int i = 0; i < octaves; i++)
+            for (uint32_t i = 0; i < octaves; i++)
             {
                 float noise = GeneratePerlinNoise(seed++, x, y, z);
                 sum += noise * amp;
@@ -93,11 +93,11 @@ namespace Isonia::Noise
 
         const inline float GenerateFractalPerlinNoise(float x, float y, float z, float t) const
         {
-            int seed = this->seed;
+            int32_t seed = this->seed;
             float sum = 0;
             float amp = fractalBounding;
 
-            for (int i = 0; i < octaves; i++)
+            for (uint32_t i = 0; i < octaves; i++)
             {
                 float noise = GeneratePerlinNoise(seed++, x, y, z, t);
                 sum += noise * amp;

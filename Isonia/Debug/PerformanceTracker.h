@@ -36,7 +36,7 @@ namespace Isonia::Debug
         }
 
     private:
-        int frameCount = 0;
+        uint32_t frameCount = 0;
         float totalFrameTime = 0.0f;
         float averageFrameTime = 0.0f;
         float highestFrameTime = 0.0f;

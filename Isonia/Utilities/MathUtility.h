@@ -36,14 +36,14 @@ namespace Isonia::Utilities::Math
 
     static inline int32_t GetCeiledEvenNumber(float number)
     {
-        int ceiledNumber = CeilToInt(number);
+        int32_t ceiledNumber = CeilToInt(number);
         if (ceiledNumber % 2 != 0) // Check if the number is odd
             ceiledNumber++;        // Increment by 1 to make it even
         return ceiledNumber;
     }
     static inline int32_t GetCeiledOddNumber(float number)
     {
-        int ceiledNumber = CeilToInt(number);
+        int32_t ceiledNumber = CeilToInt(number);
         if (ceiledNumber % 2 == 0) // Check if the number is even
             ceiledNumber++;        // Increment by 1 to make it odd
         return ceiledNumber;

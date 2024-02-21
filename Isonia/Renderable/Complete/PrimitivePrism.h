@@ -30,7 +30,7 @@ namespace Isonia::Renderable::Complete
 			// Add vertices for the side faces
 			for (uint32_t i = 0; i < numSides; i++)
 			{
-				const int nextIndex = (i + 1) % numSides;
+				const uint32_t nextIndex = (i + 1) % numSides;
 				
 				Vertex v1 = { verticesTop[i] };
 				Vertex v2 = { verticesTop[nextIndex] };
