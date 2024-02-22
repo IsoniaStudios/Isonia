@@ -39,36 +39,45 @@ namespace Isonia::Pipeline
 
 		~PixelSwapChain()
 		{
-			for (auto imageView : swapChainImageViews)
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				vkDestroyImageView(device.GetDevice(), imageView, nullptr);
+				vkDestroyImageView(device.GetDevice(), swapChainImageViews[i], nullptr);
 			}
-			swapChainImageViews.clear();
+			delete[] swapChainImageViews;
 
 			if (swapChain != nullptr)
 			{
+				// the same as vkDestroyImage(device.GetDevice(), swapChainImages[i], nullptr);
 				vkDestroySwapchainKHR(device.GetDevice(), swapChain, nullptr);
 				swapChain = nullptr;
+				delete[] swapChainImages;
 			}
 
-			for (int i = 0; i < colorImages.size(); i++)
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
 				vkDestroyImageView(device.GetDevice(), colorImageViews[i], nullptr);
 				vkDestroyImage(device.GetDevice(), colorImages[i], nullptr);
 				vkFreeMemory(device.GetDevice(), colorImageMemorys[i], nullptr);
 			}
+			delete[] colorImageViews;
+			delete[] colorImages;
+			delete[] colorImageMemorys;
 
-			for (int i = 0; i < depthImages.size(); i++)
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
 				vkDestroyImageView(device.GetDevice(), depthImageViews[i], nullptr);
 				vkDestroyImage(device.GetDevice(), depthImages[i], nullptr);
 				vkFreeMemory(device.GetDevice(), depthImageMemorys[i], nullptr);
 			}
+			delete[] depthImageViews;
+			delete[] depthImages;
+			delete[] depthImageMemorys;
 
-			for (auto framebuffer : swapChainFramebuffers)
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				vkDestroyFramebuffer(device.GetDevice(), framebuffer, nullptr);
+				vkDestroyFramebuffer(device.GetDevice(), swapChainFramebuffers[i], nullptr);
 			}
+			delete[] swapChainFramebuffers;
 
 			vkDestroyRenderPass(device.GetDevice(), renderPass, nullptr);
 
@@ -95,7 +104,7 @@ namespace Isonia::Pipeline
 		VkFramebuffer GetFrameBuffer(int index) const { return swapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() const { return renderPass; }
 		VkImageView GetImageView(int index) const { return swapChainImageViews[index]; }
-		uint32_t ImageCount() const { return static_cast<uint32_t>(swapChainImages.size()); }
+		uint32_t ImageCount() const { return imageCount; }
 		VkFormat GetPixelSwapChainImageFormat() const { return swapChainImageFormat; }
 		VkExtent2D GetPixelSwapChainExtent() const { return swapChainExtent; }
 		VkExtent2D GetRenderExtent() const { return renderExtent; }
@@ -214,7 +223,7 @@ namespace Isonia::Pipeline
 			VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
 			VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
 
-			uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+			imageCount = swapChainSupport.capabilities.minImageCount + 1;
 			if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
 			{
 				imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -265,8 +274,8 @@ namespace Isonia::Pipeline
 			// images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 			// retrieve the handles.
 			vkGetSwapchainImagesKHR(device.GetDevice(), swapChain, &imageCount, nullptr);
-			swapChainImages.resize(imageCount);
-			vkGetSwapchainImagesKHR(device.GetDevice(), swapChain, &imageCount, swapChainImages.data());
+			swapChainImages = new VkImage[imageCount];
+			vkGetSwapchainImagesKHR(device.GetDevice(), swapChain, &imageCount, swapChainImages);
 
 			swapChainImageFormat = surfaceFormat.format;
 			swapChainExtent = extent;
@@ -274,8 +283,8 @@ namespace Isonia::Pipeline
 
 		void CreateImageViews()
 		{
-			swapChainImageViews.resize(swapChainImages.size());
-			for (size_t i = 0; i < swapChainImages.size(); i++)
+			swapChainImageViews = new VkImageView[imageCount];
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
 				VkImageViewCreateInfo viewInfo{};
 				viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -339,7 +348,7 @@ namespace Isonia::Pipeline
 			dependency.srcAccessMask = 0;
 			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
-			VkAttachmentDescription attachments[attachmentsLength] = {colorAttachment, depthAttachment};
+			VkAttachmentDescription attachments[attachmentsLength] = { colorAttachment, depthAttachment };
 			VkRenderPassCreateInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 			renderPassInfo.attachmentCount = attachmentsLength;
@@ -357,19 +366,19 @@ namespace Isonia::Pipeline
 
 		void CreateFramebuffers()
 		{
-			swapChainFramebuffers.resize(ImageCount());
-			for (uint32_t i = 0; i < ImageCount(); i++)
+			swapChainFramebuffers = new VkFramebuffer[imageCount];
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
 				VkImageView attachments[attachmentsLength] = { swapChainImageViews[i], depthImageViews[i] };
+				//VkImageView attachments[attachmentsLength] = { colorImageViews[i], depthImageViews[i] };
 
-				VkExtent2D swapChainExtent = GetPixelSwapChainExtent();
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 				framebufferInfo.renderPass = renderPass;
 				framebufferInfo.attachmentCount = attachmentsLength;
 				framebufferInfo.pAttachments = attachments;
-				framebufferInfo.width = swapChainExtent.width;
-				framebufferInfo.height = swapChainExtent.height;
+				framebufferInfo.width = Width();
+				framebufferInfo.height = Height();
 				framebufferInfo.layers = 1;
 
 				if (vkCreateFramebuffer(device.GetDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
@@ -381,14 +390,13 @@ namespace Isonia::Pipeline
 
 		void CreateColorResources()
 		{
-			VkFormat colorFormat = GetPixelSwapChainImageFormat();
-			swapChainColorFormat = colorFormat;
+			swapChainColorFormat = GetPixelSwapChainImageFormat();
 
-			colorImages.resize(ImageCount());
-			colorImageMemorys.resize(ImageCount());
-			colorImageViews.resize(ImageCount());
+			colorImages = new VkImage[imageCount];
+			colorImageMemorys = new VkDeviceMemory[imageCount];
+			colorImageViews = new VkImageView[imageCount];
 
-			for (int i = 0; i < colorImages.size(); i++)
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
 				VkImageCreateInfo imageInfo{};
 				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -398,7 +406,7 @@ namespace Isonia::Pipeline
 				imageInfo.extent.depth = 1;
 				imageInfo.mipLevels = 1;
 				imageInfo.arrayLayers = 1;
-				imageInfo.format = colorFormat;
+				imageInfo.format = swapChainColorFormat;
 				imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 				imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
@@ -417,7 +425,7 @@ namespace Isonia::Pipeline
 				viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 				viewInfo.image = colorImages[i];
 				viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-				viewInfo.format = colorFormat;
+				viewInfo.format = swapChainColorFormat;
 				viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 				viewInfo.subresourceRange.baseMipLevel = 0;
 				viewInfo.subresourceRange.levelCount = 1;
@@ -433,14 +441,13 @@ namespace Isonia::Pipeline
 
 		void CreateDepthResources()
 		{
-			VkFormat depthFormat = FindDepthFormat();
-			swapChainDepthFormat = depthFormat;
+			swapChainDepthFormat = FindDepthFormat();
 
-			depthImages.resize(ImageCount());
-			depthImageMemorys.resize(ImageCount());
-			depthImageViews.resize(ImageCount());
+			depthImages = new VkImage[imageCount];
+			depthImageMemorys = new VkDeviceMemory[imageCount];
+			depthImageViews = new VkImageView[imageCount];
 
-			for (int i = 0; i < depthImages.size(); i++)
+			for (uint32_t i = 0; i < imageCount; i++)
 			{
 				VkImageCreateInfo imageInfo{};
 				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -450,7 +457,7 @@ namespace Isonia::Pipeline
 				imageInfo.extent.depth = 1;
 				imageInfo.mipLevels = 1;
 				imageInfo.arrayLayers = 1;
-				imageInfo.format = depthFormat;
+				imageInfo.format = swapChainDepthFormat;
 				imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 				imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				imageInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
@@ -469,7 +476,7 @@ namespace Isonia::Pipeline
 				viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 				viewInfo.image = depthImages[i];
 				viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-				viewInfo.format = depthFormat;
+				viewInfo.format = swapChainDepthFormat;
 				viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 				viewInfo.subresourceRange.baseMipLevel = 0;
 				viewInfo.subresourceRange.levelCount = 1;
@@ -485,7 +492,11 @@ namespace Isonia::Pipeline
 
 		void CreateSyncObjects()
 		{
-			imagesInFlight.resize(ImageCount(), VK_NULL_HANDLE);
+			imagesInFlight = new VkFence[imageCount];
+			for (uint32_t i = 0; i < imageCount; i++)
+			{
+				imagesInFlight[i] = VK_NULL_HANDLE;
+			}
 
 			VkSemaphoreCreateInfo semaphoreInfo = {};
 			semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -556,22 +567,25 @@ namespace Isonia::Pipeline
 
 		static constexpr const uint32_t attachmentsLength = 2;
 
+		uint32_t imageCount;
+
 		VkFormat swapChainImageFormat;
 		VkFormat swapChainColorFormat;
 		VkFormat swapChainDepthFormat;
 		VkExtent2D swapChainExtent;
 
-		std::vector<VkFramebuffer> swapChainFramebuffers;
 		VkRenderPass renderPass;
 
-		std::vector<VkImage> depthImages;
-		std::vector<VkDeviceMemory> depthImageMemorys;
-		std::vector<VkImageView> depthImageViews;
-		std::vector<VkImage> colorImages;
-		std::vector<VkDeviceMemory> colorImageMemorys;
-		std::vector<VkImageView> colorImageViews;
-		std::vector<VkImage> swapChainImages;
-		std::vector<VkImageView> swapChainImageViews;
+		VkFence* imagesInFlight;
+		VkImage* depthImages;
+		VkDeviceMemory* depthImageMemorys;
+		VkImageView* depthImageViews;
+		VkImage* colorImages;
+		VkDeviceMemory* colorImageMemorys;
+		VkImageView* colorImageViews;
+		VkImage* swapChainImages;
+		VkFramebuffer* swapChainFramebuffers;
+		VkImageView* swapChainImageViews;
 
 		Device& device;
 		VkExtent2D windowExtent;
@@ -583,7 +597,6 @@ namespace Isonia::Pipeline
 		VkSemaphore imageAvailableSemaphores[MAX_FRAMES_IN_FLIGHT];
 		VkSemaphore renderFinishedSemaphores[MAX_FRAMES_IN_FLIGHT];
 		VkFence inFlightFences[MAX_FRAMES_IN_FLIGHT];
-		std::vector<VkFence> imagesInFlight;
 		uint32_t currentFrame = 0;
 	};
 }
