@@ -103,7 +103,7 @@ namespace Isonia::Pipeline
 
 		VkFramebuffer GetFrameBuffer(int index) const { return swapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() const { return renderPass; }
-		VkImageView GetImageView(int index) const { return swapChainImageViews[index]; }
+		VkImageView GetImageView(int index) const { return colorImageViews[index]; }
 		uint32_t ImageCount() const { return imageCount; }
 		VkFormat GetPixelSwapChainImageFormat() const { return swapChainImageFormat; }
 		VkExtent2D GetPixelSwapChainExtent() const { return swapChainExtent; }
@@ -369,8 +369,8 @@ namespace Isonia::Pipeline
 			swapChainFramebuffers = new VkFramebuffer[imageCount];
 			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				VkImageView attachments[attachmentsLength] = { swapChainImageViews[i], depthImageViews[i] };
-				//VkImageView attachments[attachmentsLength] = { colorImageViews[i], depthImageViews[i] };
+				//VkImageView attachments[attachmentsLength] = { swapChainImageViews[i], depthImageViews[i] };
+				VkImageView attachments[attachmentsLength] = { colorImageViews[i], depthImageViews[i] };
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
