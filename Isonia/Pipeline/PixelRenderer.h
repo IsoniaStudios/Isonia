@@ -166,6 +166,79 @@ namespace Isonia::Pipeline
 			vkCmdEndRenderPass(commandBuffer);
 		}
 
+		void Blit(VkCommandBuffer commandBuffer)
+		{
+			// The common subresource thingies (they must match!)
+			VkImageSubresourceRange subresource_range;
+			subresource_range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			subresource_range.baseMipLevel = 0;
+			subresource_range.levelCount = 1;
+			subresource_range.baseArrayLayer = 0;
+			subresource_range.layerCount = 1;
+
+			VkImageSubresourceLayers subresource;
+			subresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			subresource.mipLevel = 0;
+			subresource.baseArrayLayer = 0;
+			subresource.layerCount = 1;
+
+			// Transfer the swapchain image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+			VkImageMemoryBarrier clear_barrier;
+			clear_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			clear_barrier.pNext = nullptr;
+			clear_barrier.srcAccessMask = 0;
+			clear_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			clear_barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			clear_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			clear_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			clear_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			clear_barrier.image = pixelSwapChain->GetSwapChainImage(currentImageIndex);
+			clear_barrier.subresourceRange = subresource_range;
+
+			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clear_barrier);
+
+			// Transfer the pixel image to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, so we can blit from it to the swapchain
+			VkImageMemoryBarrier blit_barrier;
+			blit_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			blit_barrier.pNext = nullptr;
+			blit_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			blit_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			blit_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			blit_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			blit_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			blit_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			blit_barrier.image = pixelSwapChain->GetImage(currentImageIndex);
+			blit_barrier.subresourceRange = subresource_range;
+
+			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &blit_barrier);
+
+			// Blit the image to the swapchain image
+			VkImageBlit image_blit;
+			image_blit.srcSubresource = subresource;
+			image_blit.srcOffsets[0] = { };
+			image_blit.srcOffsets[1] = { static_cast<int32_t>(pixelSwapChain->RenderWidth()), static_cast<int32_t>(pixelSwapChain->RenderHeight()), 1 };
+			image_blit.dstSubresource = subresource;
+			image_blit.dstOffsets[0] = { };
+			image_blit.dstOffsets[1] = { static_cast<int32_t>(pixelSwapChain->SwapChainWidth()), static_cast<int32_t>(pixelSwapChain->SwapChainHeight()), 1 };
+
+			vkCmdBlitImage(commandBuffer, pixelSwapChain->GetImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pixelSwapChain->GetSwapChainImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &image_blit, VK_FILTER_NEAREST);
+
+			// Transfer to the presentation layout
+			VkImageMemoryBarrier present_barrier;
+			present_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			present_barrier.pNext = nullptr;
+			present_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			present_barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+			present_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			present_barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			present_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			present_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			present_barrier.image = pixelSwapChain->GetSwapChainImage(currentImageIndex);
+			present_barrier.subresourceRange = subresource_range;
+
+			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &present_barrier);
+		}
+
 	protected:
 		void CreateCommandBuffers()
 		{

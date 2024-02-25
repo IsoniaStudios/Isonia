@@ -101,19 +101,26 @@ namespace Isonia::Pipeline
 		PixelSwapChain(const PixelSwapChain&) = delete;
 		PixelSwapChain& operator=(const PixelSwapChain&) = delete;
 
+		VkImage GetSwapChainImage(int index) const { return swapChainImages[index]; }
+		VkImage GetImage(int index) const { return colorImages[index]; }
+
 		VkFramebuffer GetFrameBuffer(int index) const { return swapChainFramebuffers[index]; }
 		VkRenderPass GetRenderPass() const { return renderPass; }
 		VkImageView GetImageView(int index) const { return colorImageViews[index]; }
 		uint32_t ImageCount() const { return imageCount; }
+		
 		VkFormat GetPixelSwapChainImageFormat() const { return swapChainImageFormat; }
 		VkExtent2D GetPixelSwapChainExtent() const { return swapChainExtent; }
+		uint32_t SwapChainWidth() const { return swapChainExtent.width; }
+		uint32_t SwapChainHeight() const { return swapChainExtent.height; }
+
 		VkExtent2D GetRenderExtent() const { return renderExtent; }
-		uint32_t Width() const { return renderExtent.width; }
-		uint32_t Height() const { return renderExtent.height; }
+		uint32_t RenderWidth() const { return renderExtent.width; }
+		uint32_t RenderHeight() const { return renderExtent.height; }
 
 		float ExtentAspectRatio() const
 		{
-			return static_cast<float>(Width()) / static_cast<float>(Height());
+			return static_cast<float>(RenderWidth()) / static_cast<float>(RenderHeight());
 		}
 
 		VkFormat FindDepthFormat()
@@ -238,7 +245,7 @@ namespace Isonia::Pipeline
 			createInfo.imageColorSpace = surfaceFormat.colorSpace;
 			createInfo.imageExtent = extent;
 			createInfo.imageArrayLayers = 1;
-			createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 			QueueFamilyIndices indices = device.FindPhysicalQueueFamilies();
 			uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
@@ -328,7 +335,7 @@ namespace Isonia::Pipeline
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
 			VkAttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
@@ -377,8 +384,8 @@ namespace Isonia::Pipeline
 				framebufferInfo.renderPass = renderPass;
 				framebufferInfo.attachmentCount = attachmentsLength;
 				framebufferInfo.pAttachments = attachments;
-				framebufferInfo.width = Width();
-				framebufferInfo.height = Height();
+				framebufferInfo.width = RenderWidth();
+				framebufferInfo.height = RenderHeight();
 				framebufferInfo.layers = 1;
 
 				if (vkCreateFramebuffer(device.GetDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
@@ -401,8 +408,8 @@ namespace Isonia::Pipeline
 				VkImageCreateInfo imageInfo{};
 				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 				imageInfo.imageType = VK_IMAGE_TYPE_2D;
-				imageInfo.extent.width = Width();
-				imageInfo.extent.height = Height();
+				imageInfo.extent.width = RenderWidth();
+				imageInfo.extent.height = RenderHeight();
 				imageInfo.extent.depth = 1;
 				imageInfo.mipLevels = 1;
 				imageInfo.arrayLayers = 1;
@@ -452,8 +459,8 @@ namespace Isonia::Pipeline
 				VkImageCreateInfo imageInfo{};
 				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 				imageInfo.imageType = VK_IMAGE_TYPE_2D;
-				imageInfo.extent.width = Width();
-				imageInfo.extent.height = Height();
+				imageInfo.extent.width = RenderWidth();
+				imageInfo.extent.height = RenderHeight();
 				imageInfo.extent.depth = 1;
 				imageInfo.mipLevels = 1;
 				imageInfo.arrayLayers = 1;
