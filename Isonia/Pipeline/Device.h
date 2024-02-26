@@ -211,7 +211,8 @@ namespace Isonia::Pipeline
 					barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
 				}
 			}
-			else {
+			else
+			{
 				barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			}
 
@@ -260,7 +261,7 @@ namespace Isonia::Pipeline
 			}
 			else
 			{
-				throw std::invalid_argument("unsupported layout transition!");
+				throw std::invalid_argument("Unsupported layout transition!");
 			}
 
 			vkCmdPipelineBarrier(
