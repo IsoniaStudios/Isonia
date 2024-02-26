@@ -75,7 +75,7 @@ namespace Isonia::Controllers
 
 		KeyMappings keys{};
 		float sprintSpeed{ 60.f };
-		float moveSpeed{ 0.30f };
+		float moveSpeed{ 30.0f };
 		float lookSpeed{ 1.5f };
 	};
 }

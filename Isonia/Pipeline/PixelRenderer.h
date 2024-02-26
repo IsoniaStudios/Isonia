@@ -204,25 +204,34 @@ namespace Isonia::Pipeline
 
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
 
-			// Convert offset to pixel
-			int32_t offsetX = std::roundf(offset.x * Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * static_cast<float>(Utilities::PixelPerfectUtility::RenderFactor));
-			int32_t offsetY = std::roundf(offset.y * Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * static_cast<float>(Utilities::PixelPerfectUtility::RenderFactor));
+			// Calculate pixel offsets
+			const float scaleFactor = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * static_cast<float>(Utilities::PixelPerfectUtility::RenderFactor);
+			const int32_t offsetX = Utilities::Math::RoundToInt(offset.x * scaleFactor);
+			const int32_t offsetY = Utilities::Math::RoundToInt(offset.y * scaleFactor);
 
-			std::cout << "offsetX: " << offsetX;
-			std::cout << "offsetY: " << offsetY;
+			// Define source and destination offsets for image blit
+			const int32_t halfRenderFactor = static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor * 0.5f);
+			const int32_t srcWidth = static_cast<int32_t>(pixelSwapChain->RenderWidth()) - 1;
+			const int32_t srcHeight = static_cast<int32_t>(pixelSwapChain->RenderHeight()) - 1;
+			const int32_t dstWidth = static_cast<int32_t>(pixelSwapChain->SwapChainWidth() - halfRenderFactor);
+			const int32_t dstHeight = static_cast<int32_t>(pixelSwapChain->SwapChainHeight() - halfRenderFactor);
 
-			// Blit the image to the swapchain image
+			// Create image blit configuration
 			VkImageBlit imageBlit
 			{
 				.srcSubresource = subresource,
-				.srcOffsets = { { 2, 2, 0 }, { static_cast<int32_t>(pixelSwapChain->RenderWidth()) - 2, static_cast<int32_t>(pixelSwapChain->RenderHeight()) - 2, 1 } },
+				.srcOffsets = {
+					{ 0, 0, 0 },
+					{ srcWidth, srcHeight, 1 }
+				},
 				.dstSubresource = subresource,
 				.dstOffsets = {
-					{ static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor) + offsetX, static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor) + offsetY, 0 },
-					{ static_cast<int32_t>(pixelSwapChain->SwapChainWidth() - Utilities::PixelPerfectUtility::RenderFactor) + offsetX, static_cast<int32_t>(pixelSwapChain->SwapChainHeight() - Utilities::PixelPerfectUtility::RenderFactor) + offsetY, 1 }
+					{ halfRenderFactor + offsetX, halfRenderFactor + offsetY, 0 },
+					{ dstWidth + offsetX, dstHeight + offsetY, 1 }
 				}
 			};
 
+			// Blit the image to the swapchain image
 			vkCmdBlitImage(commandBuffer, pixelSwapChain->GetImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pixelSwapChain->GetSwapChainImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
 
 			// Transfer to the presentation layout
@@ -296,12 +305,14 @@ namespace Isonia::Pipeline
 			CalculateResolution(windowExtent, renderWidth, renderHeight);
 
 			// odd number so it snaps as little as posible on camera rotation
-			VkExtent2D renderExtentExtended = {
-				Utilities::Math::GetCeiledOddNumber(renderWidth)  + 2,
-				Utilities::Math::GetCeiledOddNumber(renderHeight) + 2
+			return {
+				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderWidth)),
+				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderHeight))
 			};
-
-			return renderExtentExtended;
+			return {
+				static_cast<uint32_t>(Utilities::Math::GetCeiledOddNumber(renderWidth)) + 2,
+				static_cast<uint32_t>(Utilities::Math::GetCeiledOddNumber(renderHeight))+ 2
+			};
 		}
 
 		void RecreateSwapChain()
