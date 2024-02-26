@@ -286,6 +286,18 @@ namespace Isonia::Pipeline
 
 			swapChainImageFormat = surfaceFormat.format;
 			swapChainExtent = extent;
+
+			// Transition swap chain images to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR because render pipeline expects it
+			for (size_t i = 0; i < imageCount; ++i) {
+				device.TransitionImageLayout(
+					swapChainImages[i],
+					swapChainImageFormat,
+					VK_IMAGE_LAYOUT_UNDEFINED,
+					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+					1,
+					1
+				);
+			}
 		}
 
 		void CreateImageViews()
@@ -335,7 +347,7 @@ namespace Isonia::Pipeline
 			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
 			VkAttachmentReference colorAttachmentRef = {};
 			colorAttachmentRef.attachment = 0;
@@ -376,7 +388,6 @@ namespace Isonia::Pipeline
 			swapChainFramebuffers = new VkFramebuffer[imageCount];
 			for (uint32_t i = 0; i < imageCount; i++)
 			{
-				//VkImageView attachments[attachmentsLength] = { swapChainImageViews[i], depthImageViews[i] };
 				VkImageView attachments[attachmentsLength] = { colorImageViews[i], depthImageViews[i] };
 
 				VkFramebufferCreateInfo framebufferInfo = {};

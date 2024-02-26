@@ -250,10 +250,19 @@ namespace Isonia::Pipeline
 				sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 				destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 			}
+			else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+			{
+				barrier.srcAccessMask = 0;
+				barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+
+				sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+			}
 			else
 			{
 				throw std::invalid_argument("unsupported layout transition!");
 			}
+
 			vkCmdPipelineBarrier(
 				commandBuffer,
 				sourceStage,
