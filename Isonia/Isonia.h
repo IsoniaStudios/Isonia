@@ -176,7 +176,7 @@ namespace Isonia
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					debuggerRenderSystem->Render(frameInfo);
 					renderer.EndSwapChainRenderPass(commandBuffer);
-					renderer.Blit(commandBuffer);
+					renderer.Blit(commandBuffer, player.camera.subPixelOffset);
 					renderer.EndFrame();
 				}
 			}

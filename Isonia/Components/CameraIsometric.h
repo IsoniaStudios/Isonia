@@ -63,6 +63,13 @@ namespace Isonia::Components
 
 			// set view and position
 			SetViewYXZ(position, transform->rotation);
+
+			// from difference get render offset by rotating back
+			glm::vec3 unrotatedDifference = inverseCameraRotation * glm::vec4{ difference, 1.0 };
+
+			// from now on dismiss z
+			subPixelOffset.x = unrotatedDifference.x;
+			subPixelOffset.y = unrotatedDifference.y;
 		}
 
 		void SetProjection(Pipeline::PixelRenderer* renderer) override
@@ -98,6 +105,8 @@ namespace Isonia::Components
 				globalTopLeft.w
 			};
 		}
+
+		glm::vec2 subPixelOffset{};
 
 	private:
 		const float cameraDistance = 500.0f;

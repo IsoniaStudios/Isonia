@@ -5,6 +5,9 @@
 #include "PixelSwapChain.h"
 #include "../Window/Window.h"
 
+#include "../Utilities/MathUtility.h"
+#include "../Utilities/PixelPerfectUtility.h"
+
 // std
 #include <cassert>
 #include <memory>
@@ -12,6 +15,7 @@
 #include <array>
 #include <stdexcept>
 #include <functional>
+#include <limits>
 
 namespace Isonia::Pipeline
 {
@@ -166,7 +170,7 @@ namespace Isonia::Pipeline
 			vkCmdEndRenderPass(commandBuffer);
 		}
 
-		void Blit(VkCommandBuffer commandBuffer)
+		void Blit(VkCommandBuffer commandBuffer, glm::vec2 offset)
 		{
 			// The common subresource thingies
 			VkImageSubresourceRange subresourceRange{
@@ -200,13 +204,23 @@ namespace Isonia::Pipeline
 
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
 
+			// Convert offset to pixel
+			int32_t offsetX = std::roundf(offset.x * Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * static_cast<float>(Utilities::PixelPerfectUtility::RenderFactor));
+			int32_t offsetY = std::roundf(offset.y * Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * static_cast<float>(Utilities::PixelPerfectUtility::RenderFactor));
+
+			std::cout << "offsetX: " << offsetX;
+			std::cout << "offsetY: " << offsetY;
+
 			// Blit the image to the swapchain image
 			VkImageBlit imageBlit
 			{
 				.srcSubresource = subresource,
-				.srcOffsets = { {}, { static_cast<int32_t>(pixelSwapChain->RenderWidth()), static_cast<int32_t>(pixelSwapChain->RenderHeight()), 1 } },
+				.srcOffsets = { { 2, 2, 0 }, { static_cast<int32_t>(pixelSwapChain->RenderWidth()) - 2, static_cast<int32_t>(pixelSwapChain->RenderHeight()) - 2, 1 } },
 				.dstSubresource = subresource,
-				.dstOffsets = { {}, { static_cast<int32_t>(pixelSwapChain->SwapChainWidth()), static_cast<int32_t>(pixelSwapChain->SwapChainHeight()), 1 } }
+				.dstOffsets = {
+					{ static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor) + offsetX, static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor) + offsetY, 0 },
+					{ static_cast<int32_t>(pixelSwapChain->SwapChainWidth() - Utilities::PixelPerfectUtility::RenderFactor) + offsetX, static_cast<int32_t>(pixelSwapChain->SwapChainHeight() - Utilities::PixelPerfectUtility::RenderFactor) + offsetY, 1 }
+				}
 			};
 
 			vkCmdBlitImage(commandBuffer, pixelSwapChain->GetImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pixelSwapChain->GetSwapChainImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
@@ -253,6 +267,43 @@ namespace Isonia::Pipeline
 			);
 		}
 
+		static void CalculateResolution(VkExtent2D windowExtent, float& outWidth, float& outHeight)
+		{
+			static const constexpr float idealPixelDensity = 512.0f * 288.0f;
+
+			float closestIdealPixelDensity = std::numeric_limits<float>::max();
+			for (uint32_t factor = 1; factor <= 8; factor++)
+			{
+				const float width = static_cast<float>(windowExtent.width) / static_cast<float>(factor);
+				const float height = static_cast<float>(windowExtent.height) / static_cast<float>(factor);
+				const float pixelDensity = width * height;
+				const float difference = std::abs(idealPixelDensity - pixelDensity);
+
+				if (difference < std::abs(idealPixelDensity - closestIdealPixelDensity))
+				{
+					closestIdealPixelDensity = pixelDensity;
+					outWidth = width;
+					outHeight = height;
+
+					Utilities::PixelPerfectUtility::RenderFactor = factor;
+				}
+			}
+		}
+
+		static VkExtent2D RecalculateCameraSettings(VkExtent2D windowExtent)
+		{
+			float renderWidth; float renderHeight;
+			CalculateResolution(windowExtent, renderWidth, renderHeight);
+
+			// odd number so it snaps as little as posible on camera rotation
+			VkExtent2D renderExtentExtended = {
+				Utilities::Math::GetCeiledOddNumber(renderWidth)  + 2,
+				Utilities::Math::GetCeiledOddNumber(renderHeight) + 2
+			};
+
+			return renderExtentExtended;
+		}
+
 		void RecreateSwapChain()
 		{
 			auto windowExtent = window.GetExtent();
@@ -263,7 +314,7 @@ namespace Isonia::Pipeline
 			}
 			vkDeviceWaitIdle(device.GetDevice());
 
-			VkExtent2D renderExtent{ 512, 288 };
+			VkExtent2D renderExtent = RecalculateCameraSettings(windowExtent);
 
 			if (pixelSwapChain == nullptr)
 			{

@@ -22,6 +22,8 @@ namespace Isonia::Utilities::PixelPerfectUtility
     static constexpr const float ROTATION_GRID = 30.0f / 16.0f;
     static constexpr const float INVERSE_ROTATION_GRID = 1.0f / ROTATION_GRID;
 
+    static uint32_t RenderFactor = 1u;
+
     static inline glm::vec3 RoundToPixel(const glm::vec3 position)
     {
         return {
