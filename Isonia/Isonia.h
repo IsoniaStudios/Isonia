@@ -172,9 +172,9 @@ namespace Isonia
 					// render
 					renderer.BeginSwapChainRenderPass(commandBuffer);
 					groundRenderSystem->Render(frameInfo);
-					waterRenderSystem->Render(frameInfo, player.camera);
 					simpleRenderSystem->RenderGameObjects(frameInfo);
 					debuggerRenderSystem->Render(frameInfo);
+					waterRenderSystem->Render(frameInfo, player.camera);
 					renderer.EndSwapChainRenderPass(commandBuffer);
 					renderer.Blit(commandBuffer, player.camera.subPixelOffset);
 					renderer.EndFrame();
