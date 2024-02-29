@@ -210,24 +210,24 @@ namespace Isonia::Pipeline
 			const int32_t offsetY = Utilities::Math::RoundToInt(offset.y * scaleFactor);
 
 			// Define source and destination offsets for image blit
-			const int32_t halfRenderFactor = static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor * 0.5f);
-			const int32_t srcWidth = static_cast<int32_t>(pixelSwapChain->RenderWidth()) - 1;
-			const int32_t srcHeight = static_cast<int32_t>(pixelSwapChain->RenderHeight()) - 1;
-			const int32_t dstWidth = static_cast<int32_t>(pixelSwapChain->SwapChainWidth() - halfRenderFactor);
-			const int32_t dstHeight = static_cast<int32_t>(pixelSwapChain->SwapChainHeight() - halfRenderFactor);
+			const int32_t renderFactor = static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor);
+			const int32_t srcWidth = static_cast<int32_t>(pixelSwapChain->RenderWidth());
+			const int32_t srcHeight = static_cast<int32_t>(pixelSwapChain->RenderHeight());
+			const int32_t dstWidth = srcWidth * renderFactor;
+			const int32_t dstHeight = srcHeight * renderFactor;
 
 			// Create image blit configuration
 			VkImageBlit imageBlit
 			{
 				.srcSubresource = subresource,
 				.srcOffsets = {
-					{ 0, 0, 0 },
-					{ srcWidth, srcHeight, 1 }
+					{ 2, 2, 0 },
+					{ srcWidth - 2, srcHeight - 2, 1 }
 				},
 				.dstSubresource = subresource,
 				.dstOffsets = {
-					{ halfRenderFactor + offsetX, halfRenderFactor + offsetY, 0 },
-					{ dstWidth + offsetX, dstHeight + offsetY, 1 }
+					{ renderFactor + offsetX, renderFactor + offsetY, 0 },
+					{ dstWidth - renderFactor * 3 + offsetX, dstHeight - renderFactor * 3 + offsetY, 1 }
 				}
 			};
 
@@ -304,11 +304,12 @@ namespace Isonia::Pipeline
 			float renderWidth; float renderHeight;
 			CalculateResolution(windowExtent, renderWidth, renderHeight);
 
-			// odd number so it snaps as little as posible on camera rotation
+			// extended so we can render sub-pixels
 			return {
-				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderWidth)),
-				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderHeight))
+				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderWidth)) + 2,
+				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderHeight))+ 2
 			};
+			// odd number so it snaps as little as posible on camera rotation extended so we can render sub-pixels
 			return {
 				static_cast<uint32_t>(Utilities::Math::GetCeiledOddNumber(renderWidth)) + 2,
 				static_cast<uint32_t>(Utilities::Math::GetCeiledOddNumber(renderHeight))+ 2

@@ -44,7 +44,7 @@ namespace Isonia::Controllers
 
 			if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
 			{
-				float speedScalar = glfwGetKey(window, keys.sprint) == GLFW_PRESS ? sprintSpeed : moveSpeed;
+				float speedScalar = glfwGetKey(window, keys.walk) == GLFW_PRESS ? walkSpeed : glfwGetKey(window, keys.sprint) == GLFW_PRESS ? sprintSpeed : moveSpeed;
 				transform->position += speedScalar * dt * glm::normalize(moveDir);
 			}
 		}

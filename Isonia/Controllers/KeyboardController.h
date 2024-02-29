@@ -27,6 +27,7 @@ namespace Isonia::Controllers
 			int moveDown = GLFW_KEY_Q;
 
 			int sprint = GLFW_KEY_LEFT_SHIFT;
+			int walk = GLFW_KEY_LEFT_CONTROL;
 
 			int lookLeft = GLFW_KEY_LEFT;
 			int lookRight = GLFW_KEY_RIGHT;
@@ -68,7 +69,7 @@ namespace Isonia::Controllers
 
 			if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
 			{
-				float speedScalar = glfwGetKey(window, keys.sprint) == GLFW_PRESS ? sprintSpeed : moveSpeed;
+				float speedScalar = glfwGetKey(window, keys.walk) == GLFW_PRESS ? walkSpeed : glfwGetKey(window, keys.sprint) == GLFW_PRESS ? sprintSpeed : moveSpeed;
 				transform->position += speedScalar * dt * glm::normalize(moveDir);
 			}
 		}
@@ -76,6 +77,7 @@ namespace Isonia::Controllers
 		KeyMappings keys{};
 		float sprintSpeed{ 60.f };
 		float moveSpeed{ 30.0f };
+		float walkSpeed{ 0.3f };
 		float lookSpeed{ 1.5f };
 	};
 }
