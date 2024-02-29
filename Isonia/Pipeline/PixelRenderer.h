@@ -150,13 +150,14 @@ namespace Isonia::Pipeline
 
 			vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = static_cast<float>(extent.width);
-			viewport.height = static_cast<float>(extent.height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
+			VkViewport viewport{
+				.x = 0.0f,
+				.y = 0.0f,
+				.width = static_cast<float>(extent.width),
+				.height = static_cast<float>(extent.height),
+				.minDepth = 0.0f,
+				.maxDepth = 1.0f
+			};
 			VkRect2D scissor{ offset, extent };
 			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
@@ -234,6 +235,9 @@ namespace Isonia::Pipeline
 			// Blit the image to the swapchain image
 			vkCmdBlitImage(commandBuffer, pixelSwapChain->GetImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pixelSwapChain->GetSwapChainImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
 
+			// "Blit" the remaining renderFactor * 2 border using compute shader bc of hardware limitations of blit
+
+
 			// Transfer to the presentation layout
 			VkImageMemoryBarrier presentBarrier{
 				.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -278,7 +282,7 @@ namespace Isonia::Pipeline
 
 		static void CalculateResolution(VkExtent2D windowExtent, float& outWidth, float& outHeight)
 		{
-			static const constexpr float idealPixelDensity = 512.0f * 288.0f;
+			static const constexpr float idealPixelDensity = 640.0f * 360.0f; //512.0f * 288.0f;
 
 			float closestIdealPixelDensity = std::numeric_limits<float>::max();
 			for (uint32_t factor = 1; factor <= 8; factor++)
