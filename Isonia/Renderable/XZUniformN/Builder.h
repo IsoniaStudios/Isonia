@@ -4,6 +4,7 @@
 #include "Vertex.h"
 #include "../../Noise/Noise.h"
 #include "../../Noise/WarpNoise.h"
+#include "../../Noise/ToNormal.h"
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
@@ -57,6 +58,7 @@ namespace Isonia::Renderable::XZUniformN
 				}
 			}
 
+			/*
 			// calculate normal
 			for (uint32_t z = 0; z < VERTICES; z++)
 			{
@@ -71,6 +73,15 @@ namespace Isonia::Renderable::XZUniformN
 
 					// compute normal
 					normals[z][x] = Utilities::Math::ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
+				}
+			}
+			*/
+			for (uint32_t z = 1; z < SAMPLE - 1; z++)
+			{
+				for (uint32_t x = 1; x < SAMPLE - 1; x++)
+				{
+					// compute normal
+					normals[z - 1][x - 1] = Noise::ComputeSmoothNormalFrom9AndWrap(*sampleAltitudes, SAMPLE, SAMPLE, amplitude, z, x);
 				}
 			}
 

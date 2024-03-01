@@ -73,9 +73,9 @@ namespace Isonia::Utilities::Math
     }
 
     // 
-    glm::vec3 ComputeSmoothNormalFrom4(const glm::vec3& v01,
-                 const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
-                                       const glm::vec3& v21)
+    static inline glm::vec3 ComputeSmoothNormalFrom4(const glm::vec3& v01,
+                               const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
+                                                     const glm::vec3& v21)
     {
         // Calculate flat normal for neighbouring 4 triangles
         glm::vec3 t0 = glm::cross(v01 - v11, v12 - v11);
