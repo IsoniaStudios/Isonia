@@ -123,7 +123,7 @@ namespace Isonia::Pipeline::Systems
 		void Render(State::FrameInfo& frameInfo)
 		{
 			RenderGround(frameInfo);
-			//RenderGrass(frameInfo);
+			RenderGrass(frameInfo);
 		}
 
 	private:

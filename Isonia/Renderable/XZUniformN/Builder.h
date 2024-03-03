@@ -4,7 +4,6 @@
 #include "Vertex.h"
 #include "../../Noise/Noise.h"
 #include "../../Noise/WarpNoise.h"
-#include "../../Noise/ToNormal.h"
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
@@ -58,30 +57,11 @@ namespace Isonia::Renderable::XZUniformN
 				}
 			}
 
-			/*
-			// calculate normal
-			for (uint32_t z = 0; z < VERTICES; z++)
-			{
-				for (uint32_t x = 0; x < VERTICES; x++)
-				{
-					// create the 5 points used in calculating normal
-					const glm::vec3 v10 = { -QUAD_SIZE, sampleAltitudes[z + 0][x + 1],	     0.0f };
-					const glm::vec3 v01 = {		  0.0f,	sampleAltitudes[z + 1][x + 0], -QUAD_SIZE };
-					const glm::vec3 v11 = {		  0.0f,	sampleAltitudes[z + 1][x + 1],	     0.0f };
-					const glm::vec3 v21 = {		  0.0f,	sampleAltitudes[z + 1][x + 2],  QUAD_SIZE };
-					const glm::vec3 v12 = {  QUAD_SIZE, sampleAltitudes[z + 2][x + 1],		 0.0f };
-
-					// compute normal
-					normals[z][x] = Utilities::Math::ComputeSmoothNormalFrom4(v01, v10, v11, v12, v21);
-				}
-			}
-			*/
 			for (uint32_t z = 1; z < SAMPLE - 1; z++)
 			{
 				for (uint32_t x = 1; x < SAMPLE - 1; x++)
 				{
-					// compute normal
-					normals[z - 1][x - 1] = Noise::ComputeSmoothNormalFrom9AndWrap(*sampleAltitudes, SAMPLE, SAMPLE, amplitude, z, x);
+					normals[z - 1][x - 1] = Utilities::Math::ComputeSmoothNormalFrom4(*sampleAltitudes, QUAD_SIZE, QUAD_SIZE, SAMPLE, SAMPLE, z, x);
 				}
 			}
 

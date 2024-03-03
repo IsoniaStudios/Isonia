@@ -42,7 +42,6 @@ void main()
     vec2 cloudShadowMapTexCoord = (cloudShadowXZ + clock.time * windDirection) / 32.0;
     // get the shadow intensity
     float fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
-    fragCloudShadow = 1.0;
 
 	float directionalLight = -dot(fragNormalWorld, ubo.lightDirection);
 	float lightIntensity = max(directionalLight * fragCloudShadow, ubo.ambientLightColor.w);

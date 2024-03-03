@@ -74,8 +74,8 @@ namespace Isonia::Utilities::Math
 
     // 
     static inline glm::vec3 ComputeSmoothNormalFrom4(const glm::vec3& v01,
-                               const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
-                                                     const glm::vec3& v21)
+        const glm::vec3& v10, const glm::vec3& v11, const glm::vec3& v12,
+        const glm::vec3& v21)
     {
         // Calculate flat normal for neighbouring 4 triangles
         glm::vec3 t0 = glm::cross(v01 - v11, v12 - v11);
@@ -88,5 +88,47 @@ namespace Isonia::Utilities::Math
         glm::vec3 smoothNormal = glm::normalize(t0 + t1 + t2 + t3);
 
         return smoothNormal;
+    }
+
+    static inline glm::vec3 ComputeSmoothNormalFrom4(float* heightMap, float dx, float dz, uint32_t width, uint32_t height, uint32_t z, uint32_t x)
+    {
+        const uint32_t middleIndex = z * width + x;
+        const float top = heightMap[middleIndex - width];
+        const float left = heightMap[middleIndex - 1];
+        const float middle = heightMap[middleIndex];
+        const float right = heightMap[middleIndex + 1];
+        const float bottom = heightMap[middleIndex + width];
+        return glm::normalize(
+            glm::vec3{
+                (bottom - middle) + (middle - top),
+                -dx -dz,
+                (right - middle) + (middle - left),
+            }
+        );
+    }
+
+    static inline glm::vec3 ComputeSmoothNormalFrom9(float* heightMap, uint32_t width, uint32_t height, float scale, float level, uint32_t z, uint32_t x)
+    {
+        const uint32_t middleIndex = z * width + x;
+        const float topLeft =     heightMap[middleIndex - 1 - width];
+        const float top =         heightMap[middleIndex - width];
+        const float topRight =    heightMap[middleIndex + 1 - width];
+        const float left =        heightMap[middleIndex - 1];
+        const float right =       heightMap[middleIndex + 1];
+        const float bottomLeft =  heightMap[middleIndex - 1 + width];
+        const float bottom =      heightMap[middleIndex + width];
+        const float bottomRight = heightMap[middleIndex + 1 + width];
+
+        const float dX = topLeft * 3.0 + left * 10.0 + bottomLeft * 3.0 - topRight * 3.0 - right * 10.0 - bottomRight * 3.0;
+        const float dY = topLeft * 3.0 + top * 10.0 + topRight * 3.0 - bottomLeft * 3.0 - bottom * 10.0 - bottomRight * 3.0;
+        const float dZ = 1.0f / scale * (1.0f + pow(2.0f, level));
+
+        const float length = sqrt((dX * dX) + (dY * dY) + dZ * dZ);
+
+        return{
+            ((dX / length) * 0.5f + 0.5f),
+            ((dY / length) * 0.5f - 0.5f),
+            ((dZ / length))
+        };
     }
 }
