@@ -25,14 +25,14 @@ namespace Isonia::Utilities::Math
 
     static inline float Abs(float f) { return f < 0 ? -f : f; }
 
-    static inline float Sqrt(float f) { return sqrtf(f); }
+    static inline float Sqrt(float f) { return std::sqrtf(f); }
 
     // To-Int Generics
-    static inline int32_t CeilToInt(float f) { return f >= 0 ? (int)(f + 0.999999f) : (int)f; }
+    static inline int32_t CeilToInt(float f) { return f >= 0 ? static_cast<int32_t>(f + 0.999999f) : static_cast<int32_t>(f); }
 
-    static inline int32_t FloorToInt(float f) { return f >= 0 ? (int)f : (int)f - 1; }
+    static inline int32_t FloorToInt(float f) { return f >= 0 ? static_cast<int32_t>(f) : static_cast<int32_t>(f) - 1; }
 
-    static inline int32_t RoundToInt(float f) { return f >= 0 ? (int)(f + 0.5f) : (int)(f - 0.5f); }
+    static inline int32_t RoundToInt(float f) { return f >= 0 ? static_cast<int32_t>(f + 0.5f) : static_cast<int32_t>(f - 0.5f); }
 
     static inline int32_t GetCeiledEvenNumber(float number)
     {
@@ -50,9 +50,9 @@ namespace Isonia::Utilities::Math
     }
 
     // Interpolation
-    static inline float InterpolationHermite(float t) { return t * t * (3 - 2 * t); }
+    static inline float InterpolationHermite(float t) { return t * t * (3.0f - 2.0f * t); }
 
-    static inline float InterpolationQuintic(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+    static inline float InterpolationQuintic(float t) { return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f); }
 
     // Lerp
     static inline float Lerp(float a, float b, float t) { return a + t * (b - a); }
@@ -119,8 +119,8 @@ namespace Isonia::Utilities::Math
         const float bottom =      heightMap[middleIndex + width];
         const float bottomRight = heightMap[middleIndex + 1 + width];
 
-        const float dX = topLeft * 3.0 + left * 10.0 + bottomLeft * 3.0 - topRight * 3.0 - right * 10.0 - bottomRight * 3.0;
-        const float dY = topLeft * 3.0 + top * 10.0 + topRight * 3.0 - bottomLeft * 3.0 - bottom * 10.0 - bottomRight * 3.0;
+        const float dX = topLeft * 3.0f + left * 10.0f + bottomLeft * 3.0f - topRight * 3.0f - right * 10.0f - bottomRight * 3.0f;
+        const float dY = topLeft * 3.0f + top * 10.0f + topRight * 3.0f - bottomLeft * 3.0f - bottom * 10.0f - bottomRight * 3.0f;
         const float dZ = 1.0f / scale * (1.0f + pow(2.0f, level));
 
         const float length = sqrt((dX * dX) + (dY * dY) + dZ * dZ);

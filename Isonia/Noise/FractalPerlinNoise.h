@@ -42,7 +42,7 @@ namespace Isonia::Noise
             float gain = IMath::Abs(this->gain);
             float amp = gain;
             float ampFractal = 1.0f;
-            for (int i = 1; i < octaves; i++)
+            for (uint32_t i = 1; i < octaves; i++)
             {
                 ampFractal += amp;
                 amp *= gain;
@@ -53,14 +53,14 @@ namespace Isonia::Noise
         const inline float GenerateFractalPerlinNoise(float x, float y) const
         {
             int32_t seed = this->seed;
-            float sum = 0;
+            float sum = 0.0f;
             float amp = fractalBounding;
 
             for (uint32_t i = 0; i < octaves; i++)
             {
                 float noise = GeneratePerlinNoise(seed++, x, y);
                 sum += noise * amp;
-                amp *= IMath::Lerp(1.0f, IMath::Min(noise + 1, 2) * 0.5f, weightedStrength);
+                amp *= IMath::Lerp(1.0f, IMath::Min(noise + 1.0f, 2.0f) * 0.5f, weightedStrength);
 
                 x *= lacunarity;
                 y *= lacunarity;
@@ -73,14 +73,14 @@ namespace Isonia::Noise
         const inline float GenerateFractalPerlinNoise(float x, float y, float z) const
         {
             int32_t seed = this->seed;
-            float sum = 0;
+            float sum = 0.0f;
             float amp = fractalBounding;
 
             for (uint32_t i = 0; i < octaves; i++)
             {
                 float noise = GeneratePerlinNoise(seed++, x, y, z);
                 sum += noise * amp;
-                amp *= IMath::Lerp(1.0f, (noise + 1) * 0.5f, weightedStrength);
+                amp *= IMath::Lerp(1.0f, (noise + 1.0f) * 0.5f, weightedStrength);
 
                 x *= lacunarity;
                 y *= lacunarity;
@@ -94,14 +94,14 @@ namespace Isonia::Noise
         const inline float GenerateFractalPerlinNoise(float x, float y, float z, float t) const
         {
             int32_t seed = this->seed;
-            float sum = 0;
+            float sum = 0.0f;
             float amp = fractalBounding;
 
             for (uint32_t i = 0; i < octaves; i++)
             {
                 float noise = GeneratePerlinNoise(seed++, x, y, z, t);
                 sum += noise * amp;
-                amp *= IMath::Lerp(1.0f, (noise + 1) * 0.5f, weightedStrength);
+                amp *= IMath::Lerp(1.0f, (noise + 1.0f) * 0.5f, weightedStrength);
 
                 x *= lacunarity;
                 y *= lacunarity;
