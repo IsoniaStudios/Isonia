@@ -100,9 +100,9 @@ namespace Isonia::Utilities::Math
         const float bottomRight = heightMap[middleIndex + width + 1];
 
         return glm::normalize(glm::vec3{
-            0.5f * (topRight + right + bottomRight - topLeft - left - bottomLeft),
-            -dx - dz,
-            0.5f * (bottomLeft + bottom + bottomRight - topLeft - top - topRight)
+            topRight + right + bottomRight - topLeft - left - bottomLeft,
+            -dx -dz -dx -dz,
+            bottomLeft + bottom + bottomRight - topLeft - top - topRight
         });
     }
 }
