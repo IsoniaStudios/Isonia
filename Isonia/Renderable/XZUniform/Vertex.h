@@ -1,10 +1,10 @@
 #pragma once
 
-// external
-#include <vulkan/vulkan.h>
-
 // internal
 #include "../../Math/Hash.h"
+
+// external
+#include <vulkan/vulkan.h>
 
 // std
 #include <unordered_map>

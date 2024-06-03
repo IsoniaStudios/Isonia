@@ -2,6 +2,7 @@
 
 // internal
 #include "Noise.h"
+#include "../Math/Trigonometry.h"
 
 namespace Isonia::Noise
 {
@@ -39,15 +40,15 @@ namespace Isonia::Noise
 
         inline float GenerateWhiteNoise(const float x, const float y) const
         {
-            return sin(x * xConstant + y * yConstant);
+            return Math::Sin(x * xConstant + y * yConstant);
         }
         inline float GenerateWhiteNoise(const float x, const float y, const float z) const
         {
-            return sin(x * xConstant + y * yConstant + z * zConstant);
+            return Math::Sin(x * xConstant + y * yConstant + z * zConstant);
         }
         inline float GenerateWhiteNoise(const float x, const float y, const float z, const float t) const
         {
-            return sin(x * xConstant + y * yConstant + z * zConstant + t * tConstant);
+            return Math::Sin(x * xConstant + y * yConstant + z * zConstant + t * tConstant);
         }
     };
 }

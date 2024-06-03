@@ -95,6 +95,9 @@ namespace Isonia
 			delete waterDayPalette;
 
 			delete sphereModel;
+			for (Renderable::Complete::Model* prismModel : prismModels) {
+				delete prismModel;
+			}
 
 			delete debuggerRenderSystem;
 			delete groundRenderSystem;
@@ -332,6 +335,7 @@ namespace Isonia
 		}
 
 		Renderable::Complete::Model* sphereModel;
+		Renderable::Complete::Model* prismModels[20];
 		void InitializeEntities()
 		{
 			std::default_random_engine generator;
@@ -370,9 +374,9 @@ namespace Isonia
 				);
 			}
 
-			for (uint32_t i = 3; i <= 20; i++)
+			for (uint32_t i = 0; i < 20; i++)
 			{
-				Renderable::Complete::Model* model = Renderable::Complete::Model::CreatePrimitivePrism(device, i);
+				prismModels[i] = Renderable::Complete::Model::CreatePrimitivePrism(device, i + 3);
 				ECS::Entity sphere = gCoordinator->CreateEntity();
 
 				gCoordinator->AddComponent(
@@ -386,7 +390,7 @@ namespace Isonia
 
 				gCoordinator->AddComponent(
 					sphere,
-					Components::Mesh{ model }
+					Components::Mesh{ prismModels[i] }
 				);
 			}
 		}

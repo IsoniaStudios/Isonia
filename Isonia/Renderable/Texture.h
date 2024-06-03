@@ -5,6 +5,7 @@
 #include "../../Renderable/Color/Color.h"
 #include "../Noise/Noise.h"
 #include "../Noise/WarpNoise.h"
+#include "../Math/Trigonometry.h"
 
 // external
 #define STB_IMAGE_IMPLEMENTATION
@@ -132,7 +133,7 @@ namespace Isonia::Renderable
 				}
 			}
 			CreateTextureImage(pixels, texWidth, texHeight, VK_FORMAT_R8_UNORM);
-			delete pixels;
+			delete[] pixels;
 		}
 
 		void CreateTextureImage(const void* source, const uint32_t texWidth, const uint32_t texHeight, const VkFormat format)

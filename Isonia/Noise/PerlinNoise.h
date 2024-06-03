@@ -3,6 +3,8 @@
 // internal
 #include "Noise.h"
 #include "ConstantScalarWarpNoise.h"
+#include "../Math/Generics.h"
+#include "../Math/Interpolation.h"
 
 namespace Isonia::Noise
 {

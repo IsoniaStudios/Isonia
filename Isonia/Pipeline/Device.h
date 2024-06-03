@@ -25,10 +25,7 @@ namespace Isonia::Pipeline
 		uint32_t presentFamily;
 		bool graphicsFamilyHasValue = false;
 		bool presentFamilyHasValue = false;
-		bool IsComplete() const
-		{
-			return graphicsFamilyHasValue && presentFamilyHasValue;
-		}
+		bool IsComplete() const { return graphicsFamilyHasValue && presentFamilyHasValue; }
 	};
 
 	class Device

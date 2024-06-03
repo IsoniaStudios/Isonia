@@ -1,5 +1,8 @@
 #pragma once
 
+// internal
+#include "../../Math/Vector.h"
+
 // external
 #include <vulkan/vulkan.h>
 

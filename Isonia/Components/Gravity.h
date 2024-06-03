@@ -2,6 +2,7 @@
 
 // internal
 #include "../ECS/Definitions.h"
+#include "../Math/Vector.h"
 
 namespace Isonia::Components
 {

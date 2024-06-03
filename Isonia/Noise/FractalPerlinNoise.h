@@ -2,6 +2,8 @@
 
 // internal
 #include "PerlinNoise.h"
+#include "../Math/Interpolation.h"
+#include "../Math/Generics.h"
 
 namespace Isonia::Noise
 {
