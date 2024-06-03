@@ -1,10 +1,7 @@
 #pragma once
 
 // internal
-#include "../Utilities/MathUtility.h"
-#include "../Utilities/HashUtility.h"
-
-namespace IMath = Isonia::Utilities::Math;
+#include "../Math/Hash.h"
 
 namespace Isonia::Noise
 {

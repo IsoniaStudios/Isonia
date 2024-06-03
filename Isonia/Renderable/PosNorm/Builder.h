@@ -10,9 +10,6 @@
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
-// external
-#include <glm/glm.hpp>
-
 // std
 #include <stdexcept>
 #include <bitset>

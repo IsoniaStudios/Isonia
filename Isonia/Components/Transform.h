@@ -2,26 +2,24 @@
 
 // internal
 #include "../ECS/Definitions.h"
-
-// external
-#include <glm/glm.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "../Math/Trigonometry.h"
+#include "../Math/Matrix.h"
+#include "../Math/Vector.h"
 
 namespace Isonia::Components
 {
 	struct Transform : ECS::Archetype<0>
 	{
 	public:
-		glm::vec3 position;
-		glm::vec3 rotation;
-		glm::vec3 scale;
+		Math::Vector3 position;
+		Math::Vector3 rotation;
+		Math::Vector3 scale;
 
 		Transform() : position(0.f, 0.f, 0.f), rotation(0.f, 0.f, 0.f), scale(1.f, 1.f, 1.f)
 		{
 		}
 
-		Transform(glm::vec3 initialPosition, glm::vec3 initialRotation, glm::vec3 initialScale)
+		Transform(Math::Vector3 initialPosition, Math::Vector3 initialRotation, Math::Vector3 initialScale)
 			: position(initialPosition), rotation(initialRotation), scale(initialScale)
 		{
 		}
@@ -29,15 +27,15 @@ namespace Isonia::Components
 		// Matrix corrsponds to Translate * Ry * Rx * Rz * Scale
 		// Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
 		// https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
-		const glm::mat4 Mat4() const
+		const Math::Matrix4x4 Mat4() const
 		{
-			const float c3 = glm::cos(rotation.z);
-			const float s3 = glm::sin(rotation.z);
-			const float c2 = glm::cos(rotation.x);
-			const float s2 = glm::sin(rotation.x);
-			const float c1 = glm::cos(rotation.y);
-			const float s1 = glm::sin(rotation.y);
-			return glm::mat4{
+			const float c3 = Math::Cos(rotation.z);
+			const float s3 = Math::Sin(rotation.z);
+			const float c2 = Math::Cos(rotation.x);
+			const float s2 = Math::Sin(rotation.x);
+			const float c1 = Math::Cos(rotation.y);
+			const float s1 = Math::Sin(rotation.y);
+			return Math::Matrix4x4{
 				{
 					scale.x * (c1 * c3 + s1 * s2 * s3),
 					scale.x * (c2 * s3),
@@ -60,17 +58,17 @@ namespace Isonia::Components
 			};
 		}
 
-		const glm::mat3 NormalMatrix() const
+		const Math::Matrix3x3 NormalMatrix() const
 		{
-			const float c3 = glm::cos(rotation.z);
-			const float s3 = glm::sin(rotation.z);
-			const float c2 = glm::cos(rotation.x);
-			const float s2 = glm::sin(rotation.x);
-			const float c1 = glm::cos(rotation.y);
-			const float s1 = glm::sin(rotation.y);
-			const glm::vec3 invScale = 1.0f / scale;
+			const float c3 = Math::Cos(rotation.z);
+			const float s3 = Math::Sin(rotation.z);
+			const float c2 = Math::Cos(rotation.x);
+			const float s2 = Math::Sin(rotation.x);
+			const float c1 = Math::Cos(rotation.y);
+			const float s1 = Math::Sin(rotation.y);
+			const Math::Vector3 invScale = 1.0f / scale;
 
-			return glm::mat3{
+			return Math::Matrix3x3{
 				{
 					invScale.x * (c1 * c3 + s1 * s2 * s3),
 					invScale.x * (c2 * s3),

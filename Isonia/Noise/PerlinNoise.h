@@ -112,35 +112,35 @@ namespace Isonia::Noise
 	protected:
         static const inline float GeneratePerlinNoise(const int32_t seed, const float x, const float y)
         {
-            int32_t x0 = IMath::FloorToInt(x);
-            int32_t y0 = IMath::FloorToInt(y);
+            int32_t x0 = Math::FloorToInt(x);
+            int32_t y0 = Math::FloorToInt(y);
 
             float xd0 = (float)(x - x0);
             float yd0 = (float)(y - y0);
             float xd1 = xd0 - 1;
             float yd1 = yd0 - 1;
 
-            float xs = IMath::InterpolationQuintic(xd0);
-            float ys = IMath::InterpolationQuintic(yd0);
+            float xs = Math::InterpolationQuintic(xd0);
+            float ys = Math::InterpolationQuintic(yd0);
 
             x0 *= PrimeX;
             y0 *= PrimeY;
             int32_t x1 = x0 + PrimeX;
             int32_t y1 = y0 + PrimeY;
 
-            float xf0 = IMath::Lerp(GradCoord(seed, x0, y0, xd0, yd0),
+            float xf0 = Math::Lerp(GradCoord(seed, x0, y0, xd0, yd0),
                                     GradCoord(seed, x1, y0, xd1, yd0), xs);
-            float xf1 = IMath::Lerp(GradCoord(seed, x0, y1, xd0, yd1),
+            float xf1 = Math::Lerp(GradCoord(seed, x0, y1, xd0, yd1),
                                     GradCoord(seed, x1, y1, xd1, yd1), xs);
 
-            return IMath::Lerp(xf0, xf1, ys) * 1.4247691104677813f;
+            return Math::Lerp(xf0, xf1, ys) * 1.4247691104677813f;
         }
 
         static const inline float GeneratePerlinNoise(const int32_t seed, const float x, const float y, const float z)
         {
-            int32_t x0 = IMath::FloorToInt(x);
-            int32_t y0 = IMath::FloorToInt(y);
-            int32_t z0 = IMath::FloorToInt(z);
+            int32_t x0 = Math::FloorToInt(x);
+            int32_t y0 = Math::FloorToInt(y);
+            int32_t z0 = Math::FloorToInt(z);
 
             float xd0 = (float)(x - x0);
             float yd0 = (float)(y - y0);
@@ -149,9 +149,9 @@ namespace Isonia::Noise
             float yd1 = yd0 - 1;
             float zd1 = zd0 - 1;
 
-            float xs = IMath::InterpolationQuintic(xd0);
-            float ys = IMath::InterpolationQuintic(yd0);
-            float zs = IMath::InterpolationQuintic(zd0);
+            float xs = Math::InterpolationQuintic(xd0);
+            float ys = Math::InterpolationQuintic(yd0);
+            float zs = Math::InterpolationQuintic(zd0);
 
             x0 *= PrimeX;
             y0 *= PrimeY;
@@ -160,27 +160,27 @@ namespace Isonia::Noise
             int32_t y1 = y0 + PrimeY;
             int32_t z1 = z0 + PrimeZ;
 
-            float xf00 = IMath::Lerp(GradCoord(seed, x0, y0, z0, xd0, yd0, zd0),
+            float xf00 = Math::Lerp(GradCoord(seed, x0, y0, z0, xd0, yd0, zd0),
                                      GradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
-            float xf10 = IMath::Lerp(GradCoord(seed, x0, y1, z0, xd0, yd1, zd0),
+            float xf10 = Math::Lerp(GradCoord(seed, x0, y1, z0, xd0, yd1, zd0),
                                      GradCoord(seed, x1, y1, z0, xd1, yd1, zd0), xs);
-            float xf01 = IMath::Lerp(GradCoord(seed, x0, y0, z1, xd0, yd0, zd1),
+            float xf01 = Math::Lerp(GradCoord(seed, x0, y0, z1, xd0, yd0, zd1),
                                      GradCoord(seed, x1, y0, z1, xd1, yd0, zd1), xs);
-            float xf11 = IMath::Lerp(GradCoord(seed, x0, y1, z1, xd0, yd1, zd1),
+            float xf11 = Math::Lerp(GradCoord(seed, x0, y1, z1, xd0, yd1, zd1),
                                      GradCoord(seed, x1, y1, z1, xd1, yd1, zd1), xs);
 
-            float yf0 = IMath::Lerp(xf00, xf10, ys);
-            float yf1 = IMath::Lerp(xf01, xf11, ys);
+            float yf0 = Math::Lerp(xf00, xf10, ys);
+            float yf1 = Math::Lerp(xf01, xf11, ys);
 
-            return IMath::Lerp(yf0, yf1, zs) * 0.964921414852142333984375f;
+            return Math::Lerp(yf0, yf1, zs) * 0.964921414852142333984375f;
         }
 
         static const inline float GeneratePerlinNoise(const int32_t seed, const float x, const float y, const float z, const float t)
         {
-            int32_t x0 = IMath::FloorToInt(x);
-            int32_t y0 = IMath::FloorToInt(y);
-            int32_t z0 = IMath::FloorToInt(z);
-            int32_t t0 = IMath::FloorToInt(t);
+            int32_t x0 = Math::FloorToInt(x);
+            int32_t y0 = Math::FloorToInt(y);
+            int32_t z0 = Math::FloorToInt(z);
+            int32_t t0 = Math::FloorToInt(t);
 
             float xd0 = (float)(x - x0);
             float yd0 = (float)(y - y0);
@@ -191,10 +191,10 @@ namespace Isonia::Noise
             float zd1 = zd0 - 1;
             float td1 = td0 - 1;
 
-            float xs = IMath::InterpolationQuintic(xd0);
-            float ys = IMath::InterpolationQuintic(yd0);
-            float zs = IMath::InterpolationQuintic(zd0);
-            float ts = IMath::InterpolationQuintic(td0);
+            float xs = Math::InterpolationQuintic(xd0);
+            float ys = Math::InterpolationQuintic(yd0);
+            float zs = Math::InterpolationQuintic(zd0);
+            float ts = Math::InterpolationQuintic(td0);
 
             x0 *= PrimeX;
             y0 *= PrimeY;
@@ -205,32 +205,32 @@ namespace Isonia::Noise
             int32_t z1 = z0 + PrimeZ;
             int32_t t1 = t0 + PrimeT;
 
-            float xf000 = IMath::Lerp(GradCoord(seed, x0, y0, z0, t0, xd0, yd0, zd0, td0),
+            float xf000 = Math::Lerp(GradCoord(seed, x0, y0, z0, t0, xd0, yd0, zd0, td0),
                                       GradCoord(seed, x1, y0, z0, t0, xd1, yd0, zd0, td0), xs);
-            float xf100 = IMath::Lerp(GradCoord(seed, x0, y1, z0, t0, xd0, yd1, zd0, td0),
+            float xf100 = Math::Lerp(GradCoord(seed, x0, y1, z0, t0, xd0, yd1, zd0, td0),
                                       GradCoord(seed, x1, y1, z0, t0, xd1, yd1, zd0, td0), xs);
-            float xf010 = IMath::Lerp(GradCoord(seed, x0, y0, z1, t0, xd0, yd0, zd1, td0),
+            float xf010 = Math::Lerp(GradCoord(seed, x0, y0, z1, t0, xd0, yd0, zd1, td0),
                                       GradCoord(seed, x1, y0, z1, t0, xd1, yd0, zd1, td0), xs);
-            float xf110 = IMath::Lerp(GradCoord(seed, x0, y1, z1, t0, xd0, yd1, zd1, td0),
+            float xf110 = Math::Lerp(GradCoord(seed, x0, y1, z1, t0, xd0, yd1, zd1, td0),
                                       GradCoord(seed, x1, y1, z1, t0, xd1, yd1, zd1, td0), xs);
-            float xf001 = IMath::Lerp(GradCoord(seed, x0, y0, z0, t1, xd0, yd0, zd0, td1),
+            float xf001 = Math::Lerp(GradCoord(seed, x0, y0, z0, t1, xd0, yd0, zd0, td1),
                                       GradCoord(seed, x1, y0, z0, t1, xd1, yd0, zd0, td1), xs);
-            float xf101 = IMath::Lerp(GradCoord(seed, x0, y1, z0, t1, xd0, yd1, zd0, td1),
+            float xf101 = Math::Lerp(GradCoord(seed, x0, y1, z0, t1, xd0, yd1, zd0, td1),
                                       GradCoord(seed, x1, y1, z0, t1, xd1, yd1, zd0, td1), xs);
-            float xf011 = IMath::Lerp(GradCoord(seed, x0, y0, z1, t1, xd0, yd0, zd1, td1),
+            float xf011 = Math::Lerp(GradCoord(seed, x0, y0, z1, t1, xd0, yd0, zd1, td1),
                                       GradCoord(seed, x1, y0, z1, t1, xd1, yd0, zd1, td1), xs);
-            float xf111 = IMath::Lerp(GradCoord(seed, x0, y1, z1, t1, xd0, yd1, zd1, td1),
+            float xf111 = Math::Lerp(GradCoord(seed, x0, y1, z1, t1, xd0, yd1, zd1, td1),
                                       GradCoord(seed, x1, y1, z1, t1, xd1, yd1, zd1, td1), xs);
 
-            float yf00 = IMath::Lerp(xf000, xf100, ys);
-            float yf10 = IMath::Lerp(xf010, xf110, ys);
-            float yf01 = IMath::Lerp(xf001, xf101, ys);
-            float yf11 = IMath::Lerp(xf011, xf111, ys);
+            float yf00 = Math::Lerp(xf000, xf100, ys);
+            float yf10 = Math::Lerp(xf010, xf110, ys);
+            float yf01 = Math::Lerp(xf001, xf101, ys);
+            float yf11 = Math::Lerp(xf011, xf111, ys);
 
-            float zf0 = IMath::Lerp(yf00, yf10, zs);
-            float zf1 = IMath::Lerp(yf01, yf11, zs);
+            float zf0 = Math::Lerp(yf00, yf10, zs);
+            float zf1 = Math::Lerp(yf01, yf11, zs);
 
-            return IMath::Lerp(zf0, zf1, ts) * 0.964921414852142333984375f;
+            return Math::Lerp(zf0, zf1, ts) * 0.964921414852142333984375f;
         }
 
         static const inline int32_t Hash(const int32_t seed, const int32_t xPrimed, const int32_t yPrimed)

@@ -7,9 +7,6 @@
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
-// external
-#include <glm/glm.hpp>
-
 // std
 #include <stdexcept>
 #include <bitset>
@@ -28,7 +25,7 @@ namespace Isonia::Renderable::XZUniform
 
 	struct Builder
 	{
-		glm::vec3 position;
+		Math::Vector3 position;
 
 		Builder(Pipeline::Device& device) : device(device)
 		{
@@ -40,7 +37,7 @@ namespace Isonia::Renderable::XZUniform
 			delete vertices;
 		}
 
-		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float amplitude, const glm::vec3 position) : device(device), position(position)
+		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float amplitude, const Math::Vector3 position) : device(device), position(position)
 		{
 			// alloc memory
 			Vertex* vertices = static_cast<Vertex*>(operator new[](sizeof(Vertex) * VERTICES_COUNT));

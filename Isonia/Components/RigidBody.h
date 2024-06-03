@@ -3,9 +3,6 @@
 // internal
 #include "../ECS/Definitions.h"
 
-// external
-#include <glm/glm.hpp>
-
 namespace Isonia::Components
 {
 	struct RigidBody : ECS::Archetype<1>
@@ -15,12 +12,12 @@ namespace Isonia::Components
 		{
 		}
 
-		RigidBody(glm::vec3 initialVelocity, glm::vec3 initialAcceleration)
+		RigidBody(Math::Vector3 initialVelocity, Math::Vector3 initialAcceleration)
 			: velocity(initialVelocity), acceleration(initialAcceleration)
 		{
 		}
 
-		glm::vec3 velocity;
-		glm::vec3 acceleration;
+		Math::Vector3 velocity;
+		Math::Vector3 acceleration;
 	};
 }

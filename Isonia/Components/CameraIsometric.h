@@ -7,13 +7,7 @@
 #include "../Pipeline/Renderer.h"
 #include "../Pipeline/PixelRenderer.h"
 
-#include "../Utilities/MathUtility.h"
-#include "../Math/Retro.h"
-
-// external
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
+#include "../Math/Vector.h"
 
 namespace Isonia::Components
 {
@@ -23,22 +17,22 @@ namespace Isonia::Components
 		void SetView(Components::Transform* transform) override
 		{
 			// set final rotation
-			transform->rotation.x = Utilities::Math::Radians(-30.0);
+			transform->rotation.x = Math::Radians(-30.0);
 
 			// get matrices for calculations
-			glm::mat4x4 cameraRotation = transform->NormalMatrix();
-			glm::mat4x4 inverseCameraRotation = glm::inverse(cameraRotation);
+			Math::Matrix4x4 cameraRotation = transform->NormalMatrix();
+			Math::Matrix4x4 inverseCameraRotation = Math::Inverse(cameraRotation);
 
 			// get local position
-			glm::vec3 localPosition = transform->position;
+			Math::Vector3 localPosition = transform->position;
 
-			glm::vec3 cameraPosition = cameraRotation * glm::vec4{ 0.0f, 0.0f, -cameraDistance, pixelGlobalTopLeft.w };
+			Math::Vector3 cameraPosition = cameraRotation * Math::Vector4{ 0.0f, 0.0f, -cameraDistance, pixelGlobalTopLeft.w };
 
 			// rotate offset from global to local
-			glm::vec4 pixelLocalTopLeft = cameraRotation * pixelGlobalTopLeft;
+			Math::Vector4 pixelLocalTopLeft = cameraRotation * pixelGlobalTopLeft;
 
 			// offset by pixelLocalTopLeft to get world
-			glm::vec4 pixelWorldTopLeft
+			Math::Vector4 pixelWorldTopLeft
 			{
 				localPosition.x + pixelLocalTopLeft.x,
 				localPosition.y + pixelLocalTopLeft.y,
@@ -47,25 +41,25 @@ namespace Isonia::Components
 			};
 
 			// rotate back to grid
-			glm::vec4 pixelGlobalTopLeft = inverseCameraRotation * pixelWorldTopLeft;
+			Math::Vector4 pixelGlobalTopLeft = inverseCameraRotation * pixelWorldTopLeft;
 
 			// now we can snap it to the global pixel grid
-			glm::vec4 roundedPixelGlobalTopLeft = Math::Retro::RoundToPixel(pixelGlobalTopLeft);
+			Math::Vector4 roundedPixelGlobalTopLeft = Math::Retro::RoundToPixel(pixelGlobalTopLeft);
 
 			// rotate it back again
-			glm::vec4 roundedPixelWorldTopLeft = cameraRotation * roundedPixelGlobalTopLeft;
+			Math::Vector4 roundedPixelWorldTopLeft = cameraRotation * roundedPixelGlobalTopLeft;
 
 			// get the rounded and unrounded pixel position difference
-			glm::vec3 difference = roundedPixelWorldTopLeft - pixelWorldTopLeft;
+			Math::Vector3 difference = roundedPixelWorldTopLeft - pixelWorldTopLeft;
 
 			// final position
-			glm::vec3 position = localPosition + difference + cameraPosition;
+			Math::Vector3 position = localPosition + difference + cameraPosition;
 
 			// set view and position
 			SetViewYXZ(position, transform->rotation);
 
 			// from difference get render offset by rotating back
-			glm::vec3 unrotatedDifference = inverseCameraRotation * glm::vec4{ difference, 1.0 };
+			Math::Vector3 unrotatedDifference = inverseCameraRotation * Math::Vector4{ difference, 1.0 };
 
 			// from now on dismiss z
 			subPixelOffset.x = unrotatedDifference.x;
@@ -89,9 +83,9 @@ namespace Isonia::Components
 			);
 
 			// NDC coordinates of the top left upmost center pixel position
-			glm::vec4 ndcTopLeft{ -1.0f, -1.0f, 0.0f, 1.0f };
+			Math::Vector4 ndcTopLeft{ -1.0f, -1.0f, 0.0f, 1.0f };
 			// apply inverse projection matrix
-			glm::vec4 globalTopLeft = inverseProjectionMatrix * ndcTopLeft;
+			Math::Vector4 globalTopLeft = inverseProjectionMatrix * ndcTopLeft;
 			// normalize by dividing by w
 			globalTopLeft /= globalTopLeft.w;
 			// pushbach camera distance
@@ -106,14 +100,14 @@ namespace Isonia::Components
 			};
 		}
 
-		glm::vec2 subPixelOffset{};
+		Math::Vector2 subPixelOffset{};
 
 	private:
 		const float cameraDistance = 500.0f;
 		const float cameraDistanceX = 0;
-		const float cameraDistanceY = -cameraDistance * std::sin(Utilities::Math::Radians(30.0f));
-		const float cameraDistanceZ = -cameraDistance * std::cos(Utilities::Math::Radians(30.0f));
+		const float cameraDistanceY = -cameraDistance * Math::Sin(Math::Radians(30.0f));
+		const float cameraDistanceZ = -cameraDistance * Math::Cos(Math::Radians(30.0f));
 
-		glm::vec4 pixelGlobalTopLeft{};
+		Math::Vector4 pixelGlobalTopLeft{};
 	};
 }

@@ -3,7 +3,8 @@
 // internal
 #include "Vertex.h"
 #include "Builder.h"
-#include "../../Utilities/MathUtility.h"
+#include "../../Math/Trigonometry.h"
+#include "../../Math/Vector.h"
 
 // std
 #include <stdexcept>
@@ -16,20 +17,20 @@ namespace Isonia::Renderable::Complete
 		{
 			assert(numSides > 2 && "Invalid number of sides");
 
-			const float angleIncrement = 2.0f * Utilities::Math::PI / static_cast<float>(numSides);
+			const float angleIncrement = Math::TwoPI / static_cast<float>(numSides);
 			const float radius = 0.5f;
 
-			const glm::vec3 normal = height == 0.0f ? glm::vec3{ 0.0f, -1.0f, 0.0f } : glm::normalize(glm::vec3{ 0.0f, height, 0.0f });
-			const glm::vec3 color = glm::vec3{ 0.0f, 0.0f, 0.0f };
+			const Math::Vector3 normal = height == 0.0f ? Math::Vector3{ 0.0f, -1.0f, 0.0f } : Math::Normalize(Math::Vector3{ 0.0f, height, 0.0f });
+			const Math::Vector3 color = Math::Vector3{ 0.0f, 0.0f, 0.0f };
 
 			std::vector<Vertex> vertices;
 			const float angleOffset = numSides % 2 == 0 ? angleIncrement * 0.5f : 0.0f;
 			for (uint32_t i = 0; i < numSides; i++)
 			{
-				const float z = radius * cos(static_cast<float>(i) * angleIncrement + angleOffset);
-				const float x = radius * sin(static_cast<float>(i) * angleIncrement + angleOffset);
-				const glm::vec3 position{ x, height, z };
-				const glm::vec2 uv{ x + radius, z + radius };
+				const float z = radius * Math::Cos(static_cast<float>(i) * angleIncrement + angleOffset);
+				const float x = radius * Math::Sin(static_cast<float>(i) * angleIncrement + angleOffset);
+				const Math::Vector3 position{ x, height, z };
+				const Math::Vector2 uv{ x + radius, z + radius };
 				vertices.push_back({ position, position, normal, uv, });
 			}
 

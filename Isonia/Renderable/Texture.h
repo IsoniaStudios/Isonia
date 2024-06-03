@@ -120,10 +120,10 @@ namespace Isonia::Renderable
 					const float s = h / static_cast<float>(texHeight);
 					const float t = w / static_cast<float>(texWidth);
 
-					float nx = cos(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
-					float ny = cos(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
-					float nz = sin(s * 2.0f * IMath::PI) / (2.0f * IMath::PI);
-					float nt = sin(t * 2.0f * IMath::PI) / (2.0f * IMath::PI);
+					float nx = Math::Cos(s * Math::TwoPI) / (Math::TwoPI);
+					float ny = Math::Cos(t * Math::TwoPI) / (Math::TwoPI);
+					float nz = Math::Sin(s * Math::TwoPI) / (Math::TwoPI);
+					float nt = Math::Sin(t * Math::TwoPI) / (Math::TwoPI);
 
 					const uint32_t i = h_i + w;
 					warpNoise.TransformCoordinate(nx, ny, nz, nt);

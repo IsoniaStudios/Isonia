@@ -4,7 +4,7 @@
 #include "Vertex.h"
 #include "Builder.h"
 #include "PrimitiveFace.h"
-#include "../../Utilities/MathUtility.h"
+#include "../../Math/Vector.h"
 
 // std
 #include <stdexcept>
@@ -19,7 +19,7 @@ namespace Isonia::Renderable::Complete
 		static constexpr const float N = 0.f;
 
 		static constexpr const uint32_t VERTICE_COUNT = 4 * 3;
-		static constexpr const glm::vec3 VERTICES[VERTICE_COUNT] =
+		static constexpr const Math::Vector3 VERTICES[VERTICE_COUNT] =
 		{
 			{-X,N,Z}, { X,N, Z}, {-X, N,-Z}, { X, N,-Z},
 			{ N,Z,X}, { N,Z,-X}, { N,-Z, X}, { N,-Z,-X},

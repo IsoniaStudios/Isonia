@@ -8,9 +8,6 @@
 #include "../../../Pipeline/Device.h"
 #include "../../../Math/Retro.h"
 
-// external
-#include <glm/glm.hpp>
-
 // std
 #include <stdexcept>
 #include <bitset>
@@ -47,15 +44,15 @@ namespace Isonia::Renderable::XZUniformN::Grass
 					float world_y = ground->MapWorldToHeight(world_x, world_z);
 					world_y -= GRASS_SIZE * Math::Retro::Y_SCALE;
 
-					const glm::vec3 world_normal = ground->MapWorldToNormal(world_x, world_z);
-					const float pitch = glm::atan(world_normal.y, world_normal.z);
-					const float yaw = glm::atan(world_normal.y, world_normal.x);
+					const Math::Vector3 world_normal = ground->MapWorldToNormal(world_x, world_z);
+					const float pitch = Math::Atan(world_normal.y, world_normal.z);
+					const float yaw = Math::Atan(world_normal.y, world_normal.x);
 
 					const uint32_t i = x + z * GRASS_COUNT_SIDE;
 
 					vertices[i].pitch = pitch;
 					vertices[i].yaw = yaw;
-					vertices[i].position = glm::vec3(
+					vertices[i].position = Math::Vector3(
 						world_x,
 						world_y,
 						world_z

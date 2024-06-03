@@ -3,7 +3,7 @@
 // std
 #include <functional>
 
-namespace Isonia::Utilities::Hash
+namespace Isonia::Math
 {
 	template <typename T, typename... Rest>
 	void HashCombine(size_t& seed, const T& v, const Rest&... rest)

@@ -3,11 +3,6 @@
 // external
 #define TINYOBJLOADER_IMPLEMENTATION
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-
 // internal
 #include "Debug/PerformanceTracker.h"
 
@@ -155,7 +150,7 @@ namespace Isonia
 					};
 
 					// update
-					//ubo.lightDirection = glm::normalize(ubo.lightDirection - glm::vec3(0, frameTime * 0.01f, 0));
+					//ubo.lightDirection = Math::Normalize(ubo.lightDirection - Math::Vector3(0, frameTime * 0.01f, 0));
 					ubo.projection = player.camera.GetProjection();
 					ubo.view = player.camera.GetView();
 					ubo.inverseView = player.camera.GetInverseView();
@@ -353,9 +348,9 @@ namespace Isonia
 				gCoordinator->AddComponent(
 					entity,
 					Components::Transform{
-					   glm::vec3{ randPosition(generator), randPosition(generator), randPosition(generator) },
-					   glm::vec3{ randRotation(generator), randRotation(generator), randRotation(generator) },
-					   glm::vec3{ randScale(generator), randScale(generator), randScale(generator) }
+					   Math::Vector3{ randPosition(generator), randPosition(generator), randPosition(generator) },
+					   Math::Vector3{ randRotation(generator), randRotation(generator), randRotation(generator) },
+					   Math::Vector3{ randScale(generator), randScale(generator), randScale(generator) }
 					}
 				);
 
@@ -383,9 +378,9 @@ namespace Isonia
 				gCoordinator->AddComponent(
 					sphere,
 					Components::Transform{
-					   glm::vec3{ i, -5, 0 },
-					   glm::vec3{ 0 },
-					   glm::vec3{ 1 }
+					   Math::Vector3{ i, -5, 0 },
+					   Math::Vector3{ 0 },
+					   Math::Vector3{ 1 }
 					}
 				);
 

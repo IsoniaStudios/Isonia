@@ -1,20 +1,15 @@
 #pragma once
 
 // internal
-#include "../Utilities/MathUtility.h"
+#include "Vector.h"
 
 // std
 #include <cmath>
 
-// external
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
 namespace Isonia::Math::Retro
 {
     // Constants
-    static constexpr const float Y_SCALE = 1.154700538379252f; //1.0f / std::cos(Math::Radians(-30.0f));
+    static constexpr const float Y_SCALE = 1.154700538379252f; //1.0f / Math::Cos(Math::Radians(-30.0f));
 
     static constexpr const float PIXELS_PER_UNIT = 16.0f;
     static constexpr const float UNITS_PER_PIXEL = 1.0f / PIXELS_PER_UNIT;
@@ -24,7 +19,7 @@ namespace Isonia::Math::Retro
 
     static uint32_t RenderFactor = 1u;
 
-    static inline glm::vec3 RoundToPixel(const glm::vec3 position)
+    static inline Math::Vector3 RoundToPixel(const Math::Vector3 position)
     {
         return {
             std::roundf(position.x * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
@@ -32,7 +27,7 @@ namespace Isonia::Math::Retro
             std::roundf(position.z * PIXELS_PER_UNIT) * UNITS_PER_PIXEL
         };
     }
-    static inline glm::vec4 RoundToPixel(const glm::vec4 position)
+    static inline Math::Vector4 RoundToPixel(const Math::Vector4 position)
     {
         return {
             std::roundf(position.x * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
@@ -43,21 +38,21 @@ namespace Isonia::Math::Retro
     }
 
     /*
-    static inline glm::quat RoundToRotation(const glm::quat rotation)
+    static inline Math::quat RoundToRotation(const Math::quat rotation)
     {
         return Quaternion.Euler(RoundToEulerRotation(rotation.eulerAngles));
     }
-    static inline glm::quat RoundToRotation(const glm::vec3 eulerRotation)
+    static inline Math::quat RoundToRotation(const Math::Vector3 eulerRotation)
     {
         return Quaternion.Euler(RoundToEulerRotation(eulerRotation));
     }
-    static inline glm::vec3 RoundToEulerRotation(const glm::quat rotation)
+    static inline Math::Vector3 RoundToEulerRotation(const Math::quat rotation)
     {
         return RoundToEulerRotation(rotation.eulerAngles);
     }
     */
 
-    static inline glm::vec3 RoundToEulerRotation(const glm::vec3 eulerRotation)
+    static inline Math::Vector3 RoundToEulerRotation(const Math::Vector3 eulerRotation)
     {
         return {
             std::roundf(eulerRotation.x * INVERSE_ROTATION_GRID) * ROTATION_GRID,

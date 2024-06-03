@@ -11,9 +11,6 @@
 
 #include "../../Noise/FractalPerlinNoise.h"
 
-// external
-#include <glm/gtx/intersect.hpp>
-
 // shaders
 #include "../../Shaders/Include/Water/FragShader_frag.h"
 #include "../../Shaders/Include/Water/VertexShader_vert.h"
@@ -58,17 +55,17 @@ namespace Isonia::Pipeline::Systems
 			);
 
 			constexpr const float offsetToCenter = -(Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f);
-			const glm::vec3 cameraPosition = camera.GetPositionVector();
-			const glm::vec3 cameraForward = camera.GetForwardVector();
+			const Math::Vector3 cameraPosition = camera.GetPositionVector();
+			const Math::Vector3 cameraForward = camera.GetForwardVector();
 			float intersectionDistance;
-			const bool intersects = glm::intersectRayPlane(
+			const bool intersects = Math::IntersectRayPlane(
 				cameraPosition,
 				cameraForward,
-				glm::vec3{ 0.0f, -5.0f, 0.0f },
-				glm::vec3{ 0.0f, -1.0f, 0.0f },
+				Math::Vector3{ 0.0f, -5.0f, 0.0f },
+				Math::Vector3{ 0.0f, -1.0f, 0.0f },
 				intersectionDistance
 			);
-			glm::vec3 intersectionPoint = cameraPosition + cameraForward * intersectionDistance;
+			Math::Vector3 intersectionPoint = cameraPosition + cameraForward * intersectionDistance;
 			water->position = {
 				offsetToCenter + intersectionPoint.x,
 				-5,
@@ -80,7 +77,7 @@ namespace Isonia::Pipeline::Systems
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
-				sizeof(glm::vec3),
+				sizeof(Math::Vector3),
 				&(water->position)
 			);
 			water->Bind(frameInfo.commandBuffer);
@@ -93,7 +90,7 @@ namespace Isonia::Pipeline::Systems
 			VkPushConstantRange pushConstantRange{};
 			pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			pushConstantRange.offset = 0;
-			pushConstantRange.size = sizeof(glm::vec3);
+			pushConstantRange.size = sizeof(Math::Vector3);
 
 			const constexpr uint32_t descriptorSetLayoutsLength = 1;
 			const VkDescriptorSetLayout descriptorSetLayouts[descriptorSetLayoutsLength] {

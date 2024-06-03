@@ -1,15 +1,11 @@
 #pragma once
 
 // external
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
-#include <glm/gtx/hash.hpp>
 
 // internal
-#include "../../Utilities/HashUtility.h"
+#include "../../Math/Vector.h"
+#include "../../Math/Hash.h"
 
 // std
 #include <unordered_map>
@@ -18,10 +14,10 @@ namespace Isonia::Renderable::Complete
 {
 	struct Vertex
 	{
-		glm::vec3 position{};
-		glm::vec3 color{};
-		glm::vec3 normal{};
-		glm::vec2 uv{};
+		Math::Vector3 position{};
+		Math::Vector3 color{};
+		Math::Vector3 normal{};
+		Math::Vector2 uv{};
 
 		static constexpr std::vector<VkVertexInputBindingDescription> GetBindingDescriptions()
 		{
@@ -59,7 +55,7 @@ namespace std
 		size_t operator()(const Isonia::Renderable::Complete::Vertex& vertex) const
 		{
 			size_t seed = 0;
-			Isonia::Utilities::Hash::HashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+			Isonia::Math::HashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
 			return seed;
 		}
 	};

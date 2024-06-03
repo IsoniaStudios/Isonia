@@ -12,14 +12,8 @@
 #include "../Pipeline/Renderer.h"
 #include "../Pipeline/PixelRenderer.h"
 
-#include "../Utilities/MathUtility.h"
-#include "../Math/Retro.h"
-
 // std
 #include <limits>
-
-// external
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace Isonia::Controllers
 {

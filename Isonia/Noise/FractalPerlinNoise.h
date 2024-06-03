@@ -39,7 +39,7 @@ namespace Isonia::Noise
         const float fractalBounding;
         const inline float CalculateFractalBounding() const
         {
-            float gain = IMath::Abs(this->gain);
+            float gain = Math::Abs(this->gain);
             float amp = gain;
             float ampFractal = 1.0f;
             for (uint32_t i = 1; i < octaves; i++)
@@ -60,7 +60,7 @@ namespace Isonia::Noise
             {
                 float noise = GeneratePerlinNoise(seed++, x, y);
                 sum += noise * amp;
-                amp *= IMath::Lerp(1.0f, IMath::Min(noise + 1.0f, 2.0f) * 0.5f, weightedStrength);
+                amp *= Math::Lerp(1.0f, Math::Min(noise + 1.0f, 2.0f) * 0.5f, weightedStrength);
 
                 x *= lacunarity;
                 y *= lacunarity;
@@ -80,7 +80,7 @@ namespace Isonia::Noise
             {
                 float noise = GeneratePerlinNoise(seed++, x, y, z);
                 sum += noise * amp;
-                amp *= IMath::Lerp(1.0f, (noise + 1.0f) * 0.5f, weightedStrength);
+                amp *= Math::Lerp(1.0f, (noise + 1.0f) * 0.5f, weightedStrength);
 
                 x *= lacunarity;
                 y *= lacunarity;
@@ -101,7 +101,7 @@ namespace Isonia::Noise
             {
                 float noise = GeneratePerlinNoise(seed++, x, y, z, t);
                 sum += noise * amp;
-                amp *= IMath::Lerp(1.0f, (noise + 1.0f) * 0.5f, weightedStrength);
+                amp *= Math::Lerp(1.0f, (noise + 1.0f) * 0.5f, weightedStrength);
 
                 x *= lacunarity;
                 y *= lacunarity;

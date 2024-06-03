@@ -6,7 +6,6 @@
 #include "PrimitiveFace.h"
 #include "PrimitivePrism.h"
 #include "PrimitiveSphere.h"
-#include "../../Utilities/MathUtility.h"
 
 // std
 #include <stdexcept>

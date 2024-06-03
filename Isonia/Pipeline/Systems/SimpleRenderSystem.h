@@ -14,12 +14,6 @@
 #include "../../Shaders/Include/Simple/FragShader_frag.h"
 #include "../../Shaders/Include/Simple/VertexShader_vert.h"
 
-// external
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-
 // std
 #include <memory>
 #include <vector>
@@ -36,8 +30,8 @@ namespace Isonia::Pipeline::Systems
 	public:
 		struct SimplePushConstantData
 		{
-			glm::mat4 modelMatrix{ 1.f };
-			glm::mat4 normalMatrix{ 1.f };
+			Math::Matrix4x4 modelMatrix{ 1.f };
+			Math::Matrix4x4 normalMatrix{ 1.f };
 		};
 
 		SimpleRenderSystem(Device& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : device(device)

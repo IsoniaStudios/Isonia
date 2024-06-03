@@ -6,9 +6,9 @@
 #include "../../Noise/WarpNoise.h"
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
-
-// external
-#include <glm/glm.hpp>
+#include "../../Math/Trigonometry.h"
+#include "../../Math/Interpolation.h"
+#include "../../Math/Vector.h"
 
 // std
 #include <stdexcept>
@@ -38,7 +38,7 @@ namespace Isonia::Renderable::XZUniformN
 		const XZPositionalData positionalData;
 
 		float sampleAltitudes[SAMPLE][SAMPLE];
-		glm::vec3 normals[VERTICES][VERTICES];
+		Math::Vector3 normals[VERTICES][VERTICES];
 
 		Builder(Pipeline::Device& device, const Noise::WarpNoise& warpNoise, const Noise::Noise& noise, const float amplitude, const float x, const float z) : device(device), positionalData(x, z)
 		{
@@ -61,7 +61,7 @@ namespace Isonia::Renderable::XZUniformN
 			{
 				for (uint32_t x = 1; x < SAMPLE - 1; x++)
 				{
-					normals[z - 1][x - 1] = Utilities::Math::ComputeSmoothNormalFrom4(*sampleAltitudes, QUAD_SIZE, QUAD_SIZE, SAMPLE, SAMPLE, z, x);
+					normals[z - 1][x - 1] = Math::ComputeSmoothNormalFrom4(*sampleAltitudes, QUAD_SIZE, QUAD_SIZE, SAMPLE, SAMPLE, z, x);
 				}
 			}
 
@@ -77,11 +77,11 @@ namespace Isonia::Renderable::XZUniformN
 				vertices[i].altitude = sampleAltitudes[row + 1][col + 1];
 
 				// get precalculated perlin normal
-				const glm::vec3 normal = normals[row][col];
+				const Math::Vector3 normal = normals[row][col];
 
 				// calculate pitch and yaw
-				vertices[i].pitch = glm::atan(normal.y, normal.z);
-				vertices[i].yaw = glm::atan(normal.y, normal.x);
+				vertices[i].pitch = Math::Atan(normal.y, normal.z);
+				vertices[i].yaw = Math::Atan(normal.y, normal.x);
 			}
 
 			// create the buffers
@@ -115,11 +115,11 @@ namespace Isonia::Renderable::XZUniformN
 			const float local_z = world_z + QUAD_SIZE - positionalData.z;
 
 			// map local to indices
-			const uint32_t min_x = IMath::FloorToInt(local_x);
-			const uint32_t max_x = IMath::CeilToInt(local_x);
+			const uint32_t min_x = Math::FloorToInt(local_x);
+			const uint32_t max_x = Math::CeilToInt(local_x);
 
-			const uint32_t min_z = IMath::FloorToInt(local_z);
-			const uint32_t max_z = IMath::CeilToInt(local_z);
+			const uint32_t min_z = Math::FloorToInt(local_z);
+			const uint32_t max_z = Math::CeilToInt(local_z);
 
 			// get heights from indices
 			const float h_00 = sampleAltitudes[min_z][min_x];
@@ -132,40 +132,40 @@ namespace Isonia::Renderable::XZUniformN
 			const float t_z = local_z - min_z;
 
 			// lerp between and return
-			const float h_l_0 = IMath::Lerp(h_00, h_10, t_x);
-			const float h_l_1 = IMath::Lerp(h_01, h_11, t_x);
+			const float h_l_0 = Math::Lerp(h_00, h_10, t_x);
+			const float h_l_1 = Math::Lerp(h_01, h_11, t_x);
 
-			return IMath::Lerp(h_l_0, h_l_1, t_z);
+			return Math::Lerp(h_l_0, h_l_1, t_z);
 		}
 
-		glm::vec3 MapWorldToNormal(const float world_x, const float world_z) const
+		Math::Vector3 MapWorldToNormal(const float world_x, const float world_z) const
 		{
 			// get local
 			const float local_x = world_x - positionalData.x;
 			const float local_z = world_z - positionalData.z;
 
 			// map local to indices
-			const size_t min_x = std::max(IMath::FloorToInt(local_x), 0);
-			const size_t max_x = std::min(IMath::CeilToInt(local_x), static_cast<int32_t>(VERTICES));
+			const size_t min_x = std::max(Math::FloorToInt(local_x), 0);
+			const size_t max_x = std::min(Math::CeilToInt(local_x), static_cast<int32_t>(VERTICES));
 
-			const size_t min_z = std::max(IMath::FloorToInt(local_z), 0);
-			const size_t max_z = std::min(IMath::CeilToInt(local_z), static_cast<int32_t>(VERTICES));
+			const size_t min_z = std::max(Math::FloorToInt(local_z), 0);
+			const size_t max_z = std::min(Math::CeilToInt(local_z), static_cast<int32_t>(VERTICES));
 
 			// get normals from indices
-			const glm::vec3 n_00 = normals[min_z][min_x];
-			const glm::vec3 n_10 = normals[min_z][max_x];
-			const glm::vec3 n_01 = normals[max_z][min_x];
-			const glm::vec3 n_11 = normals[max_z][max_x];
+			const Math::Vector3 n_00 = normals[min_z][min_x];
+			const Math::Vector3 n_10 = normals[min_z][max_x];
+			const Math::Vector3 n_01 = normals[max_z][min_x];
+			const Math::Vector3 n_11 = normals[max_z][max_x];
 
 			// get t for lerp
 			const float t_x = local_x - min_x;
 			const float t_z = local_z - min_z;
 
 			// lerp between and return
-			const glm::vec3 n_l_0 = IMath::Lerp(n_00, n_10, t_x);
-			const glm::vec3 n_l_1 = IMath::Lerp(n_01, n_11, t_x);
+			const Math::Vector3 n_l_0 = Math::Lerp(n_00, n_10, t_x);
+			const Math::Vector3 n_l_1 = Math::Lerp(n_01, n_11, t_x);
 
-			return IMath::Lerp(n_l_0, n_l_1, t_z);
+			return Math::Lerp(n_l_0, n_l_1, t_z);
 		}
 
 	private:

@@ -11,11 +11,11 @@ namespace Isonia::State
 {
 	struct GlobalUbo
 	{
-		glm::mat4 projection{ 1.f };
-		glm::mat4 view{ 1.f };
-		glm::mat4 inverseView{ 1.f };
-		glm::vec4 ambientLightColor{ 1.f, 1.f, 1.f, .02f };  // w is intensity
-		glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f, 3.f, -1.f });
+		Math::Matrix4x4 projection{ 1.f };
+		Math::Matrix4x4 view{ 1.f };
+		Math::Matrix4x4 inverseView{ 1.f };
+		Math::Vector4 ambientLightColor{ 1.f, 1.f, 1.f, .02f };  // w is intensity
+		Math::Vector3 lightDirection = Math::Normalize(Math::Vector3{ -1.f, 3.f, -1.f });
 	};
 
 	struct Clock

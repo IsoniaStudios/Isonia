@@ -4,7 +4,7 @@
 #include "Vertex.h"
 #include "Builder.h"
 #include "PrimitiveFace.h"
-#include "../../Utilities/MathUtility.h"
+#include "../../Math/Vector.h"
 
 // std
 #include <stdexcept>
@@ -18,7 +18,7 @@ namespace Isonia::Renderable::Complete
 			assert(numSides > 2 && "Invalid number of sides");
 
 			std::vector<Vertex> vertices;
-			const float angleIncrement = 2.0f * Utilities::Math::PI / numSides;
+			const float angleIncrement = Math::TwoPI / numSides;
 			const float radius = 0.5f;
 
 			std::vector<Vertex> verticesTop = GenerateFaceVertices(numSides, -0.5f);
@@ -37,7 +37,7 @@ namespace Isonia::Renderable::Complete
 				Vertex v3 = { verticesBottom[i] };
 				Vertex v4 = { verticesBottom[nextIndex] };
 
-				const glm::vec3 normal = glm::normalize(glm::vec3{
+				const Math::Vector3 normal = Math::Normalize(Math::Vector3{
 					(v1.position.x + v2.position.x) * 0.5f,
 					0.0f,
 					(v1.position.z + v2.position.z) * 0.5f,

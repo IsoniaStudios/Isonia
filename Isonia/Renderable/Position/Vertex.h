@@ -1,7 +1,6 @@
 #pragma once
 
 // external
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 
 // std
@@ -11,7 +10,7 @@ namespace Isonia::Renderable::Position
 {
 	struct Vertex
 	{
-		glm::vec3 position;
+		Math::Vector3 position;
 
 		static constexpr std::vector<VkVertexInputBindingDescription> GetBindingDescriptions()
 		{

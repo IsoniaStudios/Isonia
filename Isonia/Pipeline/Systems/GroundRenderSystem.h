@@ -28,12 +28,6 @@
 #include "../../Shaders/Include/Grass/VertexShader_vert.h"
 #include "../../Shaders/Include/Grass/GeomShader_geom.h"
 
-// external
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-
 // std
 #include <memory>
 #include <vector>
@@ -114,7 +108,7 @@ namespace Isonia::Pipeline::Systems
 			return ground->MapWorldToHeight(world_x, world_z);
 		}
 
-		glm::vec3 MapWorldToNormal(const float world_x, const float world_z) const
+		Math::Vector3 MapWorldToNormal(const float world_x, const float world_z) const
 		{
 			const auto ground = MapWorldToGround(world_x, world_z);
 			return ground->MapWorldToNormal(world_x, world_z);

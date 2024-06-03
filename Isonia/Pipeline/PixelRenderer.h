@@ -5,7 +5,8 @@
 #include "PixelSwapChain.h"
 #include "../Window/Window.h"
 
-#include "../Utilities/MathUtility.h"
+#include "../Math/Generics.h"
+#include "../Math/Vector.h"
 #include "../Math/Retro.h"
 
 // std
@@ -171,7 +172,7 @@ namespace Isonia::Pipeline
 			vkCmdEndRenderPass(commandBuffer);
 		}
 
-		void Blit(VkCommandBuffer commandBuffer, glm::vec2 offset)
+		void Blit(VkCommandBuffer commandBuffer, Math::Vector2 offset)
 		{
 			// The common subresource thingies
 			VkImageSubresourceRange subresourceRange{
@@ -207,8 +208,8 @@ namespace Isonia::Pipeline
 
 			// Calculate pixel offsets
 			const float scaleFactor = Math::Retro::PIXELS_PER_UNIT * static_cast<float>(Math::Retro::RenderFactor);
-			const int32_t offsetX = Utilities::Math::RoundToInt(offset.x * scaleFactor);
-			const int32_t offsetY = Utilities::Math::RoundToInt(offset.y * scaleFactor);
+			const int32_t offsetX = Math::RoundToInt(offset.x * scaleFactor);
+			const int32_t offsetY = Math::RoundToInt(offset.y * scaleFactor);
 
 			// Define source and destination offsets for image blit
 			const int32_t renderFactor = static_cast<int32_t>(Math::Retro::RenderFactor);
@@ -310,13 +311,13 @@ namespace Isonia::Pipeline
 
 			// extended so we can render sub-pixels
 			return {
-				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderWidth)) + 2,
-				static_cast<uint32_t>(Utilities::Math::FloorToInt(renderHeight))+ 2
+				static_cast<uint32_t>(Math::FloorToInt(renderWidth)) + 2,
+				static_cast<uint32_t>(Math::FloorToInt(renderHeight))+ 2
 			};
 			// odd number so it snaps as little as posible on camera rotation extended so we can render sub-pixels
 			return {
-				static_cast<uint32_t>(Utilities::Math::GetCeiledOddNumber(renderWidth)) + 2,
-				static_cast<uint32_t>(Utilities::Math::GetCeiledOddNumber(renderHeight))+ 2
+				static_cast<uint32_t>(Math::GetCeiledOddNumber(renderWidth)) + 2,
+				static_cast<uint32_t>(Math::GetCeiledOddNumber(renderHeight))+ 2
 			};
 		}
 

@@ -8,9 +8,6 @@
 
 #include "../../Math/Retro.h"
 
-// external
-#include <glm/glm.hpp>
-
 // std
 #include <stdexcept>
 #include <bitset>

@@ -1,15 +1,11 @@
 #pragma once
 
 // external
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
-#include <glm/gtx/hash.hpp>
 
 // internal
-#include "../../../Utilities/HashUtility.h"
+#include "../../Math/Vector.h"
+#include "../../Math/Hash.h"
 
 // std
 #include <unordered_map>
@@ -19,7 +15,7 @@ namespace Isonia::Renderable::XZUniformN::Grass
 {
 	struct Vertex
 	{
-		glm::vec3 position;
+		Math::Vector3 position;
 		float pitch;
 		float yaw;
 		float gain;
