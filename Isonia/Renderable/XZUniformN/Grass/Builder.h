@@ -6,7 +6,7 @@
 #include "../../../Noise/WhiteNoise.h"
 #include "../../../Pipeline/Buffer.h"
 #include "../../../Pipeline/Device.h"
-#include "../../../Utilities/PixelPerfectUtility.h"
+#include "../../../Math/Retro.h"
 
 // external
 #include <glm/glm.hpp>
@@ -19,7 +19,7 @@
 namespace Isonia::Renderable::XZUniformN::Grass
 {
 	static constexpr const float GRASS_DENSITY = 4.0f;
-	static constexpr const float GRASS_SIZE = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT / (16.0f * 2.0f);
+	static constexpr const float GRASS_SIZE = Math::Retro::PIXELS_PER_UNIT / (16.0f * 2.0f);
 	static constexpr const uint32_t GRASS_COUNT_SIDE = static_cast<uint32_t>(GRASS_DENSITY * static_cast<float>(QUADS));
 	static constexpr const uint32_t GRASS_COUNT = GRASS_COUNT_SIDE * GRASS_COUNT_SIDE;
 
@@ -45,7 +45,7 @@ namespace Isonia::Renderable::XZUniformN::Grass
 					world_z += offsetNoise.GenerateNoise(world_x, world_z, 1.0f) * half_size;
 
 					float world_y = ground->MapWorldToHeight(world_x, world_z);
-					world_y -= GRASS_SIZE * Utilities::PixelPerfectUtility::Y_SCALE;
+					world_y -= GRASS_SIZE * Math::Retro::Y_SCALE;
 
 					const glm::vec3 world_normal = ground->MapWorldToNormal(world_x, world_z);
 					const float pitch = glm::atan(world_normal.y, world_normal.z);

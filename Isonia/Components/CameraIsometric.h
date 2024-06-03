@@ -8,7 +8,7 @@
 #include "../Pipeline/PixelRenderer.h"
 
 #include "../Utilities/MathUtility.h"
-#include "../Utilities/PixelPerfectUtility.h"
+#include "../Math/Retro.h"
 
 // external
 #define GLM_FORCE_RADIANS
@@ -50,7 +50,7 @@ namespace Isonia::Components
 			glm::vec4 pixelGlobalTopLeft = inverseCameraRotation * pixelWorldTopLeft;
 
 			// now we can snap it to the global pixel grid
-			glm::vec4 roundedPixelGlobalTopLeft = Utilities::PixelPerfectUtility::RoundToPixel(pixelGlobalTopLeft);
+			glm::vec4 roundedPixelGlobalTopLeft = Math::Retro::RoundToPixel(pixelGlobalTopLeft);
 
 			// rotate it back again
 			glm::vec4 roundedPixelWorldTopLeft = cameraRotation * roundedPixelGlobalTopLeft;
@@ -77,7 +77,7 @@ namespace Isonia::Components
 			// get extent
 			const auto extent = renderer->GetExtent();
 			// get ortho size
-			const float orthoSize = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * 2.0;
+			const float orthoSize = Math::Retro::PIXELS_PER_UNIT * 2.0;
 			// set projection
 			SetOrthographicProjection(
 				-(extent.width / orthoSize),
@@ -99,9 +99,9 @@ namespace Isonia::Components
 
 			// push to center pixel position
 			pixelGlobalTopLeft = {
-				globalTopLeft.x + Utilities::PixelPerfectUtility::UNITS_PER_PIXEL * 0.5f,
-				globalTopLeft.y + Utilities::PixelPerfectUtility::UNITS_PER_PIXEL * 0.5f,
-				globalTopLeft.z + Utilities::PixelPerfectUtility::UNITS_PER_PIXEL * 0.5f,
+				globalTopLeft.x + Math::Retro::UNITS_PER_PIXEL * 0.5f,
+				globalTopLeft.y + Math::Retro::UNITS_PER_PIXEL * 0.5f,
+				globalTopLeft.z + Math::Retro::UNITS_PER_PIXEL * 0.5f,
 				globalTopLeft.w
 			};
 		}

@@ -6,7 +6,7 @@
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
 
-#include "../../Utilities/PixelPerfectUtility.h"
+#include "../../Math/Retro.h"
 
 // external
 #include <glm/glm.hpp>
@@ -30,9 +30,9 @@ namespace Isonia::Renderable::Position
 				for (int x = -3; x <= 3; x++)
 				{
 					const auto i = (x + 3) + (z + 3) * 7;
-					vertices[i].position.x = static_cast<float>(x * 64) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
-					vertices[i].position.y = -10.0f * Utilities::PixelPerfectUtility::Y_SCALE;
-					vertices[i].position.z = static_cast<float>(z * 64) * Utilities::PixelPerfectUtility::UNITS_PER_PIXEL;
+					vertices[i].position.x = static_cast<float>(x * 64) * Math::Retro::UNITS_PER_PIXEL;
+					vertices[i].position.y = -10.0f * Math::Retro::Y_SCALE;
+					vertices[i].position.z = static_cast<float>(z * 64) * Math::Retro::UNITS_PER_PIXEL;
 				}
 			}
 

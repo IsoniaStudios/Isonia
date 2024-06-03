@@ -6,7 +6,7 @@
 #include "../Window/Window.h"
 
 #include "../Utilities/MathUtility.h"
-#include "../Utilities/PixelPerfectUtility.h"
+#include "../Math/Retro.h"
 
 // std
 #include <cassert>
@@ -206,12 +206,12 @@ namespace Isonia::Pipeline
 			vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
 
 			// Calculate pixel offsets
-			const float scaleFactor = Utilities::PixelPerfectUtility::PIXELS_PER_UNIT * static_cast<float>(Utilities::PixelPerfectUtility::RenderFactor);
+			const float scaleFactor = Math::Retro::PIXELS_PER_UNIT * static_cast<float>(Math::Retro::RenderFactor);
 			const int32_t offsetX = Utilities::Math::RoundToInt(offset.x * scaleFactor);
 			const int32_t offsetY = Utilities::Math::RoundToInt(offset.y * scaleFactor);
 
 			// Define source and destination offsets for image blit
-			const int32_t renderFactor = static_cast<int32_t>(Utilities::PixelPerfectUtility::RenderFactor);
+			const int32_t renderFactor = static_cast<int32_t>(Math::Retro::RenderFactor);
 			const int32_t srcWidth = static_cast<int32_t>(pixelSwapChain->RenderWidth());
 			const int32_t srcHeight = static_cast<int32_t>(pixelSwapChain->RenderHeight());
 			const int32_t dstWidth = srcWidth * renderFactor;
@@ -298,7 +298,7 @@ namespace Isonia::Pipeline
 					outWidth = width;
 					outHeight = height;
 
-					Utilities::PixelPerfectUtility::RenderFactor = factor;
+					Math::Retro::RenderFactor = factor;
 				}
 			}
 		}

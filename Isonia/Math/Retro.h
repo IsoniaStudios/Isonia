@@ -1,7 +1,7 @@
 #pragma once
 
 // internal
-#include "MathUtility.h"
+#include "../Utilities/MathUtility.h"
 
 // std
 #include <cmath>
@@ -11,7 +11,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-namespace Isonia::Utilities::PixelPerfectUtility
+namespace Isonia::Math::Retro
 {
     // Constants
     static constexpr const float Y_SCALE = 1.154700538379252f; //1.0f / std::cos(Math::Radians(-30.0f));
