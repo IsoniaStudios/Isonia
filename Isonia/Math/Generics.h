@@ -16,11 +16,11 @@ namespace Isonia::Math
 
     static inline float Max(const float a, const float b) { return a > b ? a : b; }
 
+    static inline float Clamp(const float f, const float min, const float max) { return (f < min) ? min : (f > max) ? max : f; }
+
     static inline float Abs(const float f) { return f < 0 ? -f : f; }
 
     static inline float Sqrt(const float f) { return std::sqrtf(f); }
-
-    static inline float Clamp(const float f, const float min, const float max) { return (f < min) ? min : (f > max) ? max : f; }
 
     // To-Int
     static inline int32_t CeilToInt(const float f) { return f >= 0 ? static_cast<int32_t>(f + 0.999999f) : static_cast<int32_t>(f); }
