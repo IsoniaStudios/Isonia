@@ -5,9 +5,6 @@
 #include "../Components/Transform.h"
 #include "../Math/Vector.h"
 
-// std
-#include <limits>
-
 namespace Isonia::Controllers
 {
 	class KeyboardController

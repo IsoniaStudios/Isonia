@@ -12,7 +12,6 @@
 #include <vulkan/vulkan.h>
 
 // std
-#include <cmath>
 #include <stdexcept>
 #include <memory>
 #include <string>

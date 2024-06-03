@@ -3,9 +3,6 @@
 // internal
 #include "Vector.h"
 
-// std
-#include <cmath>
-
 namespace Isonia::Math
 {
     // Constants

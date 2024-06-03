@@ -12,9 +12,6 @@
 #include "../Pipeline/Renderer.h"
 #include "../Pipeline/PixelRenderer.h"
 
-// std
-#include <limits>
-
 namespace Isonia::Controllers
 {
 	class Player

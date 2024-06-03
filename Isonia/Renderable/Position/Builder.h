@@ -11,7 +11,6 @@
 // std
 #include <stdexcept>
 #include <bitset>
-#include <cmath>
 
 namespace Isonia::Renderable::Position
 {

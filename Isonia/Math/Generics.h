@@ -22,6 +22,8 @@ namespace Isonia::Math
 
     static inline float Sqrt(const float f) { return std::sqrtf(f); }
 
+    static inline float Round(const float f) { return std::roundf(f); }
+
     // To-Int
     static inline int32_t CeilToInt(const float f) { return f >= 0 ? static_cast<int32_t>(f + 0.999999f) : static_cast<int32_t>(f); }
 

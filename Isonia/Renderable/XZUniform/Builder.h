@@ -6,11 +6,11 @@
 #include "../../Noise/WarpNoise.h"
 #include "../../Pipeline/Buffer.h"
 #include "../../Pipeline/Device.h"
+#include "../../Math/Vector.h"
 
 // std
 #include <stdexcept>
 #include <bitset>
-#include <cmath>
 
 namespace Isonia::Renderable::XZUniform
 {

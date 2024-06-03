@@ -2,9 +2,7 @@
 
 // internal
 #include "Vector.h"
-
-// std
-#include <cmath>
+#include "Generics.h"
 
 namespace Isonia::Math::Retro
 {
@@ -22,17 +20,17 @@ namespace Isonia::Math::Retro
     static inline Math::Vector3 RoundToPixel(const Math::Vector3 position)
     {
         return {
-            std::roundf(position.x * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
-            std::roundf(position.y * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
-            std::roundf(position.z * PIXELS_PER_UNIT) * UNITS_PER_PIXEL
+            Math::Round(position.x * PIXELS_PER_UNIT)* UNITS_PER_PIXEL,
+            Math::Round(position.y * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
+            Math::Round(position.z * PIXELS_PER_UNIT) * UNITS_PER_PIXEL
         };
     }
     static inline Math::Vector4 RoundToPixel(const Math::Vector4 position)
     {
         return {
-            std::roundf(position.x * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
-            std::roundf(position.y * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
-            std::roundf(position.z * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
+            Math::Round(position.x * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
+            Math::Round(position.y * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
+            Math::Round(position.z * PIXELS_PER_UNIT) * UNITS_PER_PIXEL,
             position.w
         };
     }
@@ -55,9 +53,9 @@ namespace Isonia::Math::Retro
     static inline Math::Vector3 RoundToEulerRotation(const Math::Vector3 eulerRotation)
     {
         return {
-            std::roundf(eulerRotation.x * INVERSE_ROTATION_GRID) * ROTATION_GRID,
-            std::roundf(eulerRotation.y * INVERSE_ROTATION_GRID) * ROTATION_GRID,
-            std::roundf(eulerRotation.z * INVERSE_ROTATION_GRID) * ROTATION_GRID
+            Math::Round(eulerRotation.x * INVERSE_ROTATION_GRID) * ROTATION_GRID,
+            Math::Round(eulerRotation.y * INVERSE_ROTATION_GRID) * ROTATION_GRID,
+            Math::Round(eulerRotation.z * INVERSE_ROTATION_GRID) * ROTATION_GRID
         };
     }
 }
