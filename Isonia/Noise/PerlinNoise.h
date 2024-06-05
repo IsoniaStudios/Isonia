@@ -131,9 +131,9 @@ namespace Isonia::Noise
             int32_t y1 = y0 + PrimeY;
 
             float xf0 = Math::Lerp(GradCoord(seed, x0, y0, xd0, yd0),
-                                    GradCoord(seed, x1, y0, xd1, yd0), xs);
+                                   GradCoord(seed, x1, y0, xd1, yd0), xs);
             float xf1 = Math::Lerp(GradCoord(seed, x0, y1, xd0, yd1),
-                                    GradCoord(seed, x1, y1, xd1, yd1), xs);
+                                   GradCoord(seed, x1, y1, xd1, yd1), xs);
 
             return Math::Lerp(xf0, xf1, ys) * 1.4247691104677813f;
         }
@@ -163,13 +163,13 @@ namespace Isonia::Noise
             int32_t z1 = z0 + PrimeZ;
 
             float xf00 = Math::Lerp(GradCoord(seed, x0, y0, z0, xd0, yd0, zd0),
-                                     GradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
+                                    GradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
             float xf10 = Math::Lerp(GradCoord(seed, x0, y1, z0, xd0, yd1, zd0),
-                                     GradCoord(seed, x1, y1, z0, xd1, yd1, zd0), xs);
+                                    GradCoord(seed, x1, y1, z0, xd1, yd1, zd0), xs);
             float xf01 = Math::Lerp(GradCoord(seed, x0, y0, z1, xd0, yd0, zd1),
-                                     GradCoord(seed, x1, y0, z1, xd1, yd0, zd1), xs);
+                                    GradCoord(seed, x1, y0, z1, xd1, yd0, zd1), xs);
             float xf11 = Math::Lerp(GradCoord(seed, x0, y1, z1, xd0, yd1, zd1),
-                                     GradCoord(seed, x1, y1, z1, xd1, yd1, zd1), xs);
+                                    GradCoord(seed, x1, y1, z1, xd1, yd1, zd1), xs);
 
             float yf0 = Math::Lerp(xf00, xf10, ys);
             float yf1 = Math::Lerp(xf01, xf11, ys);
@@ -208,21 +208,21 @@ namespace Isonia::Noise
             int32_t t1 = t0 + PrimeT;
 
             float xf000 = Math::Lerp(GradCoord(seed, x0, y0, z0, t0, xd0, yd0, zd0, td0),
-                                      GradCoord(seed, x1, y0, z0, t0, xd1, yd0, zd0, td0), xs);
+                                     GradCoord(seed, x1, y0, z0, t0, xd1, yd0, zd0, td0), xs);
             float xf100 = Math::Lerp(GradCoord(seed, x0, y1, z0, t0, xd0, yd1, zd0, td0),
-                                      GradCoord(seed, x1, y1, z0, t0, xd1, yd1, zd0, td0), xs);
+                                     GradCoord(seed, x1, y1, z0, t0, xd1, yd1, zd0, td0), xs);
             float xf010 = Math::Lerp(GradCoord(seed, x0, y0, z1, t0, xd0, yd0, zd1, td0),
-                                      GradCoord(seed, x1, y0, z1, t0, xd1, yd0, zd1, td0), xs);
+                                     GradCoord(seed, x1, y0, z1, t0, xd1, yd0, zd1, td0), xs);
             float xf110 = Math::Lerp(GradCoord(seed, x0, y1, z1, t0, xd0, yd1, zd1, td0),
-                                      GradCoord(seed, x1, y1, z1, t0, xd1, yd1, zd1, td0), xs);
+                                     GradCoord(seed, x1, y1, z1, t0, xd1, yd1, zd1, td0), xs);
             float xf001 = Math::Lerp(GradCoord(seed, x0, y0, z0, t1, xd0, yd0, zd0, td1),
-                                      GradCoord(seed, x1, y0, z0, t1, xd1, yd0, zd0, td1), xs);
+                                     GradCoord(seed, x1, y0, z0, t1, xd1, yd0, zd0, td1), xs);
             float xf101 = Math::Lerp(GradCoord(seed, x0, y1, z0, t1, xd0, yd1, zd0, td1),
-                                      GradCoord(seed, x1, y1, z0, t1, xd1, yd1, zd0, td1), xs);
+                                     GradCoord(seed, x1, y1, z0, t1, xd1, yd1, zd0, td1), xs);
             float xf011 = Math::Lerp(GradCoord(seed, x0, y0, z1, t1, xd0, yd0, zd1, td1),
-                                      GradCoord(seed, x1, y0, z1, t1, xd1, yd0, zd1, td1), xs);
+                                     GradCoord(seed, x1, y0, z1, t1, xd1, yd0, zd1, td1), xs);
             float xf111 = Math::Lerp(GradCoord(seed, x0, y1, z1, t1, xd0, yd1, zd1, td1),
-                                      GradCoord(seed, x1, y1, z1, t1, xd1, yd1, zd1, td1), xs);
+                                     GradCoord(seed, x1, y1, z1, t1, xd1, yd1, zd1, td1), xs);
 
             float yf00 = Math::Lerp(xf000, xf100, ys);
             float yf10 = Math::Lerp(xf010, xf110, ys);

@@ -79,8 +79,8 @@ namespace Isonia::Renderable::XZUniformN
 				const Math::Vector3 normal = normals[row][col];
 
 				// calculate pitch and yaw
-				vertices[i].pitch = Math::Atan(normal.y, normal.z);
-				vertices[i].yaw = Math::Atan(normal.y, normal.x);
+				vertices[i].pitch = Math::Atan2(normal.y, normal.z);
+				vertices[i].yaw = Math::Atan2(normal.y, normal.x);
 			}
 
 			// create the buffers

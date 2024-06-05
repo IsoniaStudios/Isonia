@@ -21,4 +21,6 @@ namespace Isonia::Math
 
     static inline float Cos(const float radians) { return std::cos(radians); }
     static inline float Sin(const float radians) { return std::sin(radians); }
+    static inline float Atan(const float radians) { return std::atan(radians); }
+    static inline float Atan2(const float y, const float x) { return std::atan2(y, x); }
 }

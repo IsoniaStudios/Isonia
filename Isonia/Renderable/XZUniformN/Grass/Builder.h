@@ -44,8 +44,8 @@ namespace Isonia::Renderable::XZUniformN::Grass
 					world_y -= GRASS_SIZE * Math::Retro::Y_SCALE;
 
 					const Math::Vector3 world_normal = ground->MapWorldToNormal(world_x, world_z);
-					const float pitch = Math::Atan(world_normal.y, world_normal.z);
-					const float yaw = Math::Atan(world_normal.y, world_normal.x);
+					const float pitch = Math::Atan2(world_normal.y, world_normal.z);
+					const float yaw = Math::Atan2(world_normal.y, world_normal.x);
 
 					const uint32_t i = x + z * GRASS_COUNT_SIDE;
 

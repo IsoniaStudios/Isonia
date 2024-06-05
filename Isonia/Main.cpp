@@ -3,11 +3,6 @@
 // internal
 #include "Isonia.h"
 
-// std
-#include <cstdlib>
-#include <iostream>
-#include <stdexcept>
-
 // build configuration
 #ifdef PRODUCTION_BUILD
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
