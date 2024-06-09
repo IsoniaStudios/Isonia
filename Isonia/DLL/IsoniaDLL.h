@@ -3,7 +3,7 @@
 #ifdef DLL_BUILD
 #define ISONIA_DLL_API __declspec(dllexport)
 
-extern "C" ISONIA_DLL_API void* CreateIsoniaWindow();
-extern "C" ISONIA_DLL_API void DestroyIsoniaWindow(void* windowHandle);
-extern "C" ISONIA_DLL_API void Run();
+extern "C" ISONIA_DLL_API void* createIsoniaWindow();
+extern "C" ISONIA_DLL_API void destroyIsoniaWindow(void* window_handle);
+extern "C" ISONIA_DLL_API void run();
 #endif

@@ -2,22 +2,22 @@
 #include "../Isonia.h"
 #include "IsoniaDLL.h"
 
-Isonia::Isonia* globalIsoniaInstance = nullptr;
+Isonia::Isonia* global_isonia_instance = nullptr;
 
-void* CreateIsoniaWindow() {
-    globalIsoniaInstance = new Isonia::Isonia();
-    return globalIsoniaInstance->GetGLFWWindowHandle();
+void* createIsoniaWindow() {
+    global_isonia_instance = new Isonia::Isonia();
+    return global_isonia_instance->get_GLFW_window_handle();
 }
 
-void DestroyIsoniaWindow(void* windowHandle) {
-    if (globalIsoniaInstance != nullptr) {
-        delete globalIsoniaInstance;
+void destroyIsoniaWindow(void* window_handle) {
+    if (global_isonia_instance != nullptr) {
+        delete global_isonia_instance;
     }
 }
 
-void Run() {
-    if (globalIsoniaInstance != nullptr) {
-        globalIsoniaInstance->Run();
+void run() {
+    if (global_isonia_instance != nullptr) {
+        global_isonia_instance->run();
     }
 }
 #endif
