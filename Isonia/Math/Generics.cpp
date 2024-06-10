@@ -5,8 +5,8 @@ namespace Isonia::Math
 {
     extern inline constexpr float roundf(const float f)
     {
-        int integer_part = static_cast<int>(f);
-        float fractional_part = f - integer_part;
+        const int integer_part = static_cast<int>(f);
+        const float fractional_part = f - integer_part;
 
         if (fractional_part >= 0.5f)
         {
@@ -70,7 +70,7 @@ namespace Isonia::Math
     {
         long i = *(long*)&f;
         i = 0x5f3759df - (i >> 1);
-        float y = *(float*)&i;
+        const float y = *(float*)&i;
         return y * (1.5f - (f * 0.5f * y * y));
     }
 }

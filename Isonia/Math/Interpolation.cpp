@@ -13,7 +13,7 @@ namespace Isonia::Math
     {
         return a + t * (b - a);
     }
-    extern inline constexpr Vector3 lerpv3(const Vector3 a, const Vector3 b, const float t)
+    extern inline constexpr Vector3 lerpv3(const Vector3& a, const Vector3& b, const float t)
     {
         return Vector3{
             lerpf(a.x, b.x, t),
@@ -26,7 +26,7 @@ namespace Isonia::Math
         const float p = (d - c) - (a - b);
         return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
     }
-    extern inline constexpr float cubicLerpv3(const Vector3 a, const Vector3 b, const Vector3 c, const Vector3 d, const float t)
+    extern inline constexpr float cubicLerpv3(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d, const float t)
     {
         const float p = (d - c) - (a - b);
         return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
@@ -40,11 +40,11 @@ namespace Isonia::Math
         const float right = heightMap[middleIndex + 1];
         const float bottom = heightMap[middleIndex + width];
 
-        return Normalize(Vector3{
+        return vec3Normalize(
             bottom - top,
             -dx - dz,
             right - left,
-        });
+        );
     }
     extern inline constexpr Vector3 smoothNormalFromEight(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
     {
@@ -58,10 +58,10 @@ namespace Isonia::Math
         const float bottomLeft = heightMap[middleIndex + width - 1];
         const float bottomRight = heightMap[middleIndex + width + 1];
 
-        return Normalize(Vector3{
+        return vec3Normalize(
             topRight + right + bottomRight - topLeft - left - bottomLeft,
             -dx - dz - dx - dz,
             bottomLeft + bottom + bottomRight - topLeft - top - topRight
-        });
+        );
     }
 }

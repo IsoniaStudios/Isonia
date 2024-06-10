@@ -1,5 +1,4 @@
-#ifndef IMATH
-#define IMATH
+#pragma once
 
 namespace Isonia::Math
 {
@@ -39,23 +38,107 @@ namespace Isonia::Math
     extern inline constexpr int ceilEvenf_i(const float f);
     extern inline constexpr int ceilOddf_i(const float f);
 
-    // Geometry
-    bool IntersectRayPlane(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float& f) { return glm::intersectRayPlane(v1, v2, v3, v4, f); }
+    // Trigonometry
+    extern inline constexpr float radiansf(const float degrees);
+    extern inline constexpr float degreesf(const float radians);
 
-    // Interpolation
-    extern inline constexpr float interpolationHermitef(const float t);
-    extern inline constexpr float interpolationQuinticf(const float t);
+    extern inline constexpr float clampDegreesf(const float degrees);
+    extern inline constexpr float clampRadiansf(const float radians);
 
-    extern inline constexpr float lerpf(const float a, const float b, const float t);
-    extern inline constexpr Vector3 lerpv3(const Vector3 a, const Vector3 b, const float t);
-    extern inline constexpr float cubicLerpf(const float a, const float b, const float c, const float d, const float t);
-    extern inline constexpr Vector3 cubicLerpv3(const Vector3 a, const Vector3 b, const Vector3 c, const Vector3 d, const float t);
+    extern inline constexpr float cosf(const float radians);
+    extern inline constexpr float sinf(const float radians);
+    extern inline constexpr float atanf(const float radians);
+    extern inline constexpr float atan2f(const float y, const float x);
 
-    extern inline constexpr Vector3 smoothNormalFromFour(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
-    extern inline constexpr Vector3 smoothNormalFromEight(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
+    // Vector
+    struct Vector4
+    {
+    public:
+        static constexpr unsigned int length() { return 4u; }
+
+        constexpr Vector4();
+        constexpr Vector4(const Vector4& v);
+        constexpr Vector4(const float x, const float y, const float z, const float w);
+
+        constexpr float& operator[](unsigned int i) noexcept;
+        constexpr const float& operator[](unsigned int i) const noexcept;
+        constexpr Vector4& operator=(const Vector4& v);
+
+    private:
+        float x;
+        float y;
+        float z;
+        float w;
+    }
+
+    extern inline constexpr bool operator==(const Vector4& v1, const Vector4& v2);
+    extern inline constexpr bool operator!=(const Vector4& v1, const Vector4& v2);
+
+    extern inline constexpr float vec4Dot(const Vector4& v1, const Vector4& v2);
+    extern inline constexpr Vector4 ve43Mul(const Vector4& v1, const Vector4& v2);
+    extern inline constexpr Vector4 vec4Normalize(const Vector4& v);
+    extern inline constexpr Vector4 vec4Normalize(const float x, const float y, const float z, const float w);
+
+    struct Vector3
+    {
+    public:
+        static constexpr unsigned int length() { return 3u; }
+
+        constexpr Vector3();
+        constexpr Vector3(const Vector3& v);
+        constexpr Vector3(const Vector4& v);
+        constexpr Vector3(const float x, const float y, const float z);
+
+        constexpr float& operator[](unsigned int i) noexcept;
+        constexpr const float& operator[](unsigned int i) const noexcept;
+        constexpr Vector3& operator=(const Vector3& v);
+
+    private:
+        float x;
+        float y;
+        float z;
+    }
+
+    extern inline constexpr bool operator==(const Vector3& v1, const Vector3& v2);
+    extern inline constexpr bool operator!=(const Vector3& v1, const Vector3& v2);
+
+    extern inline constexpr float vec3Dot(const Vector3& v1, const Vector3& v2);
+    extern inline constexpr Vector3 vec3Mul(const Vector3& v1, const Vector3& v2);
+    extern inline constexpr Vector3 vec3Normalize(const Vector3& v);
+    extern inline constexpr Vector3 vec3Normalize(const float x, const float y, const float z);
+    extern inline constexpr Vector3 vec3Cross(const Vector3& v1, const Vector3& v2);
+
+    struct Vector2
+    {
+    public:
+        static constexpr unsigned int length() { return 2u; }
+
+        constexpr Vector2();
+        constexpr Vector2(const Vector2& v);
+        constexpr Vector2(const Vector3& v);
+        constexpr Vector2(const Vector4& v);
+        constexpr Vector2(const float x, const float y);
+
+        constexpr float& operator[](unsigned int i) noexcept;
+        constexpr const float& operator[](unsigned int i) const noexcept;
+        constexpr Vector2& operator=(const Vector2& v);
+
+    private:
+        float x;
+        float y;
+    }
+
+    extern inline constexpr bool operator==(const Vector2& v1, const Vector2& v2);
+    extern inline constexpr bool operator!=(const Vector2& v1, const Vector2& v2);
+
+    extern inline constexpr float vec2Dot(const Vector2& v1, const Vector2& v2);
+    extern inline constexpr Vector2 vec2Mul(const Vector2& v1, const Vector2& v2);
+    extern inline constexpr Vector2 vec2Normalize(const Vector2& v);
+    extern inline constexpr Vector2 vec2Normalize(const float x, const float y);
 
     // Matrix
-    typedef struct{
+    struct Matrix3x3
+    {
     public:
         static constexpr unsigned int length() { return 3u; }
 
@@ -76,7 +159,7 @@ namespace Isonia::Math
 
     private:
         Vector3 value[3];
-    }Matrix3x3;
+    }
 
     extern inline constexpr Matrix3x3 mat3Mult(const Matrix3x3& m, const float scalar);
     extern inline constexpr Vector3 mat3Mult(const Matrix3x3& m, const Vector3& v);
@@ -87,7 +170,8 @@ namespace Isonia::Math
     extern inline constexpr bool operator==(const Matrix3x3& m1, const Matrix3x3& m2);
     extern inline constexpr bool operator!=(const Matrix3x3& m1, const Matrix3x3& m2);
 
-    typedef struct {
+    struct Matrix4x4
+    {
     public:
         static constexpr unsigned int length() { return 4u; }
 
@@ -109,7 +193,7 @@ namespace Isonia::Math
 
     private:
         Vector4 value[4];
-    }Matrix4x4;
+    }
 
     extern inline constexpr Matrix4x4 mat4Mult(const Matrix4x4& m, const float scalar);
     extern inline constexpr Vector4 mat4Mult(const Matrix4x4& m, const Vector4& v);
@@ -124,96 +208,38 @@ namespace Isonia::Math
     extern inline constexpr Vector3 roundVec3ToPixel(const Vector3 vector);
     extern inline constexpr Vector4 roundVec4ToPixel(const Vector4 vector);
 
-    // Trigonometry
-    extern inline constexpr float radiansf(const float degrees);
-    extern inline constexpr float degreesf(const float radians);
+    // Geometry
+    extern inline constexpr bool intersectRayPlane(const Vector3& v1, const Vector3& v2, const Vector3& v3, const Vector3& v4, float& f);
 
-    extern inline constexpr float clampDegreesf(const float degrees);
-    extern inline constexpr float clampRadiansf(const float radians);
+    // Interpolation
+    extern inline constexpr float interpolationHermitef(const float t);
+    extern inline constexpr float interpolationQuinticf(const float t);
 
-    extern inline constexpr float cosf(const float radians);
-    extern inline constexpr float sinf(const float radians);
-    extern inline constexpr float atanf(const float radians);
-    extern inline constexpr float atan2f(const float y, const float x);
+    extern inline constexpr float lerpf(const float a, const float b, const float t);
+    extern inline constexpr Vector3 lerpv3(const Vector3& a, const Vector3& b, const float t);
+    extern inline constexpr float cubicLerpf(const float a, const float b, const float c, const float d, const float t);
+    extern inline constexpr Vector3 cubicLerpv3(const Vector3 &a, const Vector3& b, const Vector3& c, const Vector3& d, const float t);
 
-    // Vector
-    typedef struct {
-    public:
-        static constexpr unsigned int length() { return 2u; }
+    extern inline constexpr Vector3 smoothNormalFromFour(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
+    extern inline constexpr Vector3 smoothNormalFromEight(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
 
-        constexpr Vector2();
-        constexpr Vector2(const Vector2& v);
-        constexpr Vector2(const Vector3& v);
-        constexpr Vector2(const Vector4& v);
-        constexpr Vector2(const float x, const float y);
+    // Hash
+    static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed);
+    static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed);
+    static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed);
 
-        constexpr float& operator[](unsigned int i) noexcept;
-        constexpr const float& operator[](unsigned int i) const noexcept;
-        constexpr Vector2& operator=(const Vector2& v);
+    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed);
+    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed);
+    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed);
 
-    private:
-        float x;
-        float y;
-    }Vector2;
+    static constexpr const float gradients_2D[];
+    static constexpr const float gradients_3D[];
+    static constexpr const float gradients_4D[];
 
-    extern inline constexpr bool operator==(const Vector2& v1, const Vector2& v2);
-    extern inline constexpr bool operator!=(const Vector2& v1, const Vector2& v2);
+    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const float xd, const float yd);
+    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const float xd, const float yd, const float zd);
+    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed, const float xd, const float yd, const float zd, const float wd);
 
-    extern inline constexpr float vec2Dot(const Vector2 v1, const Vector2 v2);
-    extern inline constexpr Vector2 vec2Mul(const Vector2 v1, const Vector2 v2);
-    extern inline constexpr Vector2 vec2Normalize(const Vector2& v);
-
-    typedef struct {
-    public:
-        static constexpr unsigned int length() { return 3u; }
-
-        constexpr Vector3();
-        constexpr Vector3(const Vector3& v);
-        constexpr Vector3(const Vector4& v);
-        constexpr Vector3(const float x, const float y, const float z);
-
-        constexpr float& operator[](unsigned int i) noexcept;
-        constexpr const float& operator[](unsigned int i) const noexcept;
-        constexpr Vector3& operator=(const Vector3& v);
-
-    private:
-        float x;
-        float y;
-        float z;
-    }Vector3;
-
-    extern inline constexpr bool operator==(const Vector3& v1, const Vector3& v2);
-    extern inline constexpr bool operator!=(const Vector3& v1, const Vector3& v2);
-
-    extern inline constexpr float vec3Dot(const Vector3 v1, const Vector3 v2);
-    extern inline constexpr Vector3 vec3Mul(const Vector3 v1, const Vector3 v2);
-    extern inline constexpr Vector3 vec3Normalize(const Vector3& v);
-    extern inline constexpr Vector3 vec3Cross(const Vector3 v1, const Vector3 v2);
-
-    typedef struct {
-    public:
-        static constexpr unsigned int length() { return 4u; }
-
-        constexpr Vector4();
-        constexpr Vector4(const Vector4& v);
-        constexpr Vector4(const float x, const float y, const float z, const float w);
-
-        constexpr float& operator[](unsigned int i) noexcept;
-        constexpr const float& operator[](unsigned int i) const noexcept;
-        constexpr Vector4& operator=(const Vector4& v);
-
-    private:
-        float x;
-        float y;
-        float z;
-        float w;
-    }Vector4;
-
-    extern inline constexpr bool operator==(const Vector4& v1, const Vector4& v2);
-    extern inline constexpr bool operator!=(const Vector4& v1, const Vector4& v2);
-
-    extern inline constexpr float vec4Dot(const Vector4 v1, const Vector4 v2);
-    extern inline constexpr Vector4 ve43Mul(const Vector4 v1, const Vector4 v2);
-    extern inline constexpr Vector4 vec4Normalize(const Vector4& v);
+    // Random
+    extern inline constexpr unsigned int randomInt(const unsigned int seed);
 }
-#endif

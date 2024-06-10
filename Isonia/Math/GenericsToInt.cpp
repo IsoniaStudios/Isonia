@@ -30,7 +30,7 @@ namespace Isonia::Math
 
     extern inline constexpr int ceilEvenf_i(const float f)
     {
-        int ceiled_f = ceilf_i(f);
+        const int ceiled_f = ceilf_i(f);
         if (ceiled_f % 2 != 0)
         {
             return ceiled_f + 1;
@@ -39,7 +39,7 @@ namespace Isonia::Math
     }
     extern inline constexpr int ceilOddf_i(const float f)
     {
-        int ceiled_f = ceilf_i(f);
+        const int ceiled_f = ceilf_i(f);
         if (ceiled_f % 2 == 0)
         {
             return ceiled_f + 1;

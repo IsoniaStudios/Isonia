@@ -1,7 +1,3 @@
-#pragma once
-
-#include "Matrix.h"
-
 namespace Isonia::Math
 {
 	// Matrix3x3
@@ -29,7 +25,7 @@ namespace Isonia::Math
 		return (m1[0] != m2[0]) || (m1[1] != m2[1]) || (m1[2] != m2[2]);
 	}
 
-    extern inline constexpr Matrix3x3::Matrix3x3() : value{ Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1) } { }
+	extern inline constexpr Matrix3x3::Matrix3x3() : value{ Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1) } { }
     extern inline constexpr Matrix3x3::Matrix3x3(const Matrix3x3& m) : value{ Vector3(m[0]), Vector3(m[1]), Vector3(m[2]) } { }
     extern inline constexpr Matrix3x3::Matrix3x3(const float s) : value{ Vector3(s, 0, 0), Vector3(0, s, 0), Vector3(0, 0, s) } { }
     extern inline constexpr Matrix3x3::Matrix3x3(

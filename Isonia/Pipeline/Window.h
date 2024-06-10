@@ -10,7 +10,7 @@
 #include <vector>
 #include <functional>
 
-namespace Isonia::Window
+namespace Isonia::Pipeline
 {
 	class Window
 	{

@@ -1,8 +1,7 @@
 #pragma once
 
 // internal
-#include "../Components/Camera.h"
-#include "../Pipeline/Descriptors/Descriptors.h"
+#include "../Math/Math.h"
 
 // external
 #include <vulkan/vulkan.h>

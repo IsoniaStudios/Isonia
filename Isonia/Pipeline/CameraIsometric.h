@@ -9,7 +9,7 @@
 
 #include "../Math/Vector.h"
 
-namespace Isonia::Components
+namespace Isonia::Pipeline
 {
 	struct CameraIsometric : public Camera
 	{
