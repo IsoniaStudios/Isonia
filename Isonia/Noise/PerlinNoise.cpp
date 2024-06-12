@@ -1,3 +1,7 @@
+// internal
+#include "Noise.h"
+#include "../Math/Math.h"
+
 namespace Isonia::Noise
 {
 	PerlinNoise::PerlinNoise(const unsigned int seed) : VirtualNoise(seed) { }
@@ -70,12 +74,12 @@ namespace Isonia::Noise
 		unsigned int x0 = Math::floorf_i(x);
 		unsigned int y0 = Math::floorf_i(y);
 		unsigned int z0 = Math::floorf_i(z);
-		unsigned int w0 = Math::floorf_i(t);
+		unsigned int w0 = Math::floorf_i(w);
 
 		float xd0 = (float)(x - x0);
 		float yd0 = (float)(y - y0);
 		float zd0 = (float)(z - z0);
-		float wd0 = (float)(t - w0);
+		float wd0 = (float)(w - w0);
 		float xd1 = xd0 - 1;
 		float yd1 = yd0 - 1;
 		float zd1 = zd0 - 1;

@@ -1,3 +1,6 @@
+// internal
+#include "Math.h"
+
 namespace Isonia::Math
 {
     static constexpr const float gradients_2D[] =
@@ -76,7 +79,7 @@ namespace Isonia::Math
         0, 1, 1, 0,  0,-1, 1, 0, -1, 1, 0, 0,  0,-1,-1, 0,
     };
 
-	static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed)
+	static inline constexpr unsigned int hash2D(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed)
 	{
 		unsigned int hash = seed ^ xPrimed ^ yPrimed;
 
@@ -84,7 +87,7 @@ namespace Isonia::Math
 		return hash;
 	}
 
-	static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed)
+	static inline constexpr unsigned int hash3D(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed)
 	{
 		unsigned int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
 
@@ -92,7 +95,7 @@ namespace Isonia::Math
 		return hash;
 	}
 
-	static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed)
+	static inline constexpr unsigned int hash4D(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed)
 	{
 		unsigned int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed ^ wPrimed;
 
@@ -102,66 +105,66 @@ namespace Isonia::Math
 
 	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed)
 	{
-		unsigned int hash = hash(seed, xPrimed, yPrimed);
+		unsigned int hash = hash2D(seed, xPrimed, yPrimed);
 
 		hash *= hash;
 		hash ^= hash << 19;
-		return hash * (1 / 2147483648.0f);
+		return hash * (1.0f / 2147483648.0f);
 	}
 
 	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed)
 	{
-		unsigned int hash = hash(seed, xPrimed, yPrimed, zPrimed);
+        unsigned int hash = hash3D(seed, xPrimed, yPrimed, zPrimed);
 
 		hash *= hash;
 		hash ^= hash << 19;
-		return hash * (1 / 2147483648.0f);
+		return hash * (1.0f / 2147483648.0f);
 	}
 
 	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed)
 	{
-		unsigned int hash = hash(seed, xPrimed, yPrimed, zPrimed, wPrimed);
+		unsigned int hash = hash4D(seed, xPrimed, yPrimed, zPrimed, wPrimed);
 
 		hash *= hash;
 		hash ^= hash << 19;
-		return hash * (1 / 2147483648.0f);
+		return hash * (1.0f / 2147483648.0f);
 	}
 
 	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const float xd, const float yd)
 	{
-		unsigned int hash = hash(seed, xPrimed, yPrimed);
+		unsigned int hash = hash2D(seed, xPrimed, yPrimed);
 		hash ^= hash >> 15;
 		hash &= 127 << 1;
 
-		float xg = gradients_2D[hash];
-		float yg = gradients_2D[hash | 1];
+		const float xg = gradients_2D[hash];
+		const float yg = gradients_2D[hash | 1];
 
 		return xd * xg + yd * yg;
 	}
 
 	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const float xd, const float yd, const float zd)
 	{
-		unsigned int hash = hash(seed, xPrimed, yPrimed, zPrimed);
+		unsigned int hash = hash3D(seed, xPrimed, yPrimed, zPrimed);
 		hash ^= hash >> 15;
 		hash &= 63 << 2;
 
-		float xg = gradients_3D[hash];
-		float yg = gradients_3D[hash | 1];
-		float zg = gradients_3D[hash | 2];
+		const float xg = gradients_3D[hash];
+        const float yg = gradients_3D[hash | 1];
+        const float zg = gradients_3D[hash | 2];
 
 		return xd * xg + yd * yg + zd * zg;
 	}
 
 	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed, const float xd, const float yd, const float zd, const float wd)
 	{
-		unsigned int hash = hash(seed, xPrimed, yPrimed, zPrimed, wPrimed);
+		unsigned int hash = hash4D(seed, xPrimed, yPrimed, zPrimed, wPrimed);
 		hash ^= hash >> 15;
-		hash &= 31 << 2;
+		hash &= 31 << 3;
 
-		float xg = gradients_4D[hash];
-		float yg = gradients_4D[hash | 1];
-		float zg = gradients_4D[hash | 2];
-		float wg = gradients_4D[hash | 3];
+        const float xg = gradients_4D[hash];
+        const float yg = gradients_4D[hash | 1];
+        const float zg = gradients_4D[hash | 2];
+        const float wg = gradients_4D[hash | 3];
 
 		return xd * xg + yd * yg + zd * zg + wd * wg;
 	}

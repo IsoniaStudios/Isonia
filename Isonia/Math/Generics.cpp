@@ -1,3 +1,6 @@
+// internal
+#include "Math.h"
+
 // std
 #include <cmath>
 
@@ -33,7 +36,7 @@ namespace Isonia::Math
         return std::fmodf(x, y);
     }
 
-    extern inline constexpr float fminf(const float a, const float b)
+    extern inline constexpr float minf(const float a, const float b)
     {
         if (a < b)
         {
@@ -41,7 +44,7 @@ namespace Isonia::Math
         }
         return b;
     }
-    extern inline constexpr float fmaxf(const float a, const float b)
+    extern inline constexpr float maxf(const float a, const float b)
     {
         if (a > b)
         {

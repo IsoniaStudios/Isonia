@@ -8,8 +8,6 @@ namespace Isonia
 		auto start_time = std::chrono::high_resolution_clock::now();
 
 		initializeDescriptorPool();
-		initializeCoordinator();
-		initializePhysicsSystem();
 		initializeRenderSystems();
 		initializeEntities();
 		initializePlayer();
@@ -23,31 +21,29 @@ namespace Isonia
 	{
 		auto start_time = std::chrono::high_resolution_clock::now();
 
-		delete cloud;
-		delete debugger;
-		delete grass;
-		delete grassDayPalette;
-		delete waterDayPalette;
+		delete m_cloud;
+		delete m_debugger;
+		delete m_grass;
+		delete m_grass_day_palette;
+		delete m_water_day_palette;
 
-		delete sphereModel;
-		for (Renderable::Complete::Model* prismModel : prismModels) {
-			delete prismModel;
+		delete m_sphere_model;
+		for (Renderable::Complete::Model* prism_model : m_prism_models) {
+			delete prism_model;
 		}
 
-		delete debuggerRenderSystem;
-		delete groundRenderSystem;
-		delete waterRenderSystem;
+		delete m_debugger_render_system;
+		delete m_ground_render_system;
+		delete m_water_render_system;
 
-		delete gCoordinator;
-
-		delete globalSetLayout;
-		for (Pipeline::Buffer* buffer : clockBuffers) {
+		delete m_global_set_layout;
+		for (Pipeline::Buffer* buffer : m_clock_buffers) {
 			delete buffer;
 		}
-		for (Pipeline::Buffer* buffer : uboBuffers) {
+		for (Pipeline::Buffer* buffer : m_ubo_buffers) {
 			delete buffer;
 		}
-		delete globalPool;
+		delete m_global_pool;
 
 		auto end_time = std::chrono::high_resolution_clock::now();
 		float initilize_time = std::chrono::duration<float, std::chrono::milliseconds::period>(end_time - start_time).count();
@@ -56,60 +52,57 @@ namespace Isonia
 
 	void Isonia::run()
 	{
-		Debug::PerformanceTracker performanceTracker;
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		while (!window.ShouldClose())
+		Debug::PerformanceTracker performance_tracker;
+		auto current_time = std::chrono::high_resolution_clock::now();
+		while (!m_window.ShouldClose())
 		{
 			glfwPollEvents();
 
-			auto newTime = std::chrono::high_resolution_clock::now();
-			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-			currentTime = newTime;
+			auto new_time = std::chrono::high_resolution_clock::now();
+			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time - current_time).count();
+			current_time = new_time;
 
-			performanceTracker.LogFrameTime(frameTime);
+			performance_tracker.logFrameTime(frame_time_s);
 
-			physicsSystem->Update(frameTime);
+			m_player.act(window.getGLFWWindow(), frame_time_s);
 
-			player.Act(window.GetGLFWwindow(), frameTime);
-
-			if (auto commandBuffer = renderer.BeginFrame())
+			if (auto commandBuffer = m_renderer.beginFrame())
 			{
-				int frameIndex = renderer.GetFrameIndex();
-				State::FrameInfo frameInfo{
-					frameIndex,
-					frameTime,
-					commandBuffer,
-					globalDescriptorSets[frameIndex]
+				int frame_index = m_renderer.getFrameIndex();
+				State::FrameInfo frame_info{
+					frame_index,
+					frame_time_s,
+					m_command_buffer,
+					m_global_descriptor_sets[frame_index]
 				};
 
 				// update
-				//ubo.lightDirection = Math::Normalize(ubo.lightDirection - Math::Vector3(0, frameTime * 0.01f, 0));
-				ubo.projection = player.camera.GetProjection();
-				ubo.view = player.camera.GetView();
-				ubo.inverseView = player.camera.GetInverseView();
+				m_ubo.projection = player.camera.getProjection();
+				m_ubo.view = player.camera.getView();
+				m_ubo.inverse_view = player.camera.getInverseView();
 
-				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
-				uboBuffers[frameIndex]->Flush();
+				m_ubo_buffers[frame_index]->writeToBuffer(&ubo);
+				m_ubo_buffers[frame_index]->flush();
 
-				clock.frameTime = frameTime;
-				clock.time += frameTime;
+				m_clock.frame_time_s = frame_time_s;
+				m_clock.time_s += frame_time_s;
 
-				clockBuffers[frameIndex]->WriteToBuffer(&clock);
-				clockBuffers[frameIndex]->Flush();
+				m_clock_buffers[frame_index]->writeToBuffer(&m_clock);
+				m_clock_buffers[frame_index]->flush();
 
 				// render
-				renderer.BeginSwapChainRenderPass(commandBuffer);
-				groundRenderSystem->Render(frameInfo);
-				simpleRenderSystem->RenderGameObjects(frameInfo);
-				debuggerRenderSystem->Render(frameInfo);
-				waterRenderSystem->Render(frameInfo, player.camera);
-				renderer.EndSwapChainRenderPass(commandBuffer);
-				renderer.Blit(commandBuffer, player.camera.subPixelOffset);
-				renderer.EndFrame();
+				m_renderer.beginSwapChainRenderPass(command_buffer);
+				m_groundRenderSystem->render(frame_info);
+				m_simpleRenderSystem->renderGameObjects(frame_info);
+				m_debuggerRenderSystem->render(frame_info);
+				m_waterRenderSystem->render(frame_info, player.camera);
+				m_renderer.endSwapChainRenderPass(command_buffer);
+				m_renderer.blit(command_buffer, player.camera.subPixelOffset);
+				m_renderer.endFrame();
 			}
 		}
 
-		vkDeviceWaitIdle(device.GetDevice());
+		vkDeviceWaitIdle(device.getDevice());
 	}
 
 	void Isonia::initializeDescriptorPool()

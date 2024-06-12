@@ -1,3 +1,7 @@
+// internal
+#include "Noise.h"
+#include "../Math/Math.h"
+
 namespace Isonia::Noise
 {
 	FractalPerlinNoise::FractalPerlinNoise(
@@ -6,7 +10,7 @@ namespace Isonia::Noise
 		octaves(octaves), lacunarity(lacunarity), gain(gain), weighted_strength(weighted_strength), fractal_bounding(calculateFractalBounding()
 	) { }
 
-	inline float FractalPerlinNoise::generateNoise(const float x, const float y) const
+	inline float FractalPerlinNoise::generateNoise(float x, float y) const
 	{
 		unsigned int seed = this->seed;
 		float sum = 0.0f;
@@ -16,7 +20,7 @@ namespace Isonia::Noise
 		{
 			float noise = PerlinNoise::generateNoise(seed++, x, y);
 			sum += noise * amp;
-			amp *= Math::lerpf(1.0f, Math::Min(noise + 1.0f, 2.0f) * 0.5f, weighted_strength);
+			amp *= Math::lerpf(1.0f, Math::minf(noise + 1.0f, 2.0f) * 0.5f, weighted_strength);
 
 			x *= lacunarity;
 			y *= lacunarity;
@@ -25,7 +29,7 @@ namespace Isonia::Noise
 
 		return sum;
 	}
-	inline float FractalPerlinNoise::generateNoise(const float x, const float y, const float z) const
+	inline float FractalPerlinNoise::generateNoise(float x, float y, float z) const
 	{
 		unsigned int seed = this->seed;
 		float sum = 0.0f;
@@ -45,7 +49,7 @@ namespace Isonia::Noise
 
 		return sum;
 	}
-	inline float FractalPerlinNoise::generateNoise(const float x, const float y, const float z, const float w) const
+	inline float FractalPerlinNoise::generateNoise(float x, float y, float z, float w) const
 	{
 		unsigned int seed = this->seed;
 		float sum = 0.0f;

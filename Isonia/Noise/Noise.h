@@ -1,3 +1,5 @@
+#pragma once
+
 namespace Isonia::Noise
 {
     // Noise
@@ -58,9 +60,9 @@ namespace Isonia::Noise
     public:
         VirtualWarpNoise();
 
-        virtual inline void transformCoordinate(float& x, float& y) const = 0;
-        virtual inline void transformCoordinate(float& x, float& y, float& z) const = 0;
-        virtual inline void transformCoordinate(float& x, float& y, float& z, float& w) const = 0;
+        virtual inline void transformCoordinate(float* x, float* y) const = 0;
+        virtual inline void transformCoordinate(float* x, float* y, float* z) const = 0;
+        virtual inline void transformCoordinate(float* x, float* y, float* z, float* w) const = 0;
     };
 
     struct ConstantScalarWarpNoise : public VirtualWarpNoise

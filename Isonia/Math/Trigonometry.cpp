@@ -1,3 +1,6 @@
+// internal
+#include "Math.h"
+
 // std
 #include <cmath>
 

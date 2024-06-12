@@ -1,3 +1,6 @@
+// internal
+#include "Math.h"
+
 // std
 #include <cmath>
 
@@ -23,7 +26,7 @@ namespace Isonia::Math
     {
         if (f >= 0.0f)
         {
-            return static_cast<int>(f + 0.5f)
+            return static_cast<int>(f + 0.5f);
         }
         return static_cast<int>(f - 0.5f);
     }

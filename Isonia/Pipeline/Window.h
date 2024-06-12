@@ -51,7 +51,7 @@ namespace Isonia::Pipeline
 			return framebufferResized;
 		}
 
-		GLFWwindow* GetGLFWwindow() const
+		GLFWwindow* GetGLFWWindow() const
 		{
 			return window;
 		}

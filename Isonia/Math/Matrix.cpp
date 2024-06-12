@@ -1,3 +1,6 @@
+// internal
+#include "Math.h"
+
 namespace Isonia::Math
 {
 	// Matrix3x3
@@ -25,35 +28,39 @@ namespace Isonia::Math
 		return (m1[0] != m2[0]) || (m1[1] != m2[1]) || (m1[2] != m2[2]);
 	}
 
-	extern inline constexpr Matrix3x3::Matrix3x3() : value{ Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1) } { }
-    extern inline constexpr Matrix3x3::Matrix3x3(const Matrix3x3& m) : value{ Vector3(m[0]), Vector3(m[1]), Vector3(m[2]) } { }
-    extern inline constexpr Matrix3x3::Matrix3x3(const float s) : value{ Vector3(s, 0, 0), Vector3(0, s, 0), Vector3(0, 0, s) } { }
-    extern inline constexpr Matrix3x3::Matrix3x3(
+	constexpr Matrix3x3::Matrix3x3() : value{ Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1) } { }
+    constexpr Matrix3x3::Matrix3x3(const Matrix3x3& m) : value{ Vector3(m[0]), Vector3(m[1]), Vector3(m[2]) } { }
+    constexpr Matrix3x3::Matrix3x3(const float s) : value{ Vector3(s, 0, 0), Vector3(0, s, 0), Vector3(0, 0, s) } { }
+    constexpr Matrix3x3::Matrix3x3(
 		const float x0, const float y0, const float z0,
 		const float x1, const float y1, const float z1,
 		const float x2, const float y2, const float z2
 	) : value{ Vector3(x0, y0, z0), Vector3(x1, y1, z1), Vector3(x2, y2, z2) } { }
-    extern inline constexpr Matrix3x3::Matrix3x3(const Vector3& v0, const Vector3& v1, const Vector3& v2) : value{ Vector3(v0), Vector3(v1), Vector3(v2) } { }
-    extern inline constexpr Matrix3x3::Matrix3x3(const Matrix4x4& m) : value{ Vector3(m[0]), Vector3(m[1]), Vector3(m[2]) } { }
+    constexpr Matrix3x3::Matrix3x3(const Vector3* v0, const Vector3* v1, const Vector3* v2) : value{ Vector3(v0), Vector3(v1), Vector3(v2) } { }
+    constexpr Matrix3x3::Matrix3x3(const Matrix4x4& m) : value{ Vector3(&m[0]), Vector3(&m[1]), Vector3(&m[2]) } { }
 
     extern inline constexpr Matrix3x3 mat3Mul(const Matrix3x3& m, const float scalar)
 	{
-		return Matrix3x3(m[0] * scalar, m[1] * scalar, m[2] * scalar);
-	}
-    extern inline constexpr Vector3 mat3Mul(const Matrix3x3& m, const Vector3& v)
-	{
-		return Vector3{
-			m[0][0] * v.x + m[1][0] * v.y + m[2][0] * v.z,
-			m[0][1] * v.x + m[1][1] * v.y + m[2][1] * v.z,
-			m[0][2] * v.x + m[1][2] * v.y + m[2][2] * v.z
+		return Matrix3x3{
+			&vec3Mul(&m[0], scalar),
+			&vec3Mul(&m[1], scalar),
+			&vec3Mul(&m[2], scalar)
 		};
 	}
-    extern inline constexpr Vector3 mat3Mul(const Vector3& v, const Matrix3x3& m)
+    extern inline constexpr Vector3 mat3Mul(const Matrix3x3& m, const Vector3* v)
 	{
 		return Vector3{
-			m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z,
-			m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z,
-			m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z
+			m[0][0] * v->x + m[1][0] * v->y + m[2][0] * v->z,
+			m[0][1] * v->x + m[1][1] * v->y + m[2][1] * v->z,
+			m[0][2] * v->x + m[1][2] * v->y + m[2][2] * v->z
+		};
+	}
+    extern inline constexpr Vector3 mat3Mul(const Vector3* v, const Matrix3x3& m)
+	{
+		return Vector3{
+			m[0][0] * v->x + m[0][1] * v->y + m[0][2] * v->z,
+			m[1][0] * v->x + m[1][1] * v->y + m[1][2] * v->z,
+			m[2][0] * v->x + m[2][1] * v->y + m[2][2] * v->z
 		};
 	}
     extern inline constexpr Matrix3x3 mat3Mul(const Matrix3x3& m1, const Matrix3x3& m2)
@@ -77,7 +84,7 @@ namespace Isonia::Math
 			+ m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
 			- m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
 			+ m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2])
-			);
+		);
 		const float oneOverDeterminant = 1.0f / determinant;
 
 		return Matrix3x3{
@@ -119,29 +126,44 @@ namespace Isonia::Math
 		return (m1[0] != m2[0]) || (m1[1] != m2[1]) || (m1[2] != m2[2]) || (m1[3] != m2[3]);
 	}
 
-    extern inline constexpr Matrix4x4::Matrix() : value{ Vector4(1, 0, 0, 0), Vector4(0, 1, 0, 0), Vector4(0, 0, 1, 0), Vector4(0, 0, 0, 1) } { }
-    extern inline constexpr Matrix4x4::Matrix(const Matrix4x4& m) : value{ Vector4(m[0]), Vector4(m[1]), Vector4(m[2]), Vector4(m[3]) } { }
-    extern inline constexpr Matrix4x4::Matrix(const float s) : value{ Vector4(s, 0, 0, 0), Vector4(0, s, 0, 0), Vector4(0, 0, s, 0), Vector4(0, 0, 0, s) } { }
-    extern inline constexpr Matrix4x4::Matrix(
+    constexpr Matrix4x4::Matrix4x4() : value{ Vector4(1, 0, 0, 0), Vector4(0, 1, 0, 0), Vector4(0, 0, 1, 0), Vector4(0, 0, 0, 1) } { }
+    constexpr Matrix4x4::Matrix4x4(const Matrix4x4& m) : value{ Vector4(m[0]), Vector4(m[1]), Vector4(m[2]), Vector4(m[3]) } { }
+    constexpr Matrix4x4::Matrix4x4(const float s) : value{ Vector4(s, 0, 0, 0), Vector4(0, s, 0, 0), Vector4(0, 0, s, 0), Vector4(0, 0, 0, s) } { }
+    constexpr Matrix4x4::Matrix4x4(
 		const float x0, const float y0, const float z0, const float w0,
 		const float x1, const float y1, const float z1, const float w1,
 		const float x2, const float y2, const float z2, const float w2,
 		const float x3, const float y3, const float z3, const float w3
 	) : value{ Vector4(x0, y0, z0, w0), Vector4(x1, y1, z1, w1), Vector4(x2, y2, z2, w2) , Vector4(x3, y3, z3, w3) } { }
-    extern inline constexpr Matrix4x4::Matrix(const Vector4& v0, const Vector4& v1, const Vector4& v2, const Vector4& v3) : value{ Vector4(v0), Vector4(v1), Vector4(v2) , Vector4(v3) } { }
-    extern inline constexpr Matrix4x4::Matrix(const Matrix3x3& m) : value{ Vector4(m[0], 0), Vector4(m[1], 0), Vector4(m[2], 0), Vector4(0, 0, 0, 1) } { }
+    constexpr Matrix4x4::Matrix4x4(const Vector4* v0, const Vector4* v1, const Vector4* v2, const Vector4* v3) : value{ Vector4(v0), Vector4(v1), Vector4(v2) , Vector4(v3) } { }
+    constexpr Matrix4x4::Matrix4x4(const Matrix3x3& m) : value{ Vector4(&m[0], 0), Vector4(&m[1], 0), Vector4(&m[2], 0), Vector4(0, 0, 0, 1) } { }
 
     extern inline constexpr Matrix4x4 mat4Mul(const Matrix4x4& m, const float scalar)
 	{
-		return Matrix4x4(m[0] * scalar, m[1] * scalar, m[2] * scalar, m[3] * scalar);
+		return Matrix4x4(
+			&vec4Mul(&m[0], scalar),
+			&vec4Mul(&m[1], scalar),
+			&vec4Mul(&m[2], scalar),
+			&vec4Mul(&m[3], scalar)
+		);
 	}
-    extern inline constexpr Vector4 mat4Mul(const Matrix4x4& m, const Vector4& v)
+	extern inline constexpr Vector4 mat4Mul(const Matrix4x4& m, const Vector4* v)
 	{
-		return Vector4(m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * v[3]);
+		return Vector4{
+			m[0][0] * v->x + m[1][0] * v->y + m[2][0] * v->z + m[3][0] * v->w,
+			m[0][1] * v->x + m[1][1] * v->y + m[2][1] * v->z + m[3][1] * v->w,
+			m[0][2] * v->x + m[1][2] * v->y + m[2][2] * v->z + m[3][2] * v->w,
+			m[0][3] * v->x + m[1][3] * v->y + m[2][3] * v->z + m[3][3] * v->w
+		};
 	}
-    extern inline constexpr Vector4 mat4Mul(const Vector4& v, const Matrix4x4& m)
+	extern inline constexpr Vector4 mat4Mul(const Vector4* v, const Matrix4x4& m)
 	{
-		return Vector4(Dot(m[0], v), Dot(m[1], v), Dot(m[2], v), Dot(m[3], v));
+		return Vector4{
+			m[0][0] * v->x + m[0][1] * v->y + m[0][2] * v->z + m[0][3] * v->w,
+			m[1][0] * v->x + m[1][1] * v->y + m[1][2] * v->z + m[1][3] * v->w,
+			m[2][0] * v->x + m[2][1] * v->y + m[2][2] * v->z + m[2][3] * v->w,
+			m[3][0] * v->x + m[3][1] * v->y + m[3][2] * v->z + m[3][3] * v->w
+		};
 	}
     extern inline constexpr Matrix4x4 mat4Mul(const Matrix4x4& m1, const Matrix4x4& m2)
 	{

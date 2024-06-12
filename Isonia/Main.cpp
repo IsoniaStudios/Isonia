@@ -10,17 +10,7 @@
 
 int main()
 {
-    try
-    {
-        Isonia::Isonia isonia{};
-        isonia.Run();
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    Isonia::Isonia isonia{};
+    isonia.run();
 }
 #endif
