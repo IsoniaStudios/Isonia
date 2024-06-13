@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Pipeline/Pipeline.h"
+
 namespace Isonia::Controllers
 {
     class KeyboardController

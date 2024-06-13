@@ -47,6 +47,7 @@ namespace Isonia::Math
 
     extern inline constexpr float cosf(const float radians);
     extern inline constexpr float sinf(const float radians);
+    extern inline constexpr float tanf(const float radians);
     extern inline constexpr float atanf(const float radians);
     extern inline constexpr float atan2f(const float y, const float x);
 

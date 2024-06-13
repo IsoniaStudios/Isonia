@@ -1,3 +1,9 @@
+// internal
+#include "../Math/Math.h"
+
+// std
+#include <iostream>
+
 namespace Isonia::Debug
 {
     class PerformanceTracker

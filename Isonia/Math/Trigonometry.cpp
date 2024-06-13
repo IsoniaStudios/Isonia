@@ -32,6 +32,10 @@ namespace Isonia::Math
     {
         return std::sin(radians);
     }
+    extern inline constexpr float tanf(const float radians)
+    {
+        return std::tan(radians);
+    }
     extern inline constexpr float atanf(const float radians)
     {
         return std::atan(radians);
