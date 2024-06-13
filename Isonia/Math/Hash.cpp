@@ -79,60 +79,60 @@ namespace Isonia::Math
         0, 1, 1, 0,  0,-1, 1, 0, -1, 1, 0, 0,  0,-1,-1, 0,
     };
 
-	static inline constexpr unsigned int hash2D(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed)
+	static inline constexpr unsigned int hash2D(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed)
 	{
-		unsigned int hash = seed ^ xPrimed ^ yPrimed;
+		unsigned int hash = seed ^ x_primed ^ y_primed;
 
 		hash *= 0x27d4eb2d;
 		return hash;
 	}
 
-	static inline constexpr unsigned int hash3D(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed)
+	static inline constexpr unsigned int hash3D(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed)
 	{
-		unsigned int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed;
+		unsigned int hash = seed ^ x_primed ^ y_primed ^ z_primed;
 
 		hash *= 0x27d4eb2d;
 		return hash;
 	}
 
-	static inline constexpr unsigned int hash4D(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed)
+	static inline constexpr unsigned int hash4D(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed)
 	{
-		unsigned int hash = seed ^ xPrimed ^ yPrimed ^ zPrimed ^ wPrimed;
+		unsigned int hash = seed ^ x_primed ^ y_primed ^ z_primed ^ w_primed;
 
 		hash *= 0x27d4eb2d;
 		return hash;
 	}
 
-	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed)
+	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed)
 	{
-		unsigned int hash = hash2D(seed, xPrimed, yPrimed);
+		unsigned int hash = hash2D(seed, x_primed, y_primed);
 
 		hash *= hash;
 		hash ^= hash << 19;
 		return hash * (1.0f / 2147483648.0f);
 	}
 
-	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed)
+	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed)
 	{
-        unsigned int hash = hash3D(seed, xPrimed, yPrimed, zPrimed);
+        unsigned int hash = hash3D(seed, x_primed, y_primed, z_primed);
 
 		hash *= hash;
 		hash ^= hash << 19;
 		return hash * (1.0f / 2147483648.0f);
 	}
 
-	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed)
+	extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed)
 	{
-		unsigned int hash = hash4D(seed, xPrimed, yPrimed, zPrimed, wPrimed);
+		unsigned int hash = hash4D(seed, x_primed, y_primed, z_primed, w_primed);
 
 		hash *= hash;
 		hash ^= hash << 19;
 		return hash * (1.0f / 2147483648.0f);
 	}
 
-	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const float xd, const float yd)
+	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const float xd, const float yd)
 	{
-		unsigned int hash = hash2D(seed, xPrimed, yPrimed);
+		unsigned int hash = hash2D(seed, x_primed, y_primed);
 		hash ^= hash >> 15;
 		hash &= 127 << 1;
 
@@ -142,9 +142,9 @@ namespace Isonia::Math
 		return xd * xg + yd * yg;
 	}
 
-	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const float xd, const float yd, const float zd)
+	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const float xd, const float yd, const float zd)
 	{
-		unsigned int hash = hash3D(seed, xPrimed, yPrimed, zPrimed);
+		unsigned int hash = hash3D(seed, x_primed, y_primed, z_primed);
 		hash ^= hash >> 15;
 		hash &= 63 << 2;
 
@@ -155,9 +155,9 @@ namespace Isonia::Math
 		return xd * xg + yd * yg + zd * zg;
 	}
 
-	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed, const float xd, const float yd, const float zd, const float wd)
+	extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed, const float xd, const float yd, const float zd, const float wd)
 	{
-		unsigned int hash = hash4D(seed, xPrimed, yPrimed, zPrimed, wPrimed);
+		unsigned int hash = hash4D(seed, x_primed, y_primed, z_primed, w_primed);
 		hash ^= hash >> 15;
 		hash &= 31 << 3;
 

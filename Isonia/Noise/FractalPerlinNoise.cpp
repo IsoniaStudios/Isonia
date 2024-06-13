@@ -18,7 +18,7 @@ namespace Isonia::Noise
 
 		for (unsigned int i = 0; i < octaves; i++)
 		{
-			float noise = PerlinNoise::generateNoise(seed++, x, y);
+			float noise = generatePerlinNoise(seed++, x, y);
 			sum += noise * amp;
 			amp *= Math::lerpf(1.0f, Math::minf(noise + 1.0f, 2.0f) * 0.5f, weighted_strength);
 
@@ -37,7 +37,7 @@ namespace Isonia::Noise
 
 		for (unsigned int i = 0; i < octaves; i++)
 		{
-			float noise = PerlinNoise::generateNoise(seed++, x, y, z);
+			float noise = generatePerlinNoise(seed++, x, y, z);
 			sum += noise * amp;
 			amp *= Math::lerpf(1.0f, (noise + 1.0f) * 0.5f, weighted_strength);
 
@@ -57,7 +57,7 @@ namespace Isonia::Noise
 
 		for (unsigned int i = 0; i < octaves; i++)
 		{
-			float noise = PerlinNoise::generateNoise(seed++, x, y, z, w);
+			float noise = generatePerlinNoise(seed++, x, y, z, w);
 			sum += noise * amp;
 			amp *= Math::lerpf(1.0f, (noise + 1.0f) * 0.5f, weighted_strength);
 

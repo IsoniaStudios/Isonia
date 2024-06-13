@@ -38,13 +38,13 @@ namespace Isonia::Math
         };
     }
 
-    extern inline constexpr Vector3 smoothNormalFromFour(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
+    extern inline constexpr Vector3 smoothNormalFromFour(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
     {
-        const unsigned int middleIndex = z * width + x;
-        const float top = heightMap[middleIndex - width];
-        const float left = heightMap[middleIndex - 1];
-        const float right = heightMap[middleIndex + 1];
-        const float bottom = heightMap[middleIndex + width];
+        const unsigned int middle_index = z * width + x;
+        const float top = height_map[middle_index - width];
+        const float left = height_map[middle_index - 1];
+        const float right = height_map[middle_index + 1];
+        const float bottom = height_map[middle_index + width];
 
         return vec3Normalize(
             bottom - top,
@@ -52,22 +52,22 @@ namespace Isonia::Math
             right - left
         );
     }
-    extern inline constexpr Vector3 smoothNormalFromEight(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
+    extern inline constexpr Vector3 smoothNormalFromEight(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
     {
-        const unsigned int middleIndex = z * width + x;
-        const float top = heightMap[middleIndex - width];
-        const float topLeft = heightMap[middleIndex - width - 1];
-        const float topRight = heightMap[middleIndex - width + 1];
-        const float left = heightMap[middleIndex - 1];
-        const float right = heightMap[middleIndex + 1];
-        const float bottom = heightMap[middleIndex + width];
-        const float bottomLeft = heightMap[middleIndex + width - 1];
-        const float bottomRight = heightMap[middleIndex + width + 1];
+        const unsigned int middle_index = z * width + x;
+        const float top = height_map[middle_index - width];
+        const float top_left = height_map[middle_index - width - 1];
+        const float top_right = height_map[middle_index - width + 1];
+        const float left = height_map[middle_index - 1];
+        const float right = height_map[middle_index + 1];
+        const float bottom = height_map[middle_index + width];
+        const float bottom_left = height_map[middle_index + width - 1];
+        const float bottom_right = height_map[middle_index + width + 1];
 
         return vec3Normalize(
-            topRight + right + bottomRight - topLeft - left - bottomLeft,
+            top_right + right + bottom_right - top_left - left - bottom_left,
             -dx - dz - dx - dz,
-            bottomLeft + bottom + bottomRight - topLeft - top - topRight
+            bottom_left + bottom + bottom_right - top_left - top - top_right
         );
     }
 }

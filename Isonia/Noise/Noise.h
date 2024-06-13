@@ -21,6 +21,10 @@ namespace Isonia::Noise
     public:
         WhiteNoise(const unsigned int seed = 0);
 
+        inline float generateNoise(const float x, const float y) const override;
+        inline float generateNoise(const float x, const float y, const float z) const override;
+        inline float generateNoise(const float x, const float y, const float z, const float w) const override;
+
     protected:
         const float x_constant;
         const float y_constant;
@@ -37,12 +41,24 @@ namespace Isonia::Noise
     {
     public:
         PerlinNoise(const unsigned int seed = 0);
+
+        inline float generateNoise(const float x, const float y) const override;
+        inline float generateNoise(const float x, const float y, const float z) const override;
+        inline float generateNoise(const float x, const float y, const float z, const float w) const override;
+
+        inline float generatePerlinNoise(const int seed, const float x, const float y) const;
+        inline float generatePerlinNoise(const int seed, const float x, const float y, const float z) const;
+        inline float generatePerlinNoise(const int seed, const float x, const float y, const float z, const float w) const;
     };
 
     struct FractalPerlinNoise : public PerlinNoise
     {
     public:
         FractalPerlinNoise(const unsigned int seed, const unsigned int octaves, const float lacunarity, const float gain, const float weighted_strength);
+
+        inline float generateNoise(const float x, const float y) const override;
+        inline float generateNoise(const float x, const float y, const float z) const override;
+        inline float generateNoise(const float x, const float y, const float z, const float w) const override;
 
     protected:
         const unsigned int octaves;
@@ -69,6 +85,10 @@ namespace Isonia::Noise
     {
     public:
         ConstantScalarWarpNoise(const float frequency);
+
+        inline void transformCoordinate(float* x, float* y) const override;
+        inline void transformCoordinate(float* x, float* y, float* z) const override;
+        inline void transformCoordinate(float* x, float* y, float* z, float* w) const override;
 
     protected:
         const float frequency;

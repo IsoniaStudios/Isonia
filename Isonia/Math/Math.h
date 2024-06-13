@@ -226,25 +226,25 @@ namespace Isonia::Math
     extern inline constexpr float cubicLerpf(const float a, const float b, const float c, const float d, const float t);
     extern inline constexpr Vector3 cubicLerpv3(const Vector3* a, const Vector3* b, const Vector3* c, const Vector3* d, const float t);
 
-    extern inline constexpr Vector3 smoothNormalFromFour(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
-    extern inline constexpr Vector3 smoothNormalFromEight(const float* heightMap, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
+    extern inline constexpr Vector3 smoothNormalFromFour(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
+    extern inline constexpr Vector3 smoothNormalFromEight(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
 
     // Hash
-    static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed);
-    static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed);
-    static inline constexpr unsigned int hash(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed);
+    static inline constexpr unsigned int hash2D(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed);
+    static inline constexpr unsigned int hash3D(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed);
+    static inline constexpr unsigned int hash4D(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed);
 
-    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed);
-    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed);
-    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed);
+    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed);
+    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed);
+    extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed);
 
     static constexpr const float gradients_2D[];
     static constexpr const float gradients_3D[];
     static constexpr const float gradients_4D[];
 
-    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const float xd, const float yd);
-    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const float xd, const float yd, const float zd);
-    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int xPrimed, const unsigned int yPrimed, const unsigned int zPrimed, const unsigned int wPrimed, const float xd, const float yd, const float zd, const float wd);
+    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const float xd, const float yd);
+    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const float xd, const float yd, const float zd);
+    extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed, const float xd, const float yd, const float zd, const float wd);
 
     // Random
     extern inline constexpr unsigned int randomInt(const unsigned int seed);

@@ -8,6 +8,19 @@ namespace Isonia::Noise
 
 	inline float PerlinNoise::generateNoise(const float x, const float y) const
 	{
+		return generatePerlinNoise(seed, x, y);
+	}
+	inline float PerlinNoise::generateNoise(const float x, const float y, const float z) const
+	{
+		return generatePerlinNoise(seed, x, y, z);
+	}
+	inline float PerlinNoise::generateNoise(const float x, const float y, const float z, const float w) const
+	{
+		return generatePerlinNoise(seed, x, y, z, w);
+	}
+
+	inline float PerlinNoise::generatePerlinNoise(const int seed, const float x, const float y) const
+	{
 		unsigned int x0 = Math::floorf_i(x);
 		unsigned int y0 = Math::floorf_i(y);
 
@@ -31,7 +44,7 @@ namespace Isonia::Noise
 
 		return Math::lerpf(xf0, xf1, ys) * 1.4247691104677813f;
 	}
-	inline float PerlinNoise::generateNoise(const float x, const float y, const float z) const
+	inline float PerlinNoise::generatePerlinNoise(const int seed, const float x, const float y, const float z) const
 	{
 		unsigned int x0 = Math::floorf_i(x);
 		unsigned int y0 = Math::floorf_i(y);
@@ -69,7 +82,7 @@ namespace Isonia::Noise
 
 		return Math::lerpf(yf0, yf1, zs) * 0.964921414852142333984375f;
 	}
-	inline float PerlinNoise::generateNoise(const float x, const float y, const float z, const float w) const
+	inline float PerlinNoise::generatePerlinNoise(const int seed, const float x, const float y, const float z, const float w) const
 	{
 		unsigned int x0 = Math::floorf_i(x);
 		unsigned int y0 = Math::floorf_i(y);
