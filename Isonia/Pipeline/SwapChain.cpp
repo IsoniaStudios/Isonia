@@ -3,102 +3,101 @@
 namespace Isonia::Pipeline
 {
 
-	SwapChain::SwapChain(Device& deviceRef, VkExtent2D extent)
-		: device(deviceRef), windowExtent(extent)
+	SwapChain::SwapChain(Device* deviceRef, VkExtent2D extent)
+		: m_device(deviceRef), m_window_extent(extent), m_old_swap_chain(nullptr)
 	{
-		oldSwapChain = nullptr;
-		Init();
+		init();
 	}
 
-	SwapChain::SwapChain(Device& deviceRef, VkExtent2D extent, SwapChain* previous)
-		: device(deviceRef), windowExtent(extent), oldSwapChain(previous)
+	SwapChain::SwapChain(Device* deviceRef, VkExtent2D extent, SwapChain* previous)
+		: m_device(deviceRef), m_window_extent(extent), m_old_swap_chain(previous)
 	{
-		Init();
+		init();
 	}
 
 	SwapChain::~SwapChain()
 	{
-		for (auto imageView : swapChainImageViews)
+		for (auto imageView : m_swap_chain_image_views)
 		{
-			vkDestroyImageView(device.GetDevice(), imageView, nullptr);
+			vkDestroyImageView(m_device->getDevice(), imageView, nullptr);
 		}
-		swapChainImageViews.clear();
+		m_swap_chain_image_views.clear();
 
-		if (swapChain != nullptr)
+		if (m_swap_chain != nullptr)
 		{
-			vkDestroySwapchainKHR(device.GetDevice(), swapChain, nullptr);
-			swapChain = nullptr;
-		}
-
-		for (int i = 0; i < depthImages.size(); i++)
-		{
-			vkDestroyImageView(device.GetDevice(), depthImageViews[i], nullptr);
-			vkDestroyImage(device.GetDevice(), depthImages[i], nullptr);
-			vkFreeMemory(device.GetDevice(), depthImageMemorys[i], nullptr);
+			vkDestroySwapchainKHR(m_device->getDevice(), m_swap_chain, nullptr);
+			m_swap_chain = nullptr;
 		}
 
-		for (auto framebuffer : swapChainFramebuffers)
+		for (int i = 0; i < m_depth_images.size(); i++)
 		{
-			vkDestroyFramebuffer(device.GetDevice(), framebuffer, nullptr);
+			vkDestroyImageView(m_device->getDevice(), m_depth_image_views[i], nullptr);
+			vkDestroyImage(m_device->getDevice(), m_depth_images[i], nullptr);
+			vkFreeMemory(m_device->getDevice(), m_depth_image_memorys[i], nullptr);
 		}
 
-		vkDestroyRenderPass(device.GetDevice(), renderPass, nullptr);
+		for (auto framebuffer : m_swap_chain_framebuffers)
+		{
+			vkDestroyFramebuffer(m_device->getDevice(), framebuffer, nullptr);
+		}
+
+		vkDestroyRenderPass(m_device->getDevice(), m_render_pass, nullptr);
 
 		// cleanup synchronization objects
-		for (uint32_t i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
-			vkDestroySemaphore(device.GetDevice(), renderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(device.GetDevice(), imageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(device.GetDevice(), inFlightFences[i], nullptr);
+			vkDestroySemaphore(m_device->getDevice(), m_render_finished_semaphores[i], nullptr);
+			vkDestroySemaphore(m_device->getDevice(), m_image_available_semaphores[i], nullptr);
+			vkDestroyFence(m_device->getDevice(), m_in_flight_fences[i], nullptr);
 		}
 	}
 
-	void SwapChain::FreeOldSwapChain()
+	void SwapChain::freeOldSwapChain()
 	{
-		if (oldSwapChain != nullptr)
+		if (m_old_swap_chain != nullptr)
 		{
-			delete oldSwapChain;
+			delete m_old_swap_chain;
 		}
 	}
 
-	VkFramebuffer SwapChain::GetFrameBuffer(int index) const { return swapChainFramebuffers[index]; }
-	VkRenderPass SwapChain::GetRenderPass() const { return renderPass; }
-	VkImageView SwapChain::GetImageView(int index) const { return swapChainImageViews[index]; }
-	uint32_t SwapChain::ImageCount() const { return static_cast<uint32_t>(swapChainImages.size()); }
-	VkFormat SwapChain::GetSwapChainImageFormat() const { return swapChainImageFormat; }
-	VkExtent2D SwapChain::GetSwapChainExtent() const { return swapChainExtent; }
-	uint32_t SwapChain::Width() const { return swapChainExtent.width; }
-	uint32_t SwapChain::Height() const { return swapChainExtent.height; }
+	VkFramebuffer SwapChain::getFrameBuffer(int index) const { return m_swap_chain_framebuffers[index]; }
+	VkRenderPass SwapChain::getRenderPass() const { return m_render_pass; }
+	VkImageView SwapChain::getImageView(int index) const { return m_swap_chain_image_views[index]; }
+	unsigned int SwapChain::getImageCount() const { return static_cast<unsigned int>(m_swap_chain_images.size()); }
+	VkFormat SwapChain::getSwapChainImageFormat() const { return m_swap_chain_image_format; }
+	VkExtent2D SwapChain::getSwapChainExtent() const { return m_swap_chain_extent; }
+	unsigned int SwapChain::getWidth() const { return m_swap_chain_extent.width; }
+	unsigned int SwapChain::getHeight() const { return m_swap_chain_extent.height; }
 
-	float SwapChain::ExtentAspectRatio() const
+	float SwapChain::getExtentAspectRatio() const
 	{
-		return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
+		return static_cast<float>(m_swap_chain_extent.width) / static_cast<float>(m_swap_chain_extent.height);
 	}
 
-	VkFormat SwapChain::FindDepthFormat()
+	VkFormat SwapChain::findDepthFormat()
 	{
-		return device.FindSupportedFormat(
-			{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		return m_device->findSupportedFormat(
+			&std::vector{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 		);
 	}
 
-	VkResult SwapChain::AcquireNextImage(uint32_t* imageIndex)
+	VkResult SwapChain::acquireNextImage(unsigned int* imageIndex)
 	{
 		vkWaitForFences(
-			device.GetDevice(),
+			m_device->getDevice(),
 			1,
-			&inFlightFences[currentFrame],
+			&m_in_flight_fences[m_current_frame],
 			VK_TRUE,
 			std::numeric_limits<uint64_t>::max()
 		);
 
 		VkResult result = vkAcquireNextImageKHR(
-			device.GetDevice(),
-			swapChain,
+			m_device->getDevice(),
+			m_swap_chain,
 			std::numeric_limits<uint64_t>::max(),
-			imageAvailableSemaphores[currentFrame],  // must be a not signaled semaphore
+			m_image_available_semaphores[m_current_frame],  // must be a not signaled semaphore
 			VK_NULL_HANDLE,
 			imageIndex
 		);
@@ -106,18 +105,18 @@ namespace Isonia::Pipeline
 		return result;
 	}
 
-	VkResult SwapChain::SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex)
+	VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* imageIndex)
 	{
-		if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
+		if (m_images_in_flight[*imageIndex] != VK_NULL_HANDLE)
 		{
-			vkWaitForFences(device.GetDevice(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
+			vkWaitForFences(m_device->getDevice(), 1, &m_images_in_flight[*imageIndex], VK_TRUE, UINT64_MAX);
 		}
-		imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
+		m_images_in_flight[*imageIndex] = m_images_in_flight[m_current_frame];
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+		VkSemaphore waitSemaphores[] = { m_image_available_semaphores[m_current_frame] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
@@ -126,12 +125,12 @@ namespace Isonia::Pipeline
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = buffers;
 
-		VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+		VkSemaphore signalSemaphores[] = { m_render_finished_semaphores[m_current_frame] };
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		vkResetFences(device.GetDevice(), 1, &inFlightFences[currentFrame]);
-		VkResult queueSubmitResult = vkQueueSubmit(device.GraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]);
+		vkResetFences(m_device->getDevice(), 1, &m_in_flight_fences[m_current_frame]);
+		VkResult queueSubmitResult = vkQueueSubmit(m_device->getGraphicsQueue(), 1, &submitInfo, m_in_flight_fences[m_current_frame]);
 		if (queueSubmitResult != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to submit draw command buffer!");
@@ -143,52 +142,52 @@ namespace Isonia::Pipeline
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
-		VkSwapchainKHR swapChains[] = { swapChain };
+		VkSwapchainKHR m_swap_chains[] = { m_swap_chain };
 		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
+		presentInfo.pSwapchains = m_swap_chains;
 
 		presentInfo.pImageIndices = imageIndex;
 
-		VkResult result = vkQueuePresentKHR(device.PresentQueue(), &presentInfo);
+		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &presentInfo);
 
-		currentFrame = (currentFrame + 1) % max_frames_in_flight;
+		m_current_frame = (m_current_frame + 1) % max_frames_in_flight;
 
 		return result;
 	}
 
-	bool SwapChain::CompareSwapFormats(const SwapChain& swapChain) const
+	bool SwapChain::compareSwapFormats(const SwapChain* m_swap_chain) const
 	{
-		return swapChain.swapChainDepthFormat == swapChainDepthFormat &&
-			swapChain.swapChainImageFormat == swapChainImageFormat;
+		return m_swap_chain->m_swap_chain_depth_format == m_swap_chain_depth_format &&
+			m_swap_chain->m_swap_chain_image_format == m_swap_chain_image_format;
 	}
 
-	void SwapChain::Init()
+	void SwapChain::init()
 	{
-		CreateSwapChain();
-		CreateImageViews();
-		CreateRenderPass();
-		CreateDepthResources();
-		CreateFramebuffers();
-		CreateSyncObjects();
+		createSwapChain();
+		createImageViews();
+		createRenderPass();
+		createDepthResources();
+		createFramebuffers();
+		createSyncObjects();
 	}
 
-	void SwapChain::CreateSwapChain()
+	void SwapChain::createSwapChain()
 	{
-		SwapChainSupportDetails swapChainSupport = device.GetSwapChainSupport();
+		SwapChainSupportDetails swap_chain_support = m_device->getSwapChainSupport();
 
-		VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-		VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-		VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
+		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(&swap_chain_support.formats);
+		VkPresentModeKHR presentMode = chooseSwapPresentMode(&swap_chain_support.present_modes);
+		VkExtent2D extent = chooseSwapExtent(&swap_chain_support.capabilities);
 
-		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+		unsigned int imageCount = swap_chain_support.capabilities.minImageCount + 1;
+		if (swap_chain_support.capabilities.maxImageCount > 0 && imageCount > swap_chain_support.capabilities.maxImageCount)
 		{
-			imageCount = swapChainSupport.capabilities.maxImageCount;
+			imageCount = swap_chain_support.capabilities.maxImageCount;
 		}
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = device.Surface();
+		createInfo.surface = m_device->getSurface();
 
 		createInfo.minImageCount = imageCount;
 		createInfo.imageFormat = surfaceFormat.format;
@@ -197,10 +196,10 @@ namespace Isonia::Pipeline
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices = device.FindPhysicalQueueFamilies();
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
+		QueueFamilyIndices indices = m_device->getPhysicalQueueFamilies();
+		unsigned int queueFamilyIndices[] = { indices.graphics_family, indices.present_family };
 
-		if (indices.graphicsFamily != indices.presentFamily)
+		if (indices.graphics_family != indices.present_family)
 		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
@@ -213,15 +212,15 @@ namespace Isonia::Pipeline
 			createInfo.pQueueFamilyIndices = nullptr;  // Optional
 		}
 
-		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+		createInfo.preTransform = swap_chain_support.capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
+		createInfo.oldSwapchain = m_old_swap_chain == nullptr ? VK_NULL_HANDLE : m_old_swap_chain->m_swap_chain;
 
-		if (vkCreateSwapchainKHR(device.GetDevice(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+		if (vkCreateSwapchainKHR(m_device->getDevice(), &createInfo, nullptr, &m_swap_chain) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to create swap chain!");
 		}
@@ -230,41 +229,41 @@ namespace Isonia::Pipeline
 		// allowed to create a swap chain with more. That's why we'll first query the final number of
 		// images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 		// retrieve the handles.
-		vkGetSwapchainImagesKHR(device.GetDevice(), swapChain, &imageCount, nullptr);
-		swapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(device.GetDevice(), swapChain, &imageCount, swapChainImages.data());
+		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, nullptr);
+		m_swap_chain_images.resize(imageCount);
+		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, m_swap_chain_images.data());
 
-		swapChainImageFormat = surfaceFormat.format;
-		swapChainExtent = extent;
+		m_swap_chain_image_format = surfaceFormat.format;
+		m_swap_chain_extent = extent;
 	}
 
-	void SwapChain::CreateImageViews()
+	void SwapChain::createImageViews()
 	{
-		swapChainImageViews.resize(swapChainImages.size());
-		for (size_t i = 0; i < swapChainImages.size(); i++)
+		m_swap_chain_image_views.resize(m_swap_chain_images.size());
+		for (size_t i = 0; i < m_swap_chain_images.size(); i++)
 		{
 			VkImageViewCreateInfo viewInfo{};
 			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			viewInfo.image = swapChainImages[i];
+			viewInfo.image = m_swap_chain_images[i];
 			viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			viewInfo.format = swapChainImageFormat;
+			viewInfo.format = m_swap_chain_image_format;
 			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			viewInfo.subresourceRange.baseMipLevel = 0;
 			viewInfo.subresourceRange.levelCount = 1;
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
-			if (vkCreateImageView(device.GetDevice(), &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+			if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_swap_chain_image_views[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create texture image view!");
 			}
 		}
 	}
 
-	void SwapChain::CreateRenderPass()
+	void SwapChain::createRenderPass()
 	{
 		VkAttachmentDescription depthAttachment{};
-		depthAttachment.format = FindDepthFormat();
+		depthAttachment.format = findDepthFormat();
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -278,7 +277,7 @@ namespace Isonia::Pipeline
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentDescription colorAttachment = {};
-		colorAttachment.format = GetSwapChainImageFormat();
+		colorAttachment.format = getSwapChainImageFormat();
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -305,63 +304,63 @@ namespace Isonia::Pipeline
 		dependency.srcAccessMask = 0;
 		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
-		VkAttachmentDescription attachments[attachmentsLength] = { colorAttachment, depthAttachment };
+		VkAttachmentDescription attachments[attachments_length] = { colorAttachment, depthAttachment };
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = attachmentsLength;
+		renderPassInfo.attachmentCount = attachments_length;
 		renderPassInfo.pAttachments = attachments;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(device.GetDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+		if (vkCreateRenderPass(m_device->getDevice(), &renderPassInfo, nullptr, &m_render_pass) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create render pass!");
 		}
 	}
 
-	void SwapChain::CreateFramebuffers()
+	void SwapChain::createFramebuffers()
 	{
-		swapChainFramebuffers.resize(ImageCount());
-		for (uint32_t i = 0; i < ImageCount(); i++)
+		m_swap_chain_framebuffers.resize(getImageCount());
+		for (unsigned int i = 0; i < getImageCount(); i++)
 		{
-			VkImageView attachments[attachmentsLength] = { swapChainImageViews[i], depthImageViews[i] };
+			VkImageView attachments[attachments_length] = { m_swap_chain_image_views[i], m_depth_image_views[i] };
 
-			VkExtent2D swapChainExtent = GetSwapChainExtent();
+			VkExtent2D m_swap_chainExtent = getSwapChainExtent();
 			VkFramebufferCreateInfo framebufferInfo = {};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = renderPass;
-			framebufferInfo.attachmentCount = attachmentsLength;
+			framebufferInfo.renderPass = m_render_pass;
+			framebufferInfo.attachmentCount = attachments_length;
 			framebufferInfo.pAttachments = attachments;
-			framebufferInfo.width = swapChainExtent.width;
-			framebufferInfo.height = swapChainExtent.height;
+			framebufferInfo.width = m_swap_chainExtent.width;
+			framebufferInfo.height = m_swap_chainExtent.height;
 			framebufferInfo.layers = 1;
 
-			if (vkCreateFramebuffer(device.GetDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
+			if (vkCreateFramebuffer(m_device->getDevice(), &framebufferInfo, nullptr, &m_swap_chain_framebuffers[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create framebuffer!");
 			}
 		}
 	}
 
-	void SwapChain::CreateDepthResources()
+	void SwapChain::createDepthResources()
 	{
-		VkFormat depthFormat = FindDepthFormat();
-		swapChainDepthFormat = depthFormat;
-		VkExtent2D swapChainExtent = GetSwapChainExtent();
+		VkFormat depthFormat = findDepthFormat();
+		m_swap_chain_depth_format = depthFormat;
+		VkExtent2D m_swap_chainExtent = getSwapChainExtent();
 
-		depthImages.resize(ImageCount());
-		depthImageMemorys.resize(ImageCount());
-		depthImageViews.resize(ImageCount());
+		m_depth_images.resize(getImageCount());
+		m_depth_image_memorys.resize(getImageCount());
+		m_depth_image_views.resize(getImageCount());
 
-		for (int i = 0; i < depthImages.size(); i++)
+		for (int i = 0; i < m_depth_images.size(); i++)
 		{
 			VkImageCreateInfo imageInfo{};
 			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 			imageInfo.imageType = VK_IMAGE_TYPE_2D;
-			imageInfo.extent.width = swapChainExtent.width;
-			imageInfo.extent.height = swapChainExtent.height;
+			imageInfo.extent.width = m_swap_chainExtent.width;
+			imageInfo.extent.height = m_swap_chainExtent.height;
 			imageInfo.extent.depth = 1;
 			imageInfo.mipLevels = 1;
 			imageInfo.arrayLayers = 1;
@@ -373,16 +372,16 @@ namespace Isonia::Pipeline
 			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			imageInfo.flags = 0;
 
-			device.CreateImageWithInfo(
-				imageInfo,
+			m_device->createImageWithInfo(
+				&imageInfo,
 				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-				depthImages[i],
-				depthImageMemorys[i]
+				&m_depth_images[i],
+				&m_depth_image_memorys[i]
 			);
 
 			VkImageViewCreateInfo viewInfo{};
 			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			viewInfo.image = depthImages[i];
+			viewInfo.image = m_depth_images[i];
 			viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 			viewInfo.format = depthFormat;
 			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -391,16 +390,16 @@ namespace Isonia::Pipeline
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
-			if (vkCreateImageView(device.GetDevice(), &viewInfo, nullptr, &depthImageViews[i]) != VK_SUCCESS)
+			if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_depth_image_views[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create texture image view!");
 			}
 		}
 	}
 
-	void SwapChain::CreateSyncObjects()
+	void SwapChain::createSyncObjects()
 	{
-		imagesInFlight.resize(ImageCount(), VK_NULL_HANDLE);
+		m_images_in_flight.resize(getImageCount(), VK_NULL_HANDLE);
 
 		VkSemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -409,11 +408,11 @@ namespace Isonia::Pipeline
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (uint32_t i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
-			if (vkCreateSemaphore(device.GetDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-				vkCreateSemaphore(device.GetDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-				vkCreateFence(device.GetDevice(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
+			if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_image_available_semaphores[i]) != VK_SUCCESS ||
+				vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_render_finished_semaphores[i]) != VK_SUCCESS ||
+				vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_in_flight_fences[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create synchronization objects for a frame!");
 			}
@@ -421,9 +420,9 @@ namespace Isonia::Pipeline
 	}
 
 	// Helper functions
-	VkSurfaceFormatKHR SwapChain::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+	VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* availableFormats)
 	{
-		for (const auto& availableFormat : availableFormats)
+		for (const auto& availableFormat : *availableFormats)
 		{
 			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
@@ -431,12 +430,12 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		return availableFormats[0];
+		return (*availableFormats)[0];
 	}
 
-	VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+	VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* availablePresentModes)
 	{
-		for (const auto& availablePresentMode : availablePresentModes)
+		for (const auto& availablePresentMode : *availablePresentModes)
 		{
 			if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
@@ -445,7 +444,7 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		for (const auto& availablePresentMode : availablePresentModes)
+		for (const auto& availablePresentMode : *availablePresentModes)
 		{
 			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
@@ -458,14 +457,14 @@ namespace Isonia::Pipeline
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
-	VkExtent2D SwapChain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const
+	VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const
 	{
-		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-			return capabilities.currentExtent;
+		if (capabilities->currentExtent.width != std::numeric_limits<unsigned int>::max())
+			return capabilities->currentExtent;
 
 		return {
-			std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, windowExtent.width)),
-			std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, windowExtent.height))
+			Math::clampui(m_window_extent.width, capabilities->minImageExtent.width, capabilities->maxImageExtent.width),
+			Math::clampui(m_window_extent.height, capabilities->minImageExtent.height, capabilities->maxImageExtent.height)
 		};
 	}
 }

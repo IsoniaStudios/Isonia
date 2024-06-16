@@ -14,6 +14,8 @@
 #include <cassert>
 
 #include <vector>
+#include <unordered_set>
+#include <set>
 
 namespace Isonia::Pipeline
 {
@@ -90,19 +92,19 @@ namespace Isonia::Pipeline
         SwapChainSupportDetails getSwapChainSupport();
         QueueFamilyIndices getPhysicalQueueFamilies();
 
-		unsigned int findMemoryType(unsigned int typeFilter, VkMemoryPropertyFlags properties);
+		unsigned int findMemoryType(unsigned int type_filter, VkMemoryPropertyFlags properties);
 		VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer command_buffer);
-        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* buffer_memory);
         void copyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
         void copyBufferToImage(VkBuffer buffer, VkImage image, unsigned int width, unsigned int height, unsigned int layer_count);
         void createImageWithInfo(const VkImageCreateInfo* image_info, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* image_memory);
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, unsigned int mip_levels, unsigned int layer_count);
+        VkFormat findSupportedFormat(const std::vector<VkFormat>* candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
         VkPhysicalDeviceProperties m_properties;
 
 	private:
-        VkFormat findSupportedFormat(const std::vector<VkFormat>* candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 		std::vector<const char*> getRequiredExtensions();
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
@@ -172,7 +174,7 @@ namespace Isonia::Pipeline
         VkDeviceSize getBufferSize() const;
 
     private:
-        static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize min_offset_alignment);
+        static VkDeviceSize getAlignment(VkDeviceSize instance_size, VkDeviceSize min_offset_alignment);
 
         Device* m_device;
         void* m_mapped = nullptr;
@@ -204,17 +206,17 @@ namespace Isonia::Pipeline
         VkFramebuffer getFrameBuffer(int index) const;
         VkRenderPass getRenderPass() const;
         VkImageView getImageView(int index) const;
-        unsigned int imageCount() const;
+        unsigned int getImageCount() const;
         VkFormat getSwapChainImageFormat() const;
         VkExtent2D getSwapChainExtent() const;
-        unsigned int width() const;
-        unsigned int height() const;
-        float extentAspectRatio() const;
+        unsigned int getWidth() const;
+        unsigned int getHeight() const;
+        float getExtentAspectRatio() const;
 
         VkFormat findDepthFormat();
-        VkResult acquireNextImage(unsigned int* imageIndex);
-		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* imageIndex);
-		bool compareSwapFormats(const SwapChain* swapChain) const;
+        VkResult acquireNextImage(unsigned int* image_index);
+		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index);
+		bool compareSwapFormats(const SwapChain* swap_chain) const;
 
 	private:
 		void init();
@@ -225,36 +227,36 @@ namespace Isonia::Pipeline
 		void createDepthResources();
 		void createSyncObjects();
 
-		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* availableFormats);
-		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* availablePresentModes);
+		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* available_formats);
+        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* available_present_modes);
 		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
-		static constexpr const unsigned int attachmentsLength = 2;
+		static constexpr const unsigned int attachments_length = 2;
 
-		VkFormat m_swapChainImageFormat;
-		VkFormat m_swapChainDepthFormat;
-		VkExtent2D m_swapChainExtent;
+		VkFormat m_swap_chain_image_format;
+		VkFormat m_swap_chain_depth_format;
+		VkExtent2D m_swap_chain_extent;
 
-		std::vector<VkFramebuffer> m_swapChainFramebuffers;
-		VkRenderPass m_renderPass;
+		std::vector<VkFramebuffer> m_swap_chain_framebuffers;
+		VkRenderPass m_render_pass;
 
-		std::vector<VkImage> m_depthImages;
-		std::vector<VkDeviceMemory> m_depthImageMemorys;
-		std::vector<VkImageView> m_depthImageViews;
-		std::vector<VkImage> m_swapChainImages;
-		std::vector<VkImageView> m_swapChainImageViews;
+		std::vector<VkImage> m_depth_images;
+		std::vector<VkDeviceMemory> m_depth_image_memorys;
+		std::vector<VkImageView> m_depth_image_views;
+		std::vector<VkImage> m_swap_chain_images;
+		std::vector<VkImageView> m_swap_chain_image_views;
 
 		Device* m_device;
-		VkExtent2D m_windowExtent;
+		VkExtent2D m_window_extent;
 
-		VkSwapchainKHR m_swapChain;
-		SwapChain* m_oldSwapChain;
+		VkSwapchainKHR m_swap_chain;
+		SwapChain* m_old_swap_chain;
 
-		VkSemaphore m_imageAvailableSemaphores[max_frames_in_flight];
-		VkSemaphore m_renderFinishedSemaphores[max_frames_in_flight];
-		VkFence m_inFlightFences[max_frames_in_flight];
-		std::vector<VkFence> m_imagesInFlight;
-		unsigned int m_currentFrame = 0;
+		VkSemaphore m_image_available_semaphores[max_frames_in_flight];
+		VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
+		VkFence m_in_flight_fences[max_frames_in_flight];
+		std::vector<VkFence> m_images_in_flight;
+		unsigned int m_current_frame = 0;
 	};
 
     struct PipelineConfigInfo
@@ -285,37 +287,37 @@ namespace Isonia::Pipeline
         struct Builder
         {
         public:
-            Builder(Device& device);
+            Builder(Device* device);
 
-            Builder& addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const size_t size);
-            Pipeline* createGraphicsPipeline(const PipelineConfigInfo& config_info) const;
+            Builder* addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const size_t size);
+            Pipeline* createGraphicsPipeline(const PipelineConfigInfo* config_info) const;
 
         private:
             VkShaderModule createShaderModule(const unsigned char* const code, const size_t size);
 
-            Device& m_device;
+            Device* m_device;
             std::vector<VkPipelineShaderStageCreateInfo> m_shader_stages;
         };
 
-        Pipeline(Device& device, std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo& config_info);
+        Pipeline(Device* device, std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info);
         ~Pipeline();
 
         VkShaderStageFlags getStageFlags() const;
 
         void bind(VkCommandBuffer command_buffer);
 
-        static constexpr void pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo& config_info);
-        static constexpr void pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo& config_info);
-        static constexpr void pixelPipelineConfigInfo(PipelineConfigInfo& config_info);
-        static constexpr void defaultPipelineConfigInfo(PipelineConfigInfo& config_info);
-        static constexpr void makePixelPerfectConfigInfo(PipelineConfigInfo& config_info);
-        static constexpr void makeTransparentConfigInfo(PipelineConfigInfo& config_info);
-        static constexpr void makeTriangleStripConfigInfo(PipelineConfigInfo& config_info);
+        static constexpr void pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info);
+        static constexpr void pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info);
+        static constexpr void pixelPipelineConfigInfo(PipelineConfigInfo* config_info);
+        static constexpr void defaultPipelineConfigInfo(PipelineConfigInfo* config_info);
+        static constexpr void makePixelPerfectConfigInfo(PipelineConfigInfo* config_info);
+        static constexpr void makeTransparentConfigInfo(PipelineConfigInfo* config_info);
+        static constexpr void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info);
 
     private:
-        void create_graphics_pipeline(std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo& config_info);
+        void createGraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info);
 
-        Device& m_device;
+        Device* m_device;
         VkPipeline m_graphics_pipeline;
         std::vector<VkPipelineShaderStageCreateInfo> m_shader_stages;
         VkShaderStageFlags m_stage_flags{};
@@ -324,13 +326,14 @@ namespace Isonia::Pipeline
 	struct PixelRenderer
 	{
 	public:
-        PixelRenderer(Window& window, Device& device);
+        PixelRenderer(Window* window, Device* device);
         ~PixelRenderer();
 
 		PixelRenderer(const PixelRenderer&) = delete;
 		PixelRenderer& operator=(const PixelRenderer&) = delete;
 
-        void registerRenderResizeCallback(void (*handler)(PixelRenderer*));
+        typedef void (*EventHandler)(PixelRenderer*);
+        void registerRenderResizeCallback(EventHandler);
         void propigateRenderResizeEvent();
         VkRenderPass getSwapChainRenderPass() const;
         float getAspectRatio() const;
@@ -346,22 +349,22 @@ namespace Isonia::Pipeline
         void blit(VkCommandBuffer command_buffer, Math::Vector2 offset);
 
 	protected:
-		void CreateCommandBuffers();
-		void FreeCommandBuffers();
-		static void CalculateResolution(VkExtent2D windowExtent, float& outWidth, float& outHeight);
-		static VkExtent2D RecalculateCameraSettings(VkExtent2D windowExtent);
+		void createCommandBuffers();
+		void freeCommandBuffers();
+		static void calculateResolution(VkExtent2D windowExtent, float* outWidth, float* outHeight);
+		static VkExtent2D recalculateCameraSettings(VkExtent2D windowExtent);
 
-		void RecreateSwapChain();
+		void recreateSwapChain();
 
-		Window* window;
-		Device& device;
-		PixelSwapChain* pixelSwapChain = nullptr;
-		VkCommandBuffer commandBuffers[PixelSwapChain::max_frames_in_flight];
-		std::vector<EventHandler> handlers;
+		Window* m_window;
+		Device* m_device;
+		PixelSwapChain* m_pixel_swap_chain = nullptr;
+		VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
+		std::vector<EventHandler> m_handlers;
 
-		unsigned int currentImageIndex;
-		int currentFrameIndex = 0;
-		bool isFrameStarted = false;
+		unsigned int m_current_image_index;
+		int m_current_frame_index = 0;
+		bool m_is_frame_started = false;
 	};
 
 	struct PixelSwapChain
@@ -369,130 +372,127 @@ namespace Isonia::Pipeline
 	public:
 		static constexpr const unsigned int max_frames_in_flight = 2;
 
-        PixelSwapChain(Device& deviceRef, VkExtent2D windowExtent, VkExtent2D renderExtent);
-        PixelSwapChain(Device& deviceRef, VkExtent2D windowExtent, VkExtent2D renderExtent, PixelSwapChain* previous);
+        PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent);
+        PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent, PixelSwapChain* previous);
 
         ~PixelSwapChain();
-        void FreeOldPixelSwapChain();
+        void freeOldPixelSwapChain();
 
 		PixelSwapChain(const PixelSwapChain&) = delete;
 		PixelSwapChain& operator=(const PixelSwapChain&) = delete;
 
-        VkImage GetSwapChainImage(int index) const;
-        VkImage GetImage(int index) const;
+        VkImage getSwapChainImage(int index) const;
+        VkImage getImage(int index) const;
 
-        VkFramebuffer GetFrameBuffer(int index) const;
-        VkRenderPass GetRenderPass() const;
-        VkImageView GetImageView(int index) const;
-        unsigned int ImageCount() const;
+        VkFramebuffer getFrameBuffer(int index) const;
+        VkRenderPass getRenderPass() const;
+        VkImageView getImageView(int index) const;
+        unsigned int getImageCount() const;
 
-        VkFormat GetPixelSwapChainImageFormat() const;
-        VkExtent2D GetPixelSwapChainExtent() const;
-        unsigned int SwapChainWidth() const;
-        unsigned int SwapChainHeight() const;
+        VkFormat getPixelSwapChainImageFormat() const;
+        VkExtent2D getPixelSwapChainExtent() const;
+        unsigned int getSwapChainWidth() const;
+        unsigned int getSwapChainHeight() const;
 
-        VkExtent2D GetRenderExtent() const;
-        unsigned int RenderWidth() const;
-        unsigned int RenderHeight() const;
-        float ExtentAspectRatio() const;
+        VkExtent2D getRenderExtent() const;
+        unsigned int getRenderWidth() const;
+        unsigned int getRenderHeight() const;
+        float getExtentAspectRatio() const;
 
-        VkFormat FindDepthFormat();
-        VkResult AcquireNextImage(unsigned int* imageIndex);
-		VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* imageIndex);
-		bool CompareSwapFormats(const PixelSwapChain& swapChain) const;
+        VkFormat findDepthFormat();
+        VkResult acquireNextImage(unsigned int* image_index);
+		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index);
+		bool compareSwapFormats(const PixelSwapChain* swap_chain) const;
 
 	private:
-		void Init();
-		void CreatePixelSwapChain();
-		void CreateImageViews();
-		void CreateRenderPass();
-		void CreateFramebuffers();
-		void CreateColorResources();
-		void CreateDepthResources();
-		void CreateSyncObjects();
+		void init();
+		void createPixelSwapChain();
+		void createImageViews();
+		void createRenderPass();
+		void createFramebuffers();
+		void createColorResources();
+		void createDepthResources();
+		void createSyncObjects();
 
-		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
+		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* available_formats);
+		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* available_present_modes);
+		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
-		static constexpr const unsigned int attachmentsLength = 2;
+		static constexpr const unsigned int attachments_length = 2;
 
-		unsigned int imageCount;
+		unsigned int m_image_count;
 
-		VkFormat swapChainImageFormat;
-		VkFormat swapChainColorFormat;
-		VkFormat swapChainDepthFormat;
-		VkExtent2D swapChainExtent;
+		VkFormat m_swap_chain_image_format;
+		VkFormat m_swap_chain_color_format;
+		VkFormat m_swap_chain_depth_format;
+		VkExtent2D m_swap_chain_extent;
 
-		VkRenderPass renderPass;
+		VkRenderPass m_render_pass;
 
-		VkFence* imagesInFlight;
-		VkImage* depthImages;
-		VkDeviceMemory* depthImageMemorys;
-		VkImageView* depthImageViews;
-		VkImage* colorImages;
-		VkDeviceMemory* colorImageMemorys;
-		VkImageView* colorImageViews;
-		VkImage* swapChainImages;
-		VkFramebuffer* swapChainFramebuffers;
-		VkImageView* swapChainImageViews;
+		VkFence* m_images_in_flight;
+		VkImage* m_depth_images;
+		VkDeviceMemory* m_depth_image_memorys;
+		VkImageView* m_depth_image_views;
+		VkImage* m_color_images;
+		VkDeviceMemory* m_color_image_memorys;
+		VkImageView* m_color_image_views;
+		VkImage* m_swap_chain_images;
+		VkFramebuffer* m_swap_chain_framebuffers;
+		VkImageView* m_swap_chain_image_views;
 
-		Device& device;
-		VkExtent2D windowExtent;
-		VkExtent2D renderExtent;
+		Device* m_device;
+		VkExtent2D m_window_extent;
+		VkExtent2D m_render_extent;
 
-		VkSwapchainKHR swapChain;
-		PixelSwapChain* oldPixelSwapChain;
+		VkSwapchainKHR m_swap_chain;
+		PixelSwapChain* m_old_pixel_swap_chain;
 
-		VkSemaphore imageAvailableSemaphores[max_frames_in_flight];
-		VkSemaphore renderFinishedSemaphores[max_frames_in_flight];
-		VkFence inFlightFences[max_frames_in_flight];
-		unsigned int currentFrame = 0;
+		VkSemaphore m_image_available_semaphores[max_frames_in_flight];
+		VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
+		VkFence m_in_flight_fences[max_frames_in_flight];
+		unsigned int m_current_frame = 0;
 	};
 
 	struct Renderer
 	{
 	public:
-        Renderer(Window& window, Device& device);
+        Renderer(Window* window, Device* device);
         ~Renderer();
 
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
-		void RegisterRenderResizeCallback(void (*handler)(PixelRenderer*))
-		{
-			handlers.push_back(handler);
-		}
+        typedef void (*EventHandler)(Renderer*);
+        void registerRenderResizeCallback(EventHandler);
+        void propigateRenderResizeEvent();
 
-        void PropigateRenderResizeEvent();
+        VkRenderPass getSwapChainRenderPass() const;
+        float getAspectRatio() const;
+        VkExtent2D getExtent() const;
+        bool isFrameInProgress() const;
+        VkCommandBuffer getCurrentCommandBuffer() const;
+        int getFrameIndex() const;
 
-        VkRenderPass GetSwapChainRenderPass() const;
-        float GetAspectRatio() const;
-        VkExtent2D GetExtent() const;
-        bool IsFrameInProgress() const;
-        VkCommandBuffer GetCurrentCommandBuffer() const;
-        int GetFrameIndex() const;
+        VkCommandBuffer beginFrame();
+        void endFrame();
 
-        VkCommandBuffer BeginFrame();
-        void EndFrame();
-
-        void BeginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-		void EndSwapChainRenderPass(VkCommandBuffer commandBuffer);
+        void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
+		void endSwapChainRenderPass(VkCommandBuffer command_buffer);
 
 	protected:
-		void CreateCommandBuffers();
-		void FreeCommandBuffers();
-		void RecreateSwapChain();
+		void createCommandBuffers();
+		void freeCommandBuffers();
+		void recreateSwapChain();
 
-		Window& window;
-		Device& device;
-		SwapChain* swapChain = nullptr;
-		VkCommandBuffer commandBuffers[SwapChain::max_frames_in_flight];
-		std::vector<EventHandler> handlers;
+		Window* m_window;
+		Device* m_device;
+		SwapChain* m_swap_chain = nullptr;
+		VkCommandBuffer m_command_buffers[SwapChain::max_frames_in_flight];
+		std::vector<EventHandler> m_handlers;
 
-		unsigned int currentImageIndex;
-		int currentFrameIndex = 0;
-		bool isFrameStarted = false;
+		unsigned int m_current_image_index;
+		int m_current_frame_index = 0;
+		bool m_is_frame_started = false;
 	};
 
     struct Camera
@@ -500,21 +500,21 @@ namespace Isonia::Pipeline
     public:
         void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
         void setPerspectiveProjection(float fovy, float aspect, float near, float far);
-        void setViewDirection(Math::Vector3 position, Math::Vector3 direction, Math::Vector3 up);
-        void setViewTarget(Math::Vector3 position, Math::Vector3 target, Math::Vector3 up);
+        void setViewDirection(const Math::Vector3* position, const Math::Vector3* direction, const Math::Vector3* up);
+        void setViewTarget(const Math::Vector3* position, const Math::Vector3* target, const Math::Vector3* up);
         virtual void setView(Components::Transform* transform);
         virtual void setProjection(PixelRenderer* renderer);
 
-        const Math::Matrix4x4& getProjection() const;
-        const Math::Matrix4x4& getView() const;
-        const Math::Matrix4x4& getInverseView() const;
+        const Math::Matrix4x4* getProjection() const;
+        const Math::Matrix4x4* getView() const;
+        const Math::Matrix4x4* getInverseView() const;
         const Math::Vector3 getForwardVector() const;
         const Math::Vector3 getUpVector() const;
         const Math::Vector3 getRightVector() const;
         const Math::Vector3 getPositionVector() const;
 
     protected:
-        void setViewYXZ(Math::Vector3 position, Math::Vector3 rotation);
+        void setViewYXZ(const Math::Vector3* position, const Math::Vector3* rotation);
 
         Math::Matrix4x4 m_projection_matrix{ 1.f };
         Math::Matrix4x4 m_inverse_projection_matrix{ 1.f };
@@ -528,7 +528,7 @@ namespace Isonia::Pipeline
         void setView(Components::Transform* transform) override;
         void setProjection(PixelRenderer* renderer) override;
 
-        Math::Vector2 subPixelOffset{};
+        Math::Vector2 m_sub_pixel_offset{};
 
     private:
         const float camera_distance = 500.0f;

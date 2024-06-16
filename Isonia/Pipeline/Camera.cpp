@@ -1,4 +1,5 @@
-#include "Camera.h"
+// internal
+#include "Pipeline.h"
 
 namespace Isonia::Pipeline
 {
@@ -27,11 +28,11 @@ namespace Isonia::Pipeline
         m_inverse_projection_matrix = Math::mat4Inverse(m_projection_matrix);
     }
 
-    void Camera::setViewDirection(Math::Vector3 position, Math::Vector3 direction, Math::Vector3 up)
+    void Camera::setViewDirection(const Math::Vector3* position, const  Math::Vector3* direction, const Math::Vector3* up)
     {
-        const Math::Vector3 w{ Math::vec3Normalize(direction) };
-        const Math::Vector3 u{ Math::vec3Normalize(Math::vec3Cross(w, up)) };
-        const Math::Vector3 v{ Math::vec3Cross(w, u) };
+        const Math::Vector3 w = Math::vec3Normalize(direction);
+        const Math::Vector3 u = Math::vec3Normalize(&Math::vec3Cross(&w, up));
+        const Math::Vector3 v = Math::vec3Cross(&w, &u);
 
         m_view_matrix = Math::Matrix4x4{ 1.f };
         m_view_matrix[0][0] = u.x;
@@ -43,9 +44,9 @@ namespace Isonia::Pipeline
         m_view_matrix[0][2] = w.x;
         m_view_matrix[1][2] = w.y;
         m_view_matrix[2][2] = w.z;
-        m_view_matrix[3][0] = -Math::vec3Dot(u, position);
-        m_view_matrix[3][1] = -Math::vec3Dot(v, position);
-        m_view_matrix[3][2] = -Math::vec3Dot(w, position);
+        m_view_matrix[3][0] = -Math::vec3Dot(&u, position);
+        m_view_matrix[3][1] = -Math::vec3Dot(&v, position);
+        m_view_matrix[3][2] = -Math::vec3Dot(&w, position);
 
         m_inverse_view_matrix = Math::Matrix4x4{ 1.f };
         m_inverse_view_matrix[0][0] = u.x;
@@ -57,14 +58,14 @@ namespace Isonia::Pipeline
         m_inverse_view_matrix[2][0] = w.x;
         m_inverse_view_matrix[2][1] = w.y;
         m_inverse_view_matrix[2][2] = w.z;
-        m_inverse_view_matrix[3][0] = position.x;
-        m_inverse_view_matrix[3][1] = position.y;
-        m_inverse_view_matrix[3][2] = position.z;
+        m_inverse_view_matrix[3][0] = position->x;
+        m_inverse_view_matrix[3][1] = position->y;
+        m_inverse_view_matrix[3][2] = position->z;
     }
 
-    void Camera::setViewTarget(Math::Vector3 position, Math::Vector3 target, Math::Vector3 up)
+    void Camera::setViewTarget(const Math::Vector3* position, const Math::Vector3* target, const Math::Vector3* up)
     {
-        setViewDirection(position, target - position, up);
+        setViewDirection(position, &vec3Sub(target, position), up);
     }
 
     void Camera::setView(Components::Transform* transform)
@@ -78,17 +79,17 @@ namespace Isonia::Pipeline
         setPerspectiveProjection(Math::radiansf(50.f), aspect, 0.1f, 1000.f);
     }
 
-    const Math::Matrix4x4& Camera::getProjection() const
+    const Math::Matrix4x4* Camera::getProjection() const
     {
-        return m_projection_matrix;
+        return &m_projection_matrix;
     }
-    const Math::Matrix4x4& Camera::getView() const
+    const Math::Matrix4x4* Camera::getView() const
     {
-        return m_view_matrix;
+        return &m_view_matrix;
     }
-    const Math::Matrix4x4& Camera::getInverseView() const
+    const Math::Matrix4x4* Camera::getInverseView() const
     {
-        return m_inverse_view_matrix;
+        return &m_inverse_view_matrix;
     }
     const Math::Vector3 Camera::getForwardVector() const
     {
@@ -107,14 +108,14 @@ namespace Isonia::Pipeline
         return Math::Vector3{ m_inverse_view_matrix[3][0], m_inverse_view_matrix[3][1], m_inverse_view_matrix[3][2] };
     }
 
-    void Camera::setViewYXZ(Math::Vector3 position, Math::Vector3 rotation)
+    void Camera::setViewYXZ(const Math::Vector3* position, const Math::Vector3* rotation)
     {
-        const float c3 = Math::cosf(rotation.z);
-        const float s3 = Math::sinf(rotation.z);
-        const float c2 = Math::cosf(rotation.x);
-        const float s2 = Math::sinf(rotation.x);
-        const float c1 = Math::cosf(rotation.y);
-        const float s1 = Math::sinf(rotation.y);
+        const float c3 = Math::cosf(rotation->z);
+        const float s3 = Math::sinf(rotation->z);
+        const float c2 = Math::cosf(rotation->x);
+        const float s2 = Math::sinf(rotation->x);
+        const float c1 = Math::cosf(rotation->y);
+        const float s1 = Math::sinf(rotation->y);
         const Math::Vector3 u{ (c1 * c3 + s1 * s2 * s3), (c2 * s3), (c1 * s2 * s3 - c3 * s1) };
         const Math::Vector3 v{ (c3 * s1 * s2 - c1 * s3), (c2 * c3), (c1 * c3 * s2 + s1 * s3) };
         const Math::Vector3 w{ (c2 * s1), (-s2), (c1 * c2) };
@@ -128,9 +129,9 @@ namespace Isonia::Pipeline
         m_view_matrix[0][2] = w.x;
         m_view_matrix[1][2] = w.y;
         m_view_matrix[2][2] = w.z;
-        m_view_matrix[3][0] = -Math::vec3Dot(u, position);
-        m_view_matrix[3][1] = -Math::vec3Dot(v, position);
-        m_view_matrix[3][2] = -Math::vec3Dot(w, position);
+        m_view_matrix[3][0] = -Math::vec3Dot(&u, position);
+        m_view_matrix[3][1] = -Math::vec3Dot(&v, position);
+        m_view_matrix[3][2] = -Math::vec3Dot(&w, position);
 
         m_view_matrix = Math::Matrix4x4{ 1.f };
         m_view_matrix[0][0] = u.x;
@@ -142,8 +143,8 @@ namespace Isonia::Pipeline
         m_view_matrix[2][0] = w.x;
         m_view_matrix[2][1] = w.y;
         m_view_matrix[2][2] = w.z;
-        m_view_matrix[3][0] = position.x;
-        m_view_matrix[3][1] = position.y;
-        m_view_matrix[3][2] = position.z;
+        m_view_matrix[3][0] = position->x;
+        m_view_matrix[3][1] = position->y;
+        m_view_matrix[3][2] = position->z;
     }
 }

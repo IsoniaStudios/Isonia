@@ -1,3 +1,4 @@
+// internal
 #include "Pipeline.h"
 
 namespace Isonia::Pipeline

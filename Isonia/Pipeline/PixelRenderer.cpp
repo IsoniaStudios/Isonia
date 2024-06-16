@@ -3,27 +3,28 @@
 
 namespace Isonia::Pipeline
 {
-	PixelRenderer::PixelRenderer(Window* window, Device& device) : window(window), device(device)
+	PixelRenderer::PixelRenderer(Window* window, Device* device)
+		: m_window(window), m_device(device)
 	{
-		RecreateSwapChain();
-		CreateCommandBuffers();
+		recreateSwapChain();
+		createCommandBuffers();
 	}
 
 	PixelRenderer::~PixelRenderer()
 	{
 		freeCommandBuffers();
-		pixelSwapChain->freeOldPixelSwapChain();
-		delete pixelSwapChain;
+		m_pixel_swap_chain->freeOldPixelSwapChain();
+		delete m_pixel_swap_chain;
 	}
 
 	void PixelRenderer::registerRenderResizeCallback(EventHandler handler)
 	{
-		handlers.push_back(handler);
+		m_handlers.push_back(handler);
 	}
 
 	void PixelRenderer::propigateRenderResizeEvent()
 	{
-		for (const auto& handler : handlers)
+		for (const auto& handler : m_handlers)
 		{
 			handler(this);
 		}
@@ -31,41 +32,41 @@ namespace Isonia::Pipeline
 
 	VkRenderPass PixelRenderer::getSwapChainRenderPass() const
 	{
-		return pixelSwapChain->getRenderPass();
+		return m_pixel_swap_chain->getRenderPass();
 	}
 	float PixelRenderer::getAspectRatio() const
 	{
-		return pixelSwapChain->extentAspectRatio();
+		return m_pixel_swap_chain->getExtentAspectRatio();
 	}
 	VkExtent2D PixelRenderer::getExtent() const
 	{
-		return pixelSwapChain->GetRenderExtent();
+		return m_pixel_swap_chain->getRenderExtent();
 	}
 	bool PixelRenderer::isFrameInProgress() const
 	{
-		return isFrameStarted;
+		return m_is_frame_started;
 	}
 
 	VkCommandBuffer PixelRenderer::getCurrentCommandBuffer() const
 	{
-		assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
-		return commandBuffers[currentFrameIndex];
+		assert(m_is_frame_started && "Cannot get command buffer when frame not in progress");
+		return m_command_buffers[m_current_frame_index];
 	}
 
 	int PixelRenderer::getFrameIndex() const
 	{
-		assert(isFrameStarted && "Cannot get frame index when frame not in progress");
-		return currentFrameIndex;
+		assert(m_is_frame_started && "Cannot get frame index when frame not in progress");
+		return m_current_frame_index;
 	}
 
 	VkCommandBuffer PixelRenderer::beginFrame()
 	{
-		assert(!isFrameStarted && "Can't call beginFrame while already in progress");
+		assert(!m_is_frame_started && "Can't call beginFrame while already in progress");
 
-		auto result = pixelSwapChain->AcquireNextImage(&currentImageIndex);
+		auto result = m_pixel_swap_chain->acquireNextImage(&m_current_image_index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
-			RecreateSwapChain();
+			recreateSwapChain();
 			return nullptr;
 		}
 
@@ -74,9 +75,9 @@ namespace Isonia::Pipeline
 			throw std::runtime_error("Failed to acquire swap chain image!");
 		}
 
-		isFrameStarted = true;
+		m_is_frame_started = true;
 
-		auto commandBuffer = GetCurrentCommandBuffer();
+		auto commandBuffer = getCurrentCommandBuffer();
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -89,40 +90,40 @@ namespace Isonia::Pipeline
 
 	void PixelRenderer::endFrame()
 	{
-		assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
-		auto commandBuffer = GetCurrentCommandBuffer();
+		assert(m_is_frame_started && "Can't call endFrame while frame is not in progress");
+		auto commandBuffer = getCurrentCommandBuffer();
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 
-		auto result = pixelSwapChain->SubmitCommandBuffers(&commandBuffer, &currentImageIndex);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.WasWindowResized())
+		auto result = m_pixel_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->wasWindowResized())
 		{
-			window.ResetWindowResizedFlag();
-			RecreateSwapChain();
-			PropigateRenderResizeEvent();
+			m_window->resetWindowResizedFlag();
+			recreateSwapChain();
+			propigateRenderResizeEvent();
 		}
 		else if (result != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to present swap chain image!");
 		}
 
-		isFrameStarted = false;
-		currentFrameIndex = (currentFrameIndex + 1) % PixelSwapChain::max_frames_in_flight;
+		m_is_frame_started = false;
+		m_current_frame_index = (m_current_frame_index + 1) % PixelSwapChain::max_frames_in_flight;
 	}
 
-	void PixelRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer)
+	void PixelRenderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 	{
-		assert(isFrameStarted && "Can't call begin SwapChainRenderPass if frame is not in progress");
-		assert(commandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
+		assert(m_is_frame_started && "Can't call begin SwapChainRenderPass if frame is not in progress");
+		assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = pixelSwapChain->GetRenderPass();
-		renderPassInfo.framebuffer = pixelSwapChain->GetFrameBuffer(currentImageIndex);
+		renderPassInfo.renderPass = m_pixel_swap_chain->getRenderPass();
+		renderPassInfo.framebuffer = m_pixel_swap_chain->getFrameBuffer(m_current_image_index);
 
-		const VkExtent2D extent = pixelSwapChain->GetRenderExtent();
+		const VkExtent2D extent = m_pixel_swap_chain->getRenderExtent();
 		const VkOffset2D offset = { 0, 0 };
 
 		renderPassInfo.renderArea.offset = offset;
@@ -137,7 +138,7 @@ namespace Isonia::Pipeline
 		renderPassInfo.clearValueCount = clearValuesCount;
 		renderPassInfo.pClearValues = clearValues;
 
-		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(command_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		VkViewport viewport{
 			.x = 0.0f,
@@ -148,19 +149,19 @@ namespace Isonia::Pipeline
 			.maxDepth = 1.0f
 		};
 		VkRect2D scissor{ offset, extent };
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+		vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+		vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 	}
 
-	void PixelRenderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer)
+	void PixelRenderer::endSwapChainRenderPass(VkCommandBuffer command_buffer)
 	{
-		assert(isFrameStarted && "Can't call endPixelSwapChainRenderPass if frame is not in progress");
-		assert(commandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
+		assert(m_is_frame_started && "Can't call endPixelSwapChainRenderPass if frame is not in progress");
+		assert(command_buffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
 
-		vkCmdEndRenderPass(commandBuffer);
+		vkCmdEndRenderPass(command_buffer);
 	}
 
-	void PixelRenderer::blit(VkCommandBuffer commandBuffer, Math::Vector2 offset)
+	void PixelRenderer::blit(VkCommandBuffer command_buffer, Math::Vector2 offset)
 	{
 		// The common subresource thingies
 		VkImageSubresourceRange subresourceRange{
@@ -188,23 +189,23 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = pixelSwapChain->GetSwapChainImage(currentImageIndex),
+			.image = m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
 			.subresourceRange = subresourceRange
 		};
 
-		vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
+		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
 
 		// Calculate pixel offsets
-		const float scaleFactor = Math::Retro::PIXELS_PER_UNIT * static_cast<float>(Math::Retro::RenderFactor);
-		const int32_t offsetX = Math::RoundToInt(offset.x * scaleFactor);
-		const int32_t offsetY = Math::RoundToInt(offset.y * scaleFactor);
+		const float scaleFactor = Math::pixels_per_unit * static_cast<float>(Math::render_factor);
+		const int32_t offsetX = Math::roundf_i(offset.x * scaleFactor);
+		const int32_t offsetY = Math::roundf_i(offset.y * scaleFactor);
 
 		// Define source and destination offsets for image blit
-		const int32_t renderFactor = static_cast<int32_t>(Math::Retro::RenderFactor);
-		const int32_t srcWidth = static_cast<int32_t>(pixelSwapChain->RenderWidth());
-		const int32_t srcHeight = static_cast<int32_t>(pixelSwapChain->RenderHeight());
-		const int32_t dstWidth = srcWidth * renderFactor;
-		const int32_t dstHeight = srcHeight * renderFactor;
+		const int32_t render_factor = static_cast<int32_t>(Math::render_factor);
+		const int32_t srcWidth = static_cast<int32_t>(m_pixel_swap_chain->getRenderWidth());
+		const int32_t srcHeight = static_cast<int32_t>(m_pixel_swap_chain->getRenderHeight());
+		const int32_t dstWidth = srcWidth * render_factor;
+		const int32_t dstHeight = srcHeight * render_factor;
 
 		// Create image blit configuration
 		VkImageBlit imageBlit
@@ -216,13 +217,13 @@ namespace Isonia::Pipeline
 			},
 			.dstSubresource = subresource,
 			.dstOffsets = {
-				{ renderFactor + offsetX, renderFactor + offsetY, 0 },
-				{ dstWidth - renderFactor * 3 + offsetX, dstHeight - renderFactor * 3 + offsetY, 1 }
+				{ render_factor + offsetX, render_factor + offsetY, 0 },
+				{ dstWidth - render_factor * 3 + offsetX, dstHeight - render_factor * 3 + offsetY, 1 }
 			}
 		};
 
 		// Blit the image to the swapchain image
-		vkCmdBlitImage(commandBuffer, pixelSwapChain->GetImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, pixelSwapChain->GetSwapChainImage(currentImageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
+		vkCmdBlitImage(command_buffer, m_pixel_swap_chain->getImage(m_current_image_index), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_pixel_swap_chain->getSwapChainImage(m_current_image_index), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
 
 		// "Blit" the remaining renderFactor * 2 border using compute shader bc of hardware limitations of blit
 
@@ -237,11 +238,11 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = pixelSwapChain->GetSwapChainImage(currentImageIndex),
+			.image = m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
 			.subresourceRange = subresourceRange
 		};
 
-		vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &presentBarrier);
+		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &presentBarrier);
 	}
 
 	void PixelRenderer::createCommandBuffers()
@@ -249,10 +250,10 @@ namespace Isonia::Pipeline
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = device.GetCommandPool();
+		allocInfo.commandPool = m_device->getCommandPool();
 		allocInfo.commandBufferCount = PixelSwapChain::max_frames_in_flight;
 
-		if (vkAllocateCommandBuffers(device.GetDevice(), &allocInfo, commandBuffers) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(m_device->getDevice(), &allocInfo, m_command_buffers) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate command buffers!");
 		}
@@ -261,76 +262,76 @@ namespace Isonia::Pipeline
 	void PixelRenderer::freeCommandBuffers()
 	{
 		vkFreeCommandBuffers(
-			device.GetDevice(),
-			device.GetCommandPool(),
+			m_device->getDevice(),
+			m_device->getCommandPool(),
 			PixelSwapChain::max_frames_in_flight,
-			commandBuffers
+			m_command_buffers
 		);
 	}
 
-	static void PixelRenderer::calculateResolution(VkExtent2D windowExtent, float& outWidth, float& outHeight)
+	void PixelRenderer::calculateResolution(VkExtent2D window_extent, float* out_width, float* out_height)
 	{
 		static const constexpr float idealPixelDensity = 640.0f * 360.0f; //512.0f * 288.0f;
 
 		float closestIdealPixelDensity = std::numeric_limits<float>::max();
 		for (uint32_t factor = 1; factor <= 8; factor++)
 		{
-			const float width = static_cast<float>(windowExtent.width) / static_cast<float>(factor);
-			const float height = static_cast<float>(windowExtent.height) / static_cast<float>(factor);
+			const float width = static_cast<float>(window_extent.width) / static_cast<float>(factor);
+			const float height = static_cast<float>(window_extent.height) / static_cast<float>(factor);
 			const float pixelDensity = width * height;
 			const float difference = std::abs(idealPixelDensity - pixelDensity);
 
 			if (difference < std::abs(idealPixelDensity - closestIdealPixelDensity))
 			{
 				closestIdealPixelDensity = pixelDensity;
-				outWidth = width;
-				outHeight = height;
+				*out_width = width;
+				*out_height = height;
 
-				Math::Retro::RenderFactor = factor;
+				Math::render_factor = factor;
 			}
 		}
 	}
 
-	static VkExtent2D PixelRenderer::recalculateCameraSettings(VkExtent2D windowExtent)
+	VkExtent2D PixelRenderer::recalculateCameraSettings(VkExtent2D window_extent)
 	{
-		float renderWidth; float renderHeight;
-		CalculateResolution(windowExtent, renderWidth, renderHeight);
+		float render_width; float render_height;
+		calculateResolution(window_extent, &render_width, &render_height);
 
 		// extended so we can render sub-pixels
 		return {
-			static_cast<uint32_t>(Math::FloorToInt(renderWidth)) + 2,
-			static_cast<uint32_t>(Math::FloorToInt(renderHeight)) + 2
+			static_cast<uint32_t>(Math::floorf_i(render_width)) + 2,
+			static_cast<uint32_t>(Math::floorf_i(render_height)) + 2
 		};
 		// odd number so it snaps as little as posible on camera rotation extended so we can render sub-pixels
 		return {
-			static_cast<uint32_t>(Math::GetCeiledOddNumber(renderWidth)) + 2,
-			static_cast<uint32_t>(Math::GetCeiledOddNumber(renderHeight)) + 2
+			static_cast<uint32_t>(Math::ceilOddf_i(render_width)) + 2,
+			static_cast<uint32_t>(Math::ceilOddf_i(render_height)) + 2
 		};
 	}
 
 	void PixelRenderer::recreateSwapChain()
 	{
-		auto windowExtent = window.GetExtent();
-		while (windowExtent.width == 0 || windowExtent.height == 0)
+		VkExtent2D window_extent = m_window->getExtent();
+		while (window_extent.width == 0 || window_extent.height == 0)
 		{
-			windowExtent = window.GetExtent();
+			window_extent = m_window->getExtent();
 			glfwWaitEvents();
 		}
-		vkDeviceWaitIdle(device.GetDevice());
+		vkDeviceWaitIdle(m_device->getDevice());
 
-		VkExtent2D renderExtent = RecalculateCameraSettings(windowExtent);
+		VkExtent2D render_extent = recalculateCameraSettings(window_extent);
 
-		if (pixelSwapChain == nullptr)
+		if (m_pixel_swap_chain == nullptr)
 		{
-			pixelSwapChain = new PixelSwapChain(device, windowExtent, renderExtent);
+			m_pixel_swap_chain = new PixelSwapChain(m_device, window_extent, render_extent);
 		}
 		else
 		{
-			PixelSwapChain* oldPixelSwapChain = pixelSwapChain;
-			oldPixelSwapChain->FreeOldPixelSwapChain();
-			pixelSwapChain = new PixelSwapChain(device, windowExtent, renderExtent, oldPixelSwapChain);
+			PixelSwapChain* old_pixel_swap_chain = m_pixel_swap_chain;
+			old_pixel_swap_chain->freeOldPixelSwapChain();
+			m_pixel_swap_chain = new PixelSwapChain(m_device, window_extent, render_extent, old_pixel_swap_chain);
 
-			if (!oldPixelSwapChain->CompareSwapFormats(*pixelSwapChain))
+			if (!old_pixel_swap_chain->compareSwapFormats(m_pixel_swap_chain))
 			{
 				throw std::runtime_error("Swap chain image(or depth) format has changed!");
 			}

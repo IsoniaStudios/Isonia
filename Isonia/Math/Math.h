@@ -1,5 +1,8 @@
 #pragma once
 
+// std
+#include "cassert"
+
 namespace Isonia::Math
 {
     // Constants
@@ -16,6 +19,8 @@ namespace Isonia::Math
     extern constexpr const float rotation_grid = 30.0f / 16.0f;
     extern constexpr const float inverse_rotation_grid = 1.0f / rotation_grid;
 
+    static float render_factor = 0.0f;
+
     // Generics
     extern inline constexpr float roundf(const float f);
 
@@ -26,6 +31,8 @@ namespace Isonia::Math
     extern inline constexpr float minf(const float a, const float b);
     extern inline constexpr float maxf(const float a, const float b);
     extern inline constexpr float clampf(const float f, const float min, const float max);
+    extern inline constexpr unsigned int clampui(const unsigned int i, const unsigned int min, const unsigned int max);
+    extern inline constexpr int clampi(const int i, const int min, const int max);
 
     extern inline constexpr float sqrtf(const float f);
     extern inline constexpr float rsqrtf(const float f);
@@ -77,6 +84,10 @@ namespace Isonia::Math
     extern inline constexpr bool operator!=(const Vector4& v1, const Vector4& v2);
 
     extern inline constexpr float vec4Dot(const Vector4* v1, const Vector4* v2);
+    extern inline constexpr Vector4 vec4Add(const Vector4* v1, const Vector4* v2);
+    extern inline constexpr Vector4 vec4Add(const Vector4* v, const float scalar);
+    extern inline constexpr Vector4 vec4Sub(const Vector4* v1, const Vector4* v2);
+    extern inline constexpr Vector4 vec4Sub(const Vector4* v, const float scalar);
     extern inline constexpr Vector4 vec4Mul(const Vector4* v1, const Vector4* v2);
     extern inline constexpr Vector4 vec4Mul(const Vector4* v, const float scalar);
     extern inline constexpr Vector4 vec4Normalize(const Vector4* v);
@@ -106,6 +117,10 @@ namespace Isonia::Math
     extern inline constexpr bool operator!=(const Vector3& v1, const Vector3& v2);
 
     extern inline constexpr float vec3Dot(const Vector3* v1, const Vector3* v2);
+    extern inline constexpr Vector3 vec3Add(const Vector3* v1, const Vector3* v2);
+    extern inline constexpr Vector3 vec3Add(const Vector3* v, const float scalar);
+    extern inline constexpr Vector3 vec3Sub(const Vector3* v1, const Vector3* v2);
+    extern inline constexpr Vector3 vec3Sub(const Vector3* v, const float scalar);
     extern inline constexpr Vector3 vec3Mul(const Vector3* v1, const Vector3* v2);
     extern inline constexpr Vector3 vec3Mul(const Vector3* v, const float scalar);
     extern inline constexpr Vector3 vec3Normalize(const Vector3* v);
@@ -135,6 +150,10 @@ namespace Isonia::Math
     extern inline constexpr bool operator!=(const Vector2& v1, const Vector2& v2);
 
     extern inline constexpr float vec2Dot(const Vector2* v1, const Vector2* v2);
+    extern inline constexpr Vector2 vec2Add(const Vector2* v1, const Vector2* v2);
+    extern inline constexpr Vector2 vec2Add(const Vector2* v, const float scalar);
+    extern inline constexpr Vector2 vec2Sub(const Vector2* v1, const Vector2* v2);
+    extern inline constexpr Vector2 vec2Sub(const Vector2* v, const float scalar);
     extern inline constexpr Vector2 vec2Mul(const Vector2* v1, const Vector2* v2);
     extern inline constexpr Vector2 vec2Mul(const Vector2* v, const float scalar);
     extern inline constexpr Vector2 vec2Normalize(const Vector2* v);

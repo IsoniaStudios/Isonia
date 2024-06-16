@@ -6,10 +6,12 @@ namespace Isonia::Math
 	// Matrix3x3
 	constexpr Vector3& Matrix3x3::operator[](const unsigned int i) noexcept
 	{
+		assert(i < 3);
 		return this->value[i];
 	}
     constexpr const Vector3& Matrix3x3::operator[](const unsigned int i) const noexcept
 	{
+		assert(i < 3);
 		return this->value[i];
 	}
 	constexpr Matrix3x3& Matrix3x3::operator=(const Matrix3x3& m)
@@ -103,10 +105,12 @@ namespace Isonia::Math
 	// Matrix4x4
     constexpr Vector4& Matrix4x4::operator[](const unsigned int i) noexcept
 	{
+        assert(i < 4);
 		return this->value[i];
 	}
     constexpr const Vector4& Matrix4x4::operator[](const unsigned int i) const noexcept
 	{
+		assert(i < 4);
 		return this->value[i];
 	}
 	constexpr Matrix4x4& Matrix4x4::operator=(const Matrix4x4& m)

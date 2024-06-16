@@ -64,6 +64,30 @@ namespace Isonia::Math
         }
         return f;
     }
+    extern inline constexpr unsigned int clampui(const unsigned int i, const unsigned int min, const unsigned int max)
+    {
+        if (i < min)
+        {
+            return min;
+        }
+        if (i > max)
+        {
+            return max;
+        }
+        return i;
+    }
+    extern inline constexpr int clampi(const int i, const int min, const int max)
+    {
+        if (i < min)
+        {
+            return min;
+        }
+        if (i > max)
+        {
+            return max;
+        }
+        return i;
+    }
 
     extern inline constexpr float sqrtf(const float f)
     {

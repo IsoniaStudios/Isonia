@@ -6,10 +6,12 @@ namespace Isonia::Math
     // Vector2
     constexpr float& Vector2::operator[](const unsigned int i) noexcept
     {
+        assert(i < 2);
         return reinterpret_cast<float*>(this)[i];
     }
     constexpr const float& Vector2::operator[](const unsigned int i) const noexcept
     {
+        assert(i < 2);
         return reinterpret_cast<const float*>(this)[i];
     }
     constexpr Vector2& Vector2::operator=(const Vector2& v)
@@ -36,6 +38,34 @@ namespace Isonia::Math
     extern inline constexpr float vec2Dot(const Vector2* v1, const Vector2* v2)
     {
         return v1->x * v2->x + v1->y * v2->y;
+    }
+    extern inline constexpr Vector2 vec2Add(const Vector2* v1, const Vector2* v2)
+    {
+        return Vector2{
+            v1->x + v2->x,
+            v1->y + v2->y
+        };
+    }
+    extern inline constexpr Vector2 vec2Add(const Vector2* v, const float scalar)
+    {
+        return Vector2{
+            v->x + scalar,
+            v->y + scalar
+        };
+    }
+    extern inline constexpr Vector2 vec2Sub(const Vector2* v1, const Vector2* v2)
+    {
+        return Vector2{
+            v1->x - v2->x,
+            v1->y - v2->y
+        };
+    }
+    extern inline constexpr Vector2 vec2Sub(const Vector2* v, const float scalar)
+    {
+        return Vector2{
+            v->x - scalar,
+            v->y - scalar
+        };
     }
     extern inline constexpr Vector2 vec2Mul(const Vector2* v1, const Vector2* v2)
     {
@@ -67,10 +97,12 @@ namespace Isonia::Math
     // Vector3
     constexpr float& Vector3::operator[](const unsigned int i) noexcept
     {
+        assert(i < 3);
         return reinterpret_cast<float*>(this)[i];
     }
     constexpr const float& Vector3::operator[](const unsigned int i) const noexcept
     {
+        assert(i < 3);
         return reinterpret_cast<const float*>(this)[i];
     }
     constexpr Vector3& Vector3::operator=(const Vector3& v)
@@ -99,6 +131,38 @@ namespace Isonia::Math
     extern inline constexpr float vec3Dot(const Vector3* v1, const Vector3* v2)
     {
         return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
+    }
+    extern inline constexpr Vector3 vec3Add(const Vector3* v1, const Vector3* v2)
+    {
+        return Vector3{
+            v1->x + v2->x,
+            v1->y + v2->y,
+            v1->z + v2->z
+        };
+    }
+    extern inline constexpr Vector3 vec3Add(const Vector3* v, const float scalar)
+    {
+        return Vector3{
+            v->x + scalar,
+            v->y + scalar,
+            v->z + scalar
+        };
+    }
+    extern inline constexpr Vector3 vec3Sub(const Vector3* v1, const Vector3* v2)
+    {
+        return Vector3{
+            v1->x - v2->x,
+            v1->y - v2->y,
+            v1->z - v2->z
+        };
+    }
+    extern inline constexpr Vector3 vec3Sub(const Vector3* v, const float scalar)
+    {
+        return Vector3{
+            v->x - scalar,
+            v->y - scalar,
+            v->z - scalar
+        };
     }
     extern inline constexpr Vector3 vec3Mul(const Vector3* v1, const Vector3* v2)
     {
@@ -141,10 +205,12 @@ namespace Isonia::Math
     // Vector4
     constexpr float& Vector4::operator[](const unsigned int i) noexcept
     {
+        assert(i < 4);
         return reinterpret_cast<float*>(this)[i];
     }
     constexpr const float& Vector4::operator[](const unsigned int i) const noexcept
     {
+        assert(i < 4);
         return reinterpret_cast<const float*>(this)[i];
     }
     constexpr Vector4& Vector4::operator=(const Vector4& v)
@@ -174,6 +240,42 @@ namespace Isonia::Math
     extern inline constexpr float vec4Dot(const Vector4* v1, const Vector4* v2)
     {
         return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z + v1->w * v2->w;
+    }
+    extern inline constexpr Vector4 vec4Add(const Vector4* v1, const Vector4* v2)
+    {
+        return Vector4{
+            v1->x + v2->x,
+            v1->y + v2->y,
+            v1->z + v2->z,
+            v1->w + v2->w
+        };
+    }
+    extern inline constexpr Vector4 vec4Add(const Vector4* v, const float scalar)
+    {
+        return Vector4{
+            v->x + scalar,
+            v->y + scalar,
+            v->z + scalar,
+            v->w + scalar
+        };
+    }
+    extern inline constexpr Vector4 vec4Sub(const Vector4* v1, const Vector4* v2)
+    {
+        return Vector4{
+            v1->x - v2->x,
+            v1->y - v2->y,
+            v1->z - v2->z,
+            v1->w - v2->w
+        };
+    }
+    extern inline constexpr Vector4 vec4Sub(const Vector4* v, const float scalar)
+    {
+        return Vector4{
+            v->x - scalar,
+            v->y - scalar,
+            v->z - scalar,
+            v->w - scalar
+        };
     }
     extern inline constexpr Vector4 vec4Mul(const Vector4* v1, const Vector4* v2)
     {
