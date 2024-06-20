@@ -32,10 +32,10 @@ namespace Isonia::Controllers
         if (glfwGetKey(window, keys.move_up) == GLFW_PRESS) move_dir += up_dir;
         if (glfwGetKey(window, keys.move_down) == GLFW_PRESS) move_dir -= up_dir;
 
-        if (Math::dot(move_dir, move_dir) > Math::epsilon)
+        if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
             float speed_scalar = glfwGetKey(window, keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
-            transform->position += speed_scalar * dt * Math::vec3Normalize(move_dir);
+            transform->position += Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar);
         }
     }
 }

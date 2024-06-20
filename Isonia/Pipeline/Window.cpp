@@ -1,8 +1,9 @@
+// internal
 #include "Pipeline.h"
 
 namespace Isonia::Pipeline
 {
-    Window::Window(int width, int height, char* name)
+    Window::Window(const unsigned int width, const unsigned int height, const char* name)
         : m_width(width), m_height(height), m_name(name)
     {
         initWindow();

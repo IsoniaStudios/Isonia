@@ -22,7 +22,7 @@ namespace Isonia::Pipeline
     struct Window
     {
     public:
-        Window(int width, int height, char* name);
+        Window(const unsigned int width, const unsigned int height, const char* name);
         ~Window();
 
         Window(const Window&) = delete;
@@ -45,8 +45,8 @@ namespace Isonia::Pipeline
         void initWindow();
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
-        int m_width;
-        int m_height;
+        unsigned int m_width;
+        unsigned int m_height;
         bool m_framebuffer_resized = false;
 
         unsigned int m_handlers_count = 0;

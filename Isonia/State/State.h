@@ -12,22 +12,22 @@ namespace Isonia::State
 	{
 		Math::Matrix4x4 projection{ 1.f };
 		Math::Matrix4x4 view{ 1.f };
-		Math::Matrix4x4 inverseView{ 1.f };
-		Math::Vector4 ambientLightColor{ 1.f, 1.f, 1.f, .02f };  // w is intensity
-		Math::Vector3 lightDirection = Math::vec3Normalize(-1.f, 3.f, -1.f);
+		Math::Matrix4x4 inverse_view{ 1.f };
+		Math::Vector4 ambient_light_color{ 1.f, 1.f, 1.f, .02f };  // w is intensity
+		Math::Vector3 light_direction = Math::vec3Normalize(-1.f, 3.f, -1.f);
 	};
 
 	struct Clock
 	{
-		float time{ 0 };
-		float frameTime{ 0 };
+		float time_s{ 0 };
+		float frame_time_s{ 0 };
 	};
 
 	struct FrameInfo
 	{
-		int frameIndex;
-		float frameTime;
-		VkCommandBuffer commandBuffer;
-		VkDescriptorSet globalDescriptorSet;
+		int frame_index;
+		float frame_time_s;
+		VkCommandBuffer command_buffer;
+		VkDescriptorSet global_descriptor_set;
 	};
 }

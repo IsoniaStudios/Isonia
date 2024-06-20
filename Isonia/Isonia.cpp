@@ -28,7 +28,7 @@ namespace Isonia
 		delete m_water_day_palette;
 
 		delete m_sphere_model;
-		for (Renderable::Complete::Model* prism_model : m_prism_models) {
+		for (Renderable::Model* prism_model : m_prism_models) {
 			delete prism_model;
 		}
 
@@ -54,7 +54,7 @@ namespace Isonia
 	{
 		Debug::PerformanceTracker performance_tracker;
 		auto current_time = std::chrono::high_resolution_clock::now();
-		while (!m_window.ShouldClose())
+		while (!m_window.shouldClose())
 		{
 			glfwPollEvents();
 
@@ -64,24 +64,24 @@ namespace Isonia
 
 			performance_tracker.logFrameTime(frame_time_s);
 
-			m_player.act(window.getGLFWWindow(), frame_time_s);
+			m_player.act(m_window.getGLFWWindow(), frame_time_s);
 
-			if (auto commandBuffer = m_renderer.beginFrame())
+			if (auto command_buffer = m_renderer.beginFrame())
 			{
 				int frame_index = m_renderer.getFrameIndex();
 				State::FrameInfo frame_info{
 					frame_index,
 					frame_time_s,
-					m_command_buffer,
+					command_buffer,
 					m_global_descriptor_sets[frame_index]
 				};
 
 				// update
-				m_ubo.projection = player.camera.getProjection();
-				m_ubo.view = player.camera.getView();
-				m_ubo.inverse_view = player.camera.getInverseView();
+				m_ubo.projection = m_player.m_camera.getProjection();
+				m_ubo.view = m_player.m_camera.getView();
+				m_ubo.inverse_view = m_player.m_camera.getInverseView();
 
-				m_ubo_buffers[frame_index]->writeToBuffer(&ubo);
+				m_ubo_buffers[frame_index]->writeToBuffer(&m_ubo);
 				m_ubo_buffers[frame_index]->flush();
 
 				m_clock.frame_time_s = frame_time_s;
@@ -92,190 +92,120 @@ namespace Isonia
 
 				// render
 				m_renderer.beginSwapChainRenderPass(command_buffer);
-				m_groundRenderSystem->render(frame_info);
-				m_simpleRenderSystem->renderGameObjects(frame_info);
-				m_debuggerRenderSystem->render(frame_info);
-				m_waterRenderSystem->render(frame_info, player.camera);
+				m_ground_render_system->render(&frame_info);
+				m_debugger_render_system->render(&frame_info);
+				m_water_render_system->render(&frame_info, m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				m_renderer.blit(command_buffer, player.camera.subPixelOffset);
+				m_renderer.blit(command_buffer, m_player.m_camera.subPixelOffset);
 				m_renderer.endFrame();
 			}
 		}
 
-		vkDeviceWaitIdle(device.getDevice());
+		vkDeviceWaitIdle(m_device.getDevice());
 	}
 
 	void Isonia::initializeDescriptorPool()
 	{
-		globalPool = Pipeline::Descriptors::DescriptorPool::Builder(device)
-			.SetMaxSets(Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			.Build();
+		m_global_pool = (new Pipeline::Descriptors::DescriptorPool::Builder(&m_device))
+			->setMaxSets(Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->build();
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			uboBuffers[i] = new Pipeline::Buffer(
-				device,
+			m_ubo_buffers[i] = new Pipeline::Buffer(
+				&m_device,
 				sizeof(State::GlobalUbo),
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
 			);
-			uboBuffers[i]->Map();
+			m_ubo_buffers[i]->map();
 
-			clockBuffers[i] = new Pipeline::Buffer(
-				device,
+			m_clock_buffers[i] = new Pipeline::Buffer(
+				&m_device,
 				sizeof(State::Clock),
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
 			);
-			clockBuffers[i]->Map();
+			m_clock_buffers[i]->map();
 		}
 
 		Noise::ConstantScalarWarpNoise cloudWarpNoise{ 5.0f };
 		Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
-		grassDayPalette = Renderable::Color::PaletteFactory::CreateGrassDayPalette(device);
-		waterDayPalette = Renderable::Color::PaletteFactory::CreateWaterDayPalette(device);
-		grass = Renderable::Texture::CreateTextureFromFile(device, "Resources/Textures/Grass.png");
-		debugger = Renderable::Color::TextureFactory::CreateDebugTexture(device);
-		cloud = Renderable::Texture::CreateTextureFromNoise(device, cloudWarpNoise, cloudNoise, 512, 512);
+		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
+		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
+		m_grass = Renderable::createDebugTexture(&m_device);
+		m_debugger = Renderable::createDebugTexture(&m_device);
+		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 512, 512);
 
-		globalSetLayout = Pipeline::Descriptors::DescriptorSetLayout::Builder(device)
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.AddBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.AddBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.AddBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.AddBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			.Build();
+		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device))
+			->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			auto uboBufferInfo = uboBuffers[i]->DescriptorInfo();
-			auto clockBufferInfo = clockBuffers[i]->DescriptorInfo();
-			auto grassDayPaletteInfo = grassDayPalette->GetImageInfo();
-			auto grassInfo = grass->GetImageInfo();
-			auto debuggerInfo = debugger->GetImageInfo();
-			auto cloudInfo = cloud->GetImageInfo();
-			auto waterDayPaletteInfo = waterDayPalette->GetImageInfo();
-			Pipeline::Descriptors::DescriptorWriter(*globalSetLayout, *globalPool)
-				.WriteBuffer(0, &uboBufferInfo)
-				.WriteBuffer(1, &clockBufferInfo)
-				.WriteImage(2, &grassDayPaletteInfo)
-				.WriteImage(3, &grassInfo)
-				.WriteImage(4, &debuggerInfo)
-				.WriteImage(5, &cloudInfo)
-				.WriteImage(6, &waterDayPaletteInfo)
-				.Build(globalDescriptorSets[i]);
+			auto uboBufferInfo = m_ubo_buffers[i]->descriptorInfo();
+			auto clockBufferInfo = m_clock_buffers[i]->descriptorInfo();
+			auto grassDayPaletteInfo = m_grass_day_palette->getImageInfo();
+			auto grassInfo = m_grass->getImageInfo();
+			auto debuggerInfo = m_debugger->getImageInfo();
+			auto cloudInfo = m_cloud->getImageInfo();
+			auto waterDayPaletteInfo = m_water_day_palette->getImageInfo();
+			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool))
+				->writeBuffer(0, &uboBufferInfo)
+				->writeBuffer(1, &clockBufferInfo)
+				->writeImage(2, &grassDayPaletteInfo)
+				->writeImage(3, &grassInfo)
+				->writeImage(4, &debuggerInfo)
+				->writeImage(5, &cloudInfo)
+				->writeImage(6, &waterDayPaletteInfo)
+				->build(&m_global_descriptor_sets[i]);
 		}
 	}
 
 	void Isonia::initializeRenderSystems()
 	{
-		simpleRenderSystem = new Pipeline::Systems::SimpleRenderSystem{
-			device,
-			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->GetDescriptorSetLayout()
-		};
-		gCoordinator->RegisterSystem<Pipeline::Systems::SimpleRenderSystem>(simpleRenderSystem);
-		{
-			ECS::Signature signature;
-			signature.set(ECS::GetComponentType<Components::Transform>());
-			signature.set(ECS::GetComponentType<Components::Mesh>());
-			gCoordinator->SetSystemSignature<Pipeline::Systems::SimpleRenderSystem>(signature);
-		}
-
-		groundRenderSystem = new Pipeline::Systems::GroundRenderSystem{
-			device,
-			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->GetDescriptorSetLayout()
+		m_ground_render_system = new Pipeline::RenderSystems::GroundRenderSystem{
+			&m_device,
+			m_renderer.getSwapChainRenderPass(),
+			m_global_set_layout->getDescriptorSetLayout()
 		};
 
-		waterRenderSystem = new Pipeline::Systems::WaterRenderSystem{
-			device,
-			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->GetDescriptorSetLayout()
+		m_water_render_system = new Pipeline::RenderSystems::WaterRenderSystem{
+			&m_device,
+			m_renderer.getSwapChainRenderPass(),
+			m_global_set_layout->getDescriptorSetLayout()
 		};
 
-		debuggerRenderSystem = new Pipeline::Systems::DebuggerRenderSystem{
-			device,
-			renderer.GetSwapChainRenderPass(),
-			globalSetLayout->GetDescriptorSetLayout()
+		m_debugger_render_system = new Pipeline::RenderSystems::DebuggerRenderSystem{
+			&m_device,
+			m_renderer.getSwapChainRenderPass(),
+			m_global_set_layout->getDescriptorSetLayout()
 		};
 	}
 
 	void Isonia::initializeEntities()
 	{
-		std::default_random_engine generator;
-		std::uniform_real_distribution<float> randPosition(-100.0f, 100.0f);
-		std::uniform_real_distribution<float> randRotation(0.0f, 3.0f);
-		std::uniform_real_distribution<float> randScale(1.0f, 2.0f);
-
-		sphereModel = Renderable::Complete::Model::CreatePrimitive(device, Renderable::Complete::Primitive::Icosahedron);
-
-		for (int i = 0; i < 0; ++i)
-		{
-			ECS::Entity entity = gCoordinator->CreateEntity();
-
-			gCoordinator->AddComponent(
-				entity,
-				Components::Transform{
-					Math::Vector3{ randPosition(generator), randPosition(generator), randPosition(generator) },
-					Math::Vector3{ randRotation(generator), randRotation(generator), randRotation(generator) },
-					Math::Vector3{ randScale(generator), randScale(generator), randScale(generator) }
-				}
-			);
-
-			gCoordinator->AddComponent(
-				entity,
-				Components::Mesh{ sphereModel }
-			);
-
-			gCoordinator->AddComponent(
-				entity,
-				Components::RigidBody{}
-			);
-
-			gCoordinator->AddComponent<Components::Gravity>(
-				entity,
-				Components::Gravity{}
-			);
-		}
-
-		for (uint32_t i = 0; i < 20; i++)
-		{
-			prismModels[i] = Renderable::Complete::Model::CreatePrimitivePrism(device, i + 3);
-			ECS::Entity sphere = gCoordinator->CreateEntity();
-
-			gCoordinator->AddComponent(
-				sphere,
-				Components::Transform{
-					Math::Vector3{ i, -5, 0 },
-					Math::Vector3{ 0 },
-					Math::Vector3{ 1 }
-				}
-			);
-
-			gCoordinator->AddComponent(
-				sphere,
-				Components::Mesh{ prismModels[i] }
-			);
-		}
 	}
 
 	void Isonia::initializePlayer()
 	{
-		renderer.RegisterRenderResizeCallback(player.GetOnAspectChangeCallback());
-		player.OnAspectChange(&renderer);
+		m_renderer.registerRenderResizeCallback(m_player.getOnAspectChangeCallback());
+		m_player.onAspectChange(&m_renderer);
 	}
-};
 }

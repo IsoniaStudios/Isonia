@@ -9,6 +9,8 @@
 #include "Noise/Noise.h"
 
 #include "Pipeline/Pipeline.h"
+#include "Pipeline/Descriptors/Descriptors.h"
+#include "Pipeline/RenderSystems/RenderSystems.h"
 #include "Renderable/Renderable.h"
 #include "State/State.h"
 
@@ -46,10 +48,9 @@ namespace Isonia
 		Pipeline::Buffer* m_ubo_buffers[Pipeline::SwapChain::max_frames_in_flight];
 		Pipeline::Buffer* m_clock_buffers[Pipeline::SwapChain::max_frames_in_flight];
 
-		Pipeline::Systems::SimpleRenderSystem* m_simple_render_system;
-		Pipeline::Systems::GroundRenderSystem* m_ground_render_system;
-		Pipeline::Systems::WaterRenderSystem* m_water_render_system;
-		Pipeline::Systems::DebuggerRenderSystem* m_debugger_render_system;
+		Pipeline::RenderSystems::GroundRenderSystem* m_ground_render_system;
+		Pipeline::RenderSystems::WaterRenderSystem* m_water_render_system;
+		Pipeline::RenderSystems::DebuggerRenderSystem* m_debugger_render_system;
 
 		Renderable::Texture* m_grass_day_palette;
 		Renderable::Texture* m_water_day_palette;
@@ -57,14 +58,14 @@ namespace Isonia
 		Renderable::Texture* m_debugger;
 		Renderable::Texture* m_cloud;
 
-		Renderable::Complete::Model* m_sphere_model;
-		Renderable::Complete::Model* m_prism_models[20];
+		Renderable::Model* m_sphere_model;
+		Renderable::Model* m_prism_models[20];
 
 		Controllers::Player m_player{};
 
 		Pipeline::Window m_window{ width, height, name };
-		Pipeline::Device m_device{ m_window };
-		Pipeline::PixelRenderer m_renderer{ m_window, m_device };
+		Pipeline::Device m_device{ &m_window };
+		Pipeline::PixelRenderer m_renderer{ &m_window, &m_device };
 		Pipeline::Descriptors::DescriptorPool* m_global_pool{};
 	};
 }
