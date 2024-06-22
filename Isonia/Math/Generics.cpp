@@ -89,9 +89,9 @@ namespace Isonia::Math
         return i;
     }
 
-    extern inline float sqrtf(const float f)
+    extern inline constexpr float sqrtf(const float f)
     {
-        return std::sqrtf(f);
+        return 1.0f / rsqrtf(f);
     }
     extern inline constexpr float rsqrtf(const float f)
     {

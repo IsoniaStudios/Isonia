@@ -12,7 +12,7 @@ namespace Isonia::Controllers
 
         if (Math::vec3Dot(&rotate, &rotate) > Math::epsilon)
         {
-            transform->rotation += Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&rotate), dt), m_look_speed);
+            transform->rotation = Math::vec3Add(&transform->rotation, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&rotate), dt), m_look_speed));
         }
 
         // limit pitch values between about +/- 85ish degrees
@@ -25,17 +25,17 @@ namespace Isonia::Controllers
         const Math::Vector3 up_dir{ 0.f, -1.f, 0.f };
 
         Math::Vector3 move_dir{ 0.f };
-        if (glfwGetKey(window, m_keys.move_forward) == GLFW_PRESS) move_dir += forward_dir;
-        if (glfwGetKey(window, m_keys.move_backward) == GLFW_PRESS) move_dir -= forward_dir;
-        if (glfwGetKey(window, m_keys.move_right) == GLFW_PRESS) move_dir += right_dir;
-        if (glfwGetKey(window, m_keys.move_left) == GLFW_PRESS) move_dir -= right_dir;
-        if (glfwGetKey(window, m_keys.move_up) == GLFW_PRESS) move_dir += up_dir;
-        if (glfwGetKey(window, m_keys.move_down) == GLFW_PRESS) move_dir -= up_dir;
+        if (glfwGetKey(window, m_keys.move_forward) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &forward_dir);
+        if (glfwGetKey(window, m_keys.move_backward) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &forward_dir);
+        if (glfwGetKey(window, m_keys.move_right) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &right_dir);
+        if (glfwGetKey(window, m_keys.move_left) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &right_dir);
+        if (glfwGetKey(window, m_keys.move_up) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &up_dir);
+        if (glfwGetKey(window, m_keys.move_down) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &up_dir);
 
         if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
             float speed_scalar = glfwGetKey(window, m_keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, m_keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
-            transform->position += Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar);
+            transform->position = Math::vec3Add(&transform->position, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar));
         }
     }
 
@@ -47,7 +47,7 @@ namespace Isonia::Controllers
 
         if (Math::vec3Dot(&rotate, &rotate) > Math::epsilon)
         {
-            transform->rotation += Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&rotate), dt), m_look_speed);
+            transform->rotation = Math::vec3Add(&transform->rotation, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&rotate), dt), m_look_speed));
         }
 
         float yaw = transform->rotation.y;
@@ -56,17 +56,17 @@ namespace Isonia::Controllers
         const Math::Vector3 up_dir{ 0.f, -1.f, 0.f };
 
         Math::Vector3 move_dir{ 0.f };
-        if (glfwGetKey(window, m_keys.move_forward) == GLFW_PRESS) move_dir += forward_dir;
-        if (glfwGetKey(window, m_keys.move_backward) == GLFW_PRESS) move_dir -= forward_dir;
-        if (glfwGetKey(window, m_keys.move_right) == GLFW_PRESS) move_dir += right_dir;
-        if (glfwGetKey(window, m_keys.move_left) == GLFW_PRESS) move_dir -= right_dir;
-        if (glfwGetKey(window, m_keys.move_up) == GLFW_PRESS) move_dir += up_dir;
-        if (glfwGetKey(window, m_keys.move_down) == GLFW_PRESS) move_dir -= up_dir;
+        if (glfwGetKey(window, m_keys.move_forward) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &forward_dir);
+        if (glfwGetKey(window, m_keys.move_backward) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &forward_dir);
+        if (glfwGetKey(window, m_keys.move_right) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &right_dir);
+        if (glfwGetKey(window, m_keys.move_left) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &right_dir);
+        if (glfwGetKey(window, m_keys.move_up) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &up_dir);
+        if (glfwGetKey(window, m_keys.move_down) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &up_dir);
 
         if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
             float speed_scalar = glfwGetKey(window, m_keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, m_keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
-            transform->position += Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar);
+            transform->position = Math::vec3Add(&transform->position, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar));
         }
     }
 }

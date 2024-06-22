@@ -34,7 +34,7 @@ namespace Isonia::Math
     extern inline constexpr unsigned int clampui(const unsigned int i, const unsigned int min, const unsigned int max);
     extern inline constexpr int clampi(const int i, const int min, const int max);
 
-    extern inline float sqrtf(const float f);
+    extern inline constexpr float sqrtf(const float f);
     extern inline constexpr float rsqrtf(const float f);
 
     // Generics To-Int
@@ -49,14 +49,14 @@ namespace Isonia::Math
     extern inline constexpr float radiansf(const float degrees);
     extern inline constexpr float degreesf(const float radians);
 
-    extern inline constexpr float clampDegreesf(const float degrees);
-    extern inline constexpr float clampRadiansf(const float radians);
+    extern inline float clampDegreesf(const float degrees);
+    extern inline float clampRadiansf(const float radians);
 
-    extern inline constexpr float cosf(const float radians);
-    extern inline constexpr float sinf(const float radians);
-    extern inline constexpr float tanf(const float radians);
-    extern inline constexpr float atanf(const float radians);
-    extern inline constexpr float atan2f(const float y, const float x);
+    extern inline float cosf(const float radians);
+    extern inline float sinf(const float radians);
+    extern inline float tanf(const float radians);
+    extern inline float atanf(const float radians);
+    extern inline float atan2f(const float y, const float x);
 
     // Vector
     struct Vector2;
@@ -75,7 +75,7 @@ namespace Isonia::Math
         constexpr Vector4(const float x, const float y, const float z, const float w);
         constexpr Vector4(const float xyzw);
 
-        constexpr float& operator[](unsigned int i) noexcept;
+        float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
         constexpr Vector4& operator=(const Vector4& v);
 
@@ -113,7 +113,7 @@ namespace Isonia::Math
         constexpr Vector3(const float x, const float y, const float z);
         constexpr Vector3(const float xyz);
 
-        constexpr float& operator[](unsigned int i) noexcept;
+        float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
         constexpr Vector3& operator=(const Vector3& v);
 
@@ -151,7 +151,7 @@ namespace Isonia::Math
         constexpr Vector2(const float x, const float y);
         constexpr Vector2(const float xy);
 
-        constexpr float& operator[](unsigned int i) noexcept;
+        float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
         constexpr Vector2& operator=(const Vector2& v);
 

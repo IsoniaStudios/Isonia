@@ -15,32 +15,32 @@ namespace Isonia::Math
         return radians * (180.0f / pi);
     }
 
-    extern inline constexpr float clampDegreesf(const float degrees)
+    extern inline float clampDegreesf(const float degrees)
     {
         return fmodf(degrees + 360.0f, 360.0f);
     }
-    extern inline constexpr float clampRadiansf(const float radians)
+    extern inline float clampRadiansf(const float radians)
     {
         return fmodf(radians + two_pi, two_pi);
     }
 
-    extern inline constexpr float cosf(const float radians)
+    extern inline float cosf(const float radians)
     {
         return std::cos(radians);
     }
-    extern inline constexpr float sinf(const float radians)
+    extern inline float sinf(const float radians)
     {
         return std::sin(radians);
     }
-    extern inline constexpr float tanf(const float radians)
+    extern inline float tanf(const float radians)
     {
         return std::tan(radians);
     }
-    extern inline constexpr float atanf(const float radians)
+    extern inline float atanf(const float radians)
     {
         return std::atan(radians);
     }
-    extern inline constexpr float atan2f(const float y, const float x)
+    extern inline float atan2f(const float y, const float x)
     {
         return std::atan2(y, x);
     }

@@ -4,7 +4,7 @@
 namespace Isonia::Math
 {
     // Vector2
-    constexpr float& Vector2::operator[](const unsigned int i) noexcept
+    float& Vector2::operator[](const unsigned int i) noexcept
     {
         assert(i < 2);
         return reinterpret_cast<float*>(this)[i];
@@ -12,7 +12,14 @@ namespace Isonia::Math
     constexpr const float& Vector2::operator[](const unsigned int i) const noexcept
     {
         assert(i < 2);
-        return reinterpret_cast<const float*>(this)[i];
+        switch (i)
+        {
+        default:
+        case 0:
+            return x;
+        case 1:
+            return y;
+        }
     }
     constexpr Vector2& Vector2::operator=(const Vector2& v)
     {
@@ -117,7 +124,7 @@ namespace Isonia::Math
     }
 
     // Vector3
-    constexpr float& Vector3::operator[](const unsigned int i) noexcept
+    float& Vector3::operator[](const unsigned int i) noexcept
     {
         assert(i < 3);
         return reinterpret_cast<float*>(this)[i];
@@ -125,7 +132,16 @@ namespace Isonia::Math
     constexpr const float& Vector3::operator[](const unsigned int i) const noexcept
     {
         assert(i < 3);
-        return reinterpret_cast<const float*>(this)[i];
+        switch (i)
+        {
+        default:
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+            return z;
+        }
     }
     constexpr Vector3& Vector3::operator=(const Vector3& v)
     {
@@ -250,7 +266,7 @@ namespace Isonia::Math
     }
 
     // Vector4
-    constexpr float& Vector4::operator[](const unsigned int i) noexcept
+    float& Vector4::operator[](const unsigned int i) noexcept
     {
         assert(i < 4);
         return reinterpret_cast<float*>(this)[i];
@@ -258,7 +274,18 @@ namespace Isonia::Math
     constexpr const float& Vector4::operator[](const unsigned int i) const noexcept
     {
         assert(i < 4);
-        return reinterpret_cast<const float*>(this)[i];
+        switch (i)
+        {
+        default:
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+            return z;
+        case 3:
+            return w;
+        }
     }
     constexpr Vector4& Vector4::operator=(const Vector4& v)
     {
