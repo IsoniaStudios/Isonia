@@ -1,3 +1,5 @@
+#pragma once
+
 // internal
 #include "../Math/Math.h"
 

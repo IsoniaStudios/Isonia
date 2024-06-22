@@ -175,6 +175,27 @@ namespace Isonia::Math
     extern inline constexpr Vector2 vec2Normalize(const Vector2* v);
     extern inline constexpr Vector2 vec2Normalize(const float x, const float y);
 
+    constexpr Vector2::Vector2() : x(0), y(0) { }
+    constexpr Vector2::Vector2(const Vector2* v) : x(v->x), y(v->y) { }
+    constexpr Vector2::Vector2(const Vector3* v) : x(v->x), y(v->y) { }
+    constexpr Vector2::Vector2(const Vector4* v) : x(v->x), y(v->y) { }
+    constexpr Vector2::Vector2(const float x, const float y) : x(x), y(y) { }
+    constexpr Vector2::Vector2(const float xy) : x(xy), y(xy) { }
+
+    constexpr Vector3::Vector3() : x(0), y(0), z(0) { }
+    constexpr Vector3::Vector3(const Vector2* v, const float z) : x(v->x), y(v->y), z(z) { }
+    constexpr Vector3::Vector3(const Vector3* v) : x(v->x), y(v->y), z(v->z) { }
+    constexpr Vector3::Vector3(const Vector4* v) : x(v->x), y(v->y), z(v->z) { }
+    constexpr Vector3::Vector3(const float x, const float y, const float z) : x(x), y(y), z(z) { }
+    constexpr Vector3::Vector3(const float xyz) : x(xyz), y(xyz), z(xyz) { }
+
+    constexpr Vector4::Vector4() : x(0), y(0), z(0), w(0) { }
+    constexpr Vector4::Vector4(const Vector2* v, const float z, const float w) : x(v->x), y(v->y), z(z), w(w) { }
+    constexpr Vector4::Vector4(const Vector3* v, const float w) : x(v->x), y(v->y), z(v->z), w(w) { }
+    constexpr Vector4::Vector4(const Vector4* v) : x(v->x), y(v->y), z(v->z), w(v->w) { }
+    constexpr Vector4::Vector4(const float x, const float y, const float z, const float w) : x(x), y(y), z(z), w(w) { }
+    constexpr Vector4::Vector4(const float xyzw) : x(xyzw), y(xyzw), z(xyzw), w(xyzw) { }
+
     // Matrix
     struct Matrix3x3;
     struct Matrix4x4;
@@ -245,6 +266,29 @@ namespace Isonia::Math
     extern inline constexpr Vector4 mat4Mul(const Vector4* v, const Matrix4x4& m);
     extern inline constexpr Matrix4x4 mat4Mul(const Matrix4x4& m1, const Matrix4x4& m2);
     extern inline constexpr Matrix4x4 mat4Inverse(const Matrix4x4& m);
+
+    constexpr Matrix3x3::Matrix3x3() : value{ Vector3(1, 0, 0), Vector3(0, 1, 0), Vector3(0, 0, 1) } { }
+    constexpr Matrix3x3::Matrix3x3(const Matrix3x3& m) : value{ Vector3(m[0]), Vector3(m[1]), Vector3(m[2]) } { }
+    constexpr Matrix3x3::Matrix3x3(const float s) : value{ Vector3(s, 0, 0), Vector3(0, s, 0), Vector3(0, 0, s) } { }
+    constexpr Matrix3x3::Matrix3x3(
+        const float x0, const float y0, const float z0,
+        const float x1, const float y1, const float z1,
+        const float x2, const float y2, const float z2
+    ) : value{ Vector3(x0, y0, z0), Vector3(x1, y1, z1), Vector3(x2, y2, z2) } { }
+    constexpr Matrix3x3::Matrix3x3(const Vector3* v0, const Vector3* v1, const Vector3* v2) : value{ Vector3(v0), Vector3(v1), Vector3(v2) } { }
+    constexpr Matrix3x3::Matrix3x3(const Matrix4x4& m) : value{ Vector3(&m[0]), Vector3(&m[1]), Vector3(&m[2]) } { }
+
+    constexpr Matrix4x4::Matrix4x4() : value{ Vector4(1, 0, 0, 0), Vector4(0, 1, 0, 0), Vector4(0, 0, 1, 0), Vector4(0, 0, 0, 1) } { }
+    constexpr Matrix4x4::Matrix4x4(const Matrix4x4& m) : value{ Vector4(m[0]), Vector4(m[1]), Vector4(m[2]), Vector4(m[3]) } { }
+    constexpr Matrix4x4::Matrix4x4(const float s) : value{ Vector4(s, 0, 0, 0), Vector4(0, s, 0, 0), Vector4(0, 0, s, 0), Vector4(0, 0, 0, s) } { }
+    constexpr Matrix4x4::Matrix4x4(
+        const float x0, const float y0, const float z0, const float w0,
+        const float x1, const float y1, const float z1, const float w1,
+        const float x2, const float y2, const float z2, const float w2,
+        const float x3, const float y3, const float z3, const float w3
+    ) : value{ Vector4(x0, y0, z0, w0), Vector4(x1, y1, z1, w1), Vector4(x2, y2, z2, w2) , Vector4(x3, y3, z3, w3) } { }
+    constexpr Matrix4x4::Matrix4x4(const Vector4* v0, const Vector4* v1, const Vector4* v2, const Vector4* v3) : value{ Vector4(v0), Vector4(v1), Vector4(v2) , Vector4(v3) } { }
+    constexpr Matrix4x4::Matrix4x4(const Matrix3x3& m) : value{ Vector4(&m[0], 0), Vector4(&m[1], 0), Vector4(&m[2], 0), Vector4(0, 0, 0, 1) } { }
 
     struct Transform
     {

@@ -1,5 +1,8 @@
 #pragma once
 
+// internal
+#include "../Math/Math.h"
+
 namespace Isonia::Noise
 {
     // Noise

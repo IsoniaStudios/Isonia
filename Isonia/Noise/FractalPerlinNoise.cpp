@@ -1,6 +1,5 @@
 // internal
 #include "Noise.h"
-#include "../Math/Math.h"
 
 namespace Isonia::Noise
 {
