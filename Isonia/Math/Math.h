@@ -6,18 +6,18 @@
 namespace Isonia::Math
 {
     // Constants
-    extern constexpr const float pi = 3.14159265359f;
-    extern constexpr const float two_pi = pi * 2.0f;
+    extern inline constexpr const float pi = 3.14159265359f;
+    extern inline constexpr const float two_pi = pi * 2.0f;
     
-    extern constexpr const float epsilon = 1.192092896e-07f;
+    extern inline constexpr const float epsilon = 1.192092896e-07f;
 
-    extern constexpr const float isometric_y_scale = 1.154700538379252f; //1.0f / Math::Cos(Math::Radians(-30.0f));
+    extern inline constexpr const float isometric_y_scale = 1.154700538379252f; //1.0f / Math::Cos(Math::Radians(-30.0f));
 
-    extern constexpr const float pixels_per_unit = 16.0f;
-    extern constexpr const float units_per_pixel = 1.0f / pixels_per_unit;
+    extern inline constexpr const float pixels_per_unit = 16.0f;
+    extern inline constexpr const float units_per_pixel = 1.0f / pixels_per_unit;
 
-    extern constexpr const float rotation_grid = 30.0f / 16.0f;
-    extern constexpr const float inverse_rotation_grid = 1.0f / rotation_grid;
+    extern inline constexpr const float rotation_grid = 30.0f / 16.0f;
+    extern inline constexpr const float inverse_rotation_grid = 1.0f / rotation_grid;
 
     static float render_factor = 0.0f;
 
@@ -175,12 +175,12 @@ namespace Isonia::Math
     extern inline constexpr Vector2 vec2Normalize(const Vector2* v);
     extern inline constexpr Vector2 vec2Normalize(const float x, const float y);
 
-    constexpr Vector2::Vector2() : x(0), y(0) { }
-    constexpr Vector2::Vector2(const Vector2* v) : x(v->x), y(v->y) { }
-    constexpr Vector2::Vector2(const Vector3* v) : x(v->x), y(v->y) { }
-    constexpr Vector2::Vector2(const Vector4* v) : x(v->x), y(v->y) { }
-    constexpr Vector2::Vector2(const float x, const float y) : x(x), y(y) { }
-    constexpr Vector2::Vector2(const float xy) : x(xy), y(xy) { }
+    constexpr Vector4::Vector4() : x(0), y(0), z(0), w(0) { }
+    constexpr Vector4::Vector4(const Vector2* v, const float z, const float w) : x(v->x), y(v->y), z(z), w(w) { }
+    constexpr Vector4::Vector4(const Vector3* v, const float w) : x(v->x), y(v->y), z(v->z), w(w) { }
+    constexpr Vector4::Vector4(const Vector4* v) : x(v->x), y(v->y), z(v->z), w(v->w) { }
+    constexpr Vector4::Vector4(const float x, const float y, const float z, const float w) : x(x), y(y), z(z), w(w) { }
+    constexpr Vector4::Vector4(const float xyzw) : x(xyzw), y(xyzw), z(xyzw), w(xyzw) { }
 
     constexpr Vector3::Vector3() : x(0), y(0), z(0) { }
     constexpr Vector3::Vector3(const Vector2* v, const float z) : x(v->x), y(v->y), z(z) { }
@@ -189,12 +189,12 @@ namespace Isonia::Math
     constexpr Vector3::Vector3(const float x, const float y, const float z) : x(x), y(y), z(z) { }
     constexpr Vector3::Vector3(const float xyz) : x(xyz), y(xyz), z(xyz) { }
 
-    constexpr Vector4::Vector4() : x(0), y(0), z(0), w(0) { }
-    constexpr Vector4::Vector4(const Vector2* v, const float z, const float w) : x(v->x), y(v->y), z(z), w(w) { }
-    constexpr Vector4::Vector4(const Vector3* v, const float w) : x(v->x), y(v->y), z(v->z), w(w) { }
-    constexpr Vector4::Vector4(const Vector4* v) : x(v->x), y(v->y), z(v->z), w(v->w) { }
-    constexpr Vector4::Vector4(const float x, const float y, const float z, const float w) : x(x), y(y), z(z), w(w) { }
-    constexpr Vector4::Vector4(const float xyzw) : x(xyzw), y(xyzw), z(xyzw), w(xyzw) { }
+    constexpr Vector2::Vector2() : x(0), y(0) { }
+    constexpr Vector2::Vector2(const Vector2* v) : x(v->x), y(v->y) { }
+    constexpr Vector2::Vector2(const Vector3* v) : x(v->x), y(v->y) { }
+    constexpr Vector2::Vector2(const Vector4* v) : x(v->x), y(v->y) { }
+    constexpr Vector2::Vector2(const float x, const float y) : x(x), y(y) { }
+    constexpr Vector2::Vector2(const float xy) : x(xy), y(xy) { }
 
     // Matrix
     struct Matrix3x3;

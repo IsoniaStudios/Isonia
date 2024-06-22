@@ -46,7 +46,7 @@ namespace Isonia::Pipeline::RenderSystems
 
 	void DebuggerRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout)
 	{
-		const constexpr uint32_t descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 1;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
 			global_set_layout
 		};

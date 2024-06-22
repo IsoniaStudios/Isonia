@@ -12,7 +12,7 @@ namespace Isonia::Renderable
 		{
 			for (int x = -3; x <= 3; x++)
 			{
-				const auto i = (x + 3) + (z + 3) * 7;
+				const int i = (x + 3) + (z + 3) * 7;
 				vertices[i].position.x = static_cast<float>(x * 64) * Math::units_per_pixel;
 				vertices[i].position.y = -10.0f * Math::isometric_y_scale;
 				vertices[i].position.z = static_cast<float>(z * 64) * Math::units_per_pixel;

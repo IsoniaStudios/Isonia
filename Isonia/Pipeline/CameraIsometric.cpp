@@ -62,7 +62,7 @@ namespace Isonia::Pipeline
     void CameraIsometric::setProjection(PixelRenderer* renderer)
     {
         // get extent
-        const auto extent = renderer->getExtent();
+        const VkExtent2D extent = renderer->getExtent();
         // get ortho size
         const float ortho_size = Math::pixels_per_unit * 2.0;
         // set projection

@@ -125,7 +125,7 @@ namespace Isonia::Pipeline
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = m_swap_chain->getSwapChainExtent();
 
-		const uint32_t clearValuesCount = 2;
+		const unsigned int clearValuesCount = 2;
 		VkClearValue clearValues[clearValuesCount]
 		{
 			{.color = { 0.01f, 0.01f, 0.01f, 1.0f }},

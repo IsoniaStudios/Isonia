@@ -129,7 +129,7 @@ namespace Isonia::Pipeline
 		renderPassInfo.renderArea.offset = offset;
 		renderPassInfo.renderArea.extent = extent;
 
-		const uint32_t clearValuesCount = 2;
+		const unsigned int clearValuesCount = 2;
 		VkClearValue clearValues[clearValuesCount]
 		{
 			{.color = { 0.01f, 0.01f, 0.01f, 1.0f }},
@@ -197,15 +197,15 @@ namespace Isonia::Pipeline
 
 		// Calculate pixel offsets
 		const float scaleFactor = Math::pixels_per_unit * static_cast<float>(Math::render_factor);
-		const int32_t offsetX = Math::roundf_i(offset.x * scaleFactor);
-		const int32_t offsetY = Math::roundf_i(offset.y * scaleFactor);
+		const int offsetX = Math::roundf_i(offset.x * scaleFactor);
+		const int offsetY = Math::roundf_i(offset.y * scaleFactor);
 
 		// Define source and destination offsets for image blit
-		const int32_t render_factor = static_cast<int32_t>(Math::render_factor);
-		const int32_t srcWidth = static_cast<int32_t>(m_pixel_swap_chain->getRenderWidth());
-		const int32_t srcHeight = static_cast<int32_t>(m_pixel_swap_chain->getRenderHeight());
-		const int32_t dstWidth = srcWidth * render_factor;
-		const int32_t dstHeight = srcHeight * render_factor;
+		const int render_factor = static_cast<int>(Math::render_factor);
+		const int srcWidth = static_cast<int>(m_pixel_swap_chain->getRenderWidth());
+		const int srcHeight = static_cast<int>(m_pixel_swap_chain->getRenderHeight());
+		const int dstWidth = srcWidth * render_factor;
+		const int dstHeight = srcHeight * render_factor;
 
 		// Create image blit configuration
 		VkImageBlit imageBlit
@@ -274,7 +274,7 @@ namespace Isonia::Pipeline
 		static const constexpr float idealPixelDensity = 640.0f * 360.0f; //512.0f * 288.0f;
 
 		float closestIdealPixelDensity = std::numeric_limits<float>::max();
-		for (uint32_t factor = 1; factor <= 8; factor++)
+		for (unsigned int factor = 1; factor <= 8; factor++)
 		{
 			const float width = static_cast<float>(window_extent.width) / static_cast<float>(factor);
 			const float height = static_cast<float>(window_extent.height) / static_cast<float>(factor);
@@ -299,13 +299,13 @@ namespace Isonia::Pipeline
 
 		// extended so we can render sub-pixels
 		return {
-			static_cast<uint32_t>(Math::floorf_i(render_width)) + 2,
-			static_cast<uint32_t>(Math::floorf_i(render_height)) + 2
+			static_cast<unsigned int>(Math::floorf_i(render_width)) + 2,
+			static_cast<unsigned int>(Math::floorf_i(render_height)) + 2
 		};
 		// odd number so it snaps as little as posible on camera rotation extended so we can render sub-pixels
 		return {
-			static_cast<uint32_t>(Math::ceilOddf_i(render_width)) + 2,
-			static_cast<uint32_t>(Math::ceilOddf_i(render_height)) + 2
+			static_cast<unsigned int>(Math::ceilOddf_i(render_width)) + 2,
+			static_cast<unsigned int>(Math::ceilOddf_i(render_height)) + 2
 		};
 	}
 

@@ -79,7 +79,7 @@ namespace Isonia::Pipeline::RenderSystems
 		push_constant_range.offset = 0;
 		push_constant_range.size = sizeof(Math::Vector3);
 
-		const constexpr uint32_t descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 1;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
 			global_set_layout
 		};

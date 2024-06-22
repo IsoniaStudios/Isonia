@@ -8,11 +8,11 @@
 #include "Math/Math.h"
 #include "Noise/Noise.h"
 
+#include "State/State.h"
 #include "Pipeline/Pipeline.h"
 #include "Pipeline/Descriptors/Descriptors.h"
 #include "Pipeline/RenderSystems/RenderSystems.h"
 #include "Renderable/Renderable.h"
-#include "State/State.h"
 
 // std
 #include <chrono>

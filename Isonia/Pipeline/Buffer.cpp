@@ -3,7 +3,7 @@
 
 namespace Isonia::Pipeline
 {
-    Buffer::Buffer(Device* device, VkDeviceSize instance_size, uint32_t instance_count, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags memory_property_flags, VkDeviceSize min_offset_alignment)
+    Buffer::Buffer(Device* device, VkDeviceSize instance_size, unsigned int instance_count, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags memory_property_flags, VkDeviceSize min_offset_alignment)
         : m_device(device), m_instance_size(instance_size), m_instance_count(instance_count), m_usage_flags(usage_flags), m_memory_property_flags(memory_property_flags)
     {
         m_alignment_size = getAlignment(instance_size, min_offset_alignment);
@@ -106,7 +106,7 @@ namespace Isonia::Pipeline
     {
         return m_mapped;
     }
-    uint32_t Buffer::getInstanceCount() const
+    unsigned int Buffer::getInstanceCount() const
     {
         return m_instance_count;
     }

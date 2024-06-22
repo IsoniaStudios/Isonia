@@ -36,7 +36,7 @@ namespace Isonia::Pipeline
 		VkShaderModuleCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		create_info.codeSize = size;
-		create_info.pCode = reinterpret_cast<const uint32_t*>(code);
+		create_info.pCode = reinterpret_cast<const unsigned int*>(code);
 
 		VkShaderModule shader_module{};
 		if (vkCreateShaderModule(m_device->getDevice(), &create_info, nullptr, &shader_module) != VK_SUCCESS)
@@ -162,7 +162,7 @@ namespace Isonia::Pipeline
 		config_info->dynamic_state_enables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 		config_info->dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		config_info->dynamic_state_info.pDynamicStates = config_info->dynamic_state_enables.data();
-		config_info->dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(config_info->dynamic_state_enables.size());
+		config_info->dynamic_state_info.dynamicStateCount = static_cast<unsigned int>(config_info->dynamic_state_enables.size());
 		config_info->dynamic_state_info.flags = 0;
 
 		config_info->binding_descriptions = Renderable::VertexComplete::getBindingDescriptions();
@@ -209,8 +209,8 @@ namespace Isonia::Pipeline
 		auto& attributeDescriptions = config_info->attribute_descriptions;
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-		vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<unsigned int>(attributeDescriptions.size());
+		vertexInputInfo.vertexBindingDescriptionCount = static_cast<unsigned int>(bindingDescriptions.size());
 		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 		vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 
@@ -222,7 +222,7 @@ namespace Isonia::Pipeline
 
 		VkGraphicsPipelineCreateInfo pipeline_info{};
 		pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipeline_info.stageCount = static_cast<uint32_t>(shader_stages.size());
+		pipeline_info.stageCount = static_cast<unsigned int>(shader_stages.size());
 		pipeline_info.pStages = shader_stages.data();
 		pipeline_info.pVertexInputState = &vertexInputInfo;
 		pipeline_info.pInputAssemblyState = &config_info->input_assembly_info;

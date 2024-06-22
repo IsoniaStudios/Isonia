@@ -68,13 +68,13 @@ namespace Isonia::Pipeline::RenderSystems
 
 	float GroundRenderSystem::mapWorldToHeight(const float world_x, const float world_z) const
 	{
-		const auto ground = mapWorldToGround(world_x, world_z);
+		const Renderable::BuilderXZUniformN* ground = mapWorldToGround(world_x, world_z);
 		return ground->mapWorldToHeight(world_x, world_z);
 	}
 
 	Math::Vector3 GroundRenderSystem::mapWorldToNormal(const float world_x, const float world_z) const
 	{
-		const auto ground = mapWorldToGround(world_x, world_z);
+		const Renderable::BuilderXZUniformN* ground = mapWorldToGround(world_x, world_z);
 		return ground->mapWorldToNormal(world_x, world_z);
 	}
 
