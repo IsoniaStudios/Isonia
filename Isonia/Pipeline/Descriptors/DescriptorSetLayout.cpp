@@ -8,7 +8,7 @@ namespace Isonia::Pipeline::Descriptors
 	{
 	};
 
-	DescriptorSetLayout::Builder* DescriptorSetLayout::Builder::addBinding(unsigned int binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags, unsigned int count = 1)
+	DescriptorSetLayout::Builder* DescriptorSetLayout::Builder::addBinding(unsigned int binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags, unsigned int count)
 	{
 		assert(m_bindings.count(binding) == 0 && "Binding already in use");
 		VkDescriptorSetLayoutBinding layout_binding{};

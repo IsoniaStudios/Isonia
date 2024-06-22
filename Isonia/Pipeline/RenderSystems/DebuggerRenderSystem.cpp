@@ -14,7 +14,7 @@ namespace Isonia::Pipeline::RenderSystems
 		createPipelineLayout(global_set_layout);
 		createPipeline(render_pass);
 
-		m_debugger = new Renderable::Position::Builder(m_device);
+		m_debugger = new Renderable::BuilderPosition(m_device);
 	}
 
 	DebuggerRenderSystem::~DebuggerRenderSystem()
@@ -27,21 +27,21 @@ namespace Isonia::Pipeline::RenderSystems
 
 	void DebuggerRenderSystem::render(State::FrameInfo* frame_info)
 	{
-		m_pipeline->bind(frame_info->commandBuffer);
+		m_pipeline->bind(frame_info->command_buffer);
 
 		vkCmdBindDescriptorSets(
-			frame_info->commandBuffer,
+			frame_info->command_buffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipeline_layout,
 			0,
 			1,
-			&frame_info->globalDescriptorSet,
+			&frame_info->global_descriptor_set,
 			0,
 			nullptr
 		);
 
-		m_debugger->bind(frame_info->commandBuffer);
-		m_debugger->draw(frame_info->commandBuffer);
+		m_debugger->bind(frame_info->command_buffer);
+		m_debugger->draw(frame_info->command_buffer);
 	}
 
 	void DebuggerRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout)
@@ -87,13 +87,13 @@ namespace Isonia::Pipeline::RenderSystems
 			)->createGraphicsPipeline(&pipeline_config);
 	}
 
-	void DebuggerRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* pipeline_config)
+	constexpr void DebuggerRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* pipeline_config)
 	{
 		Pipeline::pixelPipelineConfigInfo(pipeline_config);
 
 		pipeline_config->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 
-		pipeline_config->binding_descriptions = Renderable::Position::Vertex::GetBindingDescriptions();
-		pipeline_config->attribute_descriptions = Renderable::Position::Vertex::GetAttributeDescriptions();
+		pipeline_config->binding_descriptions = Renderable::VertexPosition::getBindingDescriptions();
+		pipeline_config->attribute_descriptions = Renderable::VertexPosition::getAttributeDescriptions();
 	}
 }

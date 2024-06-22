@@ -1,5 +1,6 @@
 // internal
 #include "Pipeline.h"
+#include "../Renderable/Renderable.h"
 
 namespace Isonia::Pipeline
 {
@@ -70,33 +71,33 @@ namespace Isonia::Pipeline
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics_pipeline);
 	}
 
-	void Pipeline::pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void Pipeline::pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info)
 	{
 		defaultPipelineConfigInfo(config_info);
 		makePixelPerfectConfigInfo(config_info);
 		makeTriangleStripConfigInfo(config_info);
 
-		config_info->binding_descriptions = Renderable::XZUniform::Vertex::getBindingDescriptions();
-		config_info->attribute_descriptions = Renderable::XZUniform::Vertex::getAttributeDescriptions();
+		config_info->binding_descriptions = Renderable::VertexXZUniform::getBindingDescriptions();
+		config_info->attribute_descriptions = Renderable::VertexXZUniform::getAttributeDescriptions();
 	}
 
-	void Pipeline::pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void Pipeline::pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info)
 	{
 		defaultPipelineConfigInfo(config_info);
 		makePixelPerfectConfigInfo(config_info);
 		makeTriangleStripConfigInfo(config_info);
 
-		config_info->binding_descriptions = Renderable::XZUniformN::Vertex::getBindingDescriptions();
-		config_info->attribute_descriptions = Renderable::XZUniformN::Vertex::getAttributeDescriptions();
+		config_info->binding_descriptions = Renderable::VertexXZUniformN::getBindingDescriptions();
+		config_info->attribute_descriptions = Renderable::VertexXZUniformN::getAttributeDescriptions();
 	}
 
-	void Pipeline::pixelPipelineConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void Pipeline::pixelPipelineConfigInfo(PipelineConfigInfo* config_info)
 	{
 		defaultPipelineConfigInfo(config_info);
 		makePixelPerfectConfigInfo(config_info);
 	}
 
-	void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->input_assembly_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		config_info->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -164,11 +165,11 @@ namespace Isonia::Pipeline
 		config_info->dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(config_info->dynamic_state_enables.size());
 		config_info->dynamic_state_info.flags = 0;
 
-		config_info->binding_descriptions = Renderable::Complete::Vertex::GetBindingDescriptions();
-		config_info->attribute_descriptions = Renderable::Complete::Vertex::GetAttributeDescriptions();
+		config_info->binding_descriptions = Renderable::VertexComplete::getBindingDescriptions();
+		config_info->attribute_descriptions = Renderable::VertexComplete::getAttributeDescriptions();
 	}
 
-	void makePixelPerfectConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void makePixelPerfectConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->rasterization_info.lineWidth = 1.0f;
 
@@ -181,7 +182,7 @@ namespace Isonia::Pipeline
 		config_info->depth_stencil_info.stencilTestEnable = VK_FALSE;
 	}
 
-	void makeTransparentConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void makeTransparentConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		config_info->color_blend_attachment.blendEnable = VK_TRUE;
@@ -193,7 +194,7 @@ namespace Isonia::Pipeline
 		config_info->color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
 	}
 
-	void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 		config_info->rasterization_info.frontFace = VK_FRONT_FACE_CLOCKWISE;

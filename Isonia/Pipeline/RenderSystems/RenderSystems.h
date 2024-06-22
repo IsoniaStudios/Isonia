@@ -32,7 +32,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Pipeline* m_pipeline;
 		VkPipelineLayout m_pipeline_layout;
 
-		Renderable::Position::Builder* m_debugger;
+		Renderable::BuilderPosition* m_debugger;
 	};
 
 	struct GroundRenderSystem
@@ -44,7 +44,7 @@ namespace Isonia::Pipeline::RenderSystems
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
 		GroundRenderSystem& operator=(const GroundRenderSystem&) = delete;
 
-		Renderable::XZUniformN::Builder* mapWorldToGround(const float world_x, const float world_z) const;
+		Renderable::BuilderXZUniformN* mapWorldToGround(const float world_x, const float world_z) const;
 		float mapWorldToHeight(const float world_x, const float world_z) const;
 		Math::Vector3 mapWorldToNormal(const float world_x, const float world_z) const;
 
@@ -68,11 +68,11 @@ namespace Isonia::Pipeline::RenderSystems
 		VkPipelineLayout m_ground_pipeline_layout;
 		VkPipelineLayout m_grass_pipeline_layout;
 
-		Renderable::XZUniformN::Builder* m_grounds;
-		Renderable::XZUniformN::Grass::Builder* m_grasses;
+		Renderable::BuilderXZUniformN* m_grounds;
+		Renderable::BuilderXZUniformNP* m_grasses;
 
 		static constexpr const unsigned int grounds = 3;
-		static constexpr const unsigned int ground_count = grounds * grounds;
+		static constexpr const unsigned int grounds_count = grounds * grounds;
 	};
 
 	struct WaterRenderSystem
@@ -95,6 +95,6 @@ namespace Isonia::Pipeline::RenderSystems
 		Pipeline* m_pipeline;
 		VkPipelineLayout m_pipeline_layout;
 
-		Renderable::XZUniform::Builder* m_water;
+		Renderable::BuilderXZUniform* m_water;
 	};
 }

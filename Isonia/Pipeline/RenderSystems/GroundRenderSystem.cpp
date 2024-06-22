@@ -25,17 +25,17 @@ namespace Isonia::Pipeline::RenderSystems
 		Noise::FractalPerlinNoise groundNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 		const int S_GROUNDS = static_cast<int>(grounds);
-		const int S_QUADS = static_cast<int>(Renderable::XZUniformN::QUADS);
-		m_grounds = static_cast<Renderable::XZUniformN::Builder*>(operator new[](sizeof(Renderable::XZUniformN::Builder)* grounds_count));
-		m_grasses = static_cast<Renderable::XZUniformN::Grass::Builder*>(operator new[](sizeof(Renderable::XZUniformN::Grass::Builder)* grounds_count));
+		const int S_QUADS = static_cast<int>(Renderable::quads);
+		m_grounds = static_cast<Renderable::BuilderXZUniformN*>(operator new[](sizeof(Renderable::BuilderXZUniformN)* grounds_count));
+		m_grasses = static_cast<Renderable::BuilderXZUniformNP*>(operator new[](sizeof(Renderable::BuilderXZUniformNP)* grounds_count));
 		for (int x = 0; x < grounds; x++)
 		{
 			for (int z = 0; z < grounds; z++)
 			{
-				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniformN::QUAD_SIZE - S_QUADS * Renderable::XZUniformN::QUAD_SIZE * 0.5f;
-				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::XZUniformN::QUAD_SIZE - S_QUADS * Renderable::XZUniformN::QUAD_SIZE * 0.5f;
-				auto ground = new (m_grounds + x * S_GROUNDS + z) Renderable::XZUniformN::Builder(device, groundWarpNoise, groundNoise, 7.5f, xOffset, zOffset);
-				auto grass = new (m_grasses + x * S_GROUNDS + z) Renderable::XZUniformN::Grass::Builder(device, ground);
+				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
+				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
+				auto ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
+				auto grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
 			}
 		}
 	}
@@ -51,18 +51,18 @@ namespace Isonia::Pipeline::RenderSystems
 		{
 			for (long z = grounds - 1; z >= 0; z--)
 			{
-				m_grounds[x * grounds + z].~Builder();
-				m_grasses[x * grounds + z].~Builder();
+				m_grounds[x * grounds + z].~BuilderXZUniformN();
+				m_grasses[x * grounds + z].~BuilderXZUniformNP();
 			}
 		}
 		operator delete[](m_grounds);
 		operator delete[](m_grasses);
 	}
 
-	Renderable::XZUniformN::Builder* GroundRenderSystem::mapWorldToGround(const float world_x, const float world_z) const
+	Renderable::BuilderXZUniformN* GroundRenderSystem::mapWorldToGround(const float world_x, const float world_z) const
 	{
-		unsigned int i_x = static_cast<unsigned int>(world_x / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + grounds / 2);
-		unsigned int i_z = static_cast<unsigned int>(world_z / (Renderable::XZUniformN::QUADS * Renderable::XZUniformN::QUAD_SIZE) + grounds / 2);
+		unsigned int i_x = static_cast<unsigned int>(world_x / (Renderable::quads * Renderable::quad_size) + grounds / 2);
+		unsigned int i_z = static_cast<unsigned int>(world_z / (Renderable::quads * Renderable::quad_size) + grounds / 2);
 		return &m_grounds[i_x * grounds + i_z];
 	}
 
@@ -86,15 +86,15 @@ namespace Isonia::Pipeline::RenderSystems
 
 	void GroundRenderSystem::renderGround(State::FrameInfo* frame_info)
 	{
-		m_ground_pipeline->bind(frame_info->commandBuffer);
+		m_ground_pipeline->bind(frame_info->command_buffer);
 
 		vkCmdBindDescriptorSets(
-			frame_info->commandBuffer,
+			frame_info->command_buffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_ground_pipeline_layout,
 			0,
 			1,
-			&frame_info->globalDescriptorSet,
+			&frame_info->global_descriptor_set,
 			0,
 			nullptr
 		);
@@ -103,33 +103,33 @@ namespace Isonia::Pipeline::RenderSystems
 		{
 			for (long z = 0; z < grounds; z++)
 			{
-				Renderable::XZUniformN::Builder* ground = &m_grounds[x * grounds + z];
+				Renderable::BuilderXZUniformN* ground = &m_grounds[x * grounds + z];
 
 				vkCmdPushConstants(
-					frame_info->commandBuffer,
+					frame_info->command_buffer,
 					m_ground_pipeline_layout,
 					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 					0,
-					sizeof(Renderable::XZUniformN::XZPositionalData),
-					&(ground->positionalData)
+					sizeof(Math::Vector2),
+					&(ground->m_positional_data)
 				);
-				ground->bind(frame_info->commandBuffer);
-				ground->draw(frame_info->commandBuffer);
+				ground->bind(frame_info->command_buffer);
+				ground->draw(frame_info->command_buffer);
 			}
 		}
 	}
 
 	void GroundRenderSystem::renderGrass(State::FrameInfo* frame_info)
 	{
-		m_grass_pipeline->bind(frame_info->commandBuffer);
+		m_grass_pipeline->bind(frame_info->command_buffer);
 
 		vkCmdBindDescriptorSets(
-			frame_info->commandBuffer,
+			frame_info->command_buffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_grass_pipeline_layout,
 			0,
 			1,
-			&frame_info->globalDescriptorSet,
+			&frame_info->global_descriptor_set,
 			0,
 			nullptr
 		);
@@ -138,10 +138,10 @@ namespace Isonia::Pipeline::RenderSystems
 		{
 			for (long z = 0; z < grounds; z++)
 			{
-				Renderable::XZUniformN::Grass::Builder* grass = &m_grasses[x * grounds + z];
+				Renderable::BuilderXZUniformNP* grass = &m_grasses[x * grounds + z];
 
-				grass->bind(frame_info->commandBuffer);
-				grass->draw(frame_info->commandBuffer);
+				grass->bind(frame_info->command_buffer);
+				grass->draw(frame_info->command_buffer);
 			}
 		}
 	}
@@ -151,7 +151,7 @@ namespace Isonia::Pipeline::RenderSystems
 		VkPushConstantRange push_constant_range{};
 		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		push_constant_range.offset = 0;
-		push_constant_range.size = sizeof(Renderable::XZUniformN::XZPositionalData);
+		push_constant_range.size = sizeof(Math::Vector2);
 
 		const constexpr unsigned int descriptor_set_layouts_length = 1;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
@@ -233,13 +233,13 @@ namespace Isonia::Pipeline::RenderSystems
 			)->createGraphicsPipeline(&pipeline_config);
 	}
 
-	void GroundRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info)
+	constexpr void GroundRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info)
 	{
 		Pipeline::pixelPipelineConfigInfo(config_info);
 
 		config_info->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 
-		config_info->binding_descriptions = Renderable::XZUniformN::Grass::Vertex::GetBindingDescriptions();
-		config_info->attribute_descriptions = Renderable::XZUniformN::Grass::Vertex::GetAttributeDescriptions();
+		config_info->binding_descriptions = Renderable::VertexXZUniformNP::getBindingDescriptions();
+		config_info->attribute_descriptions = Renderable::VertexXZUniformNP::getAttributeDescriptions();
 	}
 }

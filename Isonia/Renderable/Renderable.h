@@ -100,6 +100,14 @@ namespace Isonia::Renderable
 		Math::Vector3 position;
 	};
 
+	struct VertexXZUniform
+	{
+		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
+		float altitude;
+	};
+
 	struct VertexXZUniformN
 	{
 		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
@@ -178,5 +186,100 @@ namespace Isonia::Renderable
 
 		Pipeline::Buffer* m_index_buffer;
 		unsigned int m_index_count;
+	};
+
+	// Builder
+	static constexpr const float quad_size = 1.0f;
+	static constexpr const unsigned int quads = 64;
+	static constexpr const unsigned int vertices = quads + 1;
+	static constexpr const unsigned int unique_vertices_count = vertices * vertices;
+	static constexpr const unsigned int sample = vertices + 2;
+	static constexpr const unsigned int sample_count = sample * sample;
+	static constexpr const unsigned int vertices_count = vertices * vertices + (vertices - 2) * (vertices - 1);
+	static constexpr const unsigned int triangle_count = vertices_count - 2;
+
+	static constexpr const float grass_density = 4.0f;
+	static constexpr const float grass_size = Math::pixels_per_unit / (16.0f * 2.0f);
+	static constexpr const unsigned int grass_count_side = static_cast<unsigned int>(grass_density * static_cast<float>(quads));
+	static constexpr const unsigned int grass_count = grass_count_side * grass_count_side;
+
+	struct BuilderPosition
+	{
+		BuilderPosition(Pipeline::Device* device);
+		~BuilderPosition();
+
+		void bind(VkCommandBuffer command_buffer);
+		void draw(VkCommandBuffer command_buffer);
+
+	private:
+		void createVertexBuffers(void* vertices);
+
+		const unsigned int m_point_count;
+		Pipeline::Device* m_device;
+		Pipeline::Buffer* m_vertex_buffer;
+	};
+
+	struct BuilderXZUniform
+	{
+		BuilderXZUniform(Pipeline::Device* device);
+		BuilderXZUniform(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const Math::Vector3 position);
+		~BuilderXZUniform();
+
+		void bind(VkCommandBuffer command_buffer);
+		void draw(VkCommandBuffer command_buffer);
+
+		Math::Vector3 m_position;
+
+	private:
+		int calculateCol(const int index, const int strip) const;
+		int calculateRow(const int index, const int strip) const;
+		int calculateStrip(const int index) const;
+
+		void createVertexBuffers(void* vertices);
+
+		Pipeline::Device* m_device;
+		Pipeline::Buffer* m_vertex_buffer;
+	};
+
+	struct BuilderXZUniformN
+	{
+		BuilderXZUniformN(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const float x, const float z);
+		~BuilderXZUniformN();
+
+		void bind(VkCommandBuffer command_buffer);
+		void draw(VkCommandBuffer command_buffer);
+
+		float mapWorldToHeight(const float world_x, const float world_z) const;
+		Math::Vector3 mapWorldToNormal(const float world_x, const float world_z) const;
+
+		const Math::Vector2 m_positional_data;
+
+	private:
+		int calculateCol(const int index, const int strip) const;
+		int calculateRow(const int index, const int strip) const;
+		int calculateStrip(const int index) const;
+
+		void createVertexBuffers(void* vertices);
+
+		float m_sample_altitudes[sample][sample];
+		Math::Vector3 m_normals[vertices][vertices];
+
+		Pipeline::Device* m_device;
+		Pipeline::Buffer* m_vertex_buffer;
+	};
+
+	struct BuilderXZUniformNP
+	{
+		BuilderXZUniformNP(Pipeline::Device* device, BuilderXZUniformN* ground);
+		~BuilderXZUniformNP();
+
+		void bind(VkCommandBuffer command_buffer);
+		void draw(VkCommandBuffer command_buffer);
+
+	private:
+		void createVertexBuffers(void* vertices);
+
+		Pipeline::Device* m_device;
+		Pipeline::Buffer* m_vertex_buffer;
 	};
 }

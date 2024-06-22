@@ -35,7 +35,7 @@ namespace Isonia::Pipeline
 	}
 	float Renderer::getAspectRatio() const
 	{
-		return m_swap_chain->extentAspectRatio();
+		return m_swap_chain->getExtentAspectRatio();
 	}
 	VkExtent2D Renderer::getExtent() const
 	{

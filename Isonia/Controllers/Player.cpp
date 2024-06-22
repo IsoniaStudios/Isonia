@@ -18,11 +18,11 @@ namespace Isonia::Controllers
 
     Pipeline::PixelRenderer::EventHandler Player::getOnAspectChangeCallback()
     {
-        return [&](Pipeline::PixelRenderer* renderer) { this->onAspectChange(renderer); };
+        return &Player::onAspectChange;
     }
 
     void Player::onAspectChange(Pipeline::PixelRenderer* renderer)
     {
-        m_camera.setProjection(renderer);
+        //m_camera.setProjection(renderer);
     }
 }

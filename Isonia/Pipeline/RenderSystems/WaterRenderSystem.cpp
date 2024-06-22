@@ -13,7 +13,7 @@ namespace Isonia::Pipeline::RenderSystems
 		createpipelineLayout(global_set_layout);
 		createpipeline(render_pass);
 
-		m_water = new Renderable::XZUniform::Builder(m_device);
+		m_water = new Renderable::BuilderXZUniform(m_device);
 	}
 
 	WaterRenderSystem::~WaterRenderSystem()
@@ -26,20 +26,20 @@ namespace Isonia::Pipeline::RenderSystems
 
 	void WaterRenderSystem::render(State::FrameInfo* frame_info, Camera* camera)
 	{
-		m_pipeline->bind(frame_info->commandBuffer);
+		m_pipeline->bind(frame_info->command_buffer);
 
 		vkCmdBindDescriptorSets(
-			frame_info->commandBuffer,
+			frame_info->command_buffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipeline_layout,
 			0,
 			1,
-			&frame_info->globalDescriptorSet,
+			&frame_info->global_descriptor_set,
 			0,
 			nullptr
 		);
 
-		constexpr const float offsetToCenter = -(Renderable::XZUniform::QUADS * Renderable::XZUniform::QUAD_SIZE * 0.5f);
+		constexpr const float offsetToCenter = -(Renderable::quads * Renderable::quad_size * 0.5f);
 		const Math::Vector3 cameraPosition = camera->getPositionVector();
 		const Math::Vector3 cameraForward = camera->getForwardVector();
 		float intersectionDistance;
@@ -51,22 +51,22 @@ namespace Isonia::Pipeline::RenderSystems
 			&intersectionDistance
 		);
 		Math::Vector3 intersectionPoint = Math::vec3Add(&cameraPosition, &Math::vec3Mul(&cameraForward, intersectionDistance));
-		m_water->position = {
+		m_water->m_position = {
 			offsetToCenter + intersectionPoint.x,
 			-5,
 			offsetToCenter + intersectionPoint.z
 		};
 
 		vkCmdPushConstants(
-			frame_info->commandBuffer,
+			frame_info->command_buffer,
 			m_pipeline_layout,
 			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 			0,
 			sizeof(Math::Vector3),
-			&(m_water->position)
+			&(m_water->m_position)
 		);
-		m_water->bind(frame_info->commandBuffer);
-		m_water->draw(frame_info->commandBuffer);
+		m_water->bind(frame_info->command_buffer);
+		m_water->draw(frame_info->command_buffer);
 	}
 
 	void WaterRenderSystem::createpipelineLayout(VkDescriptorSetLayout global_set_layout)

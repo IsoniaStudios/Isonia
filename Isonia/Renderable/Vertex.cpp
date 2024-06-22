@@ -34,6 +34,20 @@ namespace Isonia::Renderable
 		};
 	}
 
+	constexpr std::vector<VkVertexInputBindingDescription> VertexXZUniform::getBindingDescriptions()
+	{
+		return {
+			{ 0, sizeof(VertexXZUniform), VK_VERTEX_INPUT_RATE_VERTEX }
+		};
+	}
+
+	constexpr std::vector<VkVertexInputAttributeDescription> VertexXZUniform::getAttributeDescriptions()
+	{
+		return {
+			{ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniform, altitude) }
+		};
+	}
+
 	constexpr std::vector<VkVertexInputBindingDescription> VertexXZUniformN::getBindingDescriptions()
 	{
 		return {
