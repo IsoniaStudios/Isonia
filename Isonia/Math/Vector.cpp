@@ -21,12 +21,7 @@ namespace Isonia::Math
             return y;
         }
     }
-    constexpr Vector2& Vector2::operator=(const Vector2& v)
-    {
-        this->x = v.x;
-        this->y = v.y;
-        return *this;
-    }
+
     extern inline constexpr bool operator==(const Vector2& v1, const Vector2& v2)
     {
         return (v1.x == v2.x) && (v1.y == v2.y);
@@ -135,13 +130,6 @@ namespace Isonia::Math
         case 2:
             return z;
         }
-    }
-    constexpr Vector3& Vector3::operator=(const Vector3& v)
-    {
-        this->x = v.x;
-        this->y = v.y;
-        this->z = v.z;
-        return *this;
     }
 
     extern inline constexpr bool operator==(const Vector3& v1, const Vector3& v2)
@@ -272,14 +260,6 @@ namespace Isonia::Math
         case 3:
             return w;
         }
-    }
-    constexpr Vector4& Vector4::operator=(const Vector4& v)
-    {
-        this->x = v.x;
-        this->y = v.y;
-        this->z = v.z;
-        this->w = v.w;
-        return *this;
     }
 
     extern inline constexpr bool operator==(const Vector4& v1, const Vector4& v2)

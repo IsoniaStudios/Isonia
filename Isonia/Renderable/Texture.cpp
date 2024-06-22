@@ -113,7 +113,6 @@ namespace Isonia::Renderable
 		m_bytes_per_pixel = formatToBytesPerPixel(format);
 		VkDeviceSize imageSize = tex_width * tex_height * m_bytes_per_pixel;
 
-		// mMipLevels = static_cast<unsigned int>(std::floor(std::log2(std::max(tex_width, tex_height)))) + 1;
 		m_mip_levels = 1;
 
 		VkBuffer stagingBuffer;

@@ -154,13 +154,13 @@ namespace Isonia::Pipeline
 			1,
 			&m_in_flight_fences[m_current_frame],
 			VK_TRUE,
-			std::numeric_limits<uint64_t>::max()
+			Math::unsigned_long_max
 		);
 
 		VkResult result = vkAcquireNextImageKHR(
 			m_device->getDevice(),
 			m_swap_chain,
-			std::numeric_limits<uint64_t>::max(),
+			Math::unsigned_long_max,
 			m_image_available_semaphores[m_current_frame], // must be a not signaled semaphore
 			VK_NULL_HANDLE,
 			imageIndex
@@ -589,7 +589,7 @@ namespace Isonia::Pipeline
 
 	VkExtent2D PixelSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const
 	{
-		if (capabilities->currentExtent.width != std::numeric_limits<unsigned int>::max())
+		if (capabilities->currentExtent.width != Math::unsigned_int_max)
 		{
 			return capabilities->currentExtent;
 		}

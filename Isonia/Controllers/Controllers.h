@@ -1,5 +1,6 @@
 #pragma once
 
+// internal
 #include "../Math/Math.h"
 #include "../Pipeline/Pipeline.h"
 

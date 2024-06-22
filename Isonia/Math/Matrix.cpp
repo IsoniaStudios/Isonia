@@ -14,13 +14,7 @@ namespace Isonia::Math
 		assert(i < 3);
 		return this->value[i];
 	}
-	constexpr Matrix3x3& Matrix3x3::operator=(const Matrix3x3& m)
-	{
-		this->value[0] = m[0];
-		this->value[1] = m[1];
-		this->value[2] = m[2];
-		return *this;
-	}
+
 	extern inline constexpr bool operator==(const Matrix3x3& m1, const Matrix3x3& m2)
 	{
 		return (m1[0] == m2[0]) && (m1[1] == m2[1]) && (m1[2] == m2[2]);
@@ -76,18 +70,18 @@ namespace Isonia::Math
 			- m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
 			+ m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2])
 		);
-		const float oneOverDeterminant = 1.0f / determinant;
+		const float one_over_determinant = 1.0f / determinant;
 
 		return Matrix3x3{
-			+(m[1][1] * m[2][2] - m[2][1] * m[1][2]) * oneOverDeterminant,
-			-(m[1][0] * m[2][2] - m[2][0] * m[1][2]) * oneOverDeterminant,
-			+(m[1][0] * m[2][1] - m[2][0] * m[1][1]) * oneOverDeterminant,
-			-(m[0][1] * m[2][2] - m[2][1] * m[0][2]) * oneOverDeterminant,
-			+(m[0][0] * m[2][2] - m[2][0] * m[0][2]) * oneOverDeterminant,
-			-(m[0][0] * m[2][1] - m[2][0] * m[0][1]) * oneOverDeterminant,
-			+(m[0][1] * m[1][2] - m[1][1] * m[0][2]) * oneOverDeterminant,
-			-(m[0][0] * m[1][2] - m[1][0] * m[0][2]) * oneOverDeterminant,
-			+(m[0][0] * m[1][1] - m[1][0] * m[0][1]) * oneOverDeterminant
+			+(m[1][1] * m[2][2] - m[2][1] * m[1][2]) * one_over_determinant,
+			-(m[1][0] * m[2][2] - m[2][0] * m[1][2]) * one_over_determinant,
+			+(m[1][0] * m[2][1] - m[2][0] * m[1][1]) * one_over_determinant,
+			-(m[0][1] * m[2][2] - m[2][1] * m[0][2]) * one_over_determinant,
+			+(m[0][0] * m[2][2] - m[2][0] * m[0][2]) * one_over_determinant,
+			-(m[0][0] * m[2][1] - m[2][0] * m[0][1]) * one_over_determinant,
+			+(m[0][1] * m[1][2] - m[1][1] * m[0][2]) * one_over_determinant,
+			-(m[0][0] * m[1][2] - m[1][0] * m[0][2]) * one_over_determinant,
+			+(m[0][0] * m[1][1] - m[1][0] * m[0][1]) * one_over_determinant
 		};
 	}
 
@@ -102,14 +96,7 @@ namespace Isonia::Math
 		assert(i < 4);
 		return this->value[i];
 	}
-	constexpr Matrix4x4& Matrix4x4::operator=(const Matrix4x4& m)
-	{
-		this->value[0] = m[0];
-		this->value[1] = m[1];
-		this->value[2] = m[2];
-		this->value[3] = m[3];
-		return *this;
-	}
+
 	extern inline constexpr bool operator==(const Matrix4x4& m1, const Matrix4x4& m2)
 	{
 		return (m1[0] == m2[0]) && (m1[1] == m2[1]) && (m1[2] == m2[2]) && (m1[3] == m2[3]);
@@ -195,25 +182,25 @@ namespace Isonia::Math
 			+ m[0][2] * (m[1][0] * a1323 - m[1][1] * a0323 + m[1][3] * a0123)
 			- m[0][3] * (m[1][0] * a1223 - m[1][1] * a0223 + m[1][2] * a0123)
 			);
-		const float oneOverDeterminant = 1 / determinant;
+		const float one_over_determinant = 1 / determinant;
 
 		return Matrix4x4{
-			oneOverDeterminant * +(m[1][1] * a2323 - m[1][2] * a1323 + m[1][3] * a1223),
-			oneOverDeterminant * -(m[0][1] * a2323 - m[0][2] * a1323 + m[0][3] * a1223),
-			oneOverDeterminant * +(m[0][1] * a2313 - m[0][2] * a1313 + m[0][3] * a1213),
-			oneOverDeterminant * -(m[0][1] * a2312 - m[0][2] * a1312 + m[0][3] * a1212),
-			oneOverDeterminant * -(m[1][0] * a2323 - m[1][2] * a0323 + m[1][3] * a0223),
-			oneOverDeterminant * +(m[0][0] * a2323 - m[0][2] * a0323 + m[0][3] * a0223),
-			oneOverDeterminant * -(m[0][0] * a2313 - m[0][2] * a0313 + m[0][3] * a0213),
-			oneOverDeterminant * +(m[0][0] * a2312 - m[0][2] * a0312 + m[0][3] * a0212),
-			oneOverDeterminant * +(m[1][0] * a1323 - m[1][1] * a0323 + m[1][3] * a0123),
-			oneOverDeterminant * -(m[0][0] * a1323 - m[0][1] * a0323 + m[0][3] * a0123),
-			oneOverDeterminant * +(m[0][0] * a1313 - m[0][1] * a0313 + m[0][3] * a0113),
-			oneOverDeterminant * -(m[0][0] * a1312 - m[0][1] * a0312 + m[0][3] * a0112),
-			oneOverDeterminant * -(m[1][0] * a1223 - m[1][1] * a0223 + m[1][2] * a0123),
-			oneOverDeterminant * +(m[0][0] * a1223 - m[0][1] * a0223 + m[0][2] * a0123),
-			oneOverDeterminant * -(m[0][0] * a1213 - m[0][1] * a0213 + m[0][2] * a0113),
-			oneOverDeterminant * +(m[0][0] * a1212 - m[0][1] * a0212 + m[0][2] * a0112)
+			one_over_determinant * +(m[1][1] * a2323 - m[1][2] * a1323 + m[1][3] * a1223),
+			one_over_determinant * -(m[0][1] * a2323 - m[0][2] * a1323 + m[0][3] * a1223),
+			one_over_determinant * +(m[0][1] * a2313 - m[0][2] * a1313 + m[0][3] * a1213),
+			one_over_determinant * -(m[0][1] * a2312 - m[0][2] * a1312 + m[0][3] * a1212),
+			one_over_determinant * -(m[1][0] * a2323 - m[1][2] * a0323 + m[1][3] * a0223),
+			one_over_determinant * +(m[0][0] * a2323 - m[0][2] * a0323 + m[0][3] * a0223),
+			one_over_determinant * -(m[0][0] * a2313 - m[0][2] * a0313 + m[0][3] * a0213),
+			one_over_determinant * +(m[0][0] * a2312 - m[0][2] * a0312 + m[0][3] * a0212),
+			one_over_determinant * +(m[1][0] * a1323 - m[1][1] * a0323 + m[1][3] * a0123),
+			one_over_determinant * -(m[0][0] * a1323 - m[0][1] * a0323 + m[0][3] * a0123),
+			one_over_determinant * +(m[0][0] * a1313 - m[0][1] * a0313 + m[0][3] * a0113),
+			one_over_determinant * -(m[0][0] * a1312 - m[0][1] * a0312 + m[0][3] * a0112),
+			one_over_determinant * -(m[1][0] * a1223 - m[1][1] * a0223 + m[1][2] * a0123),
+			one_over_determinant * +(m[0][0] * a1223 - m[0][1] * a0223 + m[0][2] * a0123),
+			one_over_determinant * -(m[0][0] * a1213 - m[0][1] * a0213 + m[0][2] * a0113),
+			one_over_determinant * +(m[0][0] * a1212 - m[0][1] * a0212 + m[0][2] * a0112)
 		};
 	}
 }

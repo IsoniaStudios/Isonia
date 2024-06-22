@@ -274,11 +274,11 @@ namespace Isonia::Renderable
 		const float local_z = world_z - m_positional_data.y;
 
 		// map local to indices
-		const size_t min_x = Math::maxf(Math::floorf_i(local_x), 0);
-		const size_t max_x = Math::minf(Math::ceilf_i(local_x), static_cast<int>(vertices));
+		const size_t min_x = Math::maxi(Math::floorf_i(local_x), 0);
+		const size_t max_x = Math::mini(Math::ceilf_i(local_x), static_cast<int>(vertices));
 
-		const size_t min_z = Math::maxf(Math::floorf_i(local_z), 0);
-		const size_t max_z = Math::minf(Math::ceilf_i(local_z), static_cast<int>(vertices));
+		const size_t min_z = Math::maxi(Math::floorf_i(local_z), 0);
+		const size_t max_z = Math::mini(Math::ceilf_i(local_z), static_cast<int>(vertices));
 
 		// get normals from indices
 		const Math::Vector3 n_00 = m_normals[min_z][min_x];
@@ -299,7 +299,7 @@ namespace Isonia::Renderable
 
 	int BuilderXZUniformN::calculateCol(const int index, const int strip) const
 	{
-		return Math::absf(((strip + 1) / 2) * (int(vertices) * 2 - 1) - ((index + (strip % 2)) / 2));
+		return Math::absi(((strip + 1) / 2) * (int(vertices) * 2 - 1) - ((index + (strip % 2)) / 2));
 	}
 	int BuilderXZUniformN::calculateRow(const int index, const int strip) const
 	{

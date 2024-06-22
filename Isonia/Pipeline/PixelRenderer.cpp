@@ -196,12 +196,12 @@ namespace Isonia::Pipeline
 		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
 
 		// Calculate pixel offsets
-		const float scaleFactor = Math::pixels_per_unit * static_cast<float>(Math::render_factor);
+		const float scaleFactor = Math::pixels_per_unit * static_cast<float>(m_render_factor);
 		const int offsetX = Math::roundf_i(offset.x * scaleFactor);
 		const int offsetY = Math::roundf_i(offset.y * scaleFactor);
 
 		// Define source and destination offsets for image blit
-		const int render_factor = static_cast<int>(Math::render_factor);
+		const int render_factor = static_cast<int>(m_render_factor);
 		const int srcWidth = static_cast<int>(m_pixel_swap_chain->getRenderWidth());
 		const int srcHeight = static_cast<int>(m_pixel_swap_chain->getRenderHeight());
 		const int dstWidth = srcWidth * render_factor;
@@ -269,33 +269,33 @@ namespace Isonia::Pipeline
 		);
 	}
 
-	void PixelRenderer::calculateResolution(VkExtent2D window_extent, float* out_width, float* out_height)
+	void PixelRenderer::calculateResolution(VkExtent2D window_extent, float* out_width, float* out_height, unsigned int* out_render_factor)
 	{
 		static const constexpr float idealPixelDensity = 640.0f * 360.0f; //512.0f * 288.0f;
 
-		float closestIdealPixelDensity = std::numeric_limits<float>::max();
+		float closestIdealPixelDensity = Math::float_max;
 		for (unsigned int factor = 1; factor <= 8; factor++)
 		{
 			const float width = static_cast<float>(window_extent.width) / static_cast<float>(factor);
 			const float height = static_cast<float>(window_extent.height) / static_cast<float>(factor);
 			const float pixelDensity = width * height;
-			const float difference = std::abs(idealPixelDensity - pixelDensity);
+			const float difference = Math::absf(idealPixelDensity - pixelDensity);
 
-			if (difference < std::abs(idealPixelDensity - closestIdealPixelDensity))
+			if (difference < Math::absf(idealPixelDensity - closestIdealPixelDensity))
 			{
 				closestIdealPixelDensity = pixelDensity;
 				*out_width = width;
 				*out_height = height;
 
-				Math::render_factor = factor;
+				*out_render_factor = factor;
 			}
 		}
 	}
 
-	VkExtent2D PixelRenderer::recalculateCameraSettings(VkExtent2D window_extent)
+	VkExtent2D PixelRenderer::recalculateCameraSettings(VkExtent2D window_extent, unsigned int* out_render_factor)
 	{
 		float render_width; float render_height;
-		calculateResolution(window_extent, &render_width, &render_height);
+		calculateResolution(window_extent, &render_width, &render_height, out_render_factor);
 
 		// extended so we can render sub-pixels
 		return {
@@ -319,7 +319,7 @@ namespace Isonia::Pipeline
 		}
 		vkDeviceWaitIdle(m_device->getDevice());
 
-		VkExtent2D render_extent = recalculateCameraSettings(window_extent);
+		VkExtent2D render_extent = recalculateCameraSettings(window_extent, &m_render_factor);
 
 		if (m_pixel_swap_chain == nullptr)
 		{

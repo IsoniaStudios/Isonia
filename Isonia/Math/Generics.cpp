@@ -22,6 +22,15 @@ namespace Isonia::Math
         return static_cast<float>(integer_part);
     }
 
+    extern inline constexpr int absi(const int i)
+    {
+        if (i < 0)
+        {
+            return -i;
+        }
+        return i;
+    }
+
     extern inline constexpr float absf(const float f)
     {
         if (f < 0)
@@ -34,6 +43,23 @@ namespace Isonia::Math
     extern inline float fmodf(const float x, const float y)
     {
         return std::fmodf(x, y);
+    }
+
+    extern inline constexpr int mini(const int a, const int b)
+    {
+        if (a < b)
+        {
+            return a;
+        }
+        return b;
+    }
+    extern inline constexpr int maxi(const int a, const int b)
+    {
+        if (a > b)
+        {
+            return a;
+        }
+        return b;
     }
 
     extern inline constexpr float minf(const float a, const float b)

@@ -367,8 +367,8 @@ namespace Isonia::Pipeline
     protected:
         void createCommandBuffers();
         void freeCommandBuffers();
-        static void calculateResolution(VkExtent2D windowExtent, float* outWidth, float* outHeight);
-        static VkExtent2D recalculateCameraSettings(VkExtent2D windowExtent);
+        static void calculateResolution(VkExtent2D window_extent, float* out_width, float* out_height, unsigned int* out_render_factor);
+        static VkExtent2D recalculateCameraSettings(VkExtent2D window_extent, unsigned int* out_render_factor);
 
         void recreateSwapChain();
 
@@ -379,8 +379,9 @@ namespace Isonia::Pipeline
         std::vector<EventHandler> m_handlers;
 
         unsigned int m_current_image_index;
-        int m_current_frame_index = 0;
+        unsigned int m_current_frame_index = 0u;
         bool m_is_frame_started = false;
+        unsigned int m_render_factor = 1u;
     };
 
     struct SwapChain
@@ -491,7 +492,7 @@ namespace Isonia::Pipeline
 		std::vector<EventHandler> m_handlers;
 
 		unsigned int m_current_image_index;
-		int m_current_frame_index = 0;
+		unsigned int m_current_frame_index = 0u;
 		bool m_is_frame_started = false;
 	};
 

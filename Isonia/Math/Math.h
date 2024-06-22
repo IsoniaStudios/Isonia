@@ -19,14 +19,21 @@ namespace Isonia::Math
     extern inline constexpr const float rotation_grid = 30.0f / 16.0f;
     extern inline constexpr const float inverse_rotation_grid = 1.0f / rotation_grid;
 
-    static float render_factor = 0.0f;
+    extern inline constexpr const float float_max = 3.402823466e+38F;
+    extern inline constexpr const unsigned int unsigned_int_max = 2147483647;
+    extern inline constexpr const unsigned long unsigned_long_max = 2147483647L;
 
     // Generics
     extern inline constexpr float roundf(const float f);
 
+    extern inline constexpr int absi(const int i);
+
     extern inline constexpr float absf(const float f);
 
     extern inline float fmodf(const float x, const float y);
+
+    extern inline constexpr int mini(const int a, const int b);
+    extern inline constexpr int maxi(const int a, const int b);
 
     extern inline constexpr float minf(const float a, const float b);
     extern inline constexpr float maxf(const float a, const float b);
@@ -77,7 +84,6 @@ namespace Isonia::Math
 
         float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
-        constexpr Vector4& operator=(const Vector4& v);
 
         float x;
         float y;
@@ -115,7 +121,6 @@ namespace Isonia::Math
 
         float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
-        constexpr Vector3& operator=(const Vector3& v);
 
         float x;
         float y;
@@ -153,7 +158,6 @@ namespace Isonia::Math
 
         float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
-        constexpr Vector2& operator=(const Vector2& v);
 
         float x;
         float y;
@@ -218,7 +222,6 @@ namespace Isonia::Math
 
         constexpr Vector3& operator[](unsigned int i) noexcept;
         constexpr const Vector3& operator[](unsigned int i) const noexcept;
-        constexpr Matrix3x3& operator=(const Matrix3x3& m);
 
     private:
         Vector3 value[3];
@@ -252,7 +255,6 @@ namespace Isonia::Math
 
         constexpr Vector4& operator[](unsigned int i) noexcept;
         constexpr const Vector4& operator[](unsigned int i) const noexcept;
-        constexpr Matrix4x4& operator=(const Matrix4x4& m);
 
     private:
         Vector4 value[4];
