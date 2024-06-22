@@ -4,24 +4,6 @@
 namespace Isonia::Math
 {
     // Vector2
-    float& Vector2::operator[](const unsigned int i) noexcept
-    {
-        assert(i < 2);
-        return reinterpret_cast<float*>(this)[i];
-    }
-    constexpr const float& Vector2::operator[](const unsigned int i) const noexcept
-    {
-        assert(i < 2);
-        switch (i)
-        {
-        default:
-        case 0:
-            return x;
-        case 1:
-            return y;
-        }
-    }
-
     extern inline constexpr bool operator==(const Vector2& v1, const Vector2& v2)
     {
         return (v1.x == v2.x) && (v1.y == v2.y);
@@ -112,26 +94,6 @@ namespace Isonia::Math
     }
 
     // Vector3
-    float& Vector3::operator[](const unsigned int i) noexcept
-    {
-        assert(i < 3);
-        return reinterpret_cast<float*>(this)[i];
-    }
-    constexpr const float& Vector3::operator[](const unsigned int i) const noexcept
-    {
-        assert(i < 3);
-        switch (i)
-        {
-        default:
-        case 0:
-            return x;
-        case 1:
-            return y;
-        case 2:
-            return z;
-        }
-    }
-
     extern inline constexpr bool operator==(const Vector3& v1, const Vector3& v2)
     {
         return (v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z);
@@ -240,28 +202,6 @@ namespace Isonia::Math
     }
 
     // Vector4
-    float& Vector4::operator[](const unsigned int i) noexcept
-    {
-        assert(i < 4);
-        return reinterpret_cast<float*>(this)[i];
-    }
-    constexpr const float& Vector4::operator[](const unsigned int i) const noexcept
-    {
-        assert(i < 4);
-        switch (i)
-        {
-        default:
-        case 0:
-            return x;
-        case 1:
-            return y;
-        case 2:
-            return z;
-        case 3:
-            return w;
-        }
-    }
-
     extern inline constexpr bool operator==(const Vector4& v1, const Vector4& v2)
     {
         return (v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z) && (v1.w == v2.w);

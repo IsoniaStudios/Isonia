@@ -4,17 +4,6 @@
 namespace Isonia::Math
 {
 	// Matrix3x3
-	constexpr Vector3& Matrix3x3::operator[](const unsigned int i) noexcept
-	{
-		assert(i < 3);
-		return this->value[i];
-	}
-    constexpr const Vector3& Matrix3x3::operator[](const unsigned int i) const noexcept
-	{
-		assert(i < 3);
-		return this->value[i];
-	}
-
 	extern inline constexpr bool operator==(const Matrix3x3& m1, const Matrix3x3& m2)
 	{
 		return (m1[0] == m2[0]) && (m1[1] == m2[1]) && (m1[2] == m2[2]);
@@ -86,17 +75,6 @@ namespace Isonia::Math
 	}
 
 	// Matrix4x4
-    constexpr Vector4& Matrix4x4::operator[](const unsigned int i) noexcept
-	{
-        assert(i < 4);
-		return this->value[i];
-	}
-    constexpr const Vector4& Matrix4x4::operator[](const unsigned int i) const noexcept
-	{
-		assert(i < 4);
-		return this->value[i];
-	}
-
 	extern inline constexpr bool operator==(const Matrix4x4& m1, const Matrix4x4& m2)
 	{
 		return (m1[0] == m2[0]) && (m1[1] == m2[1]) && (m1[2] == m2[2]) && (m1[3] == m2[3]);

@@ -34,8 +34,8 @@ namespace Isonia::Pipeline::RenderSystems
 			{
 				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
 				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
-				auto ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
-				auto grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
+				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
+				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ namespace Isonia::Pipeline::RenderSystems
 			)->createGraphicsPipeline(&pipeline_config);
 	}
 
-	constexpr void GroundRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info)
+	void GroundRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info)
 	{
 		Pipeline::pixelPipelineConfigInfo(config_info);
 

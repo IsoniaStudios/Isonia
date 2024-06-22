@@ -92,9 +92,9 @@ namespace Isonia
 
 				// render
 				m_renderer.beginSwapChainRenderPass(command_buffer);
-				m_ground_render_system->render(&frame_info);
+				//m_ground_render_system->render(&frame_info);
 				m_debugger_render_system->render(&frame_info);
-				m_water_render_system->render(&frame_info, &m_player.m_camera);
+				//m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
 				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
@@ -159,13 +159,13 @@ namespace Isonia
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			auto uboBufferInfo = m_ubo_buffers[i]->descriptorInfo();
-			auto clockBufferInfo = m_clock_buffers[i]->descriptorInfo();
-			auto grassDayPaletteInfo = m_grass_day_palette->getImageInfo();
-			auto grassInfo = m_grass->getImageInfo();
-			auto debuggerInfo = m_debugger->getImageInfo();
-			auto cloudInfo = m_cloud->getImageInfo();
-			auto waterDayPaletteInfo = m_water_day_palette->getImageInfo();
+			VkDescriptorBufferInfo uboBufferInfo = m_ubo_buffers[i]->descriptorInfo();
+			VkDescriptorBufferInfo clockBufferInfo = m_clock_buffers[i]->descriptorInfo();
+			VkDescriptorImageInfo grassDayPaletteInfo = m_grass_day_palette->getImageInfo();
+			VkDescriptorImageInfo grassInfo = m_grass->getImageInfo();
+			VkDescriptorImageInfo debuggerInfo = m_debugger->getImageInfo();
+			VkDescriptorImageInfo cloudInfo = m_cloud->getImageInfo();
+			VkDescriptorImageInfo waterDayPaletteInfo = m_water_day_palette->getImageInfo();
 			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool))
 				->writeBuffer(0, &uboBufferInfo)
 				->writeBuffer(1, &clockBufferInfo)

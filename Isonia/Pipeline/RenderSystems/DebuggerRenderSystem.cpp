@@ -87,7 +87,7 @@ namespace Isonia::Pipeline::RenderSystems
 			)->createGraphicsPipeline(&pipeline_config);
 	}
 
-	constexpr void DebuggerRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* pipeline_config)
+	void DebuggerRenderSystem::pixelPipelinePointListConfigInfo(PipelineConfigInfo* pipeline_config)
 	{
 		Pipeline::pixelPipelineConfigInfo(pipeline_config);
 

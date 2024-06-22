@@ -12,7 +12,7 @@ namespace Isonia::Pipeline::Descriptors
 	{
 		assert(m_set_layout->m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-		auto& bindingDescription = m_set_layout->m_bindings[binding];
+		VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
 
 		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -31,7 +31,7 @@ namespace Isonia::Pipeline::Descriptors
 	{
 		assert(m_set_layout->m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
-		auto& bindingDescription = m_set_layout->m_bindings[binding];
+		VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
 
 		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 

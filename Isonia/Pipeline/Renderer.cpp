@@ -62,7 +62,7 @@ namespace Isonia::Pipeline
 	{
 		assert(!m_is_frame_started && "Can't call beginFrame while already in progress");
 
-		auto result = m_swap_chain->acquireNextImage(&m_current_image_index);
+		VkResult result = m_swap_chain->acquireNextImage(&m_current_image_index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain();
@@ -76,7 +76,7 @@ namespace Isonia::Pipeline
 
 		m_is_frame_started = true;
 
-		auto commandBuffer = getCurrentCommandBuffer();
+		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -90,13 +90,13 @@ namespace Isonia::Pipeline
 	void Renderer::endFrame()
 	{
 		assert(m_is_frame_started && "Can't call endFrame while frame is not in progress");
-		auto commandBuffer = getCurrentCommandBuffer();
+		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 
-		auto result = m_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
+		VkResult result = m_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->wasWindowResized())
 		{
 			m_window->resetWindowResizedFlag();

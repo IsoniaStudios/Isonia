@@ -85,8 +85,8 @@ namespace Isonia::Renderable
 	// Vertices
 	struct VertexComplete
 	{
-		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
 		Math::Vector3 position{};
 		Math::Vector3 color{};
@@ -96,24 +96,24 @@ namespace Isonia::Renderable
 
 	struct VertexPosition
 	{
-		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
 		Math::Vector3 position;
 	};
 
 	struct VertexXZUniform
 	{
-		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
 		float altitude;
 	};
 
 	struct VertexXZUniformN
 	{
-		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
 		float altitude;
 		float pitch;
@@ -122,8 +122,8 @@ namespace Isonia::Renderable
 
 	struct VertexXZUniformNP
 	{
-		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 
 		Math::Vector3 position;
 		float pitch;

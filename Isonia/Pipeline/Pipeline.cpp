@@ -71,33 +71,7 @@ namespace Isonia::Pipeline
 		vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics_pipeline);
 	}
 
-	constexpr void Pipeline::pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info)
-	{
-		defaultPipelineConfigInfo(config_info);
-		makePixelPerfectConfigInfo(config_info);
-		makeTriangleStripConfigInfo(config_info);
-
-		config_info->binding_descriptions = Renderable::VertexXZUniform::getBindingDescriptions();
-		config_info->attribute_descriptions = Renderable::VertexXZUniform::getAttributeDescriptions();
-	}
-
-	constexpr void Pipeline::pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info)
-	{
-		defaultPipelineConfigInfo(config_info);
-		makePixelPerfectConfigInfo(config_info);
-		makeTriangleStripConfigInfo(config_info);
-
-		config_info->binding_descriptions = Renderable::VertexXZUniformN::getBindingDescriptions();
-		config_info->attribute_descriptions = Renderable::VertexXZUniformN::getAttributeDescriptions();
-	}
-
-	constexpr void Pipeline::pixelPipelineConfigInfo(PipelineConfigInfo* config_info)
-	{
-		defaultPipelineConfigInfo(config_info);
-		makePixelPerfectConfigInfo(config_info);
-	}
-
-	constexpr void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo* config_info)
+	void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->input_assembly_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		config_info->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -169,7 +143,7 @@ namespace Isonia::Pipeline
 		config_info->attribute_descriptions = Renderable::VertexComplete::getAttributeDescriptions();
 	}
 
-	constexpr void makePixelPerfectConfigInfo(PipelineConfigInfo* config_info)
+	void Pipeline::makePixelPerfectConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->rasterization_info.lineWidth = 1.0f;
 
@@ -182,7 +156,7 @@ namespace Isonia::Pipeline
 		config_info->depth_stencil_info.stencilTestEnable = VK_FALSE;
 	}
 
-	constexpr void makeTransparentConfigInfo(PipelineConfigInfo* config_info)
+	void Pipeline::makeTransparentConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		config_info->color_blend_attachment.blendEnable = VK_TRUE;
@@ -194,10 +168,36 @@ namespace Isonia::Pipeline
 		config_info->color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
 	}
 
-	constexpr void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info)
+	void Pipeline::makeTriangleStripConfigInfo(PipelineConfigInfo* config_info)
 	{
 		config_info->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 		config_info->rasterization_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	}
+
+	void Pipeline::pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info)
+	{
+		defaultPipelineConfigInfo(config_info);
+		makePixelPerfectConfigInfo(config_info);
+		makeTriangleStripConfigInfo(config_info);
+
+		config_info->binding_descriptions = Renderable::VertexXZUniform::getBindingDescriptions();
+		config_info->attribute_descriptions = Renderable::VertexXZUniform::getAttributeDescriptions();
+	}
+
+	void Pipeline::pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info)
+	{
+		defaultPipelineConfigInfo(config_info);
+		makePixelPerfectConfigInfo(config_info);
+		makeTriangleStripConfigInfo(config_info);
+
+		config_info->binding_descriptions = Renderable::VertexXZUniformN::getBindingDescriptions();
+		config_info->attribute_descriptions = Renderable::VertexXZUniformN::getAttributeDescriptions();
+	}
+
+	void Pipeline::pixelPipelineConfigInfo(PipelineConfigInfo* config_info)
+	{
+		defaultPipelineConfigInfo(config_info);
+		makePixelPerfectConfigInfo(config_info);
 	}
 
 	void Pipeline::createGraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info)
@@ -205,8 +205,8 @@ namespace Isonia::Pipeline
 		assert(config_info->pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(config_info->renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
-		auto& bindingDescriptions = config_info->binding_descriptions;
-		auto& attributeDescriptions = config_info->attribute_descriptions;
+		std::vector<VkVertexInputBindingDescription> bindingDescriptions = config_info->binding_descriptions;
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions = config_info->attribute_descriptions;
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<unsigned int>(attributeDescriptions.size());

@@ -82,13 +82,18 @@ namespace Isonia::Math
         constexpr Vector4(const float x, const float y, const float z, const float w);
         constexpr Vector4(const float xyzw);
 
-        float& operator[](unsigned int i) noexcept;
-        constexpr const float& operator[](unsigned int i) const noexcept;
+        constexpr float& operator[](const unsigned int i) noexcept { return value[i]; }
+        constexpr const float& operator[](const unsigned int i) const noexcept { return value[i]; }
 
-        float x;
-        float y;
-        float z;
-        float w;
+        union {
+            struct {
+                float x;
+                float y;
+                float z;
+                float w;
+            };
+            float value[4];
+        };
     };
 
     extern inline constexpr bool operator==(const Vector4& v1, const Vector4& v2);
@@ -119,12 +124,17 @@ namespace Isonia::Math
         constexpr Vector3(const float x, const float y, const float z);
         constexpr Vector3(const float xyz);
 
-        float& operator[](unsigned int i) noexcept;
-        constexpr const float& operator[](unsigned int i) const noexcept;
+        constexpr float& operator[](const unsigned int i) noexcept { return value[i]; }
+        constexpr const float& operator[](const unsigned int i) const noexcept { return value[i]; }
 
-        float x;
-        float y;
-        float z;
+        union {
+            struct {
+                float x;
+                float y;
+                float z;
+            };
+            float value[3];
+        };
     };
 
     extern inline constexpr bool operator==(const Vector3& v1, const Vector3& v2);
@@ -156,11 +166,16 @@ namespace Isonia::Math
         constexpr Vector2(const float x, const float y);
         constexpr Vector2(const float xy);
 
-        float& operator[](unsigned int i) noexcept;
-        constexpr const float& operator[](unsigned int i) const noexcept;
+        constexpr float& operator[](const unsigned int i) noexcept { return value[i]; }
+        constexpr const float& operator[](const unsigned int i) const noexcept { return value[i]; }
 
-        float x;
-        float y;
+        union {
+            struct {
+                float x;
+                float y;
+            };
+            float value[2];
+        };
     };
 
     extern inline constexpr bool operator==(const Vector2& v1, const Vector2& v2);
@@ -220,8 +235,8 @@ namespace Isonia::Math
         constexpr Matrix3x3(const Vector3* v0, const Vector3* v1, const Vector3* v2);
         constexpr Matrix3x3(const Matrix4x4& m);
 
-        constexpr Vector3& operator[](unsigned int i) noexcept;
-        constexpr const Vector3& operator[](unsigned int i) const noexcept;
+        constexpr Vector3& operator[](const unsigned int i) noexcept { return value[i]; }
+        constexpr const Vector3& operator[](const unsigned int i) const noexcept { return value[i]; }
 
     private:
         Vector3 value[3];
@@ -253,8 +268,8 @@ namespace Isonia::Math
         constexpr Matrix4x4(const Vector4* v0, const Vector4* v1, const Vector4* v2, const Vector4* v3);
         constexpr Matrix4x4(const Matrix3x3& m);
 
-        constexpr Vector4& operator[](unsigned int i) noexcept;
-        constexpr const Vector4& operator[](unsigned int i) const noexcept;
+        constexpr Vector4& operator[](const unsigned int i) noexcept { return value[i]; }
+        constexpr const Vector4& operator[](const unsigned int i) const noexcept { return value[i]; }
 
     private:
         Vector4 value[4];

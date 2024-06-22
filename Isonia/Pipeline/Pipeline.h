@@ -118,6 +118,8 @@ namespace Isonia::Pipeline
 
 		bool isDeviceSuitable(VkPhysicalDevice device);
 
+        void hasGLFWRequiredInstanceExtensions();
+
         Window* m_window;
         
         VkInstance m_instance;
@@ -128,15 +130,15 @@ namespace Isonia::Pipeline
 		VkQueue m_graphics_queue;
 		VkQueue m_present_queue;
 
+        const std::vector<const char*> m_device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
 #ifdef DEBUG
         const std::vector<const char*> m_validation_layers = { "VK_LAYER_KHRONOS_validation" };
-        const std::vector<const char*> m_device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
         VkDebugUtilsMessengerEXT m_debug_messenger;
 
         static VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* create_info, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* debug_messenger);
         static void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debug_messenger, const VkAllocationCallbacks* allocator);
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data);
-        void hasGLFWRequiredInstanceExtensions();
 
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* create_info);
         void setupDebugMessenger();
@@ -236,13 +238,13 @@ namespace Isonia::Pipeline
 
         void bind(VkCommandBuffer command_buffer);
 
-        static constexpr void pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info);
-        static constexpr void pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info);
-        static constexpr void pixelPipelineConfigInfo(PipelineConfigInfo* config_info);
-        static constexpr void defaultPipelineConfigInfo(PipelineConfigInfo* config_info);
-        static constexpr void makePixelPerfectConfigInfo(PipelineConfigInfo* config_info);
-        static constexpr void makeTransparentConfigInfo(PipelineConfigInfo* config_info);
-        static constexpr void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info);
+        static void pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info);
+        static void pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info);
+        static void pixelPipelineConfigInfo(PipelineConfigInfo* config_info);
+        static void defaultPipelineConfigInfo(PipelineConfigInfo* config_info);
+        static void makePixelPerfectConfigInfo(PipelineConfigInfo* config_info);
+        static void makeTransparentConfigInfo(PipelineConfigInfo* config_info);
+        static void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info);
 
     private:
         void createGraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info);

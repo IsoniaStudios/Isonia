@@ -321,7 +321,7 @@ namespace Isonia::Pipeline
 #ifdef DEBUG
 	VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
 	{
-		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+		PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
 			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -331,7 +331,7 @@ namespace Isonia::Pipeline
 
 	void Device::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
 	{
-		auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+		PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
 			func(instance, debugMessenger, pAllocator);
@@ -355,9 +355,9 @@ namespace Isonia::Pipeline
 
 	void Device::setupDebugMessenger()
 	{
-		VkDebugUtilsMessengerCreateInfoEXT* createInfo{};
-		populateDebugMessengerCreateInfo(createInfo);
-		if (createDebugUtilsMessengerEXT(m_instance, createInfo, nullptr, &m_debug_messenger) != VK_SUCCESS)
+		VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+		populateDebugMessengerCreateInfo(&createInfo);
+		if (createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debug_messenger) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
@@ -428,7 +428,7 @@ namespace Isonia::Pipeline
 		delete[] extensions;
 
 		std::cout << "required extensions:" << std::endl;
-		auto requiredExtensions = getRequiredExtensions();
+		std::vector<const char*> requiredExtensions = getRequiredExtensions();
 		for (const auto& required : requiredExtensions)
 		{
 			std::cout << "\t" << required << std::endl;
@@ -548,12 +548,12 @@ namespace Isonia::Pipeline
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 
-		auto extensions = getRequiredExtensions();
+		std::vector<const char*> extensions = getRequiredExtensions();
 		createInfo.enabledExtensionCount = static_cast<unsigned int>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
 #ifdef DEBUG
-		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		createInfo.enabledLayerCount = static_cast<unsigned int>(m_validation_layers.size());
 		createInfo.ppEnabledLayerNames = m_validation_layers.data();
 

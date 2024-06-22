@@ -3,14 +3,13 @@
 
 namespace Isonia::Renderable
 {
-	constexpr std::vector<VkVertexInputBindingDescription> VertexComplete::getBindingDescriptions()
+	std::vector<VkVertexInputBindingDescription> VertexComplete::getBindingDescriptions()
 	{
 		return {
 			{ 0, sizeof(VertexComplete), VK_VERTEX_INPUT_RATE_VERTEX }
 		};
 	}
-
-	constexpr std::vector<VkVertexInputAttributeDescription> VertexComplete::getAttributeDescriptions()
+	std::vector<VkVertexInputAttributeDescription> VertexComplete::getAttributeDescriptions()
 	{
 		return {
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, position) },
@@ -20,42 +19,39 @@ namespace Isonia::Renderable
 		};
 	}
 
-	constexpr std::vector<VkVertexInputBindingDescription> VertexPosition::getBindingDescriptions()
+	std::vector<VkVertexInputBindingDescription> VertexPosition::getBindingDescriptions()
 	{
 		return {
 			{ 0, sizeof(VertexPosition), VK_VERTEX_INPUT_RATE_VERTEX }
 		};
 	}
-
-	constexpr std::vector<VkVertexInputAttributeDescription> VertexPosition::getAttributeDescriptions()
+	std::vector<VkVertexInputAttributeDescription> VertexPosition::getAttributeDescriptions()
 	{
 		return {
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexPosition, position) }
 		};
 	}
 
-	constexpr std::vector<VkVertexInputBindingDescription> VertexXZUniform::getBindingDescriptions()
+	std::vector<VkVertexInputBindingDescription> VertexXZUniform::getBindingDescriptions()
 	{
 		return {
 			{ 0, sizeof(VertexXZUniform), VK_VERTEX_INPUT_RATE_VERTEX }
 		};
 	}
-
-	constexpr std::vector<VkVertexInputAttributeDescription> VertexXZUniform::getAttributeDescriptions()
+	std::vector<VkVertexInputAttributeDescription> VertexXZUniform::getAttributeDescriptions()
 	{
 		return {
 			{ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniform, altitude) }
 		};
 	}
 
-	constexpr std::vector<VkVertexInputBindingDescription> VertexXZUniformN::getBindingDescriptions()
+	std::vector<VkVertexInputBindingDescription> VertexXZUniformN::getBindingDescriptions()
 	{
 		return {
 			{0, sizeof(VertexXZUniformN), VK_VERTEX_INPUT_RATE_VERTEX}
 		};
 	}
-
-	constexpr std::vector<VkVertexInputAttributeDescription> VertexXZUniformN::getAttributeDescriptions()
+	std::vector<VkVertexInputAttributeDescription> VertexXZUniformN::getAttributeDescriptions()
 	{
 		return {
 			{ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformN, altitude) },
@@ -64,14 +60,13 @@ namespace Isonia::Renderable
 		};
 	}
 
-	constexpr std::vector<VkVertexInputBindingDescription> VertexXZUniformNP::getBindingDescriptions()
+	std::vector<VkVertexInputBindingDescription> VertexXZUniformNP::getBindingDescriptions()
 	{
 		return {
 			{0, sizeof(VertexXZUniformNP), VK_VERTEX_INPUT_RATE_VERTEX}
 		};
 	}
-
-	constexpr std::vector<VkVertexInputAttributeDescription> VertexXZUniformNP::getAttributeDescriptions()
+	std::vector<VkVertexInputAttributeDescription> VertexXZUniformNP::getAttributeDescriptions()
 	{
 		return {
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexXZUniformNP, position) },
