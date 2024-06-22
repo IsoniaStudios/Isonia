@@ -10,10 +10,6 @@
 #include "../../Math/Interpolation.h"
 #include "../../Math/Vector.h"
 
-// std
-#include <stdexcept>
-#include <bitset>
-
 namespace Isonia::Renderable::XZUniformN
 {
 	static constexpr const float QUAD_SIZE = 1.0f;

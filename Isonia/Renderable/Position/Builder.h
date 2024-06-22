@@ -8,10 +8,6 @@
 
 #include "../../Math/Retro.h"
 
-// std
-#include <stdexcept>
-#include <bitset>
-
 namespace Isonia::Renderable::Position
 {
 	struct Builder

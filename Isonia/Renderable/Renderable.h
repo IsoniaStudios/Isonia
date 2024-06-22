@@ -92,6 +92,35 @@ namespace Isonia::Renderable
 		Math::Vector2 uv{};
 	};
 
+	struct VertexPosition
+	{
+		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
+		Math::Vector3 position;
+	};
+
+	struct VertexXZUniformN
+	{
+		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
+		float altitude;
+		float pitch;
+		float yaw;
+	};
+
+	struct VertexXZUniformNP
+	{
+		static constexpr std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
+		static constexpr std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+
+		Math::Vector3 position;
+		float pitch;
+		float yaw;
+		float gain;
+	};
+
 	// Primitives
 	enum PrimitiveType
 	{

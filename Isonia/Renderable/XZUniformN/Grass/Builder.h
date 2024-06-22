@@ -8,10 +8,6 @@
 #include "../../../Pipeline/Device.h"
 #include "../../../Math/Retro.h"
 
-// std
-#include <stdexcept>
-#include <bitset>
-
 namespace Isonia::Renderable::XZUniformN::Grass
 {
 	static constexpr const float GRASS_DENSITY = 4.0f;
