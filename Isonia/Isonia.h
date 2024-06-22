@@ -19,7 +19,7 @@
 
 namespace Isonia
 {
-	class Isonia
+	struct Isonia
 	{
 	public:
 		static constexpr const unsigned int width = 1024;

@@ -15,10 +15,10 @@
 
 namespace Isonia::Pipeline::Descriptors
 {
-	class DescriptorSetLayout
+	struct DescriptorSetLayout
 	{
 	public:
-		class Builder
+		struct Builder
 		{
 		public:
 			Builder(Device* device);
@@ -44,13 +44,13 @@ namespace Isonia::Pipeline::Descriptors
 		VkDescriptorSetLayout m_descriptor_set_layout;
 		std::unordered_map<unsigned int, VkDescriptorSetLayoutBinding> m_bindings;
 
-		friend class DescriptorWriter;
+		friend struct DescriptorWriter;
 	};
 
-	class DescriptorPool
+	struct DescriptorPool
 	{
 	public:
-		class Builder
+		struct Builder
 		{
 		public:
 			Builder(Device* device);
@@ -81,10 +81,10 @@ namespace Isonia::Pipeline::Descriptors
 		Device* m_device;
 		VkDescriptorPool m_descriptor_pool;
 
-		friend class DescriptorWriter;
+		friend struct DescriptorWriter;
 	};
 
-	class DescriptorWriter
+	struct DescriptorWriter
 	{
 	public:
 		DescriptorWriter(DescriptorSetLayout* set_layout, DescriptorPool* pool);

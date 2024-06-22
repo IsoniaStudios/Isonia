@@ -3,13 +3,13 @@
 
 namespace Isonia::Pipeline
 {
-    void CameraIsometric::setView(Components::Transform* transform)
+    void CameraIsometric::setView(Math::Transform* transform)
     {
         // set final rotation
         transform->rotation.x = Math::radiansf(-30.0f);
 
         // get matrices for calculations
-        Math::Matrix4x4 camera_rotation = transform->normalMatrix();
+        Math::Matrix4x4 camera_rotation = transform->normalMatrix3x3();
         Math::Matrix4x4 inverse_camera_rotation = Math::mat4Inverse(camera_rotation);
 
         // get local position
@@ -45,7 +45,7 @@ namespace Isonia::Pipeline
         Math::Vector3 position = Math::vec3Add(&local_position, &Math::vec3Add(difference, camera_position));
 
         // set view and position
-        setViewYXZ(&position, transform->rotation);
+        setViewYXZ(&position, &transform->rotation);
 
         // from difference get render offset by rotating back
         Math::Vector4 unrotated_difference = Math::mat4Mul(inverse_camera_rotation, &Math::Vector4{ difference, 1.0f });

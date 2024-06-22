@@ -8,11 +8,9 @@
 // external
 #include <vulkan/vulkan.h>
 
-// std
-
 namespace Isonia::Pipeline::RenderSystems
 {
-	class DebuggerRenderSystem
+	struct DebuggerRenderSystem
 	{
 	public:
 		DebuggerRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
@@ -37,7 +35,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Renderable::Position::Builder* m_debugger;
 	};
 
-	class GroundRenderSystem
+	struct GroundRenderSystem
 	{
 	public:
 		GroundRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
@@ -77,7 +75,7 @@ namespace Isonia::Pipeline::RenderSystems
 		static constexpr const unsigned int ground_count = grounds * grounds;
 	};
 
-	class WaterRenderSystem
+	struct WaterRenderSystem
 	{
 	public:
 		WaterRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);

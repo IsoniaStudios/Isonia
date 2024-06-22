@@ -502,7 +502,7 @@ namespace Isonia::Pipeline
         void setPerspectiveProjection(float fovy, float aspect, float near, float far);
         void setViewDirection(const Math::Vector3* position, const Math::Vector3* direction, const Math::Vector3* up);
         void setViewTarget(const Math::Vector3* position, const Math::Vector3* target, const Math::Vector3* up);
-        virtual void setView(Components::Transform* transform);
+        virtual void setView(Math::Transform* transform);
         virtual void setProjection(PixelRenderer* renderer);
 
         const Math::Matrix4x4* getProjection() const;
@@ -525,7 +525,7 @@ namespace Isonia::Pipeline
     struct CameraIsometric : public Camera
     {
     public:
-        void setView(Components::Transform* transform) override;
+        void setView(Math::Transform* transform) override;
         void setProjection(PixelRenderer* renderer) override;
 
         Math::Vector2 m_sub_pixel_offset{};

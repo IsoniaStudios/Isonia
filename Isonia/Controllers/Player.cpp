@@ -2,6 +2,14 @@
 
 namespace Isonia::Controllers
 {
+    Player::Player()
+    {
+    }
+
+    Player::~Player()
+    {
+    }
+
     void Player::act(GLFWwindow* window, float frame_time_s)
     {
         m_controller.move(window, frame_time_s, &m_transform);

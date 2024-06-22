@@ -68,9 +68,9 @@ namespace Isonia::Pipeline
         setViewDirection(position, &vec3Sub(target, position), up);
     }
 
-    void Camera::setView(Components::Transform* transform)
+    void Camera::setView(Math::Transform* transform)
     {
-        setViewYXZ(transform->position, transform->rotation);
+        setViewYXZ(&transform->position, &transform->rotation);
     }
 
     void Camera::setProjection(PixelRenderer* renderer)

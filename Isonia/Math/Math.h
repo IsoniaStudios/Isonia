@@ -59,6 +59,10 @@ namespace Isonia::Math
     extern inline constexpr float atan2f(const float y, const float x);
 
     // Vector
+    struct Vector2;
+    struct Vector3;
+    struct Vector4;
+    
     struct Vector4
     {
     public:
@@ -86,11 +90,14 @@ namespace Isonia::Math
 
     extern inline constexpr float vec4Dot(const Vector4* v1, const Vector4* v2);
     extern inline constexpr Vector4 vec4Add(const Vector4* v1, const Vector4* v2);
-    extern inline constexpr Vector4 vec4Add(const Vector4* v, const float scalar);
+    extern inline constexpr Vector4 vec4Add(const Vector4* v, const float term);
     extern inline constexpr Vector4 vec4Sub(const Vector4* v1, const Vector4* v2);
-    extern inline constexpr Vector4 vec4Sub(const Vector4* v, const float scalar);
+    extern inline constexpr Vector4 vec4Sub(const Vector4* v, const float term);
     extern inline constexpr Vector4 vec4Mul(const Vector4* v1, const Vector4* v2);
     extern inline constexpr Vector4 vec4Mul(const Vector4* v, const float scalar);
+    extern inline constexpr Vector4 vec4Div(const Vector4* v1, const Vector4* v2);
+    extern inline constexpr Vector4 vec4Div(const Vector4* v, const float divisor);
+    extern inline constexpr Vector4 vec4Div(const float divisor, const Vector4* v);
     extern inline constexpr Vector4 vec4Normalize(const Vector4* v);
     extern inline constexpr Vector4 vec4Normalize(const float x, const float y, const float z, const float w);
 
@@ -120,11 +127,14 @@ namespace Isonia::Math
 
     extern inline constexpr float vec3Dot(const Vector3* v1, const Vector3* v2);
     extern inline constexpr Vector3 vec3Add(const Vector3* v1, const Vector3* v2);
-    extern inline constexpr Vector3 vec3Add(const Vector3* v, const float scalar);
+    extern inline constexpr Vector3 vec3Add(const Vector3* v, const float term);
     extern inline constexpr Vector3 vec3Sub(const Vector3* v1, const Vector3* v2);
-    extern inline constexpr Vector3 vec3Sub(const Vector3* v, const float scalar);
+    extern inline constexpr Vector3 vec3Sub(const Vector3* v, const float term);
     extern inline constexpr Vector3 vec3Mul(const Vector3* v1, const Vector3* v2);
     extern inline constexpr Vector3 vec3Mul(const Vector3* v, const float scalar);
+    extern inline constexpr Vector3 vec3Div(const Vector3* v1, const Vector3* v2);
+    extern inline constexpr Vector3 vec3Div(const Vector3* v, const float divisor);
+    extern inline constexpr Vector3 vec3Div(const float divisor, const Vector3* v);
     extern inline constexpr Vector3 vec3Normalize(const Vector3* v);
     extern inline constexpr Vector3 vec3Normalize(const float x, const float y, const float z);
     extern inline constexpr Vector3 vec3Cross(const Vector3* v1, const Vector3* v2);
@@ -154,11 +164,14 @@ namespace Isonia::Math
 
     extern inline constexpr float vec2Dot(const Vector2* v1, const Vector2* v2);
     extern inline constexpr Vector2 vec2Add(const Vector2* v1, const Vector2* v2);
-    extern inline constexpr Vector2 vec2Add(const Vector2* v, const float scalar);
+    extern inline constexpr Vector2 vec2Add(const Vector2* v, const float term);
     extern inline constexpr Vector2 vec2Sub(const Vector2* v1, const Vector2* v2);
-    extern inline constexpr Vector2 vec2Sub(const Vector2* v, const float scalar);
+    extern inline constexpr Vector2 vec2Sub(const Vector2* v, const float term);
     extern inline constexpr Vector2 vec2Mul(const Vector2* v1, const Vector2* v2);
     extern inline constexpr Vector2 vec2Mul(const Vector2* v, const float scalar);
+    extern inline constexpr Vector2 vec2Div(const Vector2* v1, const Vector2* v2);
+    extern inline constexpr Vector2 vec2Div(const Vector2* v, const float divisor);
+    extern inline constexpr Vector2 vec2Div(const float divisor, const Vector2* v);
     extern inline constexpr Vector2 vec2Normalize(const Vector2* v);
     extern inline constexpr Vector2 vec2Normalize(const float x, const float y);
 
@@ -232,6 +245,20 @@ namespace Isonia::Math
     extern inline constexpr Vector4 mat4Mul(const Vector4* v, const Matrix4x4& m);
     extern inline constexpr Matrix4x4 mat4Mul(const Matrix4x4& m1, const Matrix4x4& m2);
     extern inline constexpr Matrix4x4 mat4Inverse(const Matrix4x4& m);
+
+    struct Transform
+    {
+    public:
+        Math::Vector3 position;
+        Math::Vector3 rotation;
+        Math::Vector3 scale;
+
+        Transform();
+        Transform(Math::Vector3 initial_position, Math::Vector3 initial_rotation, Math::Vector3 initial_scale);
+
+        const Math::Matrix4x4 matrix4x4() const;
+        const Math::Matrix3x3 normalMatrix3x3() const;
+    };
 
     // Retro
     extern inline constexpr Vector3 roundVec3ToPixel(const Vector3 vector);

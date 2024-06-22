@@ -5,7 +5,7 @@
 
 namespace Isonia::Controllers
 {
-    class KeyboardController
+    struct KeyboardController
     {
     public:
         struct KeyMappings
@@ -28,7 +28,7 @@ namespace Isonia::Controllers
             int perspective = GLFW_KEY_TAB;
         };
 
-        virtual void move(GLFWwindow* window, float dt, Components::Transform* transform);
+        virtual void move(GLFWwindow* window, float dt, Math::Transform* transform);
 
         KeyMappings m_keys{};
         float m_sprint_speed{ 60.f };
@@ -37,15 +37,18 @@ namespace Isonia::Controllers
         float m_look_speed{ 1.5f };
     };
 
-    class KeyboardControllerIsometric : public KeyboardController
+    struct KeyboardControllerIsometric : public KeyboardController
     {
     public:
-        void move(GLFWwindow* window, float dt, Components::Transform* transform) override;
+        void move(GLFWwindow* window, float dt, Math::Transform* transform) override;
     };
 
-    class Player
+    struct Player
     {
     public:
+        Player();
+        ~Player();
+
         Player(const Player&) = delete;
         Player& operator=(const Player&) = delete;
 
@@ -54,7 +57,7 @@ namespace Isonia::Controllers
         Pipeline::PixelRenderer::EventHandler getOnAspectChangeCallback();
         void onAspectChange(Pipeline::PixelRenderer* renderer);
 
-        Components::Transform m_transform{};
+        Math::Transform m_transform{};
         Pipeline::CameraIsometric m_camera{};
         KeyboardControllerIsometric m_controller{};
     };

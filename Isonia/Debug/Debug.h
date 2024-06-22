@@ -7,7 +7,7 @@
 
 namespace Isonia::Debug
 {
-    class PerformanceTracker
+    struct PerformanceTracker
     {
     public:
         void logFrameTime(float frame_time_s);
