@@ -61,14 +61,38 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	VkFramebuffer SwapChain::getFrameBuffer(int index) const { return m_swap_chain_framebuffers[index]; }
-	VkRenderPass SwapChain::getRenderPass() const { return m_render_pass; }
-	VkImageView SwapChain::getImageView(int index) const { return m_swap_chain_image_views[index]; }
-	unsigned int SwapChain::getImageCount() const { return static_cast<unsigned int>(m_swap_chain_images.size()); }
-	VkFormat SwapChain::getSwapChainImageFormat() const { return m_swap_chain_image_format; }
-	VkExtent2D SwapChain::getSwapChainExtent() const { return m_swap_chain_extent; }
-	unsigned int SwapChain::getWidth() const { return m_swap_chain_extent.width; }
-	unsigned int SwapChain::getHeight() const { return m_swap_chain_extent.height; }
+	VkFramebuffer SwapChain::getFrameBuffer(int index) const
+	{
+		return m_swap_chain_framebuffers[index];
+	}
+	VkRenderPass SwapChain::getRenderPass() const
+	{
+		return m_render_pass;
+	}
+	VkImageView SwapChain::getImageView(int index) const
+	{ 
+		return m_swap_chain_image_views[index];
+	}
+	unsigned int SwapChain::getImageCount() const
+	{
+		return static_cast<unsigned int>(m_swap_chain_images.size());
+	}
+	VkFormat SwapChain::getSwapChainImageFormat() const
+	{
+		return m_swap_chain_image_format;
+	}
+	VkExtent2D SwapChain::getSwapChainExtent() const
+	{
+		return m_swap_chain_extent;
+	}
+	unsigned int SwapChain::getWidth() const
+	{
+		return m_swap_chain_extent.width;
+	}
+	unsigned int SwapChain::getHeight() const
+	{
+		return m_swap_chain_extent.height;
+	}
 
 	float SwapChain::getExtentAspectRatio() const
 	{
@@ -462,7 +486,9 @@ namespace Isonia::Pipeline
 	VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const
 	{
 		if (capabilities->currentExtent.width != std::numeric_limits<unsigned int>::max())
+		{
 			return capabilities->currentExtent;
+		}
 
 		return {
 			Math::clampui(m_window_extent.width, capabilities->minImageExtent.width, capabilities->maxImageExtent.width),

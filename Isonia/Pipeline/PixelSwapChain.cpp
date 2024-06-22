@@ -590,7 +590,9 @@ namespace Isonia::Pipeline
 	VkExtent2D PixelSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const
 	{
 		if (capabilities->currentExtent.width != std::numeric_limits<unsigned int>::max())
+		{
 			return capabilities->currentExtent;
+		}
 
 		return {
 			Math::clampui(m_window_extent.width, capabilities->minImageExtent.width, capabilities->maxImageExtent.width),
