@@ -3,6 +3,7 @@
 // internal
 #include "../Pipeline.h"
 #include "../../State/State.h"
+#include "../../Renderable/Renderable.h"
 
 // external
 #include <vulkan/vulkan.h>

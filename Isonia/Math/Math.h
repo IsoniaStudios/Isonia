@@ -26,7 +26,7 @@ namespace Isonia::Math
 
     extern inline constexpr float absf(const float f);
 
-    extern inline constexpr float fmodf(const float x, const float y);
+    extern inline float fmodf(const float x, const float y);
 
     extern inline constexpr float minf(const float a, const float b);
     extern inline constexpr float maxf(const float a, const float b);
@@ -34,7 +34,7 @@ namespace Isonia::Math
     extern inline constexpr unsigned int clampui(const unsigned int i, const unsigned int min, const unsigned int max);
     extern inline constexpr int clampi(const int i, const int min, const int max);
 
-    extern inline constexpr float sqrtf(const float f);
+    extern inline float sqrtf(const float f);
     extern inline constexpr float rsqrtf(const float f);
 
     // Generics To-Int
@@ -69,6 +69,7 @@ namespace Isonia::Math
         constexpr Vector4(const Vector3* v, const float w);
         constexpr Vector4(const Vector4* v);
         constexpr Vector4(const float x, const float y, const float z, const float w);
+        constexpr Vector4(const float xyzw);
 
         constexpr float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
@@ -103,6 +104,7 @@ namespace Isonia::Math
         constexpr Vector3(const Vector3* v);
         constexpr Vector3(const Vector4* v);
         constexpr Vector3(const float x, const float y, const float z);
+        constexpr Vector3(const float xyz);
 
         constexpr float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
@@ -137,6 +139,7 @@ namespace Isonia::Math
         constexpr Vector2(const Vector3* v);
         constexpr Vector2(const Vector4* v);
         constexpr Vector2(const float x, const float y);
+        constexpr Vector2(const float xy);
 
         constexpr float& operator[](unsigned int i) noexcept;
         constexpr const float& operator[](unsigned int i) const noexcept;
@@ -257,10 +260,6 @@ namespace Isonia::Math
     extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed);
     extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed);
     extern inline constexpr float valCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const unsigned int w_primed);
-
-    static constexpr const float gradients_2D[];
-    static constexpr const float gradients_3D[];
-    static constexpr const float gradients_4D[];
 
     extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const float xd, const float yd);
     extern inline constexpr float gradCoord(const unsigned int seed, const unsigned int x_primed, const unsigned int y_primed, const unsigned int z_primed, const float xd, const float yd, const float zd);

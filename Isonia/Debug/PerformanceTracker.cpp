@@ -3,7 +3,7 @@
 
 namespace Isonia::Debug
 {
-    PerformanceTracker::logFrameTime(float frame_time_s)
+    void PerformanceTracker::logFrameTime(float frame_time_s)
     {
         // Convert frame_time_s to ms
         float frame_time_ms = frame_time_s * 1000.0f;

@@ -31,7 +31,7 @@ namespace Isonia::Math
         return f;
     }
 
-    extern inline constexpr float fmodf(const float x, const float y)
+    extern inline float fmodf(const float x, const float y)
     {
         return std::fmodf(x, y);
     }
@@ -89,7 +89,7 @@ namespace Isonia::Math
         return i;
     }
 
-    extern inline constexpr float sqrtf(const float f)
+    extern inline float sqrtf(const float f)
     {
         return std::sqrtf(f);
     }

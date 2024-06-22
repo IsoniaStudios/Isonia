@@ -55,7 +55,7 @@ namespace Isonia::Controllers
         void onAspectChange(Pipeline::PixelRenderer* renderer);
 
         Components::Transform m_transform{};
-        Components::CameraIsometric m_camera{};
+        Pipeline::CameraIsometric m_camera{};
         KeyboardControllerIsometric m_controller{};
     };
 }

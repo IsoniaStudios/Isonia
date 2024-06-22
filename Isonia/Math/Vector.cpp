@@ -34,6 +34,7 @@ namespace Isonia::Math
     constexpr Vector2::Vector2(const Vector3* v) : x(v->x), y(v->y) { }
     constexpr Vector2::Vector2(const Vector4* v) : x(v->x), y(v->y) { }
     constexpr Vector2::Vector2(const float x, const float y) : x(x), y(y) { }
+    constexpr Vector2::Vector2(const float xy) : x(xy), y(xy) { }
 
     extern inline constexpr float vec2Dot(const Vector2* v1, const Vector2* v2)
     {
@@ -127,6 +128,7 @@ namespace Isonia::Math
     constexpr Vector3::Vector3(const Vector3* v) : x(v->x), y(v->y), z(v->z) { }
     constexpr Vector3::Vector3(const Vector4* v) : x(v->x), y(v->y), z(v->z) { }
     constexpr Vector3::Vector3(const float x, const float y, const float z) : x(x), y(y), z(z) { }
+    constexpr Vector3::Vector3(const float xyz) : x(xyz), y(xyz), z(xyz) { }
 
     extern inline constexpr float vec3Dot(const Vector3* v1, const Vector3* v2)
     {
@@ -236,7 +238,8 @@ namespace Isonia::Math
     constexpr Vector4::Vector4(const Vector3* v, const float w) : x(v->x), y(v->y), z(v->z), w(w) { }
     constexpr Vector4::Vector4(const Vector4* v) : x(v->x), y(v->y), z(v->z), w(v->w) { }
     constexpr Vector4::Vector4(const float x, const float y, const float z, const float w) : x(x), y(y), z(z), w(w) { }
-    
+    constexpr Vector4::Vector4(const float xyzw) : x(xyzw), y(xyzw), z(xyzw), w(xyzw) { }
+
     extern inline constexpr float vec4Dot(const Vector4* v1, const Vector4* v2)
     {
         return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z + v1->w * v2->w;

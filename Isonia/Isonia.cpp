@@ -77,9 +77,9 @@ namespace Isonia
 				};
 
 				// update
-				m_ubo.projection = m_player.m_camera.getProjection();
-				m_ubo.view = m_player.m_camera.getView();
-				m_ubo.inverse_view = m_player.m_camera.getInverseView();
+				m_ubo.projection = *m_player.m_camera.getProjection();
+				m_ubo.view = *m_player.m_camera.getView();
+				m_ubo.inverse_view = *m_player.m_camera.getInverseView();
 
 				m_ubo_buffers[frame_index]->writeToBuffer(&m_ubo);
 				m_ubo_buffers[frame_index]->flush();
@@ -94,9 +94,9 @@ namespace Isonia
 				m_renderer.beginSwapChainRenderPass(command_buffer);
 				m_ground_render_system->render(&frame_info);
 				m_debugger_render_system->render(&frame_info);
-				m_water_render_system->render(&frame_info, m_player.m_camera);
+				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				m_renderer.blit(command_buffer, m_player.m_camera.subPixelOffset);
+				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
 		}

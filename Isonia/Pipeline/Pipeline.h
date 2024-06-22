@@ -189,76 +189,6 @@ namespace Isonia::Pipeline
         VkMemoryPropertyFlags m_memory_property_flags;
     };
 
-	struct SwapChain
-	{
-	public:
-		static constexpr const unsigned int max_frames_in_flight = 2;
-
-        SwapChain(Device* device_ref, VkExtent2D extent);
-        SwapChain(Device* device_ref, VkExtent2D extent, SwapChain* previous);
-
-        ~SwapChain();
-        void freeOldSwapChain();
-
-		SwapChain(const SwapChain&) = delete;
-		SwapChain& operator=(const SwapChain&) = delete;
-
-        VkFramebuffer getFrameBuffer(int index) const;
-        VkRenderPass getRenderPass() const;
-        VkImageView getImageView(int index) const;
-        unsigned int getImageCount() const;
-        VkFormat getSwapChainImageFormat() const;
-        VkExtent2D getSwapChainExtent() const;
-        unsigned int getWidth() const;
-        unsigned int getHeight() const;
-        float getExtentAspectRatio() const;
-
-        VkFormat findDepthFormat();
-        VkResult acquireNextImage(unsigned int* image_index);
-		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index);
-		bool compareSwapFormats(const SwapChain* swap_chain) const;
-
-	private:
-		void init();
-		void createSwapChain();
-		void createImageViews();
-		void createRenderPass();
-		void createFramebuffers();
-		void createDepthResources();
-		void createSyncObjects();
-
-		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* available_formats);
-        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* available_present_modes);
-		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
-
-		static constexpr const unsigned int attachments_length = 2;
-
-		VkFormat m_swap_chain_image_format;
-		VkFormat m_swap_chain_depth_format;
-		VkExtent2D m_swap_chain_extent;
-
-		std::vector<VkFramebuffer> m_swap_chain_framebuffers;
-		VkRenderPass m_render_pass;
-
-		std::vector<VkImage> m_depth_images;
-		std::vector<VkDeviceMemory> m_depth_image_memorys;
-		std::vector<VkImageView> m_depth_image_views;
-		std::vector<VkImage> m_swap_chain_images;
-		std::vector<VkImageView> m_swap_chain_image_views;
-
-		Device* m_device;
-		VkExtent2D m_window_extent;
-
-		VkSwapchainKHR m_swap_chain;
-		SwapChain* m_old_swap_chain;
-
-		VkSemaphore m_image_available_semaphores[max_frames_in_flight];
-		VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
-		VkFence m_in_flight_fences[max_frames_in_flight];
-		std::vector<VkFence> m_images_in_flight;
-		unsigned int m_current_frame = 0;
-	};
-
     struct PipelineConfigInfo
     {
         PipelineConfigInfo() = default;
@@ -322,50 +252,6 @@ namespace Isonia::Pipeline
         std::vector<VkPipelineShaderStageCreateInfo> m_shader_stages;
         VkShaderStageFlags m_stage_flags{};
     };
-
-	struct PixelRenderer
-	{
-	public:
-        PixelRenderer(Window* window, Device* device);
-        ~PixelRenderer();
-
-		PixelRenderer(const PixelRenderer&) = delete;
-		PixelRenderer& operator=(const PixelRenderer&) = delete;
-
-        typedef void (*EventHandler)(PixelRenderer*);
-        void registerRenderResizeCallback(EventHandler);
-        void propigateRenderResizeEvent();
-        VkRenderPass getSwapChainRenderPass() const;
-        float getAspectRatio() const;
-        VkExtent2D getExtent() const;
-        bool isFrameInProgress() const;
-
-        VkCommandBuffer getCurrentCommandBuffer() const;
-        int getFrameIndex() const;
-        VkCommandBuffer beginFrame();
-        void endFrame();
-        void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
-        void endSwapChainRenderPass(VkCommandBuffer command_buffer);
-        void blit(VkCommandBuffer command_buffer, Math::Vector2 offset);
-
-	protected:
-		void createCommandBuffers();
-		void freeCommandBuffers();
-		static void calculateResolution(VkExtent2D windowExtent, float* outWidth, float* outHeight);
-		static VkExtent2D recalculateCameraSettings(VkExtent2D windowExtent);
-
-		void recreateSwapChain();
-
-		Window* m_window;
-		Device* m_device;
-		PixelSwapChain* m_pixel_swap_chain = nullptr;
-		VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
-		std::vector<EventHandler> m_handlers;
-
-		unsigned int m_current_image_index;
-		int m_current_frame_index = 0;
-		bool m_is_frame_started = false;
-	};
 
 	struct PixelSwapChain
 	{
@@ -452,6 +338,120 @@ namespace Isonia::Pipeline
 		VkFence m_in_flight_fences[max_frames_in_flight];
 		unsigned int m_current_frame = 0;
 	};
+
+    struct PixelRenderer
+    {
+    public:
+        PixelRenderer(Window* window, Device* device);
+        ~PixelRenderer();
+
+        PixelRenderer(const PixelRenderer&) = delete;
+        PixelRenderer& operator=(const PixelRenderer&) = delete;
+
+        typedef void (*EventHandler)(PixelRenderer*);
+        void registerRenderResizeCallback(EventHandler);
+        void propigateRenderResizeEvent();
+        VkRenderPass getSwapChainRenderPass() const;
+        float getAspectRatio() const;
+        VkExtent2D getExtent() const;
+        bool isFrameInProgress() const;
+
+        VkCommandBuffer getCurrentCommandBuffer() const;
+        int getFrameIndex() const;
+        VkCommandBuffer beginFrame();
+        void endFrame();
+        void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
+        void endSwapChainRenderPass(VkCommandBuffer command_buffer);
+        void blit(VkCommandBuffer command_buffer, Math::Vector2 offset);
+
+    protected:
+        void createCommandBuffers();
+        void freeCommandBuffers();
+        static void calculateResolution(VkExtent2D windowExtent, float* outWidth, float* outHeight);
+        static VkExtent2D recalculateCameraSettings(VkExtent2D windowExtent);
+
+        void recreateSwapChain();
+
+        Window* m_window;
+        Device* m_device;
+        PixelSwapChain* m_pixel_swap_chain = nullptr;
+        VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
+        std::vector<EventHandler> m_handlers;
+
+        unsigned int m_current_image_index;
+        int m_current_frame_index = 0;
+        bool m_is_frame_started = false;
+    };
+
+    struct SwapChain
+    {
+    public:
+        static constexpr const unsigned int max_frames_in_flight = 2;
+
+        SwapChain(Device* device_ref, VkExtent2D extent);
+        SwapChain(Device* device_ref, VkExtent2D extent, SwapChain* previous);
+
+        ~SwapChain();
+        void freeOldSwapChain();
+
+        SwapChain(const SwapChain&) = delete;
+        SwapChain& operator=(const SwapChain&) = delete;
+
+        VkFramebuffer getFrameBuffer(int index) const;
+        VkRenderPass getRenderPass() const;
+        VkImageView getImageView(int index) const;
+        unsigned int getImageCount() const;
+        VkFormat getSwapChainImageFormat() const;
+        VkExtent2D getSwapChainExtent() const;
+        unsigned int getWidth() const;
+        unsigned int getHeight() const;
+        float getExtentAspectRatio() const;
+
+        VkFormat findDepthFormat();
+        VkResult acquireNextImage(unsigned int* image_index);
+        VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index);
+        bool compareSwapFormats(const SwapChain* swap_chain) const;
+
+    private:
+        void init();
+        void createSwapChain();
+        void createImageViews();
+        void createRenderPass();
+        void createFramebuffers();
+        void createDepthResources();
+        void createSyncObjects();
+
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* available_formats);
+        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* available_present_modes);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
+
+        static constexpr const unsigned int attachments_length = 2;
+
+        VkFormat m_swap_chain_image_format;
+        VkFormat m_swap_chain_depth_format;
+        VkExtent2D m_swap_chain_extent;
+
+        std::vector<VkFramebuffer> m_swap_chain_framebuffers;
+        VkRenderPass m_render_pass;
+
+        std::vector<VkImage> m_depth_images;
+        std::vector<VkDeviceMemory> m_depth_image_memorys;
+        std::vector<VkImageView> m_depth_image_views;
+        std::vector<VkImage> m_swap_chain_images;
+        std::vector<VkImageView> m_swap_chain_image_views;
+
+        Device* m_device;
+        VkExtent2D m_window_extent;
+
+        VkSwapchainKHR m_swap_chain;
+        SwapChain* m_old_swap_chain;
+
+        VkSemaphore m_image_available_semaphores[max_frames_in_flight];
+        VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
+        VkFence m_in_flight_fences[max_frames_in_flight];
+        std::vector<VkFence> m_images_in_flight;
+        unsigned int m_current_frame = 0;
+    };
 
 	struct Renderer
 	{

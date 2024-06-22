@@ -3,6 +3,7 @@
 
 // std
 #include <iostream>
+#include <iomanip>
 
 namespace Isonia::Debug
 {

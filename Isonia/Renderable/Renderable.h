@@ -118,6 +118,7 @@ namespace Isonia::Renderable
 	extern constexpr const std::vector<VertexComplete> generatePrimitiveSphereVertices(const unsigned int sub_divisions);
 	extern constexpr const std::vector<unsigned int> generatePrimitiveSphereIndices(const unsigned int sub_divisions);
 
+	// Model
 	struct Model
 	{
 	public:
