@@ -42,15 +42,18 @@ namespace Isonia::Pipeline::RenderSystems
 		constexpr const float offsetToCenter = -(Renderable::quads * Renderable::quad_size * 0.5f);
 		const Math::Vector3 cameraPosition = camera->getPositionVector();
 		const Math::Vector3 cameraForward = camera->getForwardVector();
+		const Math::Vector3 planePosition = Math::Vector3{ 0.0f, -5.0f, 0.0f };
+		const Math::Vector3 planeNormal = Math::Vector3{ 0.0f, -1.0f, 0.0f };
 		float intersectionDistance;
 		const bool intersects = Math::intersectRayPlane(
 			&cameraPosition,
 			&cameraForward,
-			&Math::Vector3{ 0.0f, -5.0f, 0.0f },
-			&Math::Vector3{ 0.0f, -1.0f, 0.0f },
+			&planePosition,
+			&planeNormal,
 			&intersectionDistance
 		);
-		Math::Vector3 intersectionPoint = Math::vec3Add(&cameraPosition, &Math::vec3Mul(&cameraForward, intersectionDistance));
+		Math::Vector3 intersectionPointLocal = Math::vec3Mul(&cameraForward, intersectionDistance);
+		Math::Vector3 intersectionPoint = Math::vec3Add(&cameraPosition, &intersectionPointLocal);
 		m_water->m_position = {
 			offsetToCenter + intersectionPoint.x,
 			-5,

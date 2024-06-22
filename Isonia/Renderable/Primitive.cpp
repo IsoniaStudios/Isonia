@@ -3,7 +3,7 @@
 
 namespace Isonia::Renderable
 {
-	extern constexpr const std::vector<VertexComplete> generatePrimitiveFaceVertices(const unsigned int num_sides, const float height = 0.0f)
+	extern constexpr const std::vector<VertexComplete> generatePrimitiveFaceVertices(const unsigned int num_sides, const float height)
 	{
 		assert(num_sides > 2 && "Invalid number of sides");
 
@@ -27,7 +27,7 @@ namespace Isonia::Renderable
 		return vertices;
 	}
 
-	extern constexpr const std::vector<unsigned int> generatePrimitiveFaceIndices(const unsigned int num_sides, const unsigned int offset = 0, const bool faceUp = true)
+	extern constexpr const std::vector<unsigned int> generatePrimitiveFaceIndices(const unsigned int num_sides, const unsigned int offset, const bool faceUp)
 	{
 		assert(num_sides > 2 && "Invalid number of sides");
 

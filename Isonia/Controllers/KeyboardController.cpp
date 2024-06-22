@@ -12,7 +12,10 @@ namespace Isonia::Controllers
 
         if (Math::vec3Dot(&rotate, &rotate) > Math::epsilon)
         {
-            transform->rotation = Math::vec3Add(&transform->rotation, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&rotate), dt), m_look_speed));
+            Math::Vector3 normalized_rotate = Math::vec3Normalize(&rotate);
+            Math::Vector3 scaled_rotate = Math::vec3Mul(&normalized_rotate, m_look_speed);
+            Math::Vector3 derivative_rotate = Math::vec3Mul(&scaled_rotate, dt);
+            transform->rotation = Math::vec3Add(&transform->rotation, &derivative_rotate);
         }
 
         // limit pitch values between about +/- 85ish degrees
@@ -35,7 +38,10 @@ namespace Isonia::Controllers
         if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
             float speed_scalar = glfwGetKey(window, m_keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, m_keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
-            transform->position = Math::vec3Add(&transform->position, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar));
+            Math::Vector3 normalized_move_dir = Math::vec3Normalize(&move_dir);
+            Math::Vector3 scaled_move_dir = Math::vec3Mul(&normalized_move_dir, speed_scalar);
+            Math::Vector3 derivative_move_dir = Math::vec3Mul(&scaled_move_dir, dt);
+            transform->position = Math::vec3Add(&transform->position, &derivative_move_dir);
         }
     }
 
@@ -47,7 +53,10 @@ namespace Isonia::Controllers
 
         if (Math::vec3Dot(&rotate, &rotate) > Math::epsilon)
         {
-            transform->rotation = Math::vec3Add(&transform->rotation, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&rotate), dt), m_look_speed));
+            Math::Vector3 normalized_rotate = Math::vec3Normalize(&rotate);
+            Math::Vector3 scaled_rotate = Math::vec3Mul(&normalized_rotate, m_look_speed);
+            Math::Vector3 derivative_rotate = Math::vec3Mul(&scaled_rotate, dt);
+            transform->rotation = Math::vec3Add(&transform->rotation, &derivative_rotate);
         }
 
         float yaw = transform->rotation.y;
@@ -66,7 +75,10 @@ namespace Isonia::Controllers
         if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
             float speed_scalar = glfwGetKey(window, m_keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, m_keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
-            transform->position = Math::vec3Add(&transform->position, &Math::vec3Mul(&Math::vec3Mul(&Math::vec3Normalize(&move_dir), dt), speed_scalar));
+            Math::Vector3 normalized_move_dir = Math::vec3Normalize(&move_dir);
+            Math::Vector3 scaled_move_dir = Math::vec3Mul(&normalized_move_dir, speed_scalar);
+            Math::Vector3 derivative_move_dir = Math::vec3Mul(&scaled_move_dir, dt);
+            transform->position = Math::vec3Add(&transform->position, &derivative_move_dir);
         }
     }
 }

@@ -15,40 +15,44 @@ namespace Isonia::Pipeline
         // get local position
         Math::Vector3 local_position = transform->position;
 
-        Math::Vector3* camera_position = reinterpret_cast<Math::Vector3*>(&Math::mat4Mul(camera_rotation, &Math::Vector4{ 0.0f, 0.0f, -camera_distance, m_pixel_global_top_left.w }));
+        Math::Vector4 camera_offset_position{ 0.0f, 0.0f, -camera_distance, m_pixel_global_top_left.w };
+        Math::Vector4 camera_position_vector4 = Math::mat4Mul(camera_rotation, &camera_offset_position);
+        Math::Vector3* camera_position = reinterpret_cast<Math::Vector3*>(&camera_position_vector4);
 
         // rotate offset from global to local
-        Math::Vector4 pixelLocalTopLeft = Math::mat4Mul(camera_rotation, &m_pixel_global_top_left);
+        Math::Vector4 pixel_local_top_left = Math::mat4Mul(camera_rotation, &m_pixel_global_top_left);
 
         // offset by pixelLocalTopLeft to get world
-        Math::Vector4 pixelWorldTopLeft
+        Math::Vector4 pixel_world_top_left
         {
-            local_position.x + pixelLocalTopLeft.x,
-            local_position.y + pixelLocalTopLeft.y,
-            local_position.z + pixelLocalTopLeft.z,
-            pixelLocalTopLeft.w
+            local_position.x + pixel_local_top_left.x,
+            local_position.y + pixel_local_top_left.y,
+            local_position.z + pixel_local_top_left.z,
+            pixel_local_top_left.w
         };
 
         // rotate back to grid
-        Math::Vector4 m_pixel_global_top_left = Math::mat4Mul(inverse_camera_rotation, &pixelWorldTopLeft);
+        Math::Vector4 m_pixel_global_top_left = Math::mat4Mul(inverse_camera_rotation, &pixel_world_top_left);
 
         // now we can snap it to the global pixel grid
         Math::Vector4 roundedm_pixel_global_top_left = Math::roundVec4ToPixel(m_pixel_global_top_left);
 
         // rotate it back again
-        Math::Vector4 roundedPixelWorldTopLeft = Math::mat4Mul(camera_rotation, &roundedm_pixel_global_top_left);
+        Math::Vector4 rounded_pixel_world_top_left = Math::mat4Mul(camera_rotation, &roundedm_pixel_global_top_left);
 
         // get the rounded and unrounded pixel position difference
-        Math::Vector3* difference = reinterpret_cast<Math::Vector3*>(&Math::vec4Sub(&roundedPixelWorldTopLeft, &pixelWorldTopLeft));
+        Math::Vector4 difference_vector4 = Math::vec4Sub(&rounded_pixel_world_top_left, &pixel_world_top_left);
+        Math::Vector3* difference = reinterpret_cast<Math::Vector3*>(&difference_vector4);
 
         // final position
-        Math::Vector3 position = Math::vec3Add(&local_position, &Math::vec3Add(difference, camera_position));
+        Math::Vector3 position_difference = Math::vec3Add(difference, camera_position);
+        Math::Vector3 position = Math::vec3Add(&local_position, &position_difference);
 
         // set view and position
         setViewYXZ(&position, &transform->rotation);
 
         // from difference get render offset by rotating back
-        Math::Vector4 unrotated_difference = Math::mat4Mul(inverse_camera_rotation, &Math::Vector4{ difference, 1.0f });
+        Math::Vector4 unrotated_difference = Math::mat4Mul(inverse_camera_rotation, &difference_vector4);
 
         // from now on dismiss z
         m_sub_pixel_offset.x = unrotated_difference.x;

@@ -31,7 +31,8 @@ namespace Isonia::Pipeline
     void Camera::setViewDirection(const Math::Vector3* position, const  Math::Vector3* direction, const Math::Vector3* up)
     {
         const Math::Vector3 w = Math::vec3Normalize(direction);
-        const Math::Vector3 u = Math::vec3Normalize(&Math::vec3Cross(&w, up));
+        const Math::Vector3 c = Math::vec3Cross(&w, up);
+        const Math::Vector3 u = Math::vec3Normalize(&c);
         const Math::Vector3 v = Math::vec3Cross(&w, &u);
 
         m_view_matrix = Math::Matrix4x4{ 1.f };
@@ -65,7 +66,8 @@ namespace Isonia::Pipeline
 
     void Camera::setViewTarget(const Math::Vector3* position, const Math::Vector3* target, const Math::Vector3* up)
     {
-        setViewDirection(position, &vec3Sub(target, position), up);
+        const Math::Vector3 direction = vec3Sub(target, position);
+        setViewDirection(position, &direction, up);
     }
 
     void Camera::setView(Math::Transform* transform)

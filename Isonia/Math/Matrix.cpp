@@ -43,11 +43,11 @@ namespace Isonia::Math
 
     extern inline constexpr Matrix3x3 mat3Mul(const Matrix3x3& m, const float scalar)
 	{
-		return Matrix3x3{
-			&vec3Mul(&m[0], scalar),
-			&vec3Mul(&m[1], scalar),
-			&vec3Mul(&m[2], scalar)
-		};
+		Vector3 v0 = vec3Mul(&m[0], scalar);
+		Vector3 v1 = vec3Mul(&m[1], scalar);
+		Vector3 v2 = vec3Mul(&m[2], scalar);
+
+		return Matrix3x3{ &v0, &v1, &v2 };
 	}
     extern inline constexpr Vector3 mat3Mul(const Matrix3x3& m, const Vector3* v)
 	{
@@ -144,12 +144,12 @@ namespace Isonia::Math
 
     extern inline constexpr Matrix4x4 mat4Mul(const Matrix4x4& m, const float scalar)
 	{
-		return Matrix4x4(
-			&vec4Mul(&m[0], scalar),
-			&vec4Mul(&m[1], scalar),
-			&vec4Mul(&m[2], scalar),
-			&vec4Mul(&m[3], scalar)
-		);
+		Vector4 v0 = vec4Mul(&m[0], scalar);
+		Vector4 v1 = vec4Mul(&m[1], scalar);
+		Vector4 v2 = vec4Mul(&m[2], scalar);
+		Vector4 v3 = vec4Mul(&m[3], scalar);
+
+		return Matrix4x4(&v0, &v1, &v2, &v3);
 	}
 	extern inline constexpr Vector4 mat4Mul(const Matrix4x4& m, const Vector4* v)
 	{
