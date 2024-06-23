@@ -448,8 +448,9 @@ namespace Isonia::Pipeline
 	// Helper functions
 	VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* availableFormats)
 	{
-		for (const auto& availableFormat : *availableFormats)
+		for (size_t i = 0; i < availableFormats->size(); ++i)
 		{
+			const VkSurfaceFormatKHR availableFormat = (*availableFormats)[i];
 			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
 				return availableFormat;

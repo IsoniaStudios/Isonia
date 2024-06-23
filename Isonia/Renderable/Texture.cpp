@@ -109,7 +109,7 @@ namespace Isonia::Renderable
 
 	void Texture::createTextureImage(const void* source, const unsigned int tex_width, const unsigned int tex_height, const VkFormat format)
 	{
-		m_image_type = tex_width == 1 ? VK_IMAGE_TYPE_1D : VK_IMAGE_TYPE_2D;
+		m_image_type = tex_height == 1 ? VK_IMAGE_TYPE_1D : VK_IMAGE_TYPE_2D;
 		m_bytes_per_pixel = formatToBytesPerPixel(format);
 		VkDeviceSize imageSize = tex_width * tex_height * m_bytes_per_pixel;
 
@@ -170,7 +170,6 @@ namespace Isonia::Renderable
 			m_layer_count
 		);
 
-		// comment this out if using mips
 		m_device->transitionImageLayout(
 			m_texture_image,
 			format,
@@ -180,8 +179,6 @@ namespace Isonia::Renderable
 			m_layer_count
 		);
 
-		// If we generate mip maps then the final image will alerady be READ_ONLY_OPTIMAL
-		// device.GenerateMipmaps(m_texture_image, format, tex_width, tex_height, m_mip_levels);
 		m_texture_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 		vkDestroyBuffer(m_device->getDevice(), stagingBuffer, nullptr);

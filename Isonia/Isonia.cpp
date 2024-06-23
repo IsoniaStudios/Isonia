@@ -27,10 +27,12 @@ namespace Isonia
 		delete m_grass_day_palette;
 		delete m_water_day_palette;
 
+		/*
 		delete m_sphere_model;
 		for (Renderable::Model* prism_model : m_prism_models) {
 			delete prism_model;
 		}
+		*/
 
 		delete m_debugger_render_system;
 		delete m_ground_render_system;
@@ -92,9 +94,9 @@ namespace Isonia
 
 				// render
 				m_renderer.beginSwapChainRenderPass(command_buffer);
-				//m_ground_render_system->render(&frame_info);
+				m_ground_render_system->render(&frame_info);
 				m_debugger_render_system->render(&frame_info);
-				//m_water_render_system->render(&frame_info, &m_player.m_camera);
+				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
 				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
@@ -142,10 +144,10 @@ namespace Isonia
 		Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
-		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 		m_grass = Renderable::createDebugTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 512, 512);
+		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device))
 			->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -205,7 +207,7 @@ namespace Isonia
 
 	void Isonia::initializePlayer()
 	{
-		m_renderer.registerRenderResizeCallback(m_player.getOnAspectChangeCallback());
-		m_player.onAspectChange(&m_renderer);
+		m_renderer.registerRenderResizeCallback(m_player.getOnAspectChangeCallback(), &m_player);
+		m_player.onAspectChange(&m_renderer, &m_player);
 	}
 }

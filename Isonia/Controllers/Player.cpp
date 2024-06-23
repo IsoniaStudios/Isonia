@@ -21,8 +21,8 @@ namespace Isonia::Controllers
         return &Player::onAspectChange;
     }
 
-    void Player::onAspectChange(Pipeline::PixelRenderer* renderer)
+    void Player::onAspectChange(Pipeline::PixelRenderer* renderer, void* player)
     {
-        //m_camera.setProjection(renderer);
+        static_cast<Player*>(player)->m_camera.setProjection(renderer);
     }
 }

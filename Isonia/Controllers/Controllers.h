@@ -56,7 +56,7 @@ namespace Isonia::Controllers
         void act(GLFWwindow* window, float frameTime);
 
         Pipeline::PixelRenderer::EventHandler getOnAspectChangeCallback();
-        static void onAspectChange(Pipeline::PixelRenderer* renderer);
+        static void onAspectChange(Pipeline::PixelRenderer* renderer, void* user_data);
 
         Math::Transform m_transform{};
         Pipeline::CameraIsometric m_camera{};

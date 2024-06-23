@@ -80,7 +80,7 @@ namespace Isonia::Pipeline
         // apply inverse projection matrix
         Math::Vector4 global_top_left = Math::mat4Mul(m_inverse_projection_matrix, &ndc_top_left);
         // normalize by dividing by w
-        global_top_left = Math::vec4Mul(&global_top_left, 1.0f / global_top_left.w);
+        global_top_left = Math::vec4Div(&global_top_left, global_top_left.w);
         // pushbach camera distance
         global_top_left.z -= camera_distance;
 

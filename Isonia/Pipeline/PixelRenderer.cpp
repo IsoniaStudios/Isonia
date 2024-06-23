@@ -17,16 +17,17 @@ namespace Isonia::Pipeline
 		delete m_pixel_swap_chain;
 	}
 
-	void PixelRenderer::registerRenderResizeCallback(EventHandler handler)
+	void PixelRenderer::registerRenderResizeCallback(EventHandler handler, void* user_data)
 	{
 		m_handlers.push_back(handler);
+		m_user_data.push_back(user_data);
 	}
 
 	void PixelRenderer::propigateRenderResizeEvent()
 	{
-		for (const auto& handler : m_handlers)
+		for (size_t i = 0; i < m_handlers.size(); ++i)
 		{
-			handler(this);
+			m_handlers[i](this, m_user_data[i]);
 		}
 	}
 

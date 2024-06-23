@@ -350,8 +350,8 @@ namespace Isonia::Pipeline
         PixelRenderer(const PixelRenderer&) = delete;
         PixelRenderer& operator=(const PixelRenderer&) = delete;
 
-        typedef void (*EventHandler)(PixelRenderer*);
-        void registerRenderResizeCallback(EventHandler);
+        typedef void (*EventHandler)(PixelRenderer*, void*);
+        void registerRenderResizeCallback(EventHandler, void*);
         void propigateRenderResizeEvent();
         VkRenderPass getSwapChainRenderPass() const;
         float getAspectRatio() const;
@@ -379,6 +379,7 @@ namespace Isonia::Pipeline
         PixelSwapChain* m_pixel_swap_chain = nullptr;
         VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
         std::vector<EventHandler> m_handlers;
+        std::vector<void*> m_user_data;
 
         unsigned int m_current_image_index;
         unsigned int m_current_frame_index = 0u;
@@ -465,8 +466,8 @@ namespace Isonia::Pipeline
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
-        typedef void (*EventHandler)(Renderer*);
-        void registerRenderResizeCallback(EventHandler);
+        typedef void (*EventHandler)(Renderer*, void*);
+        void registerRenderResizeCallback(EventHandler, void*);
         void propigateRenderResizeEvent();
 
         VkRenderPass getSwapChainRenderPass() const;
@@ -491,7 +492,8 @@ namespace Isonia::Pipeline
 		Device* m_device;
 		SwapChain* m_swap_chain = nullptr;
 		VkCommandBuffer m_command_buffers[SwapChain::max_frames_in_flight];
-		std::vector<EventHandler> m_handlers;
+        std::vector<EventHandler> m_handlers;
+        std::vector<void*> m_user_data;
 
 		unsigned int m_current_image_index;
 		unsigned int m_current_frame_index = 0u;
