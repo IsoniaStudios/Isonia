@@ -326,7 +326,7 @@ namespace Isonia::Math
     extern inline constexpr Vector4 roundVec4ToPixel(const Vector4 vector);
 
     // Geometry
-    extern inline constexpr bool intersectRayPlane(const Vector3* v1, const Vector3* v2, const Vector3* v3, const Vector3* v4, float* f);
+    extern inline constexpr bool intersectRayPlane(const Vector3* origin, const Vector3* direction, const Vector3* plane_origin, const Vector3* plane_normal, float* intersection_distance);
 
     // Interpolation
     extern inline constexpr float interpolationHermitef(const float t);
