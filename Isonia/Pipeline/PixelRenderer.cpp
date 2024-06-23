@@ -25,7 +25,7 @@ namespace Isonia::Pipeline
 
 	void PixelRenderer::propigateRenderResizeEvent()
 	{
-		for (size_t i = 0; i < m_handlers.size(); ++i)
+		for (size_t i = 0; i < m_handlers.size(); i++)
 		{
 			m_handlers[i](this, m_user_data[i]);
 		}

@@ -7,9 +7,6 @@
 // external
 #include <vulkan/vulkan.h>
 
-// std
-#include <vector>
-
 namespace Isonia::Renderable
 {
 	// Textures
@@ -145,23 +142,40 @@ namespace Isonia::Renderable
 		Icosahedron,
 	};
 
-	extern constexpr const std::vector<VertexComplete> generatePrimitiveVertices(const PrimitiveType type);
-	extern constexpr const std::vector<unsigned int> generatePrimitiveIndices(const PrimitiveType type);
+	extern constexpr const VertexComplete* generatePrimitiveVertices(const PrimitiveType type);
+	extern constexpr const unsigned int generatePrimitiveVerticesCount(const PrimitiveType type);
+	extern constexpr const unsigned int* generatePrimitiveIndices(const PrimitiveType type);
+	extern constexpr const unsigned int generatePrimitiveIndicesCount(const PrimitiveType type);
 
-	extern constexpr const std::vector<VertexComplete> generatePrimitiveFaceVertices(const unsigned int num_sides, const float height = 0.0f);
-	extern constexpr const std::vector<unsigned int> generatePrimitiveFaceIndices(const unsigned int num_sides, const unsigned int offset = 0, const bool face_up = true);
+	extern constexpr void generatePrimitiveFaceVertices(VertexComplete* vertices, const unsigned int num_sides, const float height = 0.0f);
+	extern constexpr const VertexComplete* generatePrimitiveFaceVertices(const unsigned int num_sides, const float height = 0.0f);
+	extern constexpr const unsigned int generatePrimitiveFaceVerticesCount(const unsigned int num_sides);
 
-	extern constexpr const std::vector<VertexComplete> generatePrimitivePrismVertices(const unsigned int num_sides);
-	extern constexpr const std::vector<unsigned int> generatePrimitivePrismIndices(const unsigned int num_sides);
+	extern constexpr void generatePrimitiveFaceIndices(unsigned int* indices, const unsigned int num_sides, const unsigned int offset = 0, const bool face_up = true);
+	extern constexpr const unsigned int* generatePrimitiveFaceIndices(const unsigned int num_sides, const unsigned int offset = 0, const bool face_up = true);
+	extern constexpr const unsigned int generatePrimitiveFaceIndicesCount(const unsigned int num_sides);
 
-	extern constexpr const std::vector<VertexComplete> generatePrimitiveSphereVertices(const unsigned int sub_divisions);
-	extern constexpr const std::vector<unsigned int> generatePrimitiveSphereIndices(const unsigned int sub_divisions);
+	extern constexpr void generatePrimitivePrismVertices(VertexComplete* vertices, const unsigned int num_sides);
+	extern constexpr const VertexComplete* generatePrimitivePrismVertices(const unsigned int num_sides);
+	extern constexpr const unsigned int generatePrimitivePrismVerticesCount(const unsigned int num_sides);
+
+	extern constexpr void generatePrimitivePrismIndices(unsigned int* indices, const unsigned int num_sides);
+	extern constexpr const unsigned int* generatePrimitivePrismIndices(const unsigned int num_sides);
+	extern constexpr const unsigned int generatePrimitivePrismIndicesCount(const unsigned int num_sides);
+
+	extern constexpr void generatePrimitiveSphereVertices(VertexComplete* vertices, const unsigned int sub_divisions);
+	extern constexpr const VertexComplete* generatePrimitiveSphereVertices(const unsigned int sub_divisions);
+	extern constexpr const unsigned int generatePrimitiveSphereVerticesCount(const unsigned int sub_divisions);
+
+	extern constexpr void generatePrimitiveSphereIndices(unsigned int* indices, const unsigned int sub_divisions);
+	extern constexpr const unsigned int* generatePrimitiveSphereIndices(const unsigned int sub_divisions);
+	extern constexpr const unsigned int generatePrimitiveSphereIndicesCount(const unsigned int sub_divisions);
 
 	// Model
 	struct Model
 	{
 	public:
-		Model(Pipeline::Device* device, const std::vector<VertexComplete>* vertices, const std::vector<unsigned int>* indices);
+		Model(Pipeline::Device* device, const VertexComplete* vertices, const unsigned int vertices_count, const unsigned int* indices, const unsigned int indices_count);
 		~Model();
 
 		Model(const Model&) = delete;
@@ -176,8 +190,6 @@ namespace Isonia::Renderable
 		void draw(VkCommandBuffer command_buffer);
 
 	private:
-		void createVertexBuffers(const std::vector<VertexComplete>* vertices);
-		void createIndexBuffers(const std::vector<unsigned int>* indices);
 		void createVertexBuffers(const VertexComplete* vertices, const unsigned int vertex_count);
 		void createIndexBuffers(const unsigned int* indices, const unsigned int indexCount);
 

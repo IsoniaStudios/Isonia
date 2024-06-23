@@ -374,7 +374,7 @@ namespace Isonia::Pipeline
 		{
 			bool layerFound = false;
 
-			for (unsigned int i = 0; i < layerCount; ++i)
+			for (unsigned int i = 0; i < layerCount; i++)
 			{
 				if (strcmp(layerName, availableLayers[i].layerName) == 0)
 				{
@@ -419,7 +419,7 @@ namespace Isonia::Pipeline
 
 		std::cout << "available extensions:" << std::endl;
 		std::unordered_set<std::string> available;
-		for (unsigned int i = 0; i < extensionCount; ++i)
+		for (unsigned int i = 0; i < extensionCount; i++)
 		{
 			std::cout << "\t" << extensions[i].extensionName << std::endl;
 			available.insert(extensions[i].extensionName);
@@ -453,7 +453,7 @@ namespace Isonia::Pipeline
 
 		std::set<std::string> requiredExtensions(m_device_extensions.begin(), m_device_extensions.end());
 
-		for (unsigned int i = 0; i < extensionCount; ++i)
+		for (unsigned int i = 0; i < extensionCount; i++)
 		{
 			requiredExtensions.erase(availableExtensions[i].extensionName);
 		}
@@ -472,7 +472,7 @@ namespace Isonia::Pipeline
 		VkQueueFamilyProperties* queueFamilies = new VkQueueFamilyProperties[queueFamilyCount];
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
 
-		for (unsigned int i = 0; i < queueFamilyCount; ++i)
+		for (unsigned int i = 0; i < queueFamilyCount; i++)
 		{
 			if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
@@ -584,7 +584,7 @@ namespace Isonia::Pipeline
 		VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices);
 
-		for (unsigned int i = 0; i < deviceCount; ++i)
+		for (unsigned int i = 0; i < deviceCount; i++)
 		{
 			if (isDeviceSuitable(devices[i]))
 			{

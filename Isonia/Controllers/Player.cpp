@@ -1,3 +1,4 @@
+// internal
 #include "Controllers.h"
 
 namespace Isonia::Controllers

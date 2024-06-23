@@ -10,9 +10,6 @@
 #include <cassert>
 #include <stdexcept>
 
-#include <vector>
-#include <unordered_map>
-
 namespace Isonia::Pipeline::Descriptors
 {
 	struct DescriptorSetLayout

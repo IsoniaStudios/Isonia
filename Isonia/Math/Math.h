@@ -24,7 +24,10 @@ namespace Isonia::Math
     extern inline constexpr const unsigned long unsigned_long_max = 2147483647L;
 
     // Generics
+    extern inline constexpr float floorf(const float f);
+    extern inline constexpr float ceilf(const float f);
     extern inline constexpr float roundf(const float f);
+    extern inline constexpr float truncf(const float f);
 
     extern inline constexpr int absi(const int i);
 

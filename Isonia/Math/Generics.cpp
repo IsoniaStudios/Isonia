@@ -1,11 +1,28 @@
 // internal
 #include "Math.h"
 
-// std
-#include <cmath>
-
 namespace Isonia::Math
 {
+    extern inline constexpr float floorf(const float f)
+    {
+        const int truncated = static_cast<int>(f);
+        if (f < truncated)
+        {
+            return static_cast<float>(truncated - 1);
+        }
+        return static_cast<float>(truncated);
+    }
+
+    extern inline constexpr float ceilf(const float f)
+    {
+        const int truncated = static_cast<int>(f);
+        if (f > truncated)
+        {
+            return static_cast<float>(truncated + 1);
+        }
+        return static_cast<float>(truncated);
+    }
+
     extern inline constexpr float roundf(const float f)
     {
         const int integer_part = static_cast<int>(f);
@@ -20,6 +37,15 @@ namespace Isonia::Math
             return static_cast<float>(integer_part - 1);
         }
         return static_cast<float>(integer_part);
+    }
+
+    extern inline constexpr float truncf(const float f)
+    {
+        if (f > 0)
+        {
+            return floorf(f);
+        }
+        return ceilf(f);
     }
 
     extern inline constexpr int absi(const int i)
@@ -42,7 +68,7 @@ namespace Isonia::Math
 
     extern inline float fmodf(const float x, const float y)
     {
-        return std::fmodf(x, y);
+        return x - truncf(x / y) * y;
     }
 
     extern inline constexpr int mini(const int a, const int b)

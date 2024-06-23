@@ -302,7 +302,7 @@ namespace Isonia::Pipeline
 		m_swap_chain_extent = extent;
 
 		// Transition swap chain images to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR because render pipeline expects it
-		for (size_t i = 0; i < m_image_count; ++i) {
+		for (size_t i = 0; i < m_image_count; i++) {
 			m_device->transitionImageLayout(
 				m_swap_chain_images[i],
 				m_swap_chain_image_format,
@@ -551,7 +551,7 @@ namespace Isonia::Pipeline
 	// Helper functions
 	VkSurfaceFormatKHR PixelSwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* availableFormats)
 	{
-		for (size_t i = 0; i < availableFormats->size(); ++i)
+		for (size_t i = 0; i < availableFormats->size(); i++)
 		{
 			const VkSurfaceFormatKHR availableFormat = (*availableFormats)[i];
 			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)

@@ -25,7 +25,7 @@ namespace Isonia::Renderable
         constexpr const Color black = { 0, 0, 0, 255 };
         constexpr const Color transparent = { 0, 0, 0, 0 };
 
-        for (unsigned int i = 0u; i < texture_width; ++i)
+        for (unsigned int i = 0u; i < texture_width; i++)
         {
             for (unsigned int j = 0u; j < texture_height; ++j)
             {

@@ -1,4 +1,5 @@
 #ifdef DLL_BUILD
+// internal
 #include "../Isonia.h"
 #include "IsoniaDLL.h"
 

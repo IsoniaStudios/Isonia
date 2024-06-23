@@ -3,11 +3,11 @@
 
 namespace Isonia::Renderable
 {
-	Model::Model(Pipeline::Device* device, const std::vector<VertexComplete>* vertices, const std::vector<unsigned int>* indices)
+	Model::Model(Pipeline::Device* device, const VertexComplete* vertices, const unsigned int vertices_count, const unsigned int* indices, const unsigned int indices_count)
 		: m_device(device)
 	{
-		createVertexBuffers(vertices);
-		createIndexBuffers(indices);
+		createVertexBuffers(vertices, vertices_count);
+		createIndexBuffers(indices, indices_count);
 	}
 
 	Model::~Model()
@@ -55,16 +55,6 @@ namespace Isonia::Renderable
 	void Model::draw(VkCommandBuffer command_buffer)
 	{
 		vkCmdDrawIndexed(command_buffer, m_index_count, 1, 0, 0, 0);
-	}
-
-	void Model::createVertexBuffers(const std::vector<VertexComplete>* vertices)
-	{
-		createVertexBuffers(vertices->data(), static_cast<unsigned int>(vertices->size()));
-	}
-
-	void Model::createIndexBuffers(const std::vector<unsigned int>* indices)
-	{
-		createIndexBuffers(indices->data(), static_cast<unsigned int>(indices->size()));
 	}
 
 	void Model::createVertexBuffers(const VertexComplete* vertices, const unsigned int vertex_count)

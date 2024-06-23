@@ -1,9 +1,6 @@
 // internal
 #include "Math.h"
 
-// std
-#include <cmath>
-
 namespace Isonia::Math
 {
     extern inline constexpr int ceilf_i(const float f)

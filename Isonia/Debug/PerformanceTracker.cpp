@@ -9,7 +9,7 @@ namespace Isonia::Debug
         float frame_time_ms = frame_time_s * 1000.0f;
 
         // New frame
-        ++m_frame_count;
+        m_frame_count++;
 
         // Calculate and update average frame time
         m_total_frame_time_ms += frame_time_ms;
