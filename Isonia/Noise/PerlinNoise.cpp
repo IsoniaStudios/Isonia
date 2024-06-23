@@ -20,8 +20,8 @@ namespace Isonia::Noise
 
 	inline float PerlinNoise::generatePerlinNoise(const int seed, const float x, const float y) const
 	{
-		unsigned int x0 = Math::floorf_i(x);
-		unsigned int y0 = Math::floorf_i(y);
+		int x0 = Math::floorf_i(x);
+		int y0 = Math::floorf_i(y);
 
 		float xd0 = (float)(x - x0);
 		float yd0 = (float)(y - y0);
@@ -33,8 +33,8 @@ namespace Isonia::Noise
 
 		x0 *= prime_x;
 		y0 *= prime_y;
-		unsigned int x1 = x0 + prime_x;
-		unsigned int y1 = y0 + prime_y;
+		int x1 = x0 + prime_x;
+		int y1 = y0 + prime_y;
 
 		float xf0 = Math::lerpf(Math::gradCoord(seed, x0, y0, xd0, yd0),
 								Math::gradCoord(seed, x1, y0, xd1, yd0), xs);
@@ -45,9 +45,9 @@ namespace Isonia::Noise
 	}
 	inline float PerlinNoise::generatePerlinNoise(const int seed, const float x, const float y, const float z) const
 	{
-		unsigned int x0 = Math::floorf_i(x);
-		unsigned int y0 = Math::floorf_i(y);
-		unsigned int z0 = Math::floorf_i(z);
+		int x0 = Math::floorf_i(x);
+		int y0 = Math::floorf_i(y);
+		int z0 = Math::floorf_i(z);
 
 		float xd0 = (float)(x - x0);
 		float yd0 = (float)(y - y0);
@@ -63,9 +63,9 @@ namespace Isonia::Noise
 		x0 *= prime_x;
 		y0 *= prime_y;
 		z0 *= prime_z;
-		unsigned int x1 = x0 + prime_x;
-		unsigned int y1 = y0 + prime_y;
-		unsigned int z1 = z0 + prime_z;
+		int x1 = x0 + prime_x;
+		int y1 = y0 + prime_y;
+		int z1 = z0 + prime_z;
 
 		float xf00 = Math::lerpf(Math::gradCoord(seed, x0, y0, z0, xd0, yd0, zd0),
 								 Math::gradCoord(seed, x1, y0, z0, xd1, yd0, zd0), xs);
@@ -83,10 +83,10 @@ namespace Isonia::Noise
 	}
 	inline float PerlinNoise::generatePerlinNoise(const int seed, const float x, const float y, const float z, const float w) const
 	{
-		unsigned int x0 = Math::floorf_i(x);
-		unsigned int y0 = Math::floorf_i(y);
-		unsigned int z0 = Math::floorf_i(z);
-		unsigned int w0 = Math::floorf_i(w);
+		int x0 = Math::floorf_i(x);
+		int y0 = Math::floorf_i(y);
+		int z0 = Math::floorf_i(z);
+		int w0 = Math::floorf_i(w);
 
 		float xd0 = (float)(x - x0);
 		float yd0 = (float)(y - y0);
@@ -106,10 +106,10 @@ namespace Isonia::Noise
 		y0 *= prime_y;
 		z0 *= prime_z;
 		w0 *= prime_w;
-		unsigned int x1 = x0 + prime_x;
-		unsigned int y1 = y0 + prime_y;
-		unsigned int z1 = z0 + prime_z;
-		unsigned int w1 = w0 + prime_w;
+		int x1 = x0 + prime_x;
+		int y1 = y0 + prime_y;
+		int z1 = z0 + prime_z;
+		int w1 = w0 + prime_w;
 
 		float xf000 = Math::lerpf(Math::gradCoord(seed, x0, y0, z0, w0, xd0, yd0, zd0, wd0),
 								  Math::gradCoord(seed, x1, y0, z0, w0, xd1, yd0, zd0, wd0), xs);
