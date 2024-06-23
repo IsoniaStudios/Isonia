@@ -25,7 +25,7 @@ namespace Isonia::Pipeline::RenderSystems
 		void createPipelineLayout(VkDescriptorSetLayout global_set_layout);
 		void createPipeline(VkRenderPass render_pass);
 
-		void pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info);
+		static void pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info);
 
 		Device* m_device;
 
@@ -59,7 +59,7 @@ namespace Isonia::Pipeline::RenderSystems
 		void createGrassPipelineLayout(VkDescriptorSetLayout global_set_layout);
 		void createGrassPipeline(VkRenderPass render_pass);
 
-		void pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info);
+		static void pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info);
 
 		Device* m_device;
 
