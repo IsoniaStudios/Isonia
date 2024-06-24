@@ -3,23 +3,24 @@
 
 namespace Isonia::Pipeline::Descriptors
 {
-	DescriptorPool::Builder::Builder(Device* device) : m_device(device)
+	DescriptorPool::Builder::Builder(Device* device, const unsigned int count)
+		: m_device(device), m_pool_sizes(new VkDescriptorPoolSize[count]), m_pool_sizes_count(count)
 	{
 	}
 
-	DescriptorPool::Builder* DescriptorPool::Builder::addPoolSize(VkDescriptorType descriptor_type, unsigned int count)
+	DescriptorPool::Builder* DescriptorPool::Builder::addPoolSize(const VkDescriptorType descriptor_type, const unsigned int count)
 	{
-		m_pool_sizes.push_back({ descriptor_type, count });
+		m_pool_sizes[m_pool_sizes_index++] = VkDescriptorPoolSize{ descriptor_type, count };
 		return this;
 	}
 
-	DescriptorPool::Builder* DescriptorPool::Builder::setPoolFlags(VkDescriptorPoolCreateFlags flags)
+	DescriptorPool::Builder* DescriptorPool::Builder::setPoolFlags(const VkDescriptorPoolCreateFlags flags)
 	{
 		m_pool_flags = flags;
 		return this;
 	}
 
-	DescriptorPool::Builder* DescriptorPool::Builder::setMaxSets(unsigned int count)
+	DescriptorPool::Builder* DescriptorPool::Builder::setMaxSets(const unsigned int count)
 	{
 		m_max_sets = count;
 		return this;
@@ -27,16 +28,16 @@ namespace Isonia::Pipeline::Descriptors
 
 	DescriptorPool* DescriptorPool::Builder::build() const
 	{
-		return new DescriptorPool(m_device, m_max_sets, m_pool_flags, &m_pool_sizes);
+		return new DescriptorPool(m_device, m_max_sets, m_pool_flags, m_pool_sizes, m_pool_sizes_count);
 	}
 
-	DescriptorPool::DescriptorPool(Device* device, unsigned int max_sets, VkDescriptorPoolCreateFlags pool_flags, const std::vector<VkDescriptorPoolSize>* pool_sizes)
+	DescriptorPool::DescriptorPool(Device* device, unsigned int max_sets, VkDescriptorPoolCreateFlags pool_flags, const VkDescriptorPoolSize* pool_sizes, const unsigned int pool_sizes_count)
 		: m_device(device)
 	{
 		VkDescriptorPoolCreateInfo descriptor_pool_info{};
 		descriptor_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		descriptor_pool_info.poolSizeCount = static_cast<unsigned int>(pool_sizes->size());
-		descriptor_pool_info.pPoolSizes = pool_sizes->data();
+		descriptor_pool_info.poolSizeCount = pool_sizes_count;
+		descriptor_pool_info.pPoolSizes = pool_sizes;
 		descriptor_pool_info.maxSets = max_sets;
 		descriptor_pool_info.flags = pool_flags;
 
@@ -59,8 +60,6 @@ namespace Isonia::Pipeline::Descriptors
 		alloc_info.pSetLayouts = &descriptor_set_layout;
 		alloc_info.descriptorSetCount = 1;
 
-		// Might want to create a "DescriptorPoolManager" class that handles this case, and builds
-		// a new pool whenever an old pool fills up. But this is beyond our current scope
 		if (vkAllocateDescriptorSets(m_device->getDevice(), &alloc_info, descriptor) != VK_SUCCESS)
 		{
 			return false;
@@ -68,13 +67,13 @@ namespace Isonia::Pipeline::Descriptors
 		return true;
 	}
 
-	void DescriptorPool::freeDescriptors(std::vector<VkDescriptorSet>* descriptors) const
+	void DescriptorPool::freeDescriptors(const VkDescriptorSet* descriptors, const unsigned int descriptors_count) const
 	{
 		vkFreeDescriptorSets(
 			m_device->getDevice(),
 			m_descriptor_pool,
-			static_cast<unsigned int>(descriptors->size()),
-			descriptors->data()
+			descriptors_count,
+			descriptors
 		);
 	}
 

@@ -3,16 +3,14 @@
 
 namespace Isonia::Pipeline::Descriptors
 {
-	DescriptorWriter::DescriptorWriter(DescriptorSetLayout* set_layout, DescriptorPool* pool)
-		: m_set_layout(set_layout), m_pool(pool)
+	DescriptorWriter::DescriptorWriter(DescriptorSetLayout* set_layout, DescriptorPool* pool, const unsigned int count)
+		: m_set_layout(set_layout), m_pool(pool), m_writes(new VkWriteDescriptorSet[count]), m_writes_count(count)
 	{
 	}
 
 	DescriptorWriter* DescriptorWriter::writeBuffer(unsigned int binding, VkDescriptorBufferInfo* buffer_info)
 	{
-		assert(m_set_layout->m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
-
-		VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
+		const VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
 
 		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -23,15 +21,13 @@ namespace Isonia::Pipeline::Descriptors
 		write.pBufferInfo = buffer_info;
 		write.descriptorCount = 1;
 
-		m_writes.push_back(write);
+		m_writes[binding] = write;
 		return this;
 	}
 
 	DescriptorWriter* DescriptorWriter::writeImage(unsigned int binding, VkDescriptorImageInfo* image_info)
 	{
-		assert(m_set_layout->m_bindings.count(binding) == 1 && "Layout does not contain specified binding");
-
-		VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
+		const VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
 
 		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
@@ -42,7 +38,7 @@ namespace Isonia::Pipeline::Descriptors
 		write.pImageInfo = image_info;
 		write.descriptorCount = 1;
 
-		m_writes.push_back(write);
+		m_writes[binding] = write;
 		return this;
 	}
 
@@ -59,10 +55,10 @@ namespace Isonia::Pipeline::Descriptors
 
 	void DescriptorWriter::overwrite(VkDescriptorSet* set)
 	{
-		for (auto& write : m_writes)
+		for (unsigned int i = 0; i < m_writes_count; i++)
 		{
-			write.dstSet = *set;
+			m_writes[i].dstSet = *set;
 		}
-		vkUpdateDescriptorSets(m_pool->m_device->getDevice(), static_cast<unsigned int>(m_writes.size()), m_writes.data(), 0, nullptr);
+		vkUpdateDescriptorSets(m_pool->m_device->getDevice(), m_writes_count, m_writes, 0u, nullptr);
 	}
 }

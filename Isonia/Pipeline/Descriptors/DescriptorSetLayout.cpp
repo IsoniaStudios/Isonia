@@ -3,14 +3,13 @@
 
 namespace Isonia::Pipeline::Descriptors
 {
-	DescriptorSetLayout::Builder::Builder(Device* device)
-		: m_device(device)
+	DescriptorSetLayout::Builder::Builder(Device* device, const unsigned int count)
+		: m_device(device), m_bindings(new VkDescriptorSetLayoutBinding[count]), m_bindings_count(count)
 	{
 	};
 
 	DescriptorSetLayout::Builder* DescriptorSetLayout::Builder::addBinding(unsigned int binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags, unsigned int count)
 	{
-		assert(m_bindings.count(binding) == 0 && "Binding already in use");
 		VkDescriptorSetLayoutBinding layout_binding{};
 		layout_binding.binding = binding;
 		layout_binding.descriptorType = descriptor_type;
@@ -22,24 +21,16 @@ namespace Isonia::Pipeline::Descriptors
 
 	DescriptorSetLayout* DescriptorSetLayout::Builder::build() const
 	{
-		return new DescriptorSetLayout(m_device, m_bindings);
+		return new DescriptorSetLayout(m_device, m_bindings, m_bindings_count);
 	}
 
-	DescriptorSetLayout::DescriptorSetLayout(Device* device, std::unordered_map<unsigned int, VkDescriptorSetLayoutBinding> bindings)
-		: m_device(device), m_bindings(bindings)
+	DescriptorSetLayout::DescriptorSetLayout(Device* device, const VkDescriptorSetLayoutBinding* bindings, const unsigned int bindings_count)
+		: m_device(device), m_bindings(bindings), m_bindings_count(bindings_count)
 	{
-		VkDescriptorSetLayoutBinding* set_layout_bindings = new VkDescriptorSetLayoutBinding[bindings.size()];
-
-		unsigned int index = 0;
-		for (const auto& kv : bindings)
-		{
-			set_layout_bindings[index++] = kv.second;
-		}
-
 		VkDescriptorSetLayoutCreateInfo descriptor_set_layout_info{};
 		descriptor_set_layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		descriptor_set_layout_info.bindingCount = index;
-		descriptor_set_layout_info.pBindings = set_layout_bindings;
+		descriptor_set_layout_info.bindingCount = bindings_count;
+		descriptor_set_layout_info.pBindings = bindings;
 
 		if (vkCreateDescriptorSetLayout(
 			m_device->getDevice(),
@@ -47,10 +38,8 @@ namespace Isonia::Pipeline::Descriptors
 			nullptr,
 			&m_descriptor_set_layout) != VK_SUCCESS)
 		{
-			delete[] set_layout_bindings;
 			throw std::runtime_error("Failed to create descriptor set layout!");
 		}
-		delete[] set_layout_bindings;
 	}
 
 	DescriptorSetLayout::~DescriptorSetLayout()

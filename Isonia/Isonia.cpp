@@ -108,7 +108,7 @@ namespace Isonia
 
 	void Isonia::initializeDescriptorPool()
 	{
-		m_global_pool = (new Pipeline::Descriptors::DescriptorPool::Builder(&m_device))
+		m_global_pool = (new Pipeline::Descriptors::DescriptorPool::Builder(&m_device, 7u))
 			->setMaxSets(Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
@@ -149,7 +149,7 @@ namespace Isonia
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 512, 512);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 
-		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device))
+		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device, 7u))
 			->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -168,7 +168,7 @@ namespace Isonia
 			VkDescriptorImageInfo debuggerInfo = m_debugger->getImageInfo();
 			VkDescriptorImageInfo cloudInfo = m_cloud->getImageInfo();
 			VkDescriptorImageInfo waterDayPaletteInfo = m_water_day_palette->getImageInfo();
-			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool))
+			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 7u))
 				->writeBuffer(0, &uboBufferInfo)
 				->writeBuffer(1, &clockBufferInfo)
 				->writeImage(2, &grassDayPaletteInfo)
