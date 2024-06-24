@@ -105,7 +105,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Pipeline::makeTransparentConfigInfo(&pipeline_config);
 		pipeline_config.renderPass = render_pass;
 		pipeline_config.pipelineLayout = m_pipeline_layout;
-		m_pipeline = (new Pipeline::Builder(m_device))
+		m_pipeline = (new Pipeline::Builder(m_device, 2u))
 			->addShaderModule(
 				VK_SHADER_STAGE_VERTEX_BIT,
 				Shaders::Water::VERTEXSHADER_VERT,

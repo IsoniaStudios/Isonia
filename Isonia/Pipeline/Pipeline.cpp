@@ -4,34 +4,31 @@
 
 namespace Isonia::Pipeline
 {
-	Pipeline::Builder::Builder(Device* device)
-		: m_device(device)
+	Pipeline::Builder::Builder(Device* device, unsigned int m_shader_stages_count)
+		: m_device(device), m_shader_stages_count(m_shader_stages_count), m_shader_stages(new VkPipelineShaderStageCreateInfo[m_shader_stages_count])
 	{ }
 
-	Pipeline::Builder* Pipeline::Builder::addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const size_t size)
+	Pipeline::Builder* Pipeline::Builder::addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size)
 	{
-		VkShaderModule shader_module = createShaderModule(code, size);
-
-		VkPipelineShaderStageCreateInfo shader_stage;
-		shader_stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		shader_stage.stage = stage;
-		shader_stage.module = shader_module;
-		shader_stage.pName = "main";
-		shader_stage.flags = 0;
-		shader_stage.pNext = nullptr;
-		shader_stage.pSpecializationInfo = nullptr;
-
-		m_shader_stages.push_back(shader_stage);
-
+		VkShaderModule shader_module = createShaderModule(code, size);		
+		m_shader_stages[m_shader_stages_index++] = VkPipelineShaderStageCreateInfo{
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			stage,
+			shader_module,
+			"main",
+			nullptr
+		};
 		return this;
 	}
 
 	Pipeline* Pipeline::Builder::createGraphicsPipeline(const PipelineConfigInfo* config_info) const
 	{
-		return new Pipeline(m_device, m_shader_stages, config_info);
+		return new Pipeline(m_device, m_shader_stages, m_shader_stages_count, config_info);
 	}
 
-	VkShaderModule Pipeline::Builder::createShaderModule(const unsigned char* const code, const size_t size)
+	VkShaderModule Pipeline::Builder::createShaderModule(const unsigned char* const code, const unsigned int size)
 	{
 		VkShaderModuleCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -46,17 +43,17 @@ namespace Isonia::Pipeline
 		return shader_module;
 	}
 
-	Pipeline::Pipeline(Device* device, std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info)
+	Pipeline::Pipeline(Device* device, VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info)
 		: m_device(device)
 	{
-		createGraphicsPipeline(shader_stages, config_info);
+		createGraphicsPipeline(shader_stages, shader_stages_count, config_info);
 	}
 
 	Pipeline::~Pipeline()
 	{
-		for (auto const& shader_stage : m_shader_stages)
+		for (unsigned int i = 0; i < m_shader_stages_count; i++)
 		{
-			vkDestroyShaderModule(m_device->getDevice(), shader_stage.module, nullptr);
+			vkDestroyShaderModule(m_device->getDevice(), m_shader_stages[i].module, nullptr);
 		}
 		vkDestroyPipeline(m_device->getDevice(), m_graphics_pipeline, nullptr);
 	}
@@ -133,14 +130,17 @@ namespace Isonia::Pipeline
 		config_info->depth_stencil_info.front = {};  // Optional
 		config_info->depth_stencil_info.back = {};   // Optional
 
-		config_info->dynamic_state_enables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+		config_info->dynamic_state_enables = new VkDynamicState[]{ VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+		config_info->dynamic_state_enables_count = 2u;
 		config_info->dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		config_info->dynamic_state_info.pDynamicStates = config_info->dynamic_state_enables.data();
-		config_info->dynamic_state_info.dynamicStateCount = static_cast<unsigned int>(config_info->dynamic_state_enables.size());
+		config_info->dynamic_state_info.pDynamicStates = config_info->dynamic_state_enables;
+		config_info->dynamic_state_info.dynamicStateCount = config_info->dynamic_state_enables_count;
 		config_info->dynamic_state_info.flags = 0;
 
 		config_info->binding_descriptions = Renderable::VertexComplete::getBindingDescriptions();
+		config_info->binding_descriptions_count = Renderable::VertexComplete::getBindingDescriptionsCount();
 		config_info->attribute_descriptions = Renderable::VertexComplete::getAttributeDescriptions();
+		config_info->attribute_descriptions_count = Renderable::VertexComplete::getAttributeDescriptionsCount();
 	}
 
 	void Pipeline::makePixelPerfectConfigInfo(PipelineConfigInfo* config_info)
@@ -181,7 +181,9 @@ namespace Isonia::Pipeline
 		makeTriangleStripConfigInfo(config_info);
 
 		config_info->binding_descriptions = Renderable::VertexXZUniform::getBindingDescriptions();
+		config_info->binding_descriptions_count = Renderable::VertexXZUniform::getBindingDescriptionsCount();
 		config_info->attribute_descriptions = Renderable::VertexXZUniform::getAttributeDescriptions();
+		config_info->attribute_descriptions_count = Renderable::VertexXZUniform::getAttributeDescriptionsCount();
 	}
 
 	void Pipeline::pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info)
@@ -191,7 +193,9 @@ namespace Isonia::Pipeline
 		makeTriangleStripConfigInfo(config_info);
 
 		config_info->binding_descriptions = Renderable::VertexXZUniformN::getBindingDescriptions();
+		config_info->binding_descriptions_count = Renderable::VertexXZUniformN::getBindingDescriptionsCount();
 		config_info->attribute_descriptions = Renderable::VertexXZUniformN::getAttributeDescriptions();
+		config_info->attribute_descriptions_count = Renderable::VertexXZUniformN::getAttributeDescriptionsCount();
 	}
 
 	void Pipeline::pixelPipelineConfigInfo(PipelineConfigInfo* config_info)
@@ -200,30 +204,28 @@ namespace Isonia::Pipeline
 		makePixelPerfectConfigInfo(config_info);
 	}
 
-	void Pipeline::createGraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info)
+	void Pipeline::createGraphicsPipeline(VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info)
 	{
 		assert(config_info->pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(config_info->renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
-		std::vector<VkVertexInputBindingDescription> bindingDescriptions = config_info->binding_descriptions;
-		std::vector<VkVertexInputAttributeDescription> attributeDescriptions = config_info->attribute_descriptions;
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<unsigned int>(attributeDescriptions.size());
-		vertexInputInfo.vertexBindingDescriptionCount = static_cast<unsigned int>(bindingDescriptions.size());
-		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-		vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+		vertexInputInfo.vertexAttributeDescriptionCount = config_info->attribute_descriptions_count;
+		vertexInputInfo.vertexBindingDescriptionCount = config_info->binding_descriptions_count;
+		vertexInputInfo.pVertexAttributeDescriptions = config_info->attribute_descriptions;
+		vertexInputInfo.pVertexBindingDescriptions = config_info->binding_descriptions;
 
 		m_shader_stages = shader_stages;
-		for (auto const& shader_stage : shader_stages)
+		for (unsigned int i = 0; i < shader_stages_count; i++)
 		{
-			m_stage_flags |= shader_stage.stage;
+			m_stage_flags |= shader_stages[i].stage;
 		}
 
 		VkGraphicsPipelineCreateInfo pipeline_info{};
 		pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipeline_info.stageCount = static_cast<unsigned int>(shader_stages.size());
-		pipeline_info.pStages = shader_stages.data();
+		pipeline_info.stageCount = shader_stages_count;
+		pipeline_info.pStages = shader_stages;
 		pipeline_info.pVertexInputState = &vertexInputInfo;
 		pipeline_info.pInputAssemblyState = &config_info->input_assembly_info;
 		pipeline_info.pViewportState = &config_info->viewport_info;

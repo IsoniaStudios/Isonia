@@ -45,7 +45,7 @@ namespace Isonia::Pipeline
         unsigned int m_height;
         bool m_framebuffer_resized = false;
 
-        unsigned int m_handlers_count = 0;
+        unsigned int m_event_count = 0;
         EventHandler m_handlers[4];
 
         const char* m_name;
@@ -55,8 +55,10 @@ namespace Isonia::Pipeline
     struct SwapChainSupportDetails
     {
         VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> present_modes;
+        VkSurfaceFormatKHR* formats;
+        unsigned int formats_count;
+        VkPresentModeKHR* present_modes;
+        unsigned int present_modes_count;
     };
 
     struct QueueFamilyIndices
@@ -96,12 +98,12 @@ namespace Isonia::Pipeline
         void copyBufferToImage(VkBuffer buffer, VkImage image, unsigned int width, unsigned int height, unsigned int layer_count);
         void createImageWithInfo(const VkImageCreateInfo* image_info, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* image_memory);
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, unsigned int mip_levels, unsigned int layer_count);
-        VkFormat findSupportedFormat(const std::vector<VkFormat>* candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat findSupportedFormat(const VkFormat* candidates, const unsigned int candidates_count, VkImageTiling tiling, VkFormatFeatureFlags features);
 
         VkPhysicalDeviceProperties m_properties;
 
 	private:
-		std::vector<const char*> getRequiredExtensions();
+		const char** getRequiredExtensions(unsigned int* count);
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 		SwapChainSupportDetails findSwapChainSupport(VkPhysicalDevice device);
@@ -126,10 +128,12 @@ namespace Isonia::Pipeline
 		VkQueue m_graphics_queue;
 		VkQueue m_present_queue;
 
-        const std::vector<const char*> m_device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+        static const constexpr unsigned int m_device_extensions_count = 1u;
+        static const constexpr char* m_device_extensions[m_device_extensions_count] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 #ifdef DEBUG
-        const std::vector<const char*> m_validation_layers = { "VK_LAYER_KHRONOS_validation" };
+        static const constexpr unsigned int m_validation_layers_count = 1u;
+        static const constexpr char* m_validation_layers[m_validation_layers_count] = { "VK_LAYER_KHRONOS_validation" };
         VkDebugUtilsMessengerEXT m_debug_messenger;
 
         static VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* create_info, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* debug_messenger);
@@ -193,8 +197,10 @@ namespace Isonia::Pipeline
         PipelineConfigInfo(const PipelineConfigInfo&) = delete;
         PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 
-        std::vector<VkVertexInputBindingDescription> binding_descriptions{};
-        std::vector<VkVertexInputAttributeDescription> attribute_descriptions{};
+        VkVertexInputBindingDescription* binding_descriptions;
+        unsigned int binding_descriptions_count;
+        VkVertexInputAttributeDescription* attribute_descriptions;
+        unsigned int attribute_descriptions_count;
         VkPipelineViewportStateCreateInfo viewport_info;
         VkPipelineInputAssemblyStateCreateInfo input_assembly_info;
         VkPipelineRasterizationStateCreateInfo rasterization_info;
@@ -202,7 +208,8 @@ namespace Isonia::Pipeline
         VkPipelineColorBlendAttachmentState color_blend_attachment;
         VkPipelineColorBlendStateCreateInfo color_blend_info;
         VkPipelineDepthStencilStateCreateInfo depth_stencil_info;
-        std::vector<VkDynamicState> dynamic_state_enables;
+        VkDynamicState* dynamic_state_enables;
+        unsigned int dynamic_state_enables_count;
         VkPipelineDynamicStateCreateInfo dynamic_state_info;
         VkPipelineLayout pipelineLayout = nullptr;
         VkRenderPass renderPass = nullptr;
@@ -215,19 +222,21 @@ namespace Isonia::Pipeline
         struct Builder
         {
         public:
-            Builder(Device* device);
+            Builder(Device* device, unsigned int m_shader_stages_count);
 
-            Builder* addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const size_t size);
+            Builder* addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size);
             Pipeline* createGraphicsPipeline(const PipelineConfigInfo* config_info) const;
 
         private:
-            VkShaderModule createShaderModule(const unsigned char* const code, const size_t size);
+            VkShaderModule createShaderModule(const unsigned char* const code, const unsigned int size);
 
             Device* m_device;
-            std::vector<VkPipelineShaderStageCreateInfo> m_shader_stages;
+            VkPipelineShaderStageCreateInfo* m_shader_stages;
+            unsigned int m_shader_stages_count;
+            unsigned int m_shader_stages_index = 0u;
         };
 
-        Pipeline(Device* device, std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info);
+        Pipeline(Device* device, VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info);
         ~Pipeline();
 
         VkShaderStageFlags getStageFlags() const;
@@ -243,11 +252,12 @@ namespace Isonia::Pipeline
         static void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info);
 
     private:
-        void createGraphicsPipeline(std::vector<VkPipelineShaderStageCreateInfo> shader_stages, const PipelineConfigInfo* config_info);
+        void createGraphicsPipeline(VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info);
 
         Device* m_device;
         VkPipeline m_graphics_pipeline;
-        std::vector<VkPipelineShaderStageCreateInfo> m_shader_stages;
+        VkPipelineShaderStageCreateInfo* m_shader_stages;
+        unsigned int m_shader_stages_count;
         VkShaderStageFlags m_stage_flags{};
     };
 
@@ -298,9 +308,9 @@ namespace Isonia::Pipeline
 		void createDepthResources();
 		void createSyncObjects();
 
-		VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* available_formats);
-		VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* available_present_modes);
-		VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count);
+        VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
 		static constexpr const unsigned int attachments_length = 2;
 
@@ -329,7 +339,7 @@ namespace Isonia::Pipeline
 		VkExtent2D m_render_extent;
 
 		VkSwapchainKHR m_swap_chain;
-		PixelSwapChain* m_old_pixel_swap_chain;
+		PixelSwapChain* m_old_swap_chain;
 
 		VkSemaphore m_image_available_semaphores[max_frames_in_flight];
 		VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
@@ -374,8 +384,10 @@ namespace Isonia::Pipeline
         Device* m_device;
         PixelSwapChain* m_pixel_swap_chain = nullptr;
         VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
-        std::vector<EventHandler> m_handlers;
-        std::vector<void*> m_user_data;
+
+        unsigned int m_event_count = 0;
+        EventHandler m_handlers[4];
+        void* m_user_data[4];
 
         unsigned int m_current_image_index;
         unsigned int m_current_frame_index = 0u;
@@ -421,27 +433,32 @@ namespace Isonia::Pipeline
         void createDepthResources();
         void createSyncObjects();
 
-        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* available_formats);
-        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* available_present_modes);
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count);
+        VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
         static constexpr const unsigned int attachments_length = 2;
 
+        unsigned int m_image_count;
+
         VkFormat m_swap_chain_image_format;
+        VkFormat m_swap_chain_color_format;
         VkFormat m_swap_chain_depth_format;
         VkExtent2D m_swap_chain_extent;
 
-        std::vector<VkFramebuffer> m_swap_chain_framebuffers;
         VkRenderPass m_render_pass;
 
-        std::vector<VkImage> m_depth_images;
-        std::vector<VkDeviceMemory> m_depth_image_memorys;
-        std::vector<VkImageView> m_depth_image_views;
-        std::vector<VkImage> m_swap_chain_images;
-        std::vector<VkImageView> m_swap_chain_image_views;
+        VkFence* m_images_in_flight;
+        VkImage* m_depth_images;
+        VkDeviceMemory* m_depth_image_memorys;
+        VkImageView* m_depth_image_views;
+        VkImage* m_swap_chain_images;
+        VkFramebuffer* m_swap_chain_framebuffers;
+        VkImageView* m_swap_chain_image_views;
 
         Device* m_device;
         VkExtent2D m_window_extent;
+        VkExtent2D m_render_extent;
 
         VkSwapchainKHR m_swap_chain;
         SwapChain* m_old_swap_chain;
@@ -449,7 +466,6 @@ namespace Isonia::Pipeline
         VkSemaphore m_image_available_semaphores[max_frames_in_flight];
         VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
         VkFence m_in_flight_fences[max_frames_in_flight];
-        std::vector<VkFence> m_images_in_flight;
         unsigned int m_current_frame = 0;
     };
 
@@ -488,8 +504,10 @@ namespace Isonia::Pipeline
 		Device* m_device;
 		SwapChain* m_swap_chain = nullptr;
 		VkCommandBuffer m_command_buffers[SwapChain::max_frames_in_flight];
-        std::vector<EventHandler> m_handlers;
-        std::vector<void*> m_user_data;
+
+        unsigned int m_event_count = 0;
+        EventHandler m_handlers[4];
+        void* m_user_data[4];
 
 		unsigned int m_current_image_index;
 		unsigned int m_current_frame_index = 0u;

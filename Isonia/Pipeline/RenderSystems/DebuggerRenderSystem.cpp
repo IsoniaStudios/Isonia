@@ -71,7 +71,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pixelPipelinePointListConfigInfo(&pipeline_config);
 		pipeline_config.renderPass = render_pass;
 		pipeline_config.pipelineLayout = m_pipeline_layout;
-		m_pipeline = (new Pipeline::Builder(m_device))
+		m_pipeline = (new Pipeline::Builder(m_device, 3u))
 			->addShaderModule(
 				VK_SHADER_STAGE_GEOMETRY_BIT,
 				Shaders::Billboard::GEOMSHADER_GEOM,
@@ -94,6 +94,8 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_config->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 
 		pipeline_config->binding_descriptions = Renderable::VertexPosition::getBindingDescriptions();
+		pipeline_config->binding_descriptions_count = Renderable::VertexPosition::getBindingDescriptionsCount();
 		pipeline_config->attribute_descriptions = Renderable::VertexPosition::getAttributeDescriptions();
+		pipeline_config->attribute_descriptions_count = Renderable::VertexPosition::getAttributeDescriptionsCount();
 	}
 }

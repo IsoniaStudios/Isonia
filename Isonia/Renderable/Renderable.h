@@ -82,8 +82,10 @@ namespace Isonia::Renderable
 	// Vertices
 	struct VertexComplete
 	{
-		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static VkVertexInputBindingDescription* getBindingDescriptions();
+		static const unsigned int getBindingDescriptionsCount();
+		static VkVertexInputAttributeDescription* getAttributeDescriptions();
+		static const unsigned int getAttributeDescriptionsCount();
 
 		Math::Vector3 position{};
 		Math::Vector3 color{};
@@ -93,24 +95,30 @@ namespace Isonia::Renderable
 
 	struct VertexPosition
 	{
-		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static VkVertexInputBindingDescription* getBindingDescriptions();
+		static const unsigned int getBindingDescriptionsCount();
+		static VkVertexInputAttributeDescription* getAttributeDescriptions();
+		static const unsigned int getAttributeDescriptionsCount();
 
 		Math::Vector3 position;
 	};
 
 	struct VertexXZUniform
 	{
-		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static VkVertexInputBindingDescription* getBindingDescriptions();
+		static const unsigned int getBindingDescriptionsCount();
+		static VkVertexInputAttributeDescription* getAttributeDescriptions();
+		static const unsigned int getAttributeDescriptionsCount();
 
 		float altitude;
 	};
 
 	struct VertexXZUniformN
 	{
-		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static VkVertexInputBindingDescription* getBindingDescriptions();
+		static const unsigned int getBindingDescriptionsCount();
+		static VkVertexInputAttributeDescription* getAttributeDescriptions();
+		static const unsigned int getAttributeDescriptionsCount();
 
 		float altitude;
 		float pitch;
@@ -119,8 +127,10 @@ namespace Isonia::Renderable
 
 	struct VertexXZUniformNP
 	{
-		static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
-		static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
+		static VkVertexInputBindingDescription* getBindingDescriptions();
+		static const unsigned int getBindingDescriptionsCount();
+		static VkVertexInputAttributeDescription* getAttributeDescriptions();
+		static const unsigned int getAttributeDescriptionsCount();
 
 		Math::Vector3 position;
 		float pitch;
@@ -142,8 +152,11 @@ namespace Isonia::Renderable
 		Icosahedron,
 	};
 
+	extern constexpr void generatePrimitiveVertices(VertexComplete* vertices, const PrimitiveType type);
 	extern constexpr const VertexComplete* generatePrimitiveVertices(const PrimitiveType type);
 	extern constexpr const unsigned int generatePrimitiveVerticesCount(const PrimitiveType type);
+
+	extern constexpr void generatePrimitiveIndices(unsigned int* indices, const PrimitiveType type);
 	extern constexpr const unsigned int* generatePrimitiveIndices(const PrimitiveType type);
 	extern constexpr const unsigned int generatePrimitiveIndicesCount(const PrimitiveType type);
 

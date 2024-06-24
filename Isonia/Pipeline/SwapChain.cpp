@@ -18,29 +18,35 @@ namespace Isonia::Pipeline
 
 	SwapChain::~SwapChain()
 	{
-		for (auto imageView : m_swap_chain_image_views)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
-			vkDestroyImageView(m_device->getDevice(), imageView, nullptr);
+			vkDestroyImageView(m_device->getDevice(), m_swap_chain_image_views[i], nullptr);
 		}
-		m_swap_chain_image_views.clear();
+		delete[] m_swap_chain_image_views;
 
 		if (m_swap_chain != nullptr)
 		{
+			// the same as vkDestroyImage(m_device->getDevice(), swapChainImages[i], nullptr);
 			vkDestroySwapchainKHR(m_device->getDevice(), m_swap_chain, nullptr);
 			m_swap_chain = nullptr;
+			delete[] m_swap_chain_images;
 		}
 
-		for (int i = 0; i < m_depth_images.size(); i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			vkDestroyImageView(m_device->getDevice(), m_depth_image_views[i], nullptr);
 			vkDestroyImage(m_device->getDevice(), m_depth_images[i], nullptr);
 			vkFreeMemory(m_device->getDevice(), m_depth_image_memorys[i], nullptr);
 		}
+		delete[] m_depth_image_views;
+		delete[] m_depth_images;
+		delete[] m_depth_image_memorys;
 
-		for (auto framebuffer : m_swap_chain_framebuffers)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
-			vkDestroyFramebuffer(m_device->getDevice(), framebuffer, nullptr);
+			vkDestroyFramebuffer(m_device->getDevice(), m_swap_chain_framebuffers[i], nullptr);
 		}
+		delete[] m_swap_chain_framebuffers;
 
 		vkDestroyRenderPass(m_device->getDevice(), m_render_pass, nullptr);
 
@@ -75,7 +81,7 @@ namespace Isonia::Pipeline
 	}
 	unsigned int SwapChain::getImageCount() const
 	{
-		return static_cast<unsigned int>(m_swap_chain_images.size());
+		return m_image_count;
 	}
 	VkFormat SwapChain::getSwapChainImageFormat() const
 	{
@@ -101,9 +107,10 @@ namespace Isonia::Pipeline
 
 	VkFormat SwapChain::findDepthFormat()
 	{
-		std::vector candidates{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
+		const VkFormat candidates[]{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
 		return m_device->findSupportedFormat(
-			&candidates,
+			candidates,
+			3u,
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 		);
@@ -201,8 +208,8 @@ namespace Isonia::Pipeline
 	{
 		SwapChainSupportDetails swap_chain_support = m_device->getSwapChainSupport();
 
-		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(&swap_chain_support.formats);
-		VkPresentModeKHR presentMode = chooseSwapPresentMode(&swap_chain_support.present_modes);
+		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swap_chain_support.formats, swap_chain_support.formats_count);
+		VkPresentModeKHR presentMode = chooseSwapPresentMode(swap_chain_support.present_modes, swap_chain_support.present_modes_count);
 		VkExtent2D extent = chooseSwapExtent(&swap_chain_support.capabilities);
 
 		unsigned int imageCount = swap_chain_support.capabilities.minImageCount + 1;
@@ -256,8 +263,8 @@ namespace Isonia::Pipeline
 		// images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 		// retrieve the handles.
 		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, nullptr);
-		m_swap_chain_images.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, m_swap_chain_images.data());
+		m_swap_chain_images = new VkImage[m_image_count];
+		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, m_swap_chain_images);
 
 		m_swap_chain_image_format = surfaceFormat.format;
 		m_swap_chain_extent = extent;
@@ -265,8 +272,8 @@ namespace Isonia::Pipeline
 
 	void SwapChain::createImageViews()
 	{
-		m_swap_chain_image_views.resize(m_swap_chain_images.size());
-		for (size_t i = 0; i < m_swap_chain_images.size(); i++)
+		m_swap_chain_image_views = new VkImageView[m_image_count];
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			VkImageViewCreateInfo viewInfo{};
 			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -348,8 +355,8 @@ namespace Isonia::Pipeline
 
 	void SwapChain::createFramebuffers()
 	{
-		m_swap_chain_framebuffers.resize(getImageCount());
-		for (unsigned int i = 0; i < getImageCount(); i++)
+		m_swap_chain_framebuffers = new VkFramebuffer[m_image_count];
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			VkImageView attachments[attachments_length] = { m_swap_chain_image_views[i], m_depth_image_views[i] };
 
@@ -376,11 +383,11 @@ namespace Isonia::Pipeline
 		m_swap_chain_depth_format = depthFormat;
 		VkExtent2D m_swap_chainExtent = getSwapChainExtent();
 
-		m_depth_images.resize(getImageCount());
-		m_depth_image_memorys.resize(getImageCount());
-		m_depth_image_views.resize(getImageCount());
+		m_depth_images = new VkImage[m_image_count];
+		m_depth_image_memorys = new VkDeviceMemory[m_image_count];
+		m_depth_image_views = new VkImageView[m_image_count];
 
-		for (int i = 0; i < m_depth_images.size(); i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			VkImageCreateInfo imageInfo{};
 			imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -425,7 +432,11 @@ namespace Isonia::Pipeline
 
 	void SwapChain::createSyncObjects()
 	{
-		m_images_in_flight.resize(getImageCount(), VK_NULL_HANDLE);
+		m_images_in_flight = new VkFence[m_image_count];
+		for (unsigned int i = 0; i < m_image_count; i++)
+		{
+			m_images_in_flight[i] = VK_NULL_HANDLE;
+		}
 
 		VkSemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -446,40 +457,37 @@ namespace Isonia::Pipeline
 	}
 
 	// Helper functions
-	VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* availableFormats)
+	VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count)
 	{
-		for (size_t i = 0; i < availableFormats->size(); i++)
+		for (unsigned int i = 0; i < available_formats_count; i++)
 		{
-			const VkSurfaceFormatKHR availableFormat = (*availableFormats)[i];
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			const VkSurfaceFormatKHR available_format = available_formats[i];
+			if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB && available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
-				return availableFormat;
+				return available_format;
 			}
 		}
-
-		return (*availableFormats)[0];
+		return available_formats[0];
 	}
 
-	VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* availablePresentModes)
+	VkPresentModeKHR SwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
-		for (const auto& availablePresentMode : *availablePresentModes)
+		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
-			if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
 				std::cout << "Present mode: Immediate" << std::endl;
-				return availablePresentMode;
+				return available_present_modes[i];
 			}
 		}
-
-		for (const auto& availablePresentMode : *availablePresentModes)
+		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+			if (available_present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
 				std::cout << "Present mode: Mailbox" << std::endl;
-				return availablePresentMode;
+				return available_present_modes[i];
 			}
 		}
-
 		std::cout << "Present mode: V-Sync" << std::endl;
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}

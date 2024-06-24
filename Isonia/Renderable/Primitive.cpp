@@ -122,69 +122,124 @@ namespace Isonia::Renderable
 		return generatePrimitiveFaceVerticesCount(num_sides) * 2u + num_sides * 4u;
 	}
 
-	extern constexpr const unsigned int* generatePrimitivePrismIndices(const unsigned int num_sides, unsigned int* indices_count)
+	extern constexpr void generatePrimitivePrismIndices(unsigned int* indices, const unsigned int num_sides)
 	{
-		unsigned int index = 0;
-		unsigned int num_face_indices = num_sides * 3;
-		unsigned int* indicesTop = generatePrimitiveFaceIndices(num_sides, 0, true);
-		unsigned int* indicesBottom = generatePrimitiveFaceIndices(num_sides, num_sides, false);
+		unsigned int* indices_top = indices;
+		unsigned int* indices_bottom = indices_top + generatePrimitiveFaceIndicesCount(num_sides);
+		unsigned int* indices_side = indices_bottom + generatePrimitiveFaceIndicesCount(num_sides);
+		generatePrimitiveFaceIndices(indices_top, num_sides, 0u, true);
+		generatePrimitiveFaceIndices(indices_bottom, num_sides, num_sides, true);
 
-		for (unsigned int i = 0; i < num_face_indices; i++)
+		unsigned int index = 0u;
+		const unsigned int to = num_sides * 4u;
+		for (unsigned int i = 0u; i < to; i += 4u)
 		{
-			indices[index++] = indicesTop[i];
+			indices_side[index++] = i + 0;
+			indices_side[index++] = i + 1;
+			indices_side[index++] = i + 2;
+			indices_side[index++] = i + 3;
+			indices_side[index++] = i + 2;
+			indices_side[index++] = i + 1;
 		}
-
-		for (unsigned int i = 0; i < num_face_indices; i++)
-		{
-			indices[index++] = indicesBottom[i];
-		}
-
-		const unsigned int from = num_sides * 2;
-		const unsigned int to = num_sides * 6;
-		for (unsigned int i = from; i < to; i += 4)
-		{
-			indices[index++] = i + 0;
-			indices[index++] = i + 1;
-			indices[index++] = i + 2;
-			indices[index++] = i + 3;
-			indices[index++] = i + 2;
-			indices[index++] = i + 1;
-		}
-
-		*indices_count = index;
+	}
+	extern constexpr const unsigned int* generatePrimitivePrismIndices(const unsigned int num_sides)
+	{
+		const unsigned int num_indices = generatePrimitivePrismIndicesCount(num_sides);
+		unsigned int* indices = new unsigned int[num_indices];
+		generatePrimitivePrismIndices(indices, num_sides);
 		return indices;
 	}
+	extern constexpr const unsigned int generatePrimitivePrismIndicesCount(const unsigned int num_sides)
+	{
+		return generatePrimitiveFaceIndicesCount(num_sides) * 2u + num_sides * 4;
+	}
 
-	extern constexpr const VertexComplete* generatePrimitiveSphereVertices(const unsigned int sub_divisions, unsigned int* vertices_count)
+	extern constexpr void generatePrimitiveSphereVertices(VertexComplete* vertices, const unsigned int sub_divisions)
 	{
 		constexpr const float x = 0.525731112119133606f;
 		constexpr const float z = 0.850650808352039932f;
 		constexpr const float n = 0.f;
 
-		constexpr const Math::Vector3 vertices[] =
+		vertices = new VertexComplete[]
 		{
 			{-x,n,z}, { x,n, z}, {-x, n,-z}, { x, n,-z},
 			{ n,z,x}, { n,z,-x}, { n,-z, x}, { n,-z,-x},
 			{ z,x,n}, {-z,x, n}, { z,-x, n}, {-z,-x, n}
 		};
-		*vertices_count = 4 * 3;
+	}
+	extern constexpr const VertexComplete* generatePrimitiveSphereVertices(const unsigned int sub_divisions)
+	{
+		const unsigned int num_vertices = generatePrimitiveSphereVerticesCount(sub_divisions);
+		VertexComplete* vertices = new VertexComplete[num_vertices];
+		generatePrimitiveSphereVertices(vertices, sub_divisions);
 		return vertices;
 	}
-
-	extern constexpr const unsigned int* generatePrimitiveSphereIndices(const unsigned int sub_divisions, unsigned int* indices_count)
+	extern constexpr const unsigned int generatePrimitiveSphereVerticesCount(const unsigned int sub_divisions)
 	{
-		constexpr const unsigned int triangles[] =
+		return 4u * 3u;
+	}
+
+	extern constexpr void generatePrimitiveSphereIndices(unsigned int* indices, const unsigned int sub_divisions)
+	{
+		indices = new unsigned int[]
 		{
 			0,4,1,  0,9,4,  9,5,4,  4,5,8,  4,8,1,
 			8,10,1, 8,3,10, 5,3,8,  5,2,3,  2,7,3,
 			7,10,3, 7,6,10, 7,11,6, 11,0,6, 0,1,6,
 			6,1,10, 9,0,11, 9,11,2, 9,2,5,  7,2,11
 		};
-		*indices_count = 5 * 4 * 3;
-		return triangles;
+	}
+	extern constexpr const unsigned int* generatePrimitiveSphereIndices(const unsigned int sub_divisions)
+	{
+		const unsigned int num_indices = generatePrimitiveSphereVerticesCount(sub_divisions);
+		unsigned int* indices = new unsigned int[num_indices];
+		generatePrimitiveSphereIndices(indices, sub_divisions);
+		return indices;
+	}
+	extern constexpr const unsigned int generatePrimitiveSphereIndicesCount(const unsigned int sub_divisions)
+	{
+		return 5u * 4u * 3u;
 	}
 
-	extern constexpr const VertexComplete* generatePrimitiveVertices(const PrimitiveType type, unsigned int* vertices_count)
+	extern constexpr void generatePrimitiveVertices(VertexComplete* vertices, const PrimitiveType type)
+	{
+		switch (type)
+		{
+		case PrimitiveType::Triangle:
+			generatePrimitiveFaceVertices(vertices, 3);
+			break;
+		case PrimitiveType::Quad:
+			generatePrimitiveFaceVertices(vertices, 4);
+			break;
+		case PrimitiveType::Pentagon:
+			generatePrimitiveFaceVertices(vertices, 5);
+			break;
+		case PrimitiveType::Hexagon:
+			generatePrimitiveFaceVertices(vertices, 6);
+			break;
+
+		case PrimitiveType::TriangularPrism:
+			generatePrimitivePrismVertices(vertices, 3);
+			break;
+		case PrimitiveType::Cube:
+			generatePrimitivePrismVertices(vertices, 4);
+			break;
+		case PrimitiveType::PentagonalPrism:
+			generatePrimitivePrismVertices(vertices, 5);
+			break;
+		case PrimitiveType::HexagonalPrism:
+			generatePrimitivePrismVertices(vertices, 6);
+			break;
+
+		case PrimitiveType::Icosahedron:
+			generatePrimitiveSphereVertices(vertices, 1);
+			break;
+
+		default:
+			throw std::invalid_argument("Unknown Primitive Type");
+		}
+	};
+	extern constexpr const VertexComplete* generatePrimitiveVertices(const PrimitiveType type)
 	{
 		switch (type)
 		{
@@ -208,11 +263,71 @@ namespace Isonia::Renderable
 
 		case PrimitiveType::Icosahedron:
 			return generatePrimitiveSphereVertices(1);
+
+		default:
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
-		throw std::invalid_argument("Unknown Primitive Type");
+	};
+	extern constexpr const unsigned int generatePrimitiveVerticesCount(const PrimitiveType type)
+	{
+		switch (type)
+		{
+		case PrimitiveType::Triangle:
+			return generatePrimitiveFaceVerticesCount(3);
+		case PrimitiveType::Quad:
+			return generatePrimitiveFaceVerticesCount(4);
+		case PrimitiveType::Pentagon:
+			return generatePrimitiveFaceVerticesCount(5);
+		case PrimitiveType::Hexagon:
+			return generatePrimitiveFaceVerticesCount(6);
+
+		case PrimitiveType::TriangularPrism:
+			return generatePrimitivePrismVerticesCount(3);
+		case PrimitiveType::Cube:
+			return generatePrimitivePrismVerticesCount(4);
+		case PrimitiveType::PentagonalPrism:
+			return generatePrimitivePrismVerticesCount(5);
+		case PrimitiveType::HexagonalPrism:
+			return generatePrimitivePrismVerticesCount(6);
+
+		case PrimitiveType::Icosahedron:
+			return generatePrimitiveSphereVerticesCount(1);
+
+		default:
+			throw std::invalid_argument("Unknown Primitive Type");
+		}
 	};
 
-	extern constexpr const unsigned int* generatePrimitiveIndices(const PrimitiveType type, unsigned int* indices_count)
+	extern constexpr void generatePrimitiveIndices(unsigned int* indices, const PrimitiveType type)
+	{
+		switch (type)
+		{
+		case PrimitiveType::Triangle:
+			return generatePrimitiveFaceIndices(indices, 3);
+		case PrimitiveType::Quad:
+			return generatePrimitiveFaceIndices(indices, 4);
+		case PrimitiveType::Pentagon:
+			return generatePrimitiveFaceIndices(indices, 5);
+		case PrimitiveType::Hexagon:
+			return generatePrimitiveFaceIndices(indices, 6);
+
+		case PrimitiveType::TriangularPrism:
+			return generatePrimitivePrismIndices(indices, 3);
+		case PrimitiveType::Cube:
+			return generatePrimitivePrismIndices(indices, 4);
+		case PrimitiveType::PentagonalPrism:
+			return generatePrimitivePrismIndices(indices, 5);
+		case PrimitiveType::HexagonalPrism:
+			return generatePrimitivePrismIndices(indices, 6);
+
+		case PrimitiveType::Icosahedron:
+			return generatePrimitiveSphereIndices(indices, 1);
+
+		default:
+			throw std::invalid_argument("Unknown Primitive Type");
+		}
+	};
+	extern constexpr const unsigned int* generatePrimitiveIndices(const PrimitiveType type)
 	{
 		switch (type)
 		{
@@ -236,7 +351,38 @@ namespace Isonia::Renderable
 
 		case PrimitiveType::Icosahedron:
 			return generatePrimitiveSphereIndices(1);
+
+		default:
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
-		throw std::invalid_argument("Unknown Primitive Type");
+	};
+	extern constexpr const unsigned int generatePrimitiveIndicesCount(const PrimitiveType type)
+	{
+		switch (type)
+		{
+		case PrimitiveType::Triangle:
+			return generatePrimitiveFaceIndicesCount(3);
+		case PrimitiveType::Quad:
+			return generatePrimitiveFaceIndicesCount(4);
+		case PrimitiveType::Pentagon:
+			return generatePrimitiveFaceIndicesCount(5);
+		case PrimitiveType::Hexagon:
+			return generatePrimitiveFaceIndicesCount(6);
+
+		case PrimitiveType::TriangularPrism:
+			return generatePrimitivePrismIndicesCount(3);
+		case PrimitiveType::Cube:
+			return generatePrimitivePrismIndicesCount(4);
+		case PrimitiveType::PentagonalPrism:
+			return generatePrimitivePrismIndicesCount(5);
+		case PrimitiveType::HexagonalPrism:
+			return generatePrimitivePrismIndicesCount(6);
+
+		case PrimitiveType::Icosahedron:
+			return generatePrimitiveSphereIndicesCount(1);
+
+		default:
+			throw std::invalid_argument("Unknown Primitive Type");
+		}
 	};
 }

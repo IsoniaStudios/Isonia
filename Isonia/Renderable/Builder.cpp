@@ -274,11 +274,11 @@ namespace Isonia::Renderable
 		const float local_z = world_z - m_positional_data.y;
 
 		// map local to indices
-		const size_t min_x = Math::maxi(Math::floorf_i(local_x), 0);
-		const size_t max_x = Math::mini(Math::ceilf_i(local_x), static_cast<int>(vertices));
+		const int min_x = Math::maxi(Math::floorf_i(local_x), 0);
+		const int max_x = Math::mini(Math::ceilf_i(local_x), static_cast<int>(vertices));
 
-		const size_t min_z = Math::maxi(Math::floorf_i(local_z), 0);
-		const size_t max_z = Math::mini(Math::ceilf_i(local_z), static_cast<int>(vertices));
+		const int min_z = Math::maxi(Math::floorf_i(local_z), 0);
+		const int max_z = Math::mini(Math::ceilf_i(local_z), static_cast<int>(vertices));
 
 		// get normals from indices
 		const Math::Vector3 n_00 = m_normals[min_z][min_x];

@@ -3,76 +3,116 @@
 
 namespace Isonia::Renderable
 {
-	std::vector<VkVertexInputBindingDescription> VertexComplete::getBindingDescriptions()
+	VkVertexInputBindingDescription* VertexComplete::getBindingDescriptions()
 	{
-		return {
+		return new VkVertexInputBindingDescription[]{
 			{ 0, sizeof(VertexComplete), VK_VERTEX_INPUT_RATE_VERTEX }
 		};
 	}
-	std::vector<VkVertexInputAttributeDescription> VertexComplete::getAttributeDescriptions()
+	const unsigned int VertexComplete::getBindingDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+	VkVertexInputAttributeDescription* VertexComplete::getAttributeDescriptions()
+	{
+		return new VkVertexInputAttributeDescription[]{
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, position) },
 			{ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, color) },
 			{ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexComplete, normal) },
 			{ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexComplete, uv) }
 		};
 	}
-
-	std::vector<VkVertexInputBindingDescription> VertexPosition::getBindingDescriptions()
+	const unsigned int VertexComplete::getAttributeDescriptionsCount()
 	{
-		return {
+		return 4u;
+	}
+
+	VkVertexInputBindingDescription* VertexPosition::getBindingDescriptions()
+	{
+		return new VkVertexInputBindingDescription[]{
 			{ 0, sizeof(VertexPosition), VK_VERTEX_INPUT_RATE_VERTEX }
 		};
 	}
-	std::vector<VkVertexInputAttributeDescription> VertexPosition::getAttributeDescriptions()
+	const unsigned int VertexPosition::getBindingDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+	VkVertexInputAttributeDescription* VertexPosition::getAttributeDescriptions()
+	{
+		return new VkVertexInputAttributeDescription[]{
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexPosition, position) }
 		};
 	}
-
-	std::vector<VkVertexInputBindingDescription> VertexXZUniform::getBindingDescriptions()
+	const unsigned int VertexPosition::getAttributeDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+
+	VkVertexInputBindingDescription* VertexXZUniform::getBindingDescriptions()
+	{
+		return new VkVertexInputBindingDescription[]{
 			{ 0, sizeof(VertexXZUniform), VK_VERTEX_INPUT_RATE_VERTEX }
 		};
 	}
-	std::vector<VkVertexInputAttributeDescription> VertexXZUniform::getAttributeDescriptions()
+	const unsigned int VertexXZUniform::getBindingDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+	VkVertexInputAttributeDescription* VertexXZUniform::getAttributeDescriptions()
+	{
+		return new VkVertexInputAttributeDescription[]{
 			{ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniform, altitude) }
 		};
 	}
-
-	std::vector<VkVertexInputBindingDescription> VertexXZUniformN::getBindingDescriptions()
+	const unsigned int VertexXZUniform::getAttributeDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+
+	VkVertexInputBindingDescription* VertexXZUniformN::getBindingDescriptions()
+	{
+		return new VkVertexInputBindingDescription[]{
 			{0, sizeof(VertexXZUniformN), VK_VERTEX_INPUT_RATE_VERTEX}
 		};
 	}
-	std::vector<VkVertexInputAttributeDescription> VertexXZUniformN::getAttributeDescriptions()
+	const unsigned int VertexXZUniformN::getBindingDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+	VkVertexInputAttributeDescription* VertexXZUniformN::getAttributeDescriptions()
+	{
+		return new VkVertexInputAttributeDescription[]{
 			{ 0, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformN, altitude) },
 			{ 1, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformN, pitch) },
 			{ 2, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformN, yaw) },
 		};
 	}
-
-	std::vector<VkVertexInputBindingDescription> VertexXZUniformNP::getBindingDescriptions()
+	const unsigned int VertexXZUniformN::getAttributeDescriptionsCount()
 	{
-		return {
+		return 3u;
+	}
+
+	VkVertexInputBindingDescription* VertexXZUniformNP::getBindingDescriptions()
+	{
+		return new VkVertexInputBindingDescription[]{
 			{0, sizeof(VertexXZUniformNP), VK_VERTEX_INPUT_RATE_VERTEX}
 		};
 	}
-	std::vector<VkVertexInputAttributeDescription> VertexXZUniformNP::getAttributeDescriptions()
+	const unsigned int VertexXZUniformNP::getBindingDescriptionsCount()
 	{
-		return {
+		return 1u;
+	}
+	VkVertexInputAttributeDescription* VertexXZUniformNP::getAttributeDescriptions()
+	{
+		return new VkVertexInputAttributeDescription[]{
 			{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexXZUniformNP, position) },
 			{ 1, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformNP, pitch) },
 			{ 2, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformNP, yaw) },
 			{ 3, 0, VK_FORMAT_R32_SFLOAT, offsetof(VertexXZUniformNP, gain) }
 		};
+	}
+	const unsigned int VertexXZUniformNP::getAttributeDescriptionsCount()
+	{
+		return 4u;
 	}
 }

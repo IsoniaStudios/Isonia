@@ -50,12 +50,12 @@ namespace Isonia::Pipeline
 
     void Window::registerCallback(EventHandler handler)
     {
-        m_handlers[m_handlers_count++] = handler;
+        m_handlers[m_event_count++] = handler;
     }
 
     void Window::propagateEvent()
     {
-        for (unsigned int i = 0; i < m_handlers_count; i++)
+        for (unsigned int i = 0; i < m_event_count; i++)
         {
             m_handlers[i](this);
         }

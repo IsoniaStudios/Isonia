@@ -18,30 +18,22 @@ namespace Isonia::Renderable
 
 	Model* Model::createPrimitive(Pipeline::Device* device, const PrimitiveType primitive)
 	{
-		const std::vector<VertexComplete> vertices = generatePrimitiveVertices(primitive);
-		const std::vector<unsigned int> indices = generatePrimitiveIndices(primitive);
-		return new Model(device, &vertices, &indices);
+		return new Model(device, generatePrimitiveVertices(primitive), generatePrimitiveVerticesCount(primitive), generatePrimitiveIndices(primitive), generatePrimitiveIndicesCount(primitive));
 	}
 
 	Model* Model::createPrimitiveFace(Pipeline::Device* device, const unsigned int num_sides)
 	{
-		const std::vector<VertexComplete> vertices = generatePrimitiveFaceVertices(num_sides);
-		const std::vector<unsigned int> indices = generatePrimitiveFaceIndices(num_sides);
-		return new Model(device, &vertices, &indices);
+		return new Model(device, generatePrimitiveFaceVertices(num_sides), generatePrimitiveFaceVerticesCount(num_sides), generatePrimitiveFaceIndices(num_sides), generatePrimitiveFaceIndicesCount(num_sides));
 	}
 
 	Model* Model::createPrimitivePrism(Pipeline::Device* device, const unsigned int num_sides)
 	{
-		const std::vector<VertexComplete> vertices = generatePrimitivePrismVertices(num_sides);
-		const std::vector<unsigned int> indices = generatePrimitivePrismIndices(num_sides);
-		return new Model(device, &vertices, &indices);
+		return new Model(device, generatePrimitivePrismVertices(num_sides), generatePrimitivePrismVerticesCount(num_sides), generatePrimitivePrismIndices(num_sides), generatePrimitivePrismIndicesCount(num_sides));
 	}
 
 	Model* Model::createPrimitiveSphere(Pipeline::Device* device, const unsigned int sub_divisions)
 	{
-		const std::vector<VertexComplete> vertices = generatePrimitiveSphereVertices(sub_divisions);
-		const std::vector<unsigned int> indices = generatePrimitiveSphereIndices(sub_divisions);
-		return new Model(device, &vertices, &indices);
+		return new Model(device, generatePrimitiveSphereVertices(sub_divisions), generatePrimitiveSphereVerticesCount(sub_divisions), generatePrimitiveSphereIndices(sub_divisions), generatePrimitiveSphereIndicesCount(sub_divisions));
 	}
 
 	void Model::bind(VkCommandBuffer command_buffer)

@@ -4,13 +4,13 @@
 namespace Isonia::Pipeline
 {
 	PixelSwapChain::PixelSwapChain(Device* deviceRef, VkExtent2D windowExtent, VkExtent2D renderExtent)
-		: m_device(deviceRef), m_window_extent(windowExtent), m_render_extent(renderExtent), m_old_pixel_swap_chain(nullptr)
+		: m_device(deviceRef), m_window_extent(windowExtent), m_render_extent(renderExtent), m_old_swap_chain(nullptr)
 	{
 		init();
 	}
 
 	PixelSwapChain::PixelSwapChain(Device* deviceRef, VkExtent2D windowExtent, VkExtent2D renderExtent, PixelSwapChain* previous)
-		: m_device(deviceRef), m_window_extent(windowExtent), m_render_extent(renderExtent), m_old_pixel_swap_chain(previous)
+		: m_device(deviceRef), m_window_extent(windowExtent), m_render_extent(renderExtent), m_old_swap_chain(previous)
 	{
 		init();
 	}
@@ -70,9 +70,9 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::freeOldPixelSwapChain()
 	{
-		if (m_old_pixel_swap_chain != nullptr)
+		if (m_old_swap_chain != nullptr)
 		{
-			delete m_old_pixel_swap_chain;
+			delete m_old_swap_chain;
 		}
 	}
 
@@ -139,9 +139,10 @@ namespace Isonia::Pipeline
 
 	VkFormat PixelSwapChain::findDepthFormat()
 	{
-		const std::vector candidates{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
+		const VkFormat candidates[] { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
 		return m_device->findSupportedFormat(
-			&candidates,
+			candidates,
+			3u,
 			VK_IMAGE_TILING_OPTIMAL,
 			VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 		);
@@ -238,16 +239,16 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::createPixelSwapChain()
 	{
-		SwapChainSupportDetails swapChainSupport = m_device->getSwapChainSupport();
+		SwapChainSupportDetails swap_chain_support = m_device->getSwapChainSupport();
 
-		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(&swapChainSupport.formats);
-		VkPresentModeKHR presentMode = chooseSwapPresentMode(&swapChainSupport.present_modes);
-		VkExtent2D extent = chooseSwapExtent(&swapChainSupport.capabilities);
+		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swap_chain_support.formats, swap_chain_support.formats_count);
+		VkPresentModeKHR presentMode = chooseSwapPresentMode(swap_chain_support.present_modes, swap_chain_support.present_modes_count);
+		VkExtent2D extent = chooseSwapExtent(&swap_chain_support.capabilities);
 
-		m_image_count = swapChainSupport.capabilities.minImageCount + 1;
-		if (swapChainSupport.capabilities.maxImageCount > 0 && m_image_count > swapChainSupport.capabilities.maxImageCount)
+		m_image_count = swap_chain_support.capabilities.minImageCount + 1;
+		if (swap_chain_support.capabilities.maxImageCount > 0 && m_image_count > swap_chain_support.capabilities.maxImageCount)
 		{
-			m_image_count = swapChainSupport.capabilities.maxImageCount;
+			m_image_count = swap_chain_support.capabilities.maxImageCount;
 		}
 
 		VkSwapchainCreateInfoKHR createInfo = {};
@@ -277,13 +278,13 @@ namespace Isonia::Pipeline
 			createInfo.pQueueFamilyIndices = nullptr;  // Optional
 		}
 
-		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+		createInfo.preTransform = swap_chain_support.capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		createInfo.oldSwapchain = m_old_pixel_swap_chain == nullptr ? VK_NULL_HANDLE : m_old_pixel_swap_chain->m_swap_chain;
+		createInfo.oldSwapchain = m_old_swap_chain == nullptr ? VK_NULL_HANDLE : m_old_swap_chain->m_swap_chain;
 
 		if (vkCreateSwapchainKHR(m_device->getDevice(), &createInfo, nullptr, &m_swap_chain) != VK_SUCCESS)
 		{
@@ -302,7 +303,8 @@ namespace Isonia::Pipeline
 		m_swap_chain_extent = extent;
 
 		// Transition swap chain images to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR because render pipeline expects it
-		for (size_t i = 0; i < m_image_count; i++) {
+		for (unsigned int i = 0; i < m_image_count; i++)
+		{
 			m_device->transitionImageLayout(
 				m_swap_chain_images[i],
 				m_swap_chain_image_format,
@@ -549,41 +551,37 @@ namespace Isonia::Pipeline
 	}
 
 	// Helper functions
-	VkSurfaceFormatKHR PixelSwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>* availableFormats)
+	VkSurfaceFormatKHR PixelSwapChain::chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count)
 	{
-		for (size_t i = 0; i < availableFormats->size(); i++)
+		for (unsigned int i = 0; i < available_formats_count; i++)
 		{
-			const VkSurfaceFormatKHR availableFormat = (*availableFormats)[i];
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			const VkSurfaceFormatKHR available_format = available_formats[i];
+			if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB && available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 			{
-				return availableFormat;
+				return available_format;
 			}
 		}
-
-		return (*availableFormats)[0];
+		return available_formats[0];
 	}
 
-	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>* availablePresentModes)
+	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
-		/*
-		for (const auto& availablePresentMode : availablePresentModes)
+		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
-			if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
 				std::cout << "Present mode: Immediate" << std::endl;
-				return availablePresentMode;
+				return available_present_modes[i];
 			}
 		}
-
-		for (const auto& availablePresentMode : availablePresentModes)
+		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
-			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+			if (available_present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
 				std::cout << "Present mode: Mailbox" << std::endl;
-				return availablePresentMode;
+				return available_present_modes[i];
 			}
 		}
-		*/
 		std::cout << "Present mode: V-Sync" << std::endl;
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}

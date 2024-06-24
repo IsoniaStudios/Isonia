@@ -178,7 +178,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Pipeline::pixelPipelineTriangleStripNormalConfigInfo(&pipeline_config);
 		pipeline_config.renderPass = render_pass;
 		pipeline_config.pipelineLayout = m_ground_pipeline_layout;
-		m_ground_pipeline = (new Pipeline::Builder(m_device))
+		m_ground_pipeline = (new Pipeline::Builder(m_device, 2u))
 			->addShaderModule(
 				VK_SHADER_STAGE_VERTEX_BIT,
 				Shaders::Ground::VERTEXSHADER_VERT,
@@ -217,7 +217,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pixelPipelinePointListConfigInfo(&pipeline_config);
 		pipeline_config.renderPass = render_pass;
 		pipeline_config.pipelineLayout = m_grass_pipeline_layout;
-		m_grass_pipeline = (new Pipeline::Builder(m_device))
+		m_grass_pipeline = (new Pipeline::Builder(m_device, 3u))
 			->addShaderModule(
 				VK_SHADER_STAGE_GEOMETRY_BIT,
 				Shaders::Grass::GEOMSHADER_GEOM,
@@ -240,6 +240,8 @@ namespace Isonia::Pipeline::RenderSystems
 		config_info->input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 
 		config_info->binding_descriptions = Renderable::VertexXZUniformNP::getBindingDescriptions();
+		config_info->binding_descriptions_count = Renderable::VertexXZUniformNP::getBindingDescriptionsCount();
 		config_info->attribute_descriptions = Renderable::VertexXZUniformNP::getAttributeDescriptions();
+		config_info->attribute_descriptions_count = Renderable::VertexXZUniformNP::getAttributeDescriptionsCount();
 	}
 }

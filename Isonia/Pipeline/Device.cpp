@@ -55,20 +55,20 @@ namespace Isonia::Pipeline
 		return findQueueFamilies(m_physical_device);
 	}
 
-	VkFormat Device::findSupportedFormat(const std::vector<VkFormat>* candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+	VkFormat Device::findSupportedFormat(const VkFormat* candidates, const unsigned int candidates_count, VkImageTiling tiling, VkFormatFeatureFlags features)
 	{
-		for (VkFormat format : (*candidates))
+		for (unsigned int i = 0; i < candidates_count; i++)
 		{
 			VkFormatProperties props;
-			vkGetPhysicalDeviceFormatProperties(m_physical_device, format, &props);
+			vkGetPhysicalDeviceFormatProperties(m_physical_device, candidates[i], &props);
 
 			if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
 			{
-				return format;
+				return candidates[i];
 			}
 			else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
 			{
-				return format;
+				return candidates[i];
 			}
 		}
 		throw std::runtime_error("Failed to find supported format!");
@@ -395,19 +395,25 @@ namespace Isonia::Pipeline
 	}
 #endif
 
-	std::vector<const char*> Device::getRequiredExtensions()
+	const char** Device::getRequiredExtensions(unsigned int* count)
 	{
-		unsigned int glfwExtensionCount = 0;
-		const char** glfwExtensions;
-		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+		unsigned int glfw_extension_count;
+		const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
-		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+#ifdef DEBUG
+		const char** debug_glfw_extensions = new const char* [glfw_extension_count + 1];
+		for (unsigned int i = 0; i < glfw_extension_count; ++i)
+		{
+			debug_glfw_extensions[i] = glfw_extensions[i];
+		}
+		debug_glfw_extensions[glfw_extension_count] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 
-#ifndef NDEBUG
-		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		*count = glfw_extension_count + 1;
+		return debug_glfw_extensions;
 #endif
 
-		return extensions;
+		*count = glfw_extension_count;
+		return glfw_extensions;
 	}
 
 	void Device::hasGLFWRequiredInstanceExtensions()
@@ -418,25 +424,32 @@ namespace Isonia::Pipeline
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
 
 		std::cout << "available extensions:" << std::endl;
-		std::unordered_set<std::string> available;
 		for (unsigned int i = 0; i < extensionCount; i++)
 		{
 			std::cout << "\t" << extensions[i].extensionName << std::endl;
-			available.insert(extensions[i].extensionName);
 		}
 
-		delete[] extensions;
-
 		std::cout << "required extensions:" << std::endl;
-		std::vector<const char*> requiredExtensions = getRequiredExtensions();
-		for (const auto& required : requiredExtensions)
+		unsigned int requiredExtensionsCount = 0;
+		const char** requiredExtensions = getRequiredExtensions(&requiredExtensionsCount);
+		for (int i = 0; i < requiredExtensionsCount; i++)
 		{
-			std::cout << "\t" << required << std::endl;
-			if (available.find(required) == available.end())
+			bool missing = true;
+			std::cout << "\t" << requiredExtensions[i] << std::endl;
+			for (unsigned int q = 0; q < extensionCount; q++)
+			{
+				if (strcmp(extensions[q].extensionName, requiredExtensions[i]) == 0)
+				{
+					missing = false;
+				}
+			}
+			if (missing)
 			{
 				throw std::runtime_error("Missing required glfw extension");
 			}
 		}
+
+		delete[] extensions;
 	}
 
 	bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device)
@@ -444,23 +457,30 @@ namespace Isonia::Pipeline
 		unsigned int extensionCount;
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 		VkExtensionProperties* availableExtensions = new VkExtensionProperties[extensionCount];
-		vkEnumerateDeviceExtensionProperties(
-			device,
-			nullptr,
-			&extensionCount,
-			availableExtensions
-		);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions);
 
-		std::set<std::string> requiredExtensions(m_device_extensions.begin(), m_device_extensions.end());
-
-		for (unsigned int i = 0; i < extensionCount; i++)
+		bool supported = true;
+		for (unsigned int req_i = 0; req_i < m_device_extensions_count; req_i++)
 		{
-			requiredExtensions.erase(availableExtensions[i].extensionName);
+			bool found = false;
+			for (unsigned int av_i = 0; av_i < extensionCount; av_i++)
+			{
+				if (strcmp(m_device_extensions[req_i], availableExtensions[av_i].extensionName) == 0)
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				supported = false;
+				break;
+			}
 		}
 
 		delete[] availableExtensions;
 
-		return requiredExtensions.empty();
+		return supported;
 	}
 
 	QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
@@ -502,26 +522,22 @@ namespace Isonia::Pipeline
 		SwapChainSupportDetails details;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
 
-		unsigned int formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
-
-		if (formatCount != 0)
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &details.formats_count, nullptr);
+		if (details.formats_count != 0)
 		{
-			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
+			details.formats = new VkSurfaceFormatKHR[details.formats_count];
+			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &details.formats_count, details.formats);
 		}
 
-		unsigned int presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
-
-		if (presentModeCount != 0)
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &details.present_modes_count, nullptr);
+		if (details.present_modes_count != 0)
 		{
-			details.present_modes.resize(presentModeCount);
+			details.present_modes = new VkPresentModeKHR[details.present_modes_count];
 			vkGetPhysicalDeviceSurfacePresentModesKHR(
 				device,
 				m_surface,
-				&presentModeCount,
-				details.present_modes.data()
+				&details.present_modes_count,
+				details.present_modes
 			);
 		}
 		return details;
@@ -548,14 +564,15 @@ namespace Isonia::Pipeline
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
 
-		std::vector<const char*> extensions = getRequiredExtensions();
-		createInfo.enabledExtensionCount = static_cast<unsigned int>(extensions.size());
-		createInfo.ppEnabledExtensionNames = extensions.data();
+		unsigned int extensions_count;
+		const char** extensions = getRequiredExtensions(&extensions_count);
+		createInfo.enabledExtensionCount = extensions_count;
+		createInfo.ppEnabledExtensionNames = extensions;
 
 #ifdef DEBUG
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		createInfo.enabledLayerCount = static_cast<unsigned int>(m_validation_layers.size());
-		createInfo.ppEnabledLayerNames = m_validation_layers.data();
+		createInfo.enabledLayerCount = m_validation_layers_count;
+		createInfo.ppEnabledLayerNames = m_validation_layers;
 
 		populateDebugMessengerCreateInfo(&debugCreateInfo);
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
@@ -608,38 +625,53 @@ namespace Isonia::Pipeline
 	{
 		QueueFamilyIndices indices = findQueueFamilies(m_physical_device);
 
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<unsigned int> uniqueQueueFamilies = { indices.graphics_family, indices.present_family };
-
 		float queuePriority = 1.0f;
-		for (unsigned int queueFamily : uniqueQueueFamilies)
+		unsigned int queueCreateInfosCount;
+		VkDeviceQueueCreateInfo* queueCreateInfos;
+		if (indices.graphics_family != indices.present_family)
 		{
-			VkDeviceQueueCreateInfo queueCreateInfo = {};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriority;
-			queueCreateInfos.push_back(queueCreateInfo);
+			queueCreateInfosCount = 2;
+			queueCreateInfos = new VkDeviceQueueCreateInfo[queueCreateInfosCount];
+			// Queue families are distinct
+			queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfos[0].queueFamilyIndex = indices.graphics_family;
+			queueCreateInfos[0].queueCount = 1;
+			queueCreateInfos[0].pQueuePriorities = &queuePriority;
+
+			queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfos[1].queueFamilyIndex = indices.present_family;
+			queueCreateInfos[1].queueCount = 1;
+			queueCreateInfos[1].pQueuePriorities = &queuePriority;
+		}
+		else
+		{
+			queueCreateInfosCount = 1;
+			queueCreateInfos = new VkDeviceQueueCreateInfo[queueCreateInfosCount];
+			// Queue families are the same, create a single queue
+			queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfos[0].queueFamilyIndex = indices.graphics_family;
+			queueCreateInfos[0].queueCount = 1;
+			queueCreateInfos[0].pQueuePriorities = &queuePriority;
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures = {};
-		deviceFeatures.samplerAnisotropy = VK_FALSE;
 		deviceFeatures.geometryShader = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-		createInfo.queueCreateInfoCount = static_cast<unsigned int>(queueCreateInfos.size());
-		createInfo.pQueueCreateInfos = queueCreateInfos.data();
+		// Assuming m_device_extensions_count and m_device_extensions are already populated
+		createInfo.queueCreateInfoCount = queueCreateInfosCount;
+		createInfo.pQueueCreateInfos = queueCreateInfos;
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
-		createInfo.enabledExtensionCount = static_cast<unsigned int>(m_device_extensions.size());
-		createInfo.ppEnabledExtensionNames = m_device_extensions.data();
+		createInfo.enabledExtensionCount = m_device_extensions_count;
+		createInfo.ppEnabledExtensionNames = m_device_extensions;
 
 #ifdef DEBUG
 		// might not really be necessary anymore because device specific validation layers have been deprecated
-		createInfo.enabledLayerCount = static_cast<unsigned int>(m_validation_layers.size());
-		createInfo.ppEnabledLayerNames = m_validation_layers.data();
+		createInfo.enabledLayerCount = m_validation_layers_count;
+		createInfo.ppEnabledLayerNames = m_validation_layers;
 #else
 		createInfo.enabledLayerCount = 0;
 #endif
@@ -683,7 +715,7 @@ namespace Isonia::Pipeline
 		if (extensionsSupported)
 		{
 			SwapChainSupportDetails swapChainSupport = findSwapChainSupport(device);
-			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.present_modes.empty();
+			swapChainAdequate = swapChainSupport.formats_count != 0u && swapChainSupport.present_modes_count != 0u;
 		}
 
 		VkPhysicalDeviceFeatures supportedFeatures;

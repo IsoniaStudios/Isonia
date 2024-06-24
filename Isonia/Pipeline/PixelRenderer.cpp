@@ -19,13 +19,14 @@ namespace Isonia::Pipeline
 
 	void PixelRenderer::registerRenderResizeCallback(EventHandler handler, void* user_data)
 	{
-		m_handlers.push_back(handler);
-		m_user_data.push_back(user_data);
+		m_handlers[m_event_count] = handler;
+		m_user_data[m_event_count] = user_data;
+		m_event_count++;
 	}
 
 	void PixelRenderer::propigateRenderResizeEvent()
 	{
-		for (size_t i = 0; i < m_handlers.size(); i++)
+		for (unsigned int i = 0; i < m_event_count; i++)
 		{
 			m_handlers[i](this, m_user_data[i]);
 		}
