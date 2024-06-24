@@ -20,6 +20,7 @@ namespace Isonia::Pipeline
 			"main",
 			nullptr
 		};
+
 		return this;
 	}
 

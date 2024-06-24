@@ -637,21 +637,25 @@ namespace Isonia::Pipeline
 			queueCreateInfos[0].queueFamilyIndex = indices.graphics_family;
 			queueCreateInfos[0].queueCount = 1;
 			queueCreateInfos[0].pQueuePriorities = &queuePriority;
+			queueCreateInfos[0].pNext = nullptr;
 
 			queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queueCreateInfos[1].queueFamilyIndex = indices.present_family;
 			queueCreateInfos[1].queueCount = 1;
 			queueCreateInfos[1].pQueuePriorities = &queuePriority;
+			queueCreateInfos[1].pNext = nullptr;
 		}
 		else
 		{
 			queueCreateInfosCount = 1;
-			queueCreateInfos = new VkDeviceQueueCreateInfo[queueCreateInfosCount];
-			// Queue families are the same, create a single queue
-			queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfos[0].queueFamilyIndex = indices.graphics_family;
-			queueCreateInfos[0].queueCount = 1;
-			queueCreateInfos[0].pQueuePriorities = &queuePriority;
+			queueCreateInfos = new VkDeviceQueueCreateInfo {
+				VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+				nullptr,
+				0,
+				indices.graphics_family,
+				1,
+				&queuePriority
+			};
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures = {};
@@ -660,7 +664,6 @@ namespace Isonia::Pipeline
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-		// Assuming m_device_extensions_count and m_device_extensions are already populated
 		createInfo.queueCreateInfoCount = queueCreateInfosCount;
 		createInfo.pQueueCreateInfos = queueCreateInfos;
 
