@@ -5,8 +5,6 @@
 
 // external
 #include <vulkan/vulkan.h>
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 // std
 #include <iostream>
@@ -15,6 +13,30 @@
 
 namespace Isonia::Pipeline
 {
+    struct KeyCodes
+    {
+        static const constexpr int a = 65;
+        static const constexpr int d = 68;
+        static const constexpr int w = 87;
+        static const constexpr int s = 83;
+
+        static const constexpr int e = 69;
+        static const constexpr int q = 81;
+
+        static const constexpr int left_shift = 340;
+        static const constexpr int left_control = 341;
+        static const constexpr int tab = 258;
+
+        static const constexpr int left = 263;
+        static const constexpr int right = 262;
+        static const constexpr int up = 265;
+        static const constexpr int down = 264;
+    };
+    struct KeyActions
+    {
+        static const constexpr int press = 1;
+    };
+
     struct Window
     {
     public:
@@ -25,11 +47,15 @@ namespace Isonia::Pipeline
         Window& operator=(const Window&) = delete;
 
         const VkExtent2D getExtent() const;
-        GLFWwindow* getGLFWWindow() const;
+
+        int getKey(int key) const;
 
         bool shouldClose() const;
-        void resetWindowResizedFlag();
-        const bool wasWindowResized() const;
+        void pollEvents() const;
+        void waitEvents() const;
+
+        void resetResizedFlag();
+        const bool wasResized() const;
 
         void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
         
@@ -38,18 +64,15 @@ namespace Isonia::Pipeline
         void propagateEvent();
 
     private:
-        void initWindow();
-        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+        void framebufferResizeCallback(const unsigned int width, const unsigned int height);
 
-        unsigned int m_width;
-        unsigned int m_height;
-        bool m_framebuffer_resized = false;
+        VkExtent2D m_extent;
+        bool m_resized = false;
 
         unsigned int m_event_count = 0;
         EventHandler m_handlers[4];
 
         const char* m_name;
-        GLFWwindow* m_window;
     };
 
     struct SwapChainSupportDetails
@@ -116,7 +139,7 @@ namespace Isonia::Pipeline
 
 		bool isDeviceSuitable(VkPhysicalDevice device);
 
-        void hasGLFWRequiredInstanceExtensions();
+        void hasRequiredInstanceExtensions();
 
         Window* m_window;
         

@@ -100,9 +100,9 @@ namespace Isonia::Pipeline
 		}
 
 		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->wasWindowResized())
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->wasResized())
 		{
-			m_window->resetWindowResizedFlag();
+			m_window->resetResizedFlag();
 			recreateSwapChain();
 			propigateRenderResizeEvent();
 		}
@@ -317,7 +317,7 @@ namespace Isonia::Pipeline
 		while (window_extent.width == 0 || window_extent.height == 0)
 		{
 			window_extent = m_window->getExtent();
-			glfwWaitEvents();
+			m_window->waitEvents();
 		}
 		vkDeviceWaitIdle(m_device->getDevice());
 

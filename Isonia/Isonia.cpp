@@ -58,7 +58,7 @@ namespace Isonia
 		auto current_time = std::chrono::high_resolution_clock::now();
 		while (!m_window.shouldClose())
 		{
-			glfwPollEvents();
+			m_window.pollEvents();
 
 			auto new_time = std::chrono::high_resolution_clock::now();
 			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time - current_time).count();
@@ -66,7 +66,7 @@ namespace Isonia
 
 			performance_tracker.logFrameTime(frame_time_s);
 
-			m_player.act(m_window.getGLFWWindow(), frame_time_s);
+			m_player.act(&m_window, frame_time_s);
 
 			if (auto command_buffer = m_renderer.beginFrame())
 			{

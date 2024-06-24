@@ -1,51 +1,84 @@
 // internal
 #include "Pipeline.h"
 
+// external
+#include <windows.h>
+
+LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_QUIT:
+    case WM_DESTROY: {
+    } break;
+
+    default: { // Message not handled; pass on to default message handling function
+        return DefWindowProc(window_handle, message, wParam, lParam);
+    } break;
+    }
+    return 0;
+}
+
 namespace Isonia::Pipeline
 {
     Window::Window(const unsigned int width, const unsigned int height, const char* name)
-        : m_width(width), m_height(height), m_name(name)
+        : m_extent({ width, height }), m_name(name)
     {
-        initWindow();
+        WNDCLASS window_class = { 0 };
+        window_class.lpszClassName = name;
+        window_class.lpfnWndProc = WindowProcessMessage;
+
+        RegisterClass(&window_class);
+
+        HWND window_handle = CreateWindow(name, "test", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, NULL, NULL);
+        if (window_handle == NULL)
+        {
+            throw std::runtime_error("Failed to create window handle!");
+        }
+
+        ShowWindow(window_handle, SW_SHOW);
     }
 
     Window::~Window()
     {
-        glfwDestroyWindow(m_window);
-        glfwTerminate();
+    }
+
+    int Window::getKey(int key) const
+    {
+        return 0;
     }
 
     bool Window::shouldClose() const
     {
-        return glfwWindowShouldClose(m_window);
+        return false;
+    }
+
+    void Window::pollEvents() const
+    {
+
+    }
+
+    void Window::waitEvents() const
+    {
+
     }
 
     const VkExtent2D Window::getExtent() const
     {
-        return { static_cast<unsigned int>(m_width), static_cast<unsigned int>(m_height) };
+        return m_extent;
     }
 
-    void Window::resetWindowResizedFlag()
+    void Window::resetResizedFlag()
     {
-        m_framebuffer_resized = false;
+        m_resized = false;
     }
 
-    const bool Window::wasWindowResized() const
+    const bool Window::wasResized() const
     {
-        return m_framebuffer_resized;
-    }
-
-    GLFWwindow* Window::getGLFWWindow() const
-    {
-        return m_window;
+        return m_resized;
     }
 
     void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
     {
-        if (glfwCreateWindowSurface(instance, m_window, nullptr, surface) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create window surface");
-        }
+
     }
 
     void Window::registerCallback(EventHandler handler)
@@ -61,29 +94,10 @@ namespace Isonia::Pipeline
         }
     }
 
-    void Window::initWindow()
+    void Window::framebufferResizeCallback(const unsigned int width, const unsigned int height)
     {
-        glfwInit();
-#ifdef DLL_BUILD
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-#else
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-#endif
-
-        m_window = glfwCreateWindow(m_width, m_height, m_name, nullptr, nullptr);
-        glfwSetWindowUserPointer(m_window, this);
-        glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
-    }
-
-    void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
-    {
-        Window* local_window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        local_window->m_framebuffer_resized = true;
-        local_window->m_width = width;
-        local_window->m_height = height;
-        local_window->propagateEvent();
+        m_resized = true;
+        m_extent = { width, height };
+        propagateEvent();
     }
 }

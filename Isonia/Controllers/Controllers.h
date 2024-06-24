@@ -11,25 +11,25 @@ namespace Isonia::Controllers
     public:
         struct KeyMappings
         {
-            int move_left = GLFW_KEY_A;
-            int move_right = GLFW_KEY_D;
-            int move_forward = GLFW_KEY_W;
-            int move_backward = GLFW_KEY_S;
-            int move_up = GLFW_KEY_E;
-            int move_down = GLFW_KEY_Q;
+            int move_left = Pipeline::KeyCodes::a;
+            int move_right = Pipeline::KeyCodes::d;
+            int move_forward = Pipeline::KeyCodes::w;
+            int move_backward = Pipeline::KeyCodes::s;
+            int move_up = Pipeline::KeyCodes::e;
+            int move_down = Pipeline::KeyCodes::q;
 
-            int sprint = GLFW_KEY_LEFT_SHIFT;
-            int walk = GLFW_KEY_LEFT_CONTROL;
+            int sprint = Pipeline::KeyCodes::left_shift;
+            int walk = Pipeline::KeyCodes::left_control;
 
-            int look_left = GLFW_KEY_LEFT;
-            int look_right = GLFW_KEY_RIGHT;
-            int look_up = GLFW_KEY_UP;
-            int look_down = GLFW_KEY_DOWN;
+            int look_left = Pipeline::KeyCodes::left;
+            int look_right = Pipeline::KeyCodes::right;
+            int look_up = Pipeline::KeyCodes::up;
+            int look_down = Pipeline::KeyCodes::down;
 
-            int perspective = GLFW_KEY_TAB;
+            int perspective = Pipeline::KeyCodes::tab;
         };
 
-        virtual void move(GLFWwindow* window, float dt, Math::Transform* transform);
+        virtual void move(Pipeline::Window* window, float dt, Math::Transform* transform);
 
         KeyMappings m_keys{};
         float m_sprint_speed{ 60.f };
@@ -41,7 +41,7 @@ namespace Isonia::Controllers
     struct KeyboardControllerIsometric : public KeyboardController
     {
     public:
-        void move(GLFWwindow* window, float dt, Math::Transform* transform) override;
+        void move(Pipeline::Window* window, float dt, Math::Transform* transform) override;
     };
 
     struct Player
@@ -53,7 +53,7 @@ namespace Isonia::Controllers
         Player(const Player&) = delete;
         Player& operator=(const Player&) = delete;
 
-        void act(GLFWwindow* window, float frameTime);
+        void act(Pipeline::Window* window, float frameTime);
 
         Pipeline::PixelRenderer::EventHandler getOnAspectChangeCallback();
         static void onAspectChange(Pipeline::PixelRenderer* renderer, void* user_data);

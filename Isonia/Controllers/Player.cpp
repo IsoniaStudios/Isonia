@@ -11,7 +11,7 @@ namespace Isonia::Controllers
     {
     }
 
-    void Player::act(GLFWwindow* window, float frame_time_s)
+    void Player::act(Pipeline::Window* window, float frame_time_s)
     {
         m_controller.move(window, frame_time_s, &m_transform);
         m_camera.setView(&m_transform);

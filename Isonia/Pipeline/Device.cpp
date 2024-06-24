@@ -397,26 +397,21 @@ namespace Isonia::Pipeline
 
 	const char** Device::getRequiredExtensions(unsigned int* count)
 	{
-		unsigned int glfw_extension_count;
-		const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-
 #ifdef DEBUG
-		const char** debug_glfw_extensions = new const char* [glfw_extension_count + 1];
-		for (unsigned int i = 0; i < glfw_extension_count; ++i)
-		{
-			debug_glfw_extensions[i] = glfw_extensions[i];
-		}
-		debug_glfw_extensions[glfw_extension_count] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
-
-		*count = glfw_extension_count + 1;
-		return debug_glfw_extensions;
+		*count = 3;
+#else
+		*count = 2;
 #endif
-
-		*count = glfw_extension_count;
-		return glfw_extensions;
+		return new const char*[] {
+			"VK_KHR_surface",
+			"VK_KHR_win32_surface",
+#ifdef DEBUG
+			VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+#endif
+		};
 	}
 
-	void Device::hasGLFWRequiredInstanceExtensions()
+	void Device::hasRequiredInstanceExtensions()
 	{
 		unsigned int extensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -445,7 +440,7 @@ namespace Isonia::Pipeline
 			}
 			if (missing)
 			{
-				throw std::runtime_error("Missing required glfw extension");
+				throw std::runtime_error("Missing required extension");
 			}
 		}
 
@@ -586,7 +581,7 @@ namespace Isonia::Pipeline
 			throw std::runtime_error("Failed to create instance!");
 		}
 
-		hasGLFWRequiredInstanceExtensions();
+		hasRequiredInstanceExtensions();
 	}
 
 	void Device::pickPhysicalDevice()

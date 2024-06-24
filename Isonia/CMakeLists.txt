@@ -104,22 +104,9 @@ endif()
 # Add Vulkan (not submodule must be externally downloaded see https://vulkan.lunarg.com/)
 find_package(Vulkan REQUIRED)
 
-# Add glfw
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
-add_subdirectory(External/glfw)
-target_include_directories(${PROJECT_NAME} PUBLIC "External/glfw/include")
-target_link_directories(${PROJECT_NAME} PUBLIC "External/glfw/src")
-
 # Target link
 target_link_libraries(${PROJECT_NAME}
     PUBLIC Vulkan::Vulkan
-    PUBLIC glfw
-
 )
 
 # Copy resources if they are newer

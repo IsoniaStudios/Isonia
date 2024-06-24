@@ -3,13 +3,13 @@
 
 namespace Isonia::Controllers
 {
-    void KeyboardController::move(GLFWwindow* window, float dt, Math::Transform* transform)
+    void KeyboardController::move(Pipeline::Window* window, float dt, Math::Transform* transform)
     {
         Math::Vector3 rotate{ 0.0f };
-        if (glfwGetKey(window, m_keys.look_right) == GLFW_PRESS) rotate.y += 1.f;
-        if (glfwGetKey(window, m_keys.look_left) == GLFW_PRESS) rotate.y -= 1.f;
-        if (glfwGetKey(window, m_keys.look_up) == GLFW_PRESS) rotate.x += 1.f;
-        if (glfwGetKey(window, m_keys.look_down) == GLFW_PRESS) rotate.x -= 1.f;
+        if (window->getKey(m_keys.look_right) == Pipeline::KeyActions::press) rotate.y += 1.f;
+        if (window->getKey(m_keys.look_left) == Pipeline::KeyActions::press) rotate.y -= 1.f;
+        if (window->getKey(m_keys.look_up) == Pipeline::KeyActions::press) rotate.x += 1.f;
+        if (window->getKey(m_keys.look_down) == Pipeline::KeyActions::press) rotate.x -= 1.f;
 
         if (Math::vec3Dot(&rotate, &rotate) > Math::epsilon)
         {
@@ -29,16 +29,16 @@ namespace Isonia::Controllers
         const Math::Vector3 up_dir{ 0.f, -1.f, 0.f };
 
         Math::Vector3 move_dir{ 0.f };
-        if (glfwGetKey(window, m_keys.move_forward) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &forward_dir);
-        if (glfwGetKey(window, m_keys.move_backward) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &forward_dir);
-        if (glfwGetKey(window, m_keys.move_right) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &right_dir);
-        if (glfwGetKey(window, m_keys.move_left) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &right_dir);
-        if (glfwGetKey(window, m_keys.move_up) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &up_dir);
-        if (glfwGetKey(window, m_keys.move_down) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &up_dir);
+        if (window->getKey(m_keys.move_forward) == Pipeline::KeyActions::press) move_dir = Math::vec3Add(&move_dir, &forward_dir);
+        if (window->getKey(m_keys.move_backward) == Pipeline::KeyActions::press) move_dir = Math::vec3Sub(&move_dir, &forward_dir);
+        if (window->getKey(m_keys.move_right) == Pipeline::KeyActions::press) move_dir = Math::vec3Add(&move_dir, &right_dir);
+        if (window->getKey(m_keys.move_left) == Pipeline::KeyActions::press) move_dir = Math::vec3Sub(&move_dir, &right_dir);
+        if (window->getKey(m_keys.move_up) == Pipeline::KeyActions::press) move_dir = Math::vec3Add(&move_dir, &up_dir);
+        if (window->getKey(m_keys.move_down) == Pipeline::KeyActions::press) move_dir = Math::vec3Sub(&move_dir, &up_dir);
 
         if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
-            float speed_scalar = glfwGetKey(window, m_keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, m_keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
+            float speed_scalar = window->getKey(m_keys.walk) == Pipeline::KeyActions::press ? m_walk_speed : window->getKey(m_keys.sprint) == Pipeline::KeyActions::press ? m_sprint_speed : m_move_speed;
             Math::Vector3 normalized_move_dir = Math::vec3Normalize(&move_dir);
             Math::Vector3 scaled_move_dir = Math::vec3Mul(&normalized_move_dir, speed_scalar);
             Math::Vector3 derivative_move_dir = Math::vec3Mul(&scaled_move_dir, dt);
@@ -46,11 +46,11 @@ namespace Isonia::Controllers
         }
     }
 
-    void KeyboardControllerIsometric::move(GLFWwindow* window, float dt, Math::Transform* transform)
+    void KeyboardControllerIsometric::move(Pipeline::Window* window, float dt, Math::Transform* transform)
     {
         Math::Vector3 rotate{ 0.0f };
-        if (glfwGetKey(window, m_keys.look_right) == GLFW_PRESS) rotate.y -= 1.f;
-        if (glfwGetKey(window, m_keys.look_left) == GLFW_PRESS) rotate.y += 1.f;
+        if (window->getKey(m_keys.look_right) == Pipeline::KeyActions::press) rotate.y -= 1.f;
+        if (window->getKey(m_keys.look_left) == Pipeline::KeyActions::press) rotate.y += 1.f;
 
         if (Math::vec3Dot(&rotate, &rotate) > Math::epsilon)
         {
@@ -66,16 +66,16 @@ namespace Isonia::Controllers
         const Math::Vector3 up_dir{ 0.f, -1.f, 0.f };
 
         Math::Vector3 move_dir{ 0.f };
-        if (glfwGetKey(window, m_keys.move_forward) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &forward_dir);
-        if (glfwGetKey(window, m_keys.move_backward) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &forward_dir);
-        if (glfwGetKey(window, m_keys.move_right) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &right_dir);
-        if (glfwGetKey(window, m_keys.move_left) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &right_dir);
-        if (glfwGetKey(window, m_keys.move_up) == GLFW_PRESS) move_dir = Math::vec3Add(&move_dir, &up_dir);
-        if (glfwGetKey(window, m_keys.move_down) == GLFW_PRESS) move_dir = Math::vec3Sub(&move_dir, &up_dir);
+        if (window->getKey(m_keys.move_forward) == Pipeline::KeyActions::press) move_dir = Math::vec3Add(&move_dir, &forward_dir);
+        if (window->getKey(m_keys.move_backward) == Pipeline::KeyActions::press) move_dir = Math::vec3Sub(&move_dir, &forward_dir);
+        if (window->getKey(m_keys.move_right) == Pipeline::KeyActions::press) move_dir = Math::vec3Add(&move_dir, &right_dir);
+        if (window->getKey(m_keys.move_left) == Pipeline::KeyActions::press) move_dir = Math::vec3Sub(&move_dir, &right_dir);
+        if (window->getKey(m_keys.move_up) == Pipeline::KeyActions::press) move_dir = Math::vec3Add(&move_dir, &up_dir);
+        if (window->getKey(m_keys.move_down) == Pipeline::KeyActions::press) move_dir = Math::vec3Sub(&move_dir, &up_dir);
 
         if (Math::vec3Dot(&move_dir, &move_dir) > Math::epsilon)
         {
-            float speed_scalar = glfwGetKey(window, m_keys.walk) == GLFW_PRESS ? m_walk_speed : glfwGetKey(window, m_keys.sprint) == GLFW_PRESS ? m_sprint_speed : m_move_speed;
+            float speed_scalar = window->getKey(m_keys.walk) == Pipeline::KeyActions::press ? m_walk_speed : window->getKey(m_keys.sprint) == Pipeline::KeyActions::press ? m_sprint_speed : m_move_speed;
             Math::Vector3 normalized_move_dir = Math::vec3Normalize(&move_dir);
             Math::Vector3 scaled_move_dir = Math::vec3Mul(&normalized_move_dir, speed_scalar);
             Math::Vector3 derivative_move_dir = Math::vec3Mul(&scaled_move_dir, dt);

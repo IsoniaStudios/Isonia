@@ -7,7 +7,7 @@ Isonia::Isonia* global_isonia_instance = nullptr;
 
 void* createIsoniaWindow() {
     global_isonia_instance = new Isonia::Isonia();
-    return global_isonia_instance->get_GLFW_window_handle();
+    return global_isonia_instance->get_window_handle();
 }
 
 void destroyIsoniaWindow(void* window_handle) {
