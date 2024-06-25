@@ -34,8 +34,8 @@ namespace Isonia::Pipeline::RenderSystems
 			{
 				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
 				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
-				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
-				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
+				//Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
+				//Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
 			}
 		}
 	}
@@ -166,7 +166,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 		if (vkCreatePipelineLayout(m_device->getDevice(), &pipeline_layout_info, nullptr, &m_ground_pipeline_layout) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create pipeline layout!");
+			//throw std::runtime_error("Failed to create pipeline layout!");
 		}
 	}
 
@@ -205,7 +205,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_layout_info.pPushConstantRanges = nullptr;
 		if (vkCreatePipelineLayout(m_device->getDevice(), &pipeline_layout_info, nullptr, &m_grass_pipeline_layout) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create pipeline layout!");
+			//throw std::runtime_error("Failed to create pipeline layout!");
 		}
 	}
 

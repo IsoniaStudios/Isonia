@@ -1,9 +1,6 @@
 // internal
 #include "Math.h"
 
-// std
-#include <cmath>
-
 namespace Isonia::Math
 {
     extern inline constexpr float radiansf(const float degrees)
@@ -26,22 +23,27 @@ namespace Isonia::Math
 
     extern inline float cosf(const float radians)
     {
-        return std::cos(radians);
+        return 1.0f;
+        //return std::cos(radians);
     }
     extern inline float sinf(const float radians)
     {
-        return std::sin(radians);
+        return 1.0f;
+        //return std::sin(radians);
     }
     extern inline float tanf(const float radians)
     {
-        return std::tan(radians);
+        return 1.0f;
+        //return std::tan(radians);
     }
     extern inline float atanf(const float radians)
     {
-        return std::atan(radians);
+        return 1.0f;
+        //return std::atan(radians);
     }
     extern inline float atan2f(const float y, const float x)
     {
-        return std::atan2(y, x);
+        return 1.0f;
+        //return std::atan2(y, x);
     }
 }

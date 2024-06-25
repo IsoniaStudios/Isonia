@@ -39,13 +39,13 @@ namespace Isonia::Pipeline
 
         if (size == VK_WHOLE_SIZE)
         {
-            memcpy(m_mapped, data, m_buffer_size);
+            Utils::memcpy(m_mapped, data, m_buffer_size);
         }
         else
         {
             char* memOffset = (char*)m_mapped;
             memOffset += offset;
-            memcpy(memOffset, data, size);
+            Utils::memcpy(memOffset, data, size);
         }
     }
 

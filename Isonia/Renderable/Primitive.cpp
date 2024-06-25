@@ -236,7 +236,8 @@ namespace Isonia::Renderable
 			break;
 
 		default:
-			throw std::invalid_argument("Unknown Primitive Type");
+			//throw std::invalid_argument("Unknown Primitive Type");'
+			break;
 		}
 	};
 	extern constexpr const VertexComplete* generatePrimitiveVertices(const PrimitiveType type)
@@ -265,7 +266,8 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereVertices(1);
 
 		default:
-			throw std::invalid_argument("Unknown Primitive Type");
+			//throw std::invalid_argument("Unknown Primitive Type");
+			break;
 		}
 	};
 	extern constexpr const unsigned int generatePrimitiveVerticesCount(const PrimitiveType type)
@@ -294,7 +296,8 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereVerticesCount(1);
 
 		default:
-			throw std::invalid_argument("Unknown Primitive Type");
+			//throw std::invalid_argument("Unknown Primitive Type");
+			break;
 		}
 	};
 
@@ -324,7 +327,8 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereIndices(indices, 1);
 
 		default:
-			throw std::invalid_argument("Unknown Primitive Type");
+			//throw std::invalid_argument("Unknown Primitive Type");
+			break;
 		}
 	};
 	extern constexpr const unsigned int* generatePrimitiveIndices(const PrimitiveType type)
@@ -353,7 +357,8 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereIndices(1);
 
 		default:
-			throw std::invalid_argument("Unknown Primitive Type");
+			//throw std::invalid_argument("Unknown Primitive Type");
+			break;
 		}
 	};
 	extern constexpr const unsigned int generatePrimitiveIndicesCount(const PrimitiveType type)
@@ -382,7 +387,8 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereIndicesCount(1);
 
 		default:
-			throw std::invalid_argument("Unknown Primitive Type");
+			//throw std::invalid_argument("Unknown Primitive Type");
+			break;
 		}
 	};
 }

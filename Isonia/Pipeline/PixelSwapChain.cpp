@@ -198,7 +198,7 @@ namespace Isonia::Pipeline
 		VkResult queueSubmitResult = vkQueueSubmit(m_device->getGraphicsQueue(), 1, &submitInfo, m_in_flight_fences[m_current_frame]);
 		if (queueSubmitResult != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to submit draw command buffer!");
+			//throw std::runtime_error("Failed to submit draw command buffer!");
 		}
 
 		VkPresentInfoKHR presentInfo = {};
@@ -288,7 +288,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateSwapchainKHR(m_device->getDevice(), &createInfo, nullptr, &m_swap_chain) != VK_SUCCESS)
 		{
-			throw std::runtime_error("failed to create swap chain!");
+			//throw std::runtime_error("failed to create swap chain!");
 		}
 
 		// we only specified a minimum number of images in the swap chain, so the implementation is
@@ -334,7 +334,7 @@ namespace Isonia::Pipeline
 
 			if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_swap_chain_image_views[i]) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create texture image view!");
+				//throw std::runtime_error("Failed to create texture image view!");
 			}
 		}
 	}
@@ -395,7 +395,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateRenderPass(m_device->getDevice(), &renderPassInfo, nullptr, &m_render_pass) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to create render pass!");
+			//throw std::runtime_error("Failed to create render pass!");
 		}
 	}
 
@@ -417,7 +417,7 @@ namespace Isonia::Pipeline
 
 			if (vkCreateFramebuffer(m_device->getDevice(), &framebufferInfo, nullptr, &m_swap_chain_framebuffers[i]) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create framebuffer!");
+				//throw std::runtime_error("Failed to create framebuffer!");
 			}
 		}
 	}
@@ -468,7 +468,7 @@ namespace Isonia::Pipeline
 
 			if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_color_image_views[i]) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create texture image view!");
+				//throw std::runtime_error("Failed to create texture image view!");
 			}
 		}
 	}
@@ -519,7 +519,7 @@ namespace Isonia::Pipeline
 
 			if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_depth_image_views[i]) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create texture image view!");
+				//throw std::runtime_error("Failed to create texture image view!");
 			}
 		}
 	}
@@ -545,7 +545,7 @@ namespace Isonia::Pipeline
 				vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_render_finished_semaphores[i]) != VK_SUCCESS ||
 				vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &m_in_flight_fences[i]) != VK_SUCCESS)
 			{
-				throw std::runtime_error("Failed to create synchronization objects for a frame!");
+				//throw std::runtime_error("Failed to create synchronization objects for a frame!");
 			}
 		}
 	}
@@ -571,7 +571,7 @@ namespace Isonia::Pipeline
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
-				std::cout << "Present mode: Immediate" << std::endl;
+				//std::cout << "Present mode: Immediate" << std::endl;
 				return available_present_modes[i];
 			}
 		}
@@ -579,12 +579,12 @@ namespace Isonia::Pipeline
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
-				std::cout << "Present mode: Mailbox" << std::endl;
+				//std::cout << "Present mode: Mailbox" << std::endl;
 				return available_present_modes[i];
 			}
 		}
 		*/
-		std::cout << "Present mode: V-Sync" << std::endl;
+		//std::cout << "Present mode: V-Sync" << std::endl;
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 

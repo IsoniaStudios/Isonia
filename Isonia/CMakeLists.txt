@@ -97,7 +97,7 @@ target_sources(${PROJECT_NAME} PUBLIC ${MY_SOURCES})
 if(MSVC)
     target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
     if(NOT DLL_BUILD)
-        set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+        set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:main")
     endif()
 endif()
 
@@ -107,6 +107,7 @@ find_package(Vulkan REQUIRED)
 # Target link
 target_link_libraries(${PROJECT_NAME}
     PUBLIC Vulkan::Vulkan
+    PRIVATE user32 kernel32 MSVCRT
 )
 
 # Copy resources if they are newer

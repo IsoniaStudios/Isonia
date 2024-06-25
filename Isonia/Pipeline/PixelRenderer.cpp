@@ -74,7 +74,7 @@ namespace Isonia::Pipeline
 
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
-			throw std::runtime_error("Failed to acquire swap chain image!");
+			//throw std::runtime_error("Failed to acquire swap chain image!");
 		}
 
 		m_is_frame_started = true;
@@ -85,7 +85,7 @@ namespace Isonia::Pipeline
 
 		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to begin recording command buffer!");
+			//throw std::runtime_error("Failed to begin recording command buffer!");
 		}
 		return commandBuffer;
 	}
@@ -96,7 +96,7 @@ namespace Isonia::Pipeline
 		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to record command buffer!");
+			//throw std::runtime_error("Failed to record command buffer!");
 		}
 
 		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
@@ -108,7 +108,7 @@ namespace Isonia::Pipeline
 		}
 		else if (result != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to present swap chain image!");
+			//throw std::runtime_error("Failed to present swap chain image!");
 		}
 
 		m_is_frame_started = false;
@@ -257,7 +257,7 @@ namespace Isonia::Pipeline
 
 		if (vkAllocateCommandBuffers(m_device->getDevice(), &allocInfo, m_command_buffers) != VK_SUCCESS)
 		{
-			throw std::runtime_error("Failed to allocate command buffers!");
+			//throw std::runtime_error("Failed to allocate command buffers!");
 		}
 	}
 
@@ -335,7 +335,7 @@ namespace Isonia::Pipeline
 
 			if (!old_pixel_swap_chain->compareSwapFormats(m_pixel_swap_chain))
 			{
-				throw std::runtime_error("Swap chain image(or depth) format has changed!");
+				//throw std::runtime_error("Swap chain image(or depth) format has changed!");
 			}
 		}
 	}

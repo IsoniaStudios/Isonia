@@ -6,10 +6,6 @@
 // external
 #include <vulkan/vulkan.h>
 
-// std
-#include <cassert>
-#include <stdexcept>
-
 namespace Isonia::Pipeline::Descriptors
 {
 	struct DescriptorSetLayout

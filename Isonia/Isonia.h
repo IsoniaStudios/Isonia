@@ -14,9 +14,6 @@
 #include "Pipeline/RenderSystems/RenderSystems.h"
 #include "Renderable/Renderable.h"
 
-// std
-#include <chrono>
-
 namespace Isonia
 {
 	struct Isonia

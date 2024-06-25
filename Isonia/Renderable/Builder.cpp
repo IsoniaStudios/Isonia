@@ -130,7 +130,7 @@ namespace Isonia::Renderable
 
 	int BuilderXZUniform::calculateCol(const int index, const int strip) const
 	{
-		return abs(((strip + 1) / 2) * (int(vertices) * 2 - 1) - ((index + (strip % 2)) / 2));
+		return Math::absi(((strip + 1) / 2) * (int(vertices) * 2 - 1) - ((index + (strip % 2)) / 2));
 	}
 	int BuilderXZUniform::calculateRow(const int index, const int strip) const
 	{

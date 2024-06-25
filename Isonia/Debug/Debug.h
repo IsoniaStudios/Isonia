@@ -3,10 +3,6 @@
 // internal
 #include "../Math/Math.h"
 
-// std
-#include <iostream>
-#include <iomanip>
-
 namespace Isonia::Debug
 {
     struct PerformanceTracker

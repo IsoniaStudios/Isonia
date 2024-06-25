@@ -13,8 +13,6 @@ namespace Isonia
 
 	Isonia::~Isonia()
 	{
-		auto start_time = std::chrono::high_resolution_clock::now();
-
 		delete m_cloud;
 		delete m_debugger;
 		delete m_grass;
@@ -40,23 +38,18 @@ namespace Isonia
 			delete buffer;
 		}
 		delete m_global_pool;
-
-		auto end_time = std::chrono::high_resolution_clock::now();
-		float initilize_time = std::chrono::duration<float, std::chrono::milliseconds::period>(end_time - start_time).count();
-		std::cout << std::endl << "Uninitialize Time: " << initilize_time << " ms" << std::endl;
 	}
 
 	void Isonia::run()
 	{
 		Debug::PerformanceTracker performance_tracker;
-		auto current_time = std::chrono::high_resolution_clock::now();
+		float current_time_s = 0.0f;
 		while (!m_window.m_should_close)
 		{
 			m_window.pollEvents();
 
-			auto new_time = std::chrono::high_resolution_clock::now();
-			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time - current_time).count();
-			current_time = new_time;
+			float frame_time_s = 1.0f / 60.0f;
+			current_time_s += frame_time_s;
 
 			performance_tracker.logFrameTime(frame_time_s);
 
