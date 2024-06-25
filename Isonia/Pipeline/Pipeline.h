@@ -46,16 +46,10 @@ namespace Isonia::Pipeline
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-        const VkExtent2D getExtent() const;
-
         int getKey(int key) const;
 
-        bool shouldClose() const;
-        void pollEvents() const;
         void waitEvents() const;
-
-        void resetResizedFlag();
-        const bool wasResized() const;
+        void pollEvents();
 
         void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
         
@@ -63,15 +57,15 @@ namespace Isonia::Pipeline
         void registerCallback(EventHandler handler);
         void propagateEvent();
 
+        VkExtent2D m_extent;
+        bool m_resized = false;
+        bool m_should_close = false;
+
     private:
         void createWindow();
-        void framebufferResizeCallback(const unsigned int width, const unsigned int height);
 
         void* m_window_instance;
         void* m_window;
-
-        VkExtent2D m_extent;
-        bool m_resized = false;
 
         unsigned int m_event_count = 0;
         EventHandler m_handlers[4];

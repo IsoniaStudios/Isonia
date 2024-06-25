@@ -22,39 +22,27 @@ namespace Isonia::Pipeline
         return 0;
     }
 
-    bool Window::shouldClose() const
-    {
-        return false;
-    }
-
-    void Window::pollEvents() const
+    void Window::pollEvents()
     {
         MSG message;
 
-        if (GetMessage(&message, NULL, 0, 0)) {
-            TranslateMessage(&message);
-            DispatchMessage(&message);
+        while (PeekMessageW(&message, NULL, 0, 0, PM_REMOVE))
+        {
+            if (message.message == WM_QUIT)
+            {
+                m_should_close = true;
+            }
+            else
+            {
+                TranslateMessage(&message);
+                DispatchMessage(&message);
+            }
         }
     }
 
     void Window::waitEvents() const
     {
 
-    }
-
-    const VkExtent2D Window::getExtent() const
-    {
-        return m_extent;
-    }
-
-    void Window::resetResizedFlag()
-    {
-        m_resized = false;
-    }
-
-    const bool Window::wasResized() const
-    {
-        return m_resized;
     }
 
     void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
@@ -83,27 +71,49 @@ namespace Isonia::Pipeline
         }
     }
 
-    void Window::framebufferResizeCallback(const unsigned int width, const unsigned int height)
+    LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
-        m_resized = true;
-        m_extent = { width, height };
-        propagateEvent();
-    }
+        switch (message)
+        {
+        case WM_NCCREATE:
+        {
+            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreate->lpCreateParams));
+        }
+        break;
 
-    LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
-        LPARAM lParam) {
-        switch (message) {
         case WM_DESTROY:
+        {
             DestroyWindow(hWnd);
             PostQuitMessage(0);
-            break;
+        }
+        break;
+
         case WM_PAINT:
+        {
             ValidateRect(hWnd, NULL);
-            break;
+        }
+        break;
+
+        case WM_SIZE:
+        {
+            const unsigned int width = LOWORD(lParam);
+            const unsigned int height = HIWORD(lParam);
+
+            Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            if (window)
+            {
+                window->m_resized = true;
+                window->m_extent = { width, height };
+                window->propagateEvent();
+            }
+        }
+        break;
         }
 
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
+
 
     void Window::createWindow()
     {
@@ -140,7 +150,13 @@ namespace Isonia::Pipeline
         int screenHeight = GetSystemMetrics(SM_CYSCREEN);
         int windowX = screenWidth / 2 - m_extent.width / 2;
         int windowY = screenHeight / 2 - m_extent.height / 2;
-        m_window = CreateWindow(m_name, m_name, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, windowX, windowY, m_extent.width, m_extent.height, NULL, NULL, h_instance_recast, NULL);
+
+        RECT desiredRect = { 0, 0, m_extent.width, m_extent.height };
+        AdjustWindowRect(&desiredRect, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, FALSE);
+        int windowWidth = desiredRect.right - desiredRect.left;
+        int windowHeight = desiredRect.bottom - desiredRect.top;
+
+        m_window = CreateWindow(m_name, m_name, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, windowX, windowY, windowWidth, windowHeight, NULL, NULL, h_instance_recast, this);
 
         HWND m_window_recast = static_cast<HWND>(m_window);
         ShowWindow(m_window_recast, SW_SHOW);

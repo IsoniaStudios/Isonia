@@ -5,16 +5,10 @@ namespace Isonia
 {
 	Isonia::Isonia()
 	{
-		auto start_time = std::chrono::high_resolution_clock::now();
-
 		initializeDescriptorPool();
 		initializeRenderSystems();
 		initializeEntities();
 		initializePlayer();
-
-		auto end_time = std::chrono::high_resolution_clock::now();
-		float initilize_time = std::chrono::duration<float, std::chrono::milliseconds::period>(end_time - start_time).count();
-		std::cout << "Initilize Time: " << initilize_time << " ms" << std::endl;
 	}
 
 	Isonia::~Isonia()
@@ -56,7 +50,7 @@ namespace Isonia
 	{
 		Debug::PerformanceTracker performance_tracker;
 		auto current_time = std::chrono::high_resolution_clock::now();
-		while (!m_window.shouldClose())
+		while (!m_window.m_should_close)
 		{
 			m_window.pollEvents();
 

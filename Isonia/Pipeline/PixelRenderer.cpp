@@ -100,9 +100,9 @@ namespace Isonia::Pipeline
 		}
 
 		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->wasResized())
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->m_resized)
 		{
-			m_window->resetResizedFlag();
+			m_window->m_resized = false;
 			recreateSwapChain();
 			propigateRenderResizeEvent();
 		}
@@ -313,10 +313,10 @@ namespace Isonia::Pipeline
 
 	void PixelRenderer::recreateSwapChain()
 	{
-		VkExtent2D window_extent = m_window->getExtent();
+		VkExtent2D window_extent = m_window->m_extent;
 		while (window_extent.width == 0 || window_extent.height == 0)
 		{
-			window_extent = m_window->getExtent();
+			window_extent = m_window->m_extent;
 			m_window->waitEvents();
 		}
 		vkDeviceWaitIdle(m_device->getDevice());
