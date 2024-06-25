@@ -64,7 +64,11 @@ namespace Isonia::Pipeline
         void propagateEvent();
 
     private:
+        void createWindow();
         void framebufferResizeCallback(const unsigned int width, const unsigned int height);
+
+        void* m_window_instance;
+        void* m_window;
 
         VkExtent2D m_extent;
         bool m_resized = false;

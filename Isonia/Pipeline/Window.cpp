@@ -3,38 +3,14 @@
 
 // external
 #include <windows.h>
-
-LRESULT CALLBACK WindowProcessMessage(HWND window_handle, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
-    case WM_QUIT:
-    case WM_DESTROY: {
-    } break;
-
-    default: { // Message not handled; pass on to default message handling function
-        return DefWindowProc(window_handle, message, wParam, lParam);
-    } break;
-    }
-    return 0;
-}
+#include <vulkan/vulkan_win32.h>
 
 namespace Isonia::Pipeline
 {
     Window::Window(const unsigned int width, const unsigned int height, const char* name)
         : m_extent({ width, height }), m_name(name)
     {
-        WNDCLASS window_class = { 0 };
-        window_class.lpszClassName = name;
-        window_class.lpfnWndProc = WindowProcessMessage;
-
-        RegisterClass(&window_class);
-
-        HWND window_handle = CreateWindow(name, "test", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, NULL, NULL);
-        if (window_handle == NULL)
-        {
-            throw std::runtime_error("Failed to create window handle!");
-        }
-
-        ShowWindow(window_handle, SW_SHOW);
+        createWindow();
     }
 
     Window::~Window()
@@ -53,7 +29,12 @@ namespace Isonia::Pipeline
 
     void Window::pollEvents() const
     {
+        MSG message;
 
+        if (GetMessage(&message, NULL, 0, 0)) {
+            TranslateMessage(&message);
+            DispatchMessage(&message);
+        }
     }
 
     void Window::waitEvents() const
@@ -78,7 +59,15 @@ namespace Isonia::Pipeline
 
     void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
     {
+        VkWin32SurfaceCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        createInfo.hwnd = static_cast<HWND>(m_window);
+        createInfo.hinstance = static_cast<HINSTANCE>(m_window_instance);
 
+        if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, surface) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create window surface!");
+        }
     }
 
     void Window::registerCallback(EventHandler handler)
@@ -99,5 +88,63 @@ namespace Isonia::Pipeline
         m_resized = true;
         m_extent = { width, height };
         propagateEvent();
+    }
+
+    LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam,
+        LPARAM lParam) {
+        switch (message) {
+        case WM_DESTROY:
+            DestroyWindow(hWnd);
+            PostQuitMessage(0);
+            break;
+        case WM_PAINT:
+            ValidateRect(hWnd, NULL);
+            break;
+        }
+
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+
+    void Window::createWindow()
+    {
+        m_window_instance = GetModuleHandle(NULL);
+
+        AllocConsole();
+        AttachConsole(GetCurrentProcessId());
+        freopen("CON", "w", stdout);
+        freopen("CON", "w", stderr);
+        SetConsoleTitle(TEXT(m_name));
+
+        HINSTANCE h_instance_recast = static_cast<HINSTANCE>(m_window_instance);
+        WNDCLASSEX wcex;
+
+        wcex.cbSize = sizeof(WNDCLASSEX);
+        wcex.style = CS_HREDRAW | CS_VREDRAW;
+        wcex.lpfnWndProc = WndProc;
+        wcex.cbClsExtra = 0;
+        wcex.cbWndExtra = 0;
+        wcex.hInstance = h_instance_recast;
+        wcex.hIcon = LoadIcon(h_instance_recast, MAKEINTRESOURCE(IDI_APPLICATION));
+        wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+        wcex.lpszMenuName = NULL;
+        wcex.lpszClassName = m_name;
+        wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+
+        if (!RegisterClassEx(&wcex))
+        {
+            throw std::runtime_error("Failed to register window");
+        }
+
+        int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+        int windowX = screenWidth / 2 - m_extent.width / 2;
+        int windowY = screenHeight / 2 - m_extent.height / 2;
+        m_window = CreateWindow(m_name, m_name, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, windowX, windowY, m_extent.width, m_extent.height, NULL, NULL, h_instance_recast, NULL);
+
+        HWND m_window_recast = static_cast<HWND>(m_window);
+        ShowWindow(m_window_recast, SW_SHOW);
+        SetForegroundWindow(m_window_recast);
+        SetFocus(m_window_recast);
     }
 }
