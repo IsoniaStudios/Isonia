@@ -1,6 +1,9 @@
 // internal
 #include "Isonia.h"
 
+// external
+#include <chrono>
+
 namespace Isonia
 {
 	Isonia::Isonia()
@@ -43,13 +46,14 @@ namespace Isonia
 	void Isonia::run()
 	{
 		Debug::PerformanceTracker performance_tracker;
-		float current_time_s = 0.0f;
+		std::chrono::time_point current_time_s = std::chrono::high_resolution_clock::now();
 		while (!m_window.m_should_close)
 		{
 			m_window.pollEvents();
 
-			float frame_time_s = 1.0f / 60.0f;
-			current_time_s += frame_time_s;
+			std::chrono::time_point new_time_s = std::chrono::high_resolution_clock::now();
+			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time_s - current_time_s).count();
+			current_time_s = new_time_s;
 
 			performance_tracker.logFrameTime(frame_time_s);
 

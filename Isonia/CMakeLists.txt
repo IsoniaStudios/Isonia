@@ -110,7 +110,9 @@ target_link_libraries(${PROJECT_NAME}
     #PRIVATE user32 kernel32 MSVCRT
 )
 target_link_options(${PROJECT_NAME} PRIVATE
-    "/GS-"
+    /MP8
+    /GS-
+    /HEAP:209715200,209715200
 )
 
 # Copy resources if they are newer
