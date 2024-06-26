@@ -21,14 +21,22 @@ namespace Isonia::Pipeline
 
     int Window::getKey(int key) const
     {
-        return 0;
+        SHORT keyState = GetAsyncKeyState(key);
+        if (keyState & 0x8000)
+        {
+            return KeyActions::press;
+        }
+        else
+        {
+            return KeyActions::release;
+        }
     }
 
     void Window::pollEvents()
     {
         MSG message;
 
-        while (PeekMessageW(&message, NULL, 0, 0, PM_REMOVE))
+        while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
         {
             if (message.message == WM_QUIT)
             {
@@ -86,8 +94,8 @@ namespace Isonia::Pipeline
 
         case WM_DESTROY:
         {
-            DestroyWindow(hWnd);
-            PostQuitMessage(0);
+            Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            window->m_should_close = true;
         }
         break;
 
@@ -103,12 +111,9 @@ namespace Isonia::Pipeline
             const unsigned int height = HIWORD(lParam);
 
             Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-            if (window)
-            {
-                window->m_resized = true;
-                window->m_extent = { width, height };
-                window->propagateEvent();
-            }
+            window->m_resized = true;
+            window->m_extent = { width, height };
+            window->propagateEvent();
         }
         break;
         }

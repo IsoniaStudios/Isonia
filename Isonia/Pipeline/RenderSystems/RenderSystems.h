@@ -71,7 +71,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Renderable::BuilderXZUniformN* m_grounds;
 		Renderable::BuilderXZUniformNP* m_grasses;
 
-		static constexpr const unsigned int grounds = 3;
+		static constexpr const unsigned int grounds = 1;
 		static constexpr const unsigned int grounds_count = grounds * grounds;
 	};
 

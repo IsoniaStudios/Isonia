@@ -29,13 +29,14 @@ namespace Isonia::Pipeline
     };
     struct KeyActions
     {
+        static const constexpr int release = 0;
         static const constexpr int press = 1;
     };
 
     struct Window
     {
     public:
-        Window(const unsigned int width, const unsigned int height, const char* name);
+        Window(unsigned int width, unsigned int height, const char* name);
         ~Window();
 
         Window(const Window&) = delete;
@@ -47,7 +48,7 @@ namespace Isonia::Pipeline
         void pollEvents();
 
         void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
-        
+
         typedef void (*EventHandler)(Window*);
         void registerCallback(EventHandler handler);
         void propagateEvent();

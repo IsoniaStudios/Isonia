@@ -50,6 +50,10 @@ namespace Isonia
 		while (!m_window.m_should_close)
 		{
 			m_window.pollEvents();
+			if (m_window.m_should_close)
+			{
+				break;
+			}
 
 			std::chrono::time_point new_time_s = std::chrono::high_resolution_clock::now();
 			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time_s - current_time_s).count();
@@ -137,7 +141,7 @@ namespace Isonia
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
 		m_grass = Renderable::createDebugTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
-		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 512, 512);
+		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device, 7u))

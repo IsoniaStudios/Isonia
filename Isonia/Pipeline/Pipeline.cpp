@@ -221,6 +221,7 @@ namespace Isonia::Pipeline
 		vertexInputInfo.pVertexBindingDescriptions = config_info->binding_descriptions;
 
 		m_shader_stages = shader_stages;
+		m_shader_stages_count = shader_stages_count;
 		for (unsigned int i = 0; i < shader_stages_count; i++)
 		{
 			m_stage_flags |= shader_stages[i].stage;
