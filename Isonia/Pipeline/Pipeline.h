@@ -2,7 +2,6 @@
 
 // internal
 #include "../Math/Math.h"
-#include "../Utils/Utils.h"
 
 // external
 #include <vulkan/vulkan.h>

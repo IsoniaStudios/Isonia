@@ -1,6 +1,9 @@
 // internal
 #include "Pipeline.h"
 
+// external
+#include <cstring>
+
 namespace Isonia::Pipeline
 {
     Buffer::Buffer(Device* device, VkDeviceSize instance_size, unsigned int instance_count, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags memory_property_flags, VkDeviceSize min_offset_alignment)
@@ -39,13 +42,13 @@ namespace Isonia::Pipeline
 
         if (size == VK_WHOLE_SIZE)
         {
-            Utils::memcpy(m_mapped, data, m_buffer_size);
+            memcpy(m_mapped, data, m_buffer_size);
         }
         else
         {
             char* memOffset = (char*)m_mapped;
             memOffset += offset;
-            Utils::memcpy(memOffset, data, size);
+            memcpy(memOffset, data, size);
         }
     }
 

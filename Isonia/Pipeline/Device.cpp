@@ -1,6 +1,9 @@
 // internal
 #include "Pipeline.h"
 
+// external
+#include <cstring>
+
 namespace Isonia::Pipeline
 {
 	Device::Device(Window* window) : m_window(window)
@@ -340,7 +343,7 @@ namespace Isonia::Pipeline
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL Device::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 	{
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		//std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 		return VK_FALSE;
 	}
 
@@ -433,7 +436,7 @@ namespace Isonia::Pipeline
 			//std::cout << "\t" << requiredExtensions[i] << std::endl;
 			for (unsigned int q = 0; q < extensionCount; q++)
 			{
-				if (Utils::strcmp(extensions[q].extensionName, requiredExtensions[i]) == 0)
+				if (strcmp(extensions[q].extensionName, requiredExtensions[i]) == 0)
 				{
 					missing = false;
 				}
@@ -460,7 +463,7 @@ namespace Isonia::Pipeline
 			bool found = false;
 			for (unsigned int av_i = 0; av_i < extensionCount; av_i++)
 			{
-				if (Utils::strcmp(m_device_extensions[req_i], availableExtensions[av_i].extensionName) == 0)
+				if (strcmp(m_device_extensions[req_i], availableExtensions[av_i].extensionName) == 0)
 				{
 					found = true;
 					break;

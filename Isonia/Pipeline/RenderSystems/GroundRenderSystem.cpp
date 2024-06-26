@@ -10,6 +10,9 @@
 #include "../../Shaders/Include/Grass/VertexShader_vert.h"
 #include "../../Shaders/Include/Grass/GeomShader_geom.h"
 
+// external
+#include <new>
+
 namespace Isonia::Pipeline::RenderSystems
 {
 	GroundRenderSystem::GroundRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
@@ -34,8 +37,8 @@ namespace Isonia::Pipeline::RenderSystems
 			{
 				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
 				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
-				//Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
-				//Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
+				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
+				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
 			}
 		}
 	}

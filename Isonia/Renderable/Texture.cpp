@@ -1,6 +1,9 @@
 // internal
 #include "Renderable.h"
 
+// external
+#include <cstring>
+
 namespace Isonia::Renderable
 {
 	Texture::Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
@@ -128,7 +131,7 @@ namespace Isonia::Renderable
 
 		void* data;
 		vkMapMemory(m_device->getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
-		Utils::memcpy(data, source, static_cast<size_t>(imageSize));
+		memcpy(data, source, static_cast<size_t>(imageSize));
 		vkUnmapMemory(m_device->getDevice(), stagingBufferMemory);
 
 		m_format = format;
