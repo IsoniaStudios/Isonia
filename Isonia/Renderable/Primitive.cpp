@@ -1,6 +1,9 @@
 // internal
 #include "Renderable.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Renderable
 {
 	extern constexpr void generatePrimitiveFaceVertices(VertexComplete* vertices, const unsigned int num_sides, const float height)
@@ -236,8 +239,7 @@ namespace Isonia::Renderable
 			break;
 
 		default:
-			//throw std::invalid_argument("Unknown Primitive Type");'
-			break;
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
 	};
 	extern constexpr const VertexComplete* generatePrimitiveVertices(const PrimitiveType type)
@@ -266,8 +268,7 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereVertices(1);
 
 		default:
-			//throw std::invalid_argument("Unknown Primitive Type");
-			break;
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
 	};
 	extern constexpr const unsigned int generatePrimitiveVerticesCount(const PrimitiveType type)
@@ -296,8 +297,7 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereVerticesCount(1);
 
 		default:
-			//throw std::invalid_argument("Unknown Primitive Type");
-			break;
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
 	};
 
@@ -327,8 +327,7 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereIndices(indices, 1);
 
 		default:
-			//throw std::invalid_argument("Unknown Primitive Type");
-			break;
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
 	};
 	extern constexpr const unsigned int* generatePrimitiveIndices(const PrimitiveType type)
@@ -357,8 +356,7 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereIndices(1);
 
 		default:
-			//throw std::invalid_argument("Unknown Primitive Type");
-			break;
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
 	};
 	extern constexpr const unsigned int generatePrimitiveIndicesCount(const PrimitiveType type)
@@ -387,8 +385,7 @@ namespace Isonia::Renderable
 			return generatePrimitiveSphereIndicesCount(1);
 
 		default:
-			//throw std::invalid_argument("Unknown Primitive Type");
-			break;
+			throw std::invalid_argument("Unknown Primitive Type");
 		}
 	};
 }

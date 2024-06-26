@@ -6,6 +6,9 @@
 #include "../../Shaders/Include/Billboard/VertexShader_vert.h"
 #include "../../Shaders/Include/Billboard/GeomShader_geom.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Pipeline::RenderSystems
 {
 	DebuggerRenderSystem::DebuggerRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
@@ -59,7 +62,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_layout_info.pPushConstantRanges = nullptr;
 		if (vkCreatePipelineLayout(m_device->getDevice(), &pipeline_layout_info, nullptr, &m_pipeline_layout) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create pipeline layout!");
+			throw std::runtime_error("Failed to create pipeline layout!");
 		}
 	}
 

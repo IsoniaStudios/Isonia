@@ -3,6 +3,7 @@
 
 // external
 #include <cstring>
+#include <stdexcept>
 
 namespace Isonia::Renderable
 {
@@ -203,7 +204,7 @@ namespace Isonia::Renderable
 
 		if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_texture_image_view) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create texture image view!");
+			throw std::runtime_error("Failed to create texture image view!");
 		}
 	}
 
@@ -234,7 +235,7 @@ namespace Isonia::Renderable
 
 		if (vkCreateSampler(m_device->getDevice(), &samplerInfo, nullptr, &m_texture_sampler) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create texture sampler!");
+			throw std::runtime_error("Failed to create texture sampler!");
 		}
 	}
 
@@ -253,8 +254,7 @@ namespace Isonia::Renderable
 		case VK_FORMAT_R8G8B8A8_SRGB:
 			return 4;
 		default:
-			//throw std::invalid_argument("Unsupported image format!");
-			break;
+			throw std::invalid_argument("Unsupported image format!");
 		}
 	}
 }

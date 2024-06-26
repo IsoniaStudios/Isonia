@@ -2,6 +2,9 @@
 #include "Pipeline.h"
 #include "../Renderable/Renderable.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Pipeline
 {
 	Pipeline::Builder::Builder(Device* device, unsigned int m_shader_stages_count)
@@ -39,7 +42,7 @@ namespace Isonia::Pipeline
 		VkShaderModule shader_module{};
 		if (vkCreateShaderModule(m_device->getDevice(), &create_info, nullptr, &shader_module) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create shader module");
+			throw std::runtime_error("Failed to create shader module");
 		}
 		return shader_module;
 	}
@@ -245,7 +248,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateGraphicsPipelines(m_device->getDevice(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &m_graphics_pipeline) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create graphics pipeline");
+			throw std::runtime_error("Failed to create graphics pipeline");
 		}
 	}
 }

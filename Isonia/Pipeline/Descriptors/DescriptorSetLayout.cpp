@@ -1,6 +1,9 @@
 // internal
 #include "Descriptors.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Pipeline::Descriptors
 {
 	DescriptorSetLayout::Builder::Builder(Device* device, const unsigned int count)
@@ -38,7 +41,7 @@ namespace Isonia::Pipeline::Descriptors
 			nullptr,
 			&m_descriptor_set_layout) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create descriptor set layout!");
+			throw std::runtime_error("Failed to create descriptor set layout!");
 		}
 	}
 

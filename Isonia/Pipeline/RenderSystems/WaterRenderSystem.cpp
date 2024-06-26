@@ -5,6 +5,9 @@
 #include "../../Shaders/Include/Water/FragShader_frag.h"
 #include "../../Shaders/Include/Water/VertexShader_vert.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Pipeline::RenderSystems
 {
 	WaterRenderSystem::WaterRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
@@ -92,7 +95,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 		if (vkCreatePipelineLayout(m_device->getDevice(), &pipeline_layout_info, nullptr, &m_pipeline_layout) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create pipeline layout!");
+			throw std::runtime_error("Failed to create pipeline layout!");
 		}
 	}
 

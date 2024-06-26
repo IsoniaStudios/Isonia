@@ -1,6 +1,9 @@
 // internal
 #include "Descriptors.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Pipeline::Descriptors
 {
 	DescriptorPool::Builder::Builder(Device* device, const unsigned int count)
@@ -43,7 +46,7 @@ namespace Isonia::Pipeline::Descriptors
 
 		if (vkCreateDescriptorPool(device->getDevice(), &descriptor_pool_info, nullptr, &m_descriptor_pool) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create descriptor pool!");
+			throw std::runtime_error("Failed to create descriptor pool!");
 		}
 	}
 

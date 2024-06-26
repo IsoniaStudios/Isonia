@@ -12,6 +12,7 @@
 
 // external
 #include <new>
+#include <stdexcept>
 
 namespace Isonia::Pipeline::RenderSystems
 {
@@ -169,7 +170,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 		if (vkCreatePipelineLayout(m_device->getDevice(), &pipeline_layout_info, nullptr, &m_ground_pipeline_layout) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create pipeline layout!");
+			throw std::runtime_error("Failed to create pipeline layout!");
 		}
 	}
 
@@ -208,7 +209,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pipeline_layout_info.pPushConstantRanges = nullptr;
 		if (vkCreatePipelineLayout(m_device->getDevice(), &pipeline_layout_info, nullptr, &m_grass_pipeline_layout) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create pipeline layout!");
+			throw std::runtime_error("Failed to create pipeline layout!");
 		}
 	}
 

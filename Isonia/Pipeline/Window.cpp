@@ -4,6 +4,8 @@
 // external
 #include <windows.h>
 #include <vulkan/vulkan_win32.h>
+#include <stdexcept>
+#include <iostream>
 
 namespace Isonia::Pipeline
 {
@@ -54,7 +56,7 @@ namespace Isonia::Pipeline
 
         if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, surface) != VK_SUCCESS)
         {
-            //throw std::runtime_error("failed to create window surface!");
+            throw std::runtime_error("failed to create window surface!");
         }
     }
 
@@ -121,8 +123,8 @@ namespace Isonia::Pipeline
 
         AllocConsole();
         AttachConsole(GetCurrentProcessId());
-        //freopen("CON", "w", stdout);
-        //freopen("CON", "w", stderr);
+        freopen("CON", "w", stdout);
+        freopen("CON", "w", stderr);
         SetConsoleTitle(TEXT(m_name));
 
         HINSTANCE h_instance_recast = static_cast<HINSTANCE>(m_window_instance);
@@ -143,7 +145,7 @@ namespace Isonia::Pipeline
 
         if (!RegisterClassEx(&wcex))
         {
-            //throw std::runtime_error("Failed to register window");
+            throw std::runtime_error("Failed to register window");
         }
 
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);

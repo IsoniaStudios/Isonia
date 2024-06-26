@@ -1,6 +1,10 @@
 // internal
 #include "Debug.h"
 
+// external
+#include <iostream>
+#include <iomanip>
+
 namespace Isonia::Debug
 {
     void PerformanceTracker::logFrameTime(float frame_time_s)
@@ -18,16 +22,14 @@ namespace Isonia::Debug
         // Update highest frame time
         m_highest_frame_time_ms = Math::maxf(m_highest_frame_time_ms, frame_time_ms);
 
-        /*
         // Move the cursor to the beginning of the line
-        //std::cout << "\r";
+        std::cout << "\r";
 
         // Print performance statistics
-        //std::cout << std::fixed << std::setw(8) << std::setprecision(6)
+        std::cout << std::fixed << std::setw(8) << std::setprecision(6)
                   << "Frame Time: " << frame_time_ms << " ms"
                   << " | Average Frame Time: " << m_average_frame_time_ms << " ms"
                   << " | Highest Frame Time: " << m_highest_frame_time_ms << " ms"
                   << std::flush;
-        */
     }
 }

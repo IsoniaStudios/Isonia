@@ -3,6 +3,8 @@
 
 // external
 #include <cstring>
+#include <stdexcept>
+#include <iostream>
 
 namespace Isonia::Pipeline
 {
@@ -74,7 +76,7 @@ namespace Isonia::Pipeline
 				return candidates[i];
 			}
 		}
-		//throw std::runtime_error("Failed to find supported format!");
+		throw std::runtime_error("Failed to find supported format!");
 	}
 
 	unsigned int Device::findMemoryType(unsigned int typeFilter, VkMemoryPropertyFlags properties)
@@ -89,7 +91,7 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		//throw std::runtime_error("Failed to find suitable memory type!");
+		throw std::runtime_error("Failed to find suitable memory type!");
 	}
 
 	void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
@@ -102,7 +104,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateBuffer(m_device, &bufferInfo, nullptr, buffer) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create vertex buffer!");
+			throw std::runtime_error("Failed to create vertex buffer!");
 		}
 
 		VkMemoryRequirements memRequirements;
@@ -115,7 +117,7 @@ namespace Isonia::Pipeline
 
 		if (vkAllocateMemory(m_device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to allocate vertex buffer memory!");
+			throw std::runtime_error("Failed to allocate vertex buffer memory!");
 		}
 
 		vkBindBufferMemory(m_device, *buffer, *bufferMemory, 0);
@@ -247,7 +249,7 @@ namespace Isonia::Pipeline
 		}
 		else
 		{
-			//throw std::invalid_argument("Unsupported layout transition!");
+			throw std::invalid_argument("Unsupported layout transition!");
 		}
 
 		vkCmdPipelineBarrier(
@@ -299,7 +301,7 @@ namespace Isonia::Pipeline
 	{
 		if (vkCreateImage(m_device, imageInfo, nullptr, image) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create image!");
+			throw std::runtime_error("Failed to create image!");
 		}
 
 		VkMemoryRequirements memRequirements;
@@ -312,12 +314,12 @@ namespace Isonia::Pipeline
 
 		if (vkAllocateMemory(m_device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to allocate image memory!");
+			throw std::runtime_error("Failed to allocate image memory!");
 		}
 
 		if (vkBindImageMemory(m_device, *image, *imageMemory, 0) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to bind image memory!");
+			throw std::runtime_error("Failed to bind image memory!");
 		}
 	}
 
@@ -343,7 +345,7 @@ namespace Isonia::Pipeline
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL Device::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 	{
-		//std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 		return VK_FALSE;
 	}
 
@@ -362,7 +364,7 @@ namespace Isonia::Pipeline
 		populateDebugMessengerCreateInfo(&createInfo);
 		if (createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debug_messenger) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to set up debug messenger!");
+			throw std::runtime_error("Failed to set up debug messenger!");
 		}
 	}
 
@@ -421,19 +423,19 @@ namespace Isonia::Pipeline
 		VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
 
-		//std::cout << "available extensions:" << std::endl;
+		std::cout << "available extensions:" << std::endl;
 		for (unsigned int i = 0; i < extensionCount; i++)
 		{
-			//std::cout << "\t" << extensions[i].extensionName << std::endl;
+			std::cout << "\t" << extensions[i].extensionName << std::endl;
 		}
 
-		//std::cout << "required extensions:" << std::endl;
+		std::cout << "required extensions:" << std::endl;
 		unsigned int requiredExtensionsCount = 0;
 		const char** requiredExtensions = getRequiredExtensions(&requiredExtensionsCount);
 		for (int i = 0; i < requiredExtensionsCount; i++)
 		{
 			bool missing = true;
-			//std::cout << "\t" << requiredExtensions[i] << std::endl;
+			std::cout << "\t" << requiredExtensions[i] << std::endl;
 			for (unsigned int q = 0; q < extensionCount; q++)
 			{
 				if (strcmp(extensions[q].extensionName, requiredExtensions[i]) == 0)
@@ -443,7 +445,7 @@ namespace Isonia::Pipeline
 			}
 			if (missing)
 			{
-				//throw std::runtime_error("Missing required extension");
+				throw std::runtime_error("Missing required extension");
 			}
 		}
 
@@ -546,7 +548,7 @@ namespace Isonia::Pipeline
 #ifdef DEBUG
 		if (!checkValidationLayerSupport())
 		{
-			//throw std::runtime_error("Validation layers requested, but not available!");
+			throw std::runtime_error("Validation layers requested, but not available!");
 		}
 #endif
 
@@ -581,7 +583,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create instance!");
+			throw std::runtime_error("Failed to create instance!");
 		}
 
 		hasRequiredInstanceExtensions();
@@ -593,9 +595,9 @@ namespace Isonia::Pipeline
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 		if (deviceCount == 0)
 		{
-			//throw std::runtime_error("Failed to find GPUs with Vulkan support!");
+			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
 		}
-		//std::cout << "Device count: " << deviceCount << std::endl;
+		std::cout << "Device count: " << deviceCount << std::endl;
 		VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
 		vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices);
 
@@ -612,11 +614,11 @@ namespace Isonia::Pipeline
 
 		if (m_physical_device == VK_NULL_HANDLE)
 		{
-			//throw std::runtime_error("Failed to find a suitable GPU!");
+			throw std::runtime_error("Failed to find a suitable GPU!");
 		}
 
 		vkGetPhysicalDeviceProperties(m_physical_device, &m_properties);
-		//std::cout << "Physical device: " << m_properties.deviceName << std::endl;
+		std::cout << "Physical device: " << m_properties.deviceName << std::endl;
 	}
 
 	void Device::createLogicalDevice()
@@ -679,7 +681,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateDevice(m_physical_device, &createInfo, nullptr, &m_device) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create logical device!");
+			throw std::runtime_error("Failed to create logical device!");
 		}
 
 		vkGetDeviceQueue(m_device, indices.graphics_family, 0, &m_graphics_queue);
@@ -697,7 +699,7 @@ namespace Isonia::Pipeline
 
 		if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_command_pool) != VK_SUCCESS)
 		{
-			//throw std::runtime_error("Failed to create command pool!");
+			throw std::runtime_error("Failed to create command pool!");
 		}
 	}
 
