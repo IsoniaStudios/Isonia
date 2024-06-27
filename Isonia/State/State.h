@@ -30,4 +30,17 @@ namespace Isonia::State
 		VkCommandBuffer command_buffer;
 		VkDescriptorSet global_descriptor_set;
 	};
+
+	struct Keyboard
+	{
+		static const unsigned int max_keyboard_keys = 512;
+		unsigned char key_state[max_keyboard_keys * 2u];
+		unsigned char* current_key_state;
+		unsigned char* previous_key_state;
+
+		Keyboard()
+			: current_key_state(key_state), previous_key_state(key_state + max_keyboard_keys)
+		{
+		}
+	};
 }

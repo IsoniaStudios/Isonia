@@ -2,6 +2,7 @@
 
 // internal
 #include "../Math/Math.h"
+#include "../State/State.h"
 
 // external
 #include <vulkan/vulkan.h>
@@ -10,27 +11,38 @@ namespace Isonia::Pipeline
 {
     struct KeyCodes
     {
-        static const constexpr int a = 65;
-        static const constexpr int d = 68;
-        static const constexpr int w = 87;
-        static const constexpr int s = 83;
+        static const constexpr unsigned int a = 0x01E;
+        static const constexpr unsigned int d = 0x020;
+        static const constexpr unsigned int w = 0x011;
+        static const constexpr unsigned int s = 0x01F;
 
-        static const constexpr int e = 69;
-        static const constexpr int q = 81;
+        static const constexpr unsigned int e = 0x012;
+        static const constexpr unsigned int q = 0x010;
 
-        static const constexpr int left_shift = 340;
-        static const constexpr int left_control = 341;
-        static const constexpr int tab = 258;
+        static const constexpr unsigned int left_shift = 0x02A;
+        static const constexpr unsigned int left_control = 0x01D;
+        static const constexpr unsigned int right_shift = 0x036;
+        static const constexpr unsigned int right_control = 0x11D;
+        static const constexpr unsigned int tab = 0x00F;
 
-        static const constexpr int left = 263;
-        static const constexpr int right = 262;
-        static const constexpr int up = 265;
-        static const constexpr int down = 264;
+        static const constexpr unsigned int left = 0x14B;
+        static const constexpr unsigned int right = 0x14D;
+        static const constexpr unsigned int up = 0x148;
+        static const constexpr unsigned int down = 0x150;
     };
     struct KeyActions
     {
-        static const constexpr int release = 0;
-        static const constexpr int press = 1;
+        static const constexpr unsigned char release = 0;
+        static const constexpr unsigned char press = 1;
+    };
+    struct KeyMods
+    {
+        static const constexpr unsigned int shift = 0x0001;
+        static const constexpr unsigned int control = 0x0002;
+        static const constexpr unsigned int alt = 0x0004;
+        static const constexpr unsigned int super = 0x0008;
+        static const constexpr unsigned int caps_lock = 0x0010;
+        static const constexpr unsigned int num_lock = 0x0020;
     };
 
     struct Window
@@ -42,8 +54,9 @@ namespace Isonia::Pipeline
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
-        int getKey(int key) const;
-
+        void inputKey(unsigned int key, unsigned char action);
+        unsigned char getKey(unsigned int key) const;
+            
         void waitEvents() const;
         void pollEvents();
 
@@ -62,6 +75,8 @@ namespace Isonia::Pipeline
 
         void* m_window_instance;
         void* m_window;
+
+        State::Keyboard m_input{};
 
         unsigned int m_event_count = 0;
         EventHandler m_handlers[4];

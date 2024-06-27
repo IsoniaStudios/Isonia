@@ -11,22 +11,22 @@ namespace Isonia::Controllers
     public:
         struct KeyMappings
         {
-            int move_left = Pipeline::KeyCodes::a;
-            int move_right = Pipeline::KeyCodes::d;
-            int move_forward = Pipeline::KeyCodes::w;
-            int move_backward = Pipeline::KeyCodes::s;
-            int move_up = Pipeline::KeyCodes::e;
-            int move_down = Pipeline::KeyCodes::q;
+            unsigned int move_left = Pipeline::KeyCodes::a;
+            unsigned int move_right = Pipeline::KeyCodes::d;
+            unsigned int move_forward = Pipeline::KeyCodes::w;
+            unsigned int move_backward = Pipeline::KeyCodes::s;
+            unsigned int move_up = Pipeline::KeyCodes::e;
+            unsigned int move_down = Pipeline::KeyCodes::q;
 
-            int sprint = Pipeline::KeyCodes::left_shift;
-            int walk = Pipeline::KeyCodes::left_control;
+            unsigned int sprint = Pipeline::KeyCodes::left_shift;
+            unsigned int walk = Pipeline::KeyCodes::left_control;
 
-            int look_left = Pipeline::KeyCodes::left;
-            int look_right = Pipeline::KeyCodes::right;
-            int look_up = Pipeline::KeyCodes::up;
-            int look_down = Pipeline::KeyCodes::down;
+            unsigned int look_left = Pipeline::KeyCodes::left;
+            unsigned int look_right = Pipeline::KeyCodes::right;
+            unsigned int look_up = Pipeline::KeyCodes::up;
+            unsigned int look_down = Pipeline::KeyCodes::down;
 
-            int perspective = Pipeline::KeyCodes::tab;
+            unsigned int perspective = Pipeline::KeyCodes::tab;
         };
 
         virtual void move(Pipeline::Window* window, float dt, Math::Transform* transform);

@@ -19,21 +19,19 @@ namespace Isonia::Pipeline
     {
     }
 
-    int Window::getKey(int key) const
+    unsigned char Window::getKey(unsigned int key) const
     {
-        SHORT keyState = GetAsyncKeyState(key);
-        if (keyState & 0x8000)
-        {
-            return KeyActions::press;
-        }
-        else
-        {
-            return KeyActions::release;
-        }
+        return m_input.current_key_state[key];
     }
 
     void Window::pollEvents()
     {
+        /*
+        // switch current and previous
+        unsigned char* old_previous_key_state = m_input.previous_key_state;
+        m_input.previous_key_state = m_input.current_key_state;
+        m_input.current_key_state = old_previous_key_state;
+        */
         MSG message;
 
         while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
@@ -81,6 +79,14 @@ namespace Isonia::Pipeline
         }
     }
 
+    void Window::inputKey(unsigned int key, unsigned char action)
+    {
+        if (key < State::Keyboard::max_keyboard_keys)
+        {
+            m_input.current_key_state[key] = action;
+        }
+    }
+
     LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
@@ -116,6 +122,80 @@ namespace Isonia::Pipeline
             window->propagateEvent();
         }
         break;
+
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+        {
+            const char action = (HIWORD(lParam) & KF_UP) ? KeyActions::release : KeyActions::press;
+
+            int key = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
+            if (!key)
+            {
+                key = MapVirtualKeyW((UINT)wParam, MAPVK_VK_TO_VSC);
+            }
+
+            if (key == 0x54)
+            {
+                key = 0x137;
+            }
+            else if (key == 0x146)
+            {
+                key = 0x45;
+            }
+            else if (key == 0x136)
+            {
+                key = 0x36;
+            }
+
+            // The Ctrl keys require special handling
+            if (wParam == VK_CONTROL)
+            {
+                if (HIWORD(lParam) & KF_EXTENDED)
+                {
+                    key = KeyCodes::right_control;
+                }
+                else
+                {
+                    MSG next;
+                    const DWORD time = GetMessageTime();
+
+                    if (PeekMessageW(&next, NULL, 0, 0, PM_NOREMOVE))
+                    {
+                        if (next.message == WM_KEYDOWN || next.message == WM_SYSKEYDOWN || next.message == WM_KEYUP || next.message == WM_SYSKEYUP)
+                        {
+                            if (next.wParam == VK_MENU && (HIWORD(next.lParam) & KF_EXTENDED) && next.time == time)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    key = KeyCodes::left_control;
+                }
+            }
+            else if (wParam == VK_PROCESSKEY)
+            {
+                break;
+            }
+
+            Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            if (action == KeyActions::release && wParam == VK_SHIFT)
+            {
+                window->inputKey(KeyCodes::left_shift, action);
+                window->inputKey(KeyCodes::right_shift, action);
+            }
+            else if (wParam == VK_SNAPSHOT)
+            {
+                window->inputKey(key, KeyActions::press);
+                window->inputKey(key, KeyActions::release);
+            }
+            else
+            {
+                window->inputKey(key, action);
+            }
+        }
+        break;
         }
 
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -124,6 +204,12 @@ namespace Isonia::Pipeline
 
     void Window::createWindow()
     {
+        HANDLE h_process = GetCurrentProcess();
+        if (!SetPriorityClass(h_process, HIGH_PRIORITY_CLASS))
+        {
+            std::cerr << "Failed to set process priority." << std::endl;
+        }
+
         m_window_instance = GetModuleHandle(NULL);
 
         AllocConsole();
