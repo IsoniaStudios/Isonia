@@ -375,13 +375,14 @@ namespace Isonia::Pipeline
 		VkLayerProperties* availableLayers = new VkLayerProperties[layerCount];
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
 
-		for (const char* layerName : m_validation_layers)
+		for (unsigned int i = 0; i < m_validation_layers_count; i++)
 		{
 			bool layerFound = false;
+			const char* layerName = m_validation_layers[i];
 
-			for (unsigned int i = 0; i < layerCount; i++)
+			for (unsigned int q = 0; q < layerCount; q++)
 			{
-				if (strcmp(layerName, availableLayers[i].layerName) == 0)
+				if (strcmp(layerName, availableLayers[q].layerName) == 0)
 				{
 					layerFound = true;
 					break;
@@ -432,7 +433,7 @@ namespace Isonia::Pipeline
 		std::cout << "required extensions:" << std::endl;
 		unsigned int requiredExtensionsCount = 0;
 		const char** requiredExtensions = getRequiredExtensions(&requiredExtensionsCount);
-		for (int i = 0; i < requiredExtensionsCount; i++)
+		for (unsigned int i = 0; i < requiredExtensionsCount; i++)
 		{
 			bool missing = true;
 			std::cout << "\t" << requiredExtensions[i] << std::endl;

@@ -5,6 +5,7 @@
 
 // external
 #include <vulkan/vulkan.h>
+#include <string>
 
 namespace Isonia::State
 {
@@ -41,6 +42,7 @@ namespace Isonia::State
 		Keyboard()
 			: current_key_state(key_state), previous_key_state(key_state + max_keyboard_keys)
 		{
+			memset(key_state, 0, sizeof(key_state));
 		}
 	};
 }

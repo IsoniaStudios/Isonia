@@ -214,25 +214,25 @@ namespace Isonia::Pipeline
 
         AllocConsole();
         AttachConsole(GetCurrentProcessId());
-        freopen("CON", "w", stdout);
-        freopen("CON", "w", stderr);
+        FILE* stream_out = freopen("CON", "w", stdout);
+        FILE* stream_err = freopen("CON", "w", stderr);
         SetConsoleTitle(TEXT(m_name));
 
         HINSTANCE h_instance_recast = static_cast<HINSTANCE>(m_window_instance);
         WNDCLASSEX wcex;
 
         wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
         wcex.lpfnWndProc = WndProc;
         wcex.cbClsExtra = 0;
         wcex.cbWndExtra = 0;
         wcex.hInstance = h_instance_recast;
+        wcex.lpszClassName = m_name;
+        wcex.lpszMenuName = NULL;
+        wcex.style = CS_HREDRAW | CS_VREDRAW;
+        wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+        wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
         wcex.hIcon = LoadIcon(h_instance_recast, MAKEINTRESOURCE(IDI_APPLICATION));
         wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-        wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-        wcex.lpszMenuName = NULL;
-        wcex.lpszClassName = m_name;
-        wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 
         if (!RegisterClassEx(&wcex))
         {
@@ -244,7 +244,7 @@ namespace Isonia::Pipeline
         int windowX = screenWidth / 2 - m_extent.width / 2;
         int windowY = screenHeight / 2 - m_extent.height / 2;
 
-        RECT desiredRect = { 0, 0, m_extent.width, m_extent.height };
+        RECT desiredRect = { 0, 0, static_cast<LONG>(m_extent.width), static_cast<LONG>(m_extent.height) };
         AdjustWindowRect(&desiredRect, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, FALSE);
         int windowWidth = desiredRect.right - desiredRect.left;
         int windowHeight = desiredRect.bottom - desiredRect.top;
