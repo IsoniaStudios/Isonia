@@ -107,22 +107,27 @@ find_package(Vulkan REQUIRED)
 # Target link
 target_link_libraries(${PROJECT_NAME}
     PUBLIC Vulkan::Vulkan
-    #PRIVATE user32 kernel32 MSVCRT
+    #PRIVATE user32 kernel32 MSVCRT ucrt
 )
 target_link_options(${PROJECT_NAME} PRIVATE
     /MP8
-    /GS-
     /HEAP:209715200,209715200
+    /GS-
+    #/NODEFAULTLIB
+    /MERGE:.rdata=.
+    /Merge:.pdata=.
+    /MERGE:.text=.
+    /SECTION:.,ER
 )
 
 # Copy resources if they are newer
 file(GLOB_RECURSE RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*")
 foreach(RESOURCE_FILE ${RESOURCE_FILES})
     get_filename_component(RESOURCE_FILENAME ${RESOURCE_FILE} NAME) 
-    get_filename_component(RESOURCE_DIRECTORY ${RESOURCE_FILE} DIRECTORY)  # Added this line
+    get_filename_component(RESOURCE_DIRECTORY ${RESOURCE_FILE} DIRECTORY)
     string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" RESOURCE_SUBDIRECTORY ${RESOURCE_DIRECTORY})
 
-    set(RESOURCE_DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${RESOURCE_SUBDIRECTORY}/${RESOURCE_FILENAME}")  # Modified this line
+    set(RESOURCE_DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${RESOURCE_SUBDIRECTORY}/${RESOURCE_FILENAME}")
 
     add_custom_command(
         OUTPUT ${RESOURCE_DESTINATION}
