@@ -490,7 +490,6 @@ namespace Isonia::Pipeline
 
         Device* m_device;
         VkExtent2D m_window_extent;
-        VkExtent2D m_render_extent;
 
         VkSwapchainKHR m_swap_chain;
         SwapChain* m_old_swap_chain;

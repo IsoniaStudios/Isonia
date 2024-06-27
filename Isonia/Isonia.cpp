@@ -139,7 +139,7 @@ namespace Isonia
 		Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
-		m_grass = Renderable::createDebugTexture(&m_device);
+		m_grass = Renderable::createNullTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);

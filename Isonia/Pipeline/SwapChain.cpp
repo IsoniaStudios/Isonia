@@ -216,17 +216,17 @@ namespace Isonia::Pipeline
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swap_chain_support.present_modes, swap_chain_support.present_modes_count);
 		VkExtent2D extent = chooseSwapExtent(&swap_chain_support.capabilities);
 
-		unsigned int imageCount = swap_chain_support.capabilities.minImageCount + 1;
-		if (swap_chain_support.capabilities.maxImageCount > 0 && imageCount > swap_chain_support.capabilities.maxImageCount)
+		m_image_count = swap_chain_support.capabilities.minImageCount + 1;
+		if (swap_chain_support.capabilities.maxImageCount > 0 && m_image_count > swap_chain_support.capabilities.maxImageCount)
 		{
-			imageCount = swap_chain_support.capabilities.maxImageCount;
+			m_image_count = swap_chain_support.capabilities.maxImageCount;
 		}
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface = m_device->getSurface();
 
-		createInfo.minImageCount = imageCount;
+		createInfo.minImageCount = m_image_count;
 		createInfo.imageFormat = surfaceFormat.format;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
 		createInfo.imageExtent = extent;
@@ -266,9 +266,9 @@ namespace Isonia::Pipeline
 		// allowed to create a swap chain with more. That's why we'll first query the final number of
 		// images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 		// retrieve the handles.
-		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, nullptr);
+		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &m_image_count, nullptr);
 		m_swap_chain_images = new VkImage[m_image_count];
-		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &imageCount, m_swap_chain_images);
+		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &m_image_count, m_swap_chain_images);
 
 		m_swap_chain_image_format = surfaceFormat.format;
 		m_swap_chain_extent = extent;
