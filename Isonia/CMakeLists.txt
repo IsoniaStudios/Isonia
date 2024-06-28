@@ -115,7 +115,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
     /GS-
     #/NODEFAULTLIB
     /MERGE:.rdata=.
-    /Merge:.pdata=.
+    /MERGE:.pdata=.
     /MERGE:.text=.
     /SECTION:.,ER
 )
