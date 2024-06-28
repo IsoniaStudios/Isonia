@@ -17,6 +17,8 @@ namespace Isonia::Renderable
 			: r(r), g(g), b(b), a(255) { }
 		constexpr Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a)
 			: r(r), g(g), b(b), a(a) { }
+		constexpr Color(const unsigned char c)
+			: r(c), g(c), b(c), a(c) { }
 		constexpr Color() { }
 
 		unsigned char r;
@@ -78,6 +80,11 @@ namespace Isonia::Renderable
 
 	extern Texture* createNullTexture(Pipeline::Device* device);
 	extern Texture* createDebugTexture(Pipeline::Device* device);
+
+	typedef Color (*SubTextureFiller)(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
+	extern Texture* createTextureAtlas(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
+
+	extern Texture* createGrassTexture(Pipeline::Device* device);
 
 	// Vertices
 	struct VertexComplete

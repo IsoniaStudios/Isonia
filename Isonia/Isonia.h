@@ -62,7 +62,7 @@ namespace Isonia
 
 		Pipeline::Window m_window{ width, height, name };
 		Pipeline::Device m_device{ &m_window };
-		Pipeline::PixelRenderer m_renderer{ &m_window, &m_device };
+		Pipeline::Renderer m_renderer{ &m_window, &m_device };
 		Pipeline::Descriptors::DescriptorPool* m_global_pool{};
 	};
 }

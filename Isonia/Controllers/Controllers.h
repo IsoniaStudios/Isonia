@@ -55,11 +55,11 @@ namespace Isonia::Controllers
 
         void act(Pipeline::Window* window, float frameTime);
 
-        Pipeline::PixelRenderer::EventHandler getOnAspectChangeCallback();
-        static void onAspectChange(Pipeline::PixelRenderer* renderer, void* user_data);
+        Pipeline::Renderer::EventHandler getOnAspectChangeCallback();
+        static void onAspectChange(Pipeline::Renderer* renderer, void* user_data);
 
         Math::Transform m_transform{};
-        Pipeline::CameraIsometric m_camera{};
-        KeyboardControllerIsometric m_controller{};
+        Pipeline::Camera m_camera{};
+        KeyboardController m_controller{};
     };
 }

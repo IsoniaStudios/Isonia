@@ -93,7 +93,7 @@ namespace Isonia
 				m_debugger_render_system->render(&frame_info);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
+				//m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
 		}
@@ -139,7 +139,7 @@ namespace Isonia
 		Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
-		m_grass = Renderable::createNullTexture(&m_device);
+		m_grass = Renderable::createGrassTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);

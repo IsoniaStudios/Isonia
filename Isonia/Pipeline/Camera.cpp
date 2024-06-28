@@ -63,7 +63,7 @@ namespace Isonia::Pipeline
         setViewYXZ(&transform->position, &transform->rotation);
     }
 
-    void Camera::setProjection(PixelRenderer* renderer)
+    void Camera::setProjection(Renderer* renderer)
     {
         const float aspect = renderer->getAspectRatio();
         setPerspectiveProjection(Math::radiansf(50.f), aspect, 0.1f, 1000.f);
