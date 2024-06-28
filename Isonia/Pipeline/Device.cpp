@@ -607,7 +607,11 @@ namespace Isonia::Pipeline
 			if (isDeviceSuitable(devices[i]))
 			{
 				m_physical_device = devices[i];
-				break;
+				vkGetPhysicalDeviceProperties(m_physical_device, &m_properties);
+				if (m_properties.deviceType == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+				{
+					break;
+				}
 			}
 		}
 
@@ -618,7 +622,6 @@ namespace Isonia::Pipeline
 			throw std::runtime_error("Failed to find a suitable GPU!");
 		}
 
-		vkGetPhysicalDeviceProperties(m_physical_device, &m_properties);
 		std::cout << "Physical device: " << m_properties.deviceName << std::endl;
 	}
 
