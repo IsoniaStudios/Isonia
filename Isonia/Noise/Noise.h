@@ -96,4 +96,17 @@ namespace Isonia::Noise
     protected:
         const float frequency;
     };
+
+    struct CurlNoise : public VirtualWarpNoise
+    {
+    public:
+        CurlNoise(const VirtualNoise* base_noise);
+
+        inline void transformCoordinate(float* x, float* y) const override;
+        inline void transformCoordinate(float* x, float* y, float* z) const override;
+        inline void transformCoordinate(float* x, float* y, float* z, float* w) const override;
+
+    protected:
+        const VirtualNoise* base_noise;
+    };
 }

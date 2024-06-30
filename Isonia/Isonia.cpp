@@ -140,7 +140,7 @@ namespace Isonia
 
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
 		m_grass = Renderable::createGrassTexture(&m_device);
-		m_debugger = Renderable::createDebugTexture(&m_device);
+		m_debugger = m_grass;//Renderable::createDebugTexture(&m_device);
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 

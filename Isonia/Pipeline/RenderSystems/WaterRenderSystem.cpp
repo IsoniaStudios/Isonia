@@ -42,7 +42,7 @@ namespace Isonia::Pipeline::RenderSystems
 			nullptr
 		);
 
-		constexpr const float offsetToCenter = -(Renderable::quads * Renderable::quad_size * 0.5f);
+		const float offsetToCenter = -(static_cast<float>(Renderable::quads) * 2.0f);
 		const Math::Vector3 cameraPosition = camera->getPositionVector();
 		const Math::Vector3 cameraForward = camera->getForwardVector();
 		const Math::Vector3 planePosition = Math::Vector3{ 0.0f, -5.0f, 0.0f };

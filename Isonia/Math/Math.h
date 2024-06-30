@@ -10,6 +10,7 @@ namespace Isonia::Math
     extern inline constexpr const float two_pi = pi * 2.0f;
     
     extern inline constexpr const float epsilon = 1.192092896e-07f;
+    extern inline constexpr const float two_epsilon = epsilon * 2.0f;
 
     extern inline constexpr const float isometric_y_scale = 1.154700538379252f; //1.0f / Math::Cos(Math::Radians(-30.0f));
 
@@ -69,11 +70,11 @@ namespace Isonia::Math
     extern inline float atan2f(const float y, const float x);
 
     // Vector
-    struct Vector2;
-    struct Vector3;
-    struct Vector4;
+    union Vector2;
+    union Vector3;
+    union Vector4;
     
-    struct Vector4
+    union Vector4
     {
     public:
         static constexpr unsigned int length() { return 4u; }
@@ -88,15 +89,14 @@ namespace Isonia::Math
         constexpr float& operator[](const unsigned int i) noexcept { return value[i]; }
         constexpr const float& operator[](const unsigned int i) const noexcept { return value[i]; }
 
-        union {
-            struct {
-                float x;
-                float y;
-                float z;
-                float w;
-            };
-            float value[4];
+        struct
+        {
+            float x;
+            float y;
+            float z;
+            float w;
         };
+        float value[4];
     };
 
     extern inline constexpr bool operator==(const Vector4& v1, const Vector4& v2);
@@ -115,7 +115,7 @@ namespace Isonia::Math
     extern inline constexpr Vector4 vec4Normalize(const Vector4* v);
     extern inline constexpr Vector4 vec4Normalize(const float x, const float y, const float z, const float w);
 
-    struct Vector3
+    union Vector3
     {
     public:
         static constexpr unsigned int length() { return 3u; }
@@ -130,14 +130,13 @@ namespace Isonia::Math
         constexpr float& operator[](const unsigned int i) noexcept { return value[i]; }
         constexpr const float& operator[](const unsigned int i) const noexcept { return value[i]; }
 
-        union {
-            struct {
-                float x;
-                float y;
-                float z;
-            };
-            float value[3];
+        struct
+        {
+            float x;
+            float y;
+            float z;
         };
+        float value[3];
     };
 
     extern inline constexpr bool operator==(const Vector3& v1, const Vector3& v2);
@@ -157,7 +156,7 @@ namespace Isonia::Math
     extern inline constexpr Vector3 vec3Normalize(const float x, const float y, const float z);
     extern inline constexpr Vector3 vec3Cross(const Vector3* v1, const Vector3* v2);
 
-    struct Vector2
+    union Vector2
     {
     public:
         static constexpr unsigned int length() { return 2u; }
@@ -172,13 +171,12 @@ namespace Isonia::Math
         constexpr float& operator[](const unsigned int i) noexcept { return value[i]; }
         constexpr const float& operator[](const unsigned int i) const noexcept { return value[i]; }
 
-        union {
-            struct {
-                float x;
-                float y;
-            };
-            float value[2];
+        struct
+        {
+            float x;
+            float y;
         };
+        float value[2];
     };
 
     extern inline constexpr bool operator==(const Vector2& v1, const Vector2& v2);

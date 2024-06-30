@@ -24,7 +24,7 @@ layout (set = 0, binding = 2) uniform sampler1D colorMap;
 
 layout (set = 0, binding = 3) uniform sampler2D alphaMap;
 
-const float alphaMapSize = 8;
+const float alphaMapSize = 9;
 
 void main()
 {

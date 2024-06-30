@@ -10,7 +10,7 @@
 namespace Isonia::Renderable
 {
 	// Textures
-	struct Color
+	union Color
 	{
 	public:
 		constexpr Color(const unsigned char r, const unsigned char g, const unsigned char b)
@@ -21,10 +21,14 @@ namespace Isonia::Renderable
 			: r(c), g(c), b(c), a(c) { }
 		constexpr Color() { }
 
-		unsigned char r;
-		unsigned char g;
-		unsigned char b;
-		unsigned char a;
+		struct
+		{
+			unsigned char r;
+			unsigned char g;
+			unsigned char b;
+			unsigned char a;
+		};
+		unsigned int rgba;
 	};
 
 	struct Texture
