@@ -5,6 +5,8 @@ namespace Isonia::Controllers
 {
     Player::Player()
     {
+        m_transform.position.y = -11.5;
+        m_transform.position.z = -3;
     }
 
     Player::~Player()

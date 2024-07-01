@@ -6,7 +6,7 @@
 int main()
 {
     Isonia::Isonia isonia{};
-	isonia.run();
+    isonia.run();
 }
 
 #endif

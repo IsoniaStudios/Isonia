@@ -9,6 +9,8 @@ namespace Isonia::Math
     extern inline constexpr const float pi = 3.14159265359f;
     extern inline constexpr const float two_pi = pi * 2.0f;
     
+    extern inline constexpr const float eulers_number = 2.718281828459045f;
+
     extern inline constexpr const float epsilon = 1.192092896e-07f;
     extern inline constexpr const float two_epsilon = epsilon * 2.0f;
 
@@ -47,7 +49,10 @@ namespace Isonia::Math
 
     extern inline constexpr float sqrtf(const float f);
     extern inline constexpr float rsqrtf(const float f);
-
+    extern inline constexpr float powf(const float f, const float e);
+    extern inline constexpr float powPrecisef(const float f, const float e);
+    extern inline float powExactf(const float f, const float e);
+    
     // Generics To-Int
     extern inline constexpr int ceilf_i(const float f);
     extern inline constexpr int floorf_i(const float f);
@@ -337,6 +342,9 @@ namespace Isonia::Math
     extern inline constexpr Vector3 lerpv3(const Vector3* a, const Vector3* b, const float t);
     extern inline constexpr float cubicLerpf(const float a, const float b, const float c, const float d, const float t);
     extern inline constexpr Vector3 cubicLerpv3(const Vector3* a, const Vector3* b, const Vector3* c, const Vector3* d, const float t);
+
+    extern inline float exponentialDecayf(const float a, const float b, const float t);
+    extern inline float sigmoidf(const float a, const float b, const float t);
 
     extern inline constexpr Vector3 smoothNormalFromFour(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);
     extern inline constexpr Vector3 smoothNormalFromEight(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x);

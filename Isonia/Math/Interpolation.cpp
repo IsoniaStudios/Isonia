@@ -38,6 +38,15 @@ namespace Isonia::Math
         };
     }
 
+    extern inline float exponentialDecayf(const float a, const float b, const float t)
+    {
+        return a * powExactf(eulers_number, -(b * t));
+    }
+    extern inline float sigmoidf(const float a, const float b, const float t)
+    {
+        return 1.0f / (1.0f + powExactf(eulers_number, 0.5f * (t - b)));
+    }
+
     extern inline constexpr Vector3 smoothNormalFromFour(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
     {
         const unsigned int middle_index = z * width + x;

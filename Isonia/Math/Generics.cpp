@@ -1,6 +1,9 @@
 // internal
 #include "Math.h"
 
+// external
+#include <cmath>
+
 namespace Isonia::Math
 {
     extern inline constexpr float floorf(const float f)
@@ -151,5 +154,41 @@ namespace Isonia::Math
         i = 0x5f3759df - (i >> 1);
         const float y = *(float*)&i;
         return y * (1.5f - (f * 0.5f * y * y));
+    }
+    extern inline constexpr float powf(const float f, const float e)
+    {
+        union {
+            float f;
+            unsigned int u;
+        } temp = { f };
+        temp.u = (unsigned int)(e * (float)(temp.u - 1064774667) + 1064774667);
+        return temp.f;
+    }
+    extern inline constexpr float powPrecisef(const float f, const float e)
+    {
+        int e2 = (int)e;
+        union {
+            float f;
+            unsigned int u;
+        } temp = { f };
+        temp.u = (unsigned int)((e - e2) * (float)(temp.u - 1064774667) + 1064774667);
+
+        float r = 1.0f;
+        float f2 = f;
+        while (e2)
+        {
+            if (e2 & 1)
+            {
+                r *= f2;
+            }
+            f2 *= f2;
+            e2 >>= 1;
+        }
+
+        return r * temp.f;
+    }
+    extern inline float powExactf(const float f, const float e)
+    {
+        return std::powf(f, e);
     }
 }

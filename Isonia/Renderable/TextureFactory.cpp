@@ -44,27 +44,50 @@ namespace Isonia::Renderable
 
 	static const unsigned int grass_atlas_height = 9u;
 	static const unsigned int grass_atlas_width = 9u;
-	static const unsigned int grass_texture_height = 16u;
-	static const unsigned int grass_texture_width = 16u;
+	static const unsigned int grass_texture_height = 128u;
+	static const unsigned int grass_texture_width = 128u;
+	static struct Grass
+	{
+		float root_position;
+		float height;
+		float radius;
+		float radius_given_height(float t_h) const
+		{
+			const float h = 1.0f - t_h;
+			if (h > height)
+				return 0.0f;
+			const float s = Math::sigmoidf(0.75f, 10.0f, (h * 12.0f) / height);
+			return s * radius;
+		}
+	};
 	static inline Color grassSubTextureFiller(const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w)
 	{
 		// parameters
 		const float parameter_force = 0.1f;
-		const float parameter_strength = 0.1f;
 		const unsigned int parameter_blade_count = 3u;
+		const Grass blades[] = {
+			{0.33f, 0.65f, 0.19f},
+			{0.5f, 0.7f, 0.23f},
+			{0.66f, 0.6f, 0.2f},
+		};
 
-		const float force = (parameter_force / (parameter_strength * static_cast<float>(grass_texture_height - t_h)));
+		const float ah = static_cast<float>(static_cast<int>(a_h) - static_cast<int>(grass_atlas_height / 2u)) / static_cast<float>(grass_atlas_height);
+		const float aw = static_cast<float>(static_cast<int>(a_w) - static_cast<int>(grass_atlas_width / 2u)) / static_cast<float>(grass_atlas_width);
 
-		const int ah = a_h - grass_atlas_height / 2u;
-		const int aw = a_w - grass_atlas_width / 2u;
-
-		const float wind_z = static_cast<float>(ah) * force;
-		const float wind_x = static_cast<float>(aw) * force;
+		const float th = static_cast<float>(t_h) / static_cast<float>(grass_texture_height);
+		const float tw = static_cast<float>(t_w) / static_cast<float>(grass_texture_width);
 
 		for (unsigned int i = 0; i < parameter_blade_count; i++)
 		{
-			const unsigned int base_blade_position = (i + 1u) * 3u;
-			if (t_w == base_blade_position)
+			const float radius = blades[i].radius_given_height(th);
+			const float force = radius / th;
+
+			const float wind_z = ah * force;
+			const float wind_x = aw * force;
+
+			const float base_blade_position = blades[i].root_position;
+			const float blade_height = blades[i].height;
+			if (Math::absf((tw ) - base_blade_position) <= radius)
 			{
 				return { 255 };
 			}
