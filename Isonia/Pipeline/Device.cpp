@@ -60,7 +60,7 @@ namespace Isonia::Pipeline
 		return findQueueFamilies(m_physical_device);
 	}
 
-	VkFormat Device::findSupportedFormat(const VkFormat* candidates, const unsigned int candidates_count, VkImageTiling tiling, VkFormatFeatureFlags features)
+	VkFormat Device::findSupportedFormat(const VkFormat* candidates, const unsigned int candidates_count, VkImageTiling tiling, VkFormatFeatureFlags features) const
 	{
 		for (unsigned int i = 0; i < candidates_count; i++)
 		{
@@ -79,7 +79,7 @@ namespace Isonia::Pipeline
 		throw std::runtime_error("Failed to find supported format!");
 	}
 
-	unsigned int Device::findMemoryType(unsigned int typeFilter, VkMemoryPropertyFlags properties)
+	unsigned int Device::findMemoryType(unsigned int typeFilter, VkMemoryPropertyFlags properties) const
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memProperties);
@@ -484,7 +484,7 @@ namespace Isonia::Pipeline
 		return supported;
 	}
 
-	QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device)
+	QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice device) const
 	{
 		QueueFamilyIndices indices;
 
@@ -518,7 +518,7 @@ namespace Isonia::Pipeline
 		return indices;
 	}
 
-	SwapChainSupportDetails Device::findSwapChainSupport(VkPhysicalDevice device)
+	SwapChainSupportDetails Device::findSwapChainSupport(VkPhysicalDevice device) const
 	{
 		SwapChainSupportDetails details;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);

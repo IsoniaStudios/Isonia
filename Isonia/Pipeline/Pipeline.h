@@ -122,7 +122,7 @@ namespace Isonia::Pipeline
         SwapChainSupportDetails getSwapChainSupport();
         QueueFamilyIndices getPhysicalQueueFamilies();
 
-		unsigned int findMemoryType(unsigned int type_filter, VkMemoryPropertyFlags properties);
+		unsigned int findMemoryType(unsigned int type_filter, VkMemoryPropertyFlags properties) const;
 		VkCommandBuffer beginSingleTimeCommands();
         void endSingleTimeCommands(VkCommandBuffer command_buffer);
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* buffer_memory);
@@ -130,15 +130,15 @@ namespace Isonia::Pipeline
         void copyBufferToImage(VkBuffer buffer, VkImage image, unsigned int width, unsigned int height, unsigned int layer_count);
         void createImageWithInfo(const VkImageCreateInfo* image_info, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* image_memory);
         void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, unsigned int mip_levels, unsigned int layer_count);
-        VkFormat findSupportedFormat(const VkFormat* candidates, const unsigned int candidates_count, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat findSupportedFormat(const VkFormat* candidates, const unsigned int candidates_count, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
         VkPhysicalDeviceProperties m_properties;
 
 	private:
 		const char** getRequiredExtensions(unsigned int* count);
 		bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-		SwapChainSupportDetails findSwapChainSupport(VkPhysicalDevice device);
+		QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
+		SwapChainSupportDetails findSwapChainSupport(VkPhysicalDevice device) const;
 
         void createInstance();
         void createSurface();

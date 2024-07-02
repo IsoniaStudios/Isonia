@@ -31,6 +31,8 @@ namespace Isonia::Renderable
 		unsigned int rgba;
 	};
 
+	extern Color blendColors(const Color* colors, const unsigned int color_count);
+
 	struct Texture
 	{
 	public:
@@ -86,7 +88,9 @@ namespace Isonia::Renderable
 	extern Texture* createDebugTexture(Pipeline::Device* device);
 
 	typedef Color (*SubTextureFiller)(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
+	extern Color* createTextureAtlas(SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
 	extern Texture* createTextureAtlas(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
+	extern Texture* createTextureAtlasMSAA(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned int msaa);
 
 	extern Texture* createGrassTexture(Pipeline::Device* device);
 

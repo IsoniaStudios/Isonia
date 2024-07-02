@@ -3,6 +3,29 @@
 
 namespace Isonia::Renderable
 {
+	extern Color blendColors(const Color* colors, const unsigned int color_count)
+	{
+		unsigned int totalR = 0u;
+		unsigned int totalG = 0u;
+		unsigned int totalB = 0u;
+		unsigned int totalA = 0u;
+
+		for (unsigned int i = 0u; i < color_count; i++)
+		{
+			totalR += colors[i].r;
+			totalG += colors[i].g;
+			totalB += colors[i].b;
+			totalA += colors[i].a;
+		}
+
+		unsigned char avgR = static_cast<unsigned char>(totalR / color_count);
+		unsigned char avgG = static_cast<unsigned char>(totalG / color_count);
+		unsigned char avgB = static_cast<unsigned char>(totalB / color_count);
+		unsigned char avgA = static_cast<unsigned char>(totalA / color_count);
+
+		return Color(avgR, avgG, avgB, avgA);
+	}
+
 	extern Texture* createGrassDayPalette(Pipeline::Device* device)
 	{
 		constexpr const Color grass_day_palette[palette_length] =
