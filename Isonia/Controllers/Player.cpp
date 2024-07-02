@@ -28,4 +28,28 @@ namespace Isonia::Controllers
     {
         static_cast<Player*>(player)->m_camera.setProjection(renderer);
     }
+
+    PlayerIsometric::PlayerIsometric()
+    {
+    }
+
+    PlayerIsometric::~PlayerIsometric()
+    {
+    }
+
+    void PlayerIsometric::act(Pipeline::Window* window, float frame_time_s)
+    {
+        m_controller.move(window, frame_time_s, &m_transform);
+        m_camera.setView(&m_transform);
+    }
+
+    Pipeline::PixelRenderer::EventHandler PlayerIsometric::getOnAspectChangeCallback()
+    {
+        return &PlayerIsometric::onAspectChange;
+    }
+
+    void PlayerIsometric::onAspectChange(Pipeline::PixelRenderer* renderer, void* player)
+    {
+        static_cast<PlayerIsometric*>(player)->m_camera.setProjection(renderer);
+    }
 }

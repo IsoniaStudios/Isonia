@@ -62,4 +62,23 @@ namespace Isonia::Controllers
         Pipeline::Camera m_camera{};
         KeyboardController m_controller{};
     };
+
+    struct PlayerIsometric
+    {
+    public:
+        PlayerIsometric();
+        ~PlayerIsometric();
+
+        PlayerIsometric(const PlayerIsometric&) = delete;
+        PlayerIsometric& operator=(const PlayerIsometric&) = delete;
+
+        void act(Pipeline::Window* window, float frameTime);
+
+        Pipeline::PixelRenderer::EventHandler getOnAspectChangeCallback();
+        static void onAspectChange(Pipeline::PixelRenderer* renderer, void* user_data);
+
+        Math::Transform m_transform{};
+        Pipeline::CameraIsometric m_camera{};
+        KeyboardControllerIsometric m_controller{};
+    };
 }

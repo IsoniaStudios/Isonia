@@ -59,7 +59,7 @@ namespace Isonia::Pipeline
         m_sub_pixel_offset.y = unrotated_difference.y;
     }
 
-    void CameraIsometric::setProjection(Renderer* renderer)
+    void CameraIsometric::setProjection(PixelRenderer* renderer)
     {
         // get extent
         const VkExtent2D extent = renderer->getExtent();
