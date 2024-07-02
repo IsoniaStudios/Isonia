@@ -24,14 +24,9 @@ layout (set = 0, binding = 2) uniform sampler1D colorMap;
 
 layout (set = 0, binding = 3) uniform sampler2D alphaMap;
 
-const float alphaMapSize = 9;
-
 void main()
 {
-	vec2 scaledFragTexCoord = fragTexCoord / alphaMapSize;
-	//outColor = texture(alphaMap, scaledFragTexCoord);
-	//return;
-	if (texture(alphaMap, scaledFragTexCoord).r < 1)
+	if (texture(alphaMap, fragTexCoord).r < 1)
 		discard;
 
 	float directionalLight = -dot(fragNormalWorld, ubo.lightDirection);

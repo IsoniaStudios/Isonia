@@ -93,7 +93,7 @@ namespace Isonia
 				m_debugger_render_system->render(&frame_info);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
+				//m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
 		}

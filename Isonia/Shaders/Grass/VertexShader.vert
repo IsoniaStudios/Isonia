@@ -8,6 +8,7 @@ layout(location = 3) in float gain;
 
 layout(location = 0) out vec3 fragNormalWorld;
 layout(location = 1) out float fragCloudShadow;
+layout(location = 2) out vec2 fragWindUV;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
@@ -24,7 +25,7 @@ layout(set = 0, binding = 1) uniform GlobalClock {
 
 layout (set = 0, binding = 5) uniform sampler2D cloudShadowMap;
 
-const float CLOUD_HEIGHT = -100;
+const float CLOUD_HEIGHT = -100.0;
 
 void main()
 {
@@ -46,5 +47,8 @@ void main()
     // get the shadow intensity
     fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
     
+    // set frag wind to middle
+    fragWindUV = vec2(4.0, 4.0);
+
     gl_Position = vec4(position, 1);
 }
