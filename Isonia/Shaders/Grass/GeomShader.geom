@@ -41,7 +41,7 @@ void main()
 
 	vec3 cameraRightWorld = vec3(ubo.view[0][0], ubo.view[1][0], ubo.view[2][0]) * HALF_SIZE;
 	//vec3 cameraUpWorld = vec3(ubo.view[0][1], ubo.view[1][1], ubo.view[2][1]) * HALF_SIZE;
-	vec3 upWorld = vec3(0.0, -Y_SCALE, 0.0) * HALF_SIZE;
+	vec3 upWorld = vec3(0.0, -Y_SCALE * HALF_SIZE, 0.0);
 
 	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;

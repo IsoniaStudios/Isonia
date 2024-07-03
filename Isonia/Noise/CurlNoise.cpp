@@ -2,7 +2,7 @@
 
 namespace Isonia::Noise
 {
-    CurlNoise::CurlNoise(const VirtualNoise* base_noise) : VirtualWarpNoise(), base_noise(base_noise) { }
+    CurlNoise::CurlNoise(const VirtualNoise* base_noise, const VirtualWarpNoise* base_warp_noise) : VirtualWarpNoise(), base_noise(base_noise), base_warp_noise(base_warp_noise) { }
 
     inline void CurlNoise::transformCoordinate(float* x, float* y) const
     {

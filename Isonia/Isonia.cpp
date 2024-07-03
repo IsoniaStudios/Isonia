@@ -16,6 +16,7 @@ namespace Isonia
 
 	Isonia::~Isonia()
 	{
+		delete m_wind;
 		delete m_cloud;
 		delete m_debugger;
 		delete m_grass;
@@ -103,10 +104,11 @@ namespace Isonia
 
 	void Isonia::initializeDescriptorPool()
 	{
-		m_global_pool = (new Pipeline::Descriptors::DescriptorPool::Builder(&m_device, 7u))
+		m_global_pool = (new Pipeline::Descriptors::DescriptorPool::Builder(&m_device, 8u))
 			->setMaxSets(Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
@@ -138,13 +140,19 @@ namespace Isonia
 		Noise::ConstantScalarWarpNoise cloudWarpNoise{ 5.0f };
 		Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
+
+		Noise::ConstantScalarWarpNoise windW{ 0.001f };
+		Noise::FractalPerlinNoise windN{ 69, 3, 2.0f, 0.5f, 0.0f };
+		Noise::CurlNoise windNoise{ &windN, &windW };
+
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
 		m_grass = Renderable::createGrassTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
-
-		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device, 7u))
+		m_wind = Renderable::Texture::createTextureFromNoise(&m_device, &windNoise, 512, 512);
+		m_debugger = m_wind;
+		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device, 8u))
 			->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -152,6 +160,7 @@ namespace Isonia
 			->addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
@@ -163,7 +172,8 @@ namespace Isonia
 			VkDescriptorImageInfo debuggerInfo = m_debugger->getImageInfo();
 			VkDescriptorImageInfo cloudInfo = m_cloud->getImageInfo();
 			VkDescriptorImageInfo waterDayPaletteInfo = m_water_day_palette->getImageInfo();
-			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 7u))
+			VkDescriptorImageInfo windInfo = m_wind->getImageInfo();
+			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 8u))
 				->writeBuffer(0, &uboBufferInfo)
 				->writeBuffer(1, &clockBufferInfo)
 				->writeImage(2, &grassDayPaletteInfo)
@@ -171,6 +181,7 @@ namespace Isonia
 				->writeImage(4, &debuggerInfo)
 				->writeImage(5, &cloudInfo)
 				->writeImage(6, &waterDayPaletteInfo)
+				->writeImage(7, &windInfo)
 				->build(&m_global_descriptor_sets[i]);
 		}
 	}

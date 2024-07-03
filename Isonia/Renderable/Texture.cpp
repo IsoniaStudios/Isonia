@@ -7,6 +7,15 @@
 
 namespace Isonia::Renderable
 {
+	Texture::Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height)
+		: m_device{ device }
+	{
+		createTextureImage(warp_noise, tex_width, tex_height);
+		createTextureImageView();
+		createTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+		updateDescriptor();
+	}
+
 	Texture::Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
 		: m_device{ device }
 	{
@@ -62,6 +71,11 @@ namespace Isonia::Renderable
 		return m_format;
 	}
 
+	Texture* Texture::createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height)
+	{
+		return new Texture(device, warp_noise, tex_width, tex_height);
+	}
+
 	Texture* Texture::createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
 	{
 		return new Texture(device, warp_noise, noise, tex_width, tex_height);
@@ -82,6 +96,27 @@ namespace Isonia::Renderable
 		m_descriptor.sampler = m_texture_sampler;
 		m_descriptor.imageView = m_texture_image_view;
 		m_descriptor.imageLayout = m_texture_layout;
+	}
+
+	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texWidth, const unsigned int texHeight)
+	{
+		char* pixels = new char[texWidth * texHeight * 2u];
+		for (unsigned int h = 0; h < texHeight; h++)
+		{
+			const unsigned int h_i = h * texHeight;
+			for (unsigned int w = 0; w < texWidth; w++)
+			{
+				float s = h / static_cast<float>(texHeight);
+				float t = w / static_cast<float>(texWidth);
+
+				const unsigned int i = (h_i + w) * 2u;
+				warp_noise->transformCoordinate(&s, &t);
+				pixels[i + 0] = static_cast<char>(s * 255.0f);
+				pixels[i + 1] = static_cast<char>(t * 255.0f);
+			}
+		}
+		createTextureImage(pixels, texWidth, texHeight, VK_FORMAT_R8G8_SNORM);
+		delete[] pixels;
 	}
 
 	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texWidth, const unsigned int texHeight)
@@ -248,6 +283,7 @@ namespace Isonia::Renderable
 		case VK_FORMAT_R8_SRGB:
 			return 1;
 		case VK_FORMAT_R8G8_SRGB:
+		case VK_FORMAT_R8G8_SNORM:
 			return 2;
 		case VK_FORMAT_R8G8B8_SRGB:
 			return 3;

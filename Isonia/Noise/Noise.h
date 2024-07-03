@@ -100,7 +100,7 @@ namespace Isonia::Noise
     struct CurlNoise : public VirtualWarpNoise
     {
     public:
-        CurlNoise(const VirtualNoise* base_noise);
+        CurlNoise(const VirtualNoise* base_noise, const VirtualWarpNoise* base_warp_noise);
 
         inline void transformCoordinate(float* x, float* y) const override;
         inline void transformCoordinate(float* x, float* y, float* z) const override;
@@ -108,5 +108,6 @@ namespace Isonia::Noise
 
     protected:
         const VirtualNoise* base_noise;
+        const VirtualWarpNoise* base_warp_noise;
     };
 }

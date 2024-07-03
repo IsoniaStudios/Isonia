@@ -54,6 +54,7 @@ namespace Isonia
 		Renderable::Texture* m_grass;
 		Renderable::Texture* m_debugger;
 		Renderable::Texture* m_cloud;
+		Renderable::Texture* m_wind;
 
 		Renderable::Model* m_sphere_model;
 		Renderable::Model* m_prism_models[20];

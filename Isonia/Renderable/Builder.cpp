@@ -345,7 +345,7 @@ namespace Isonia::Renderable
 
 		const Noise::WhiteNoise offset_noise = {};
 		const float size = quad_size / grass_density;
-		const float half_size = size * 0.5f;
+		const float half_size = size * 0.33f;
 
 		for (unsigned int z = 0; z < grass_count_side; z++)
 		{

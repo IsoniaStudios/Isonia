@@ -24,6 +24,7 @@ layout(set = 0, binding = 1) uniform GlobalClock {
 } clock;
 
 layout (set = 0, binding = 5) uniform sampler2D cloudShadowMap;
+layout (set = 0, binding = 7) uniform sampler2D windMap;
 
 const float CLOUD_HEIGHT = -100.0;
 
@@ -48,7 +49,7 @@ void main()
     fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
     
     // set frag wind to middle
-    fragWindUV = vec2(4.0, 4.0);
+    fragWindUV = texture(windMap, cloudShadowMapTexCoord).xy;
 
     gl_Position = vec4(position, 1);
 }
