@@ -45,4 +45,6 @@ namespace Isonia::State
 			memset(key_state, 0, sizeof(key_state));
 		}
 	};
+
+	bool GrowHeap(unsigned long long size);
 }

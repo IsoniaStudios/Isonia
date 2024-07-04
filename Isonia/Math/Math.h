@@ -14,6 +14,9 @@ namespace Isonia::Math
     extern inline constexpr const float epsilon = 1.192092896e-07f;
     extern inline constexpr const float two_epsilon = epsilon * 2.0f;
 
+    extern inline constexpr const float float_delta = 0.0001f;
+    extern inline constexpr const float two_float_delta = float_delta * 2.0f;
+
     extern inline constexpr const float isometric_y_scale = 1.154700538379252f; //1.0f / Math::Cos(Math::Radians(-30.0f));
 
     extern inline constexpr const float pixels_per_unit = 16.0f;

@@ -6,53 +6,37 @@
 
 namespace Isonia::Pipeline::Descriptors
 {
-	DescriptorPool::Builder::Builder(Device* device, const unsigned int count)
+	DescriptorPool::DescriptorPool(Device* device, const unsigned int count)
 		: m_device(device), m_pool_sizes(new VkDescriptorPoolSize[count]), m_pool_sizes_count(count)
 	{
 	}
+	DescriptorPool::~DescriptorPool()
+	{
+		vkDestroyDescriptorPool(m_device->getDevice(), m_descriptor_pool, nullptr);
+		delete m_pool_sizes;
+	}
 
-	DescriptorPool::Builder* DescriptorPool::Builder::addPoolSize(const VkDescriptorType descriptor_type, const unsigned int count)
+	DescriptorPool* DescriptorPool::addPoolSize(const VkDescriptorType descriptor_type, const unsigned int count)
 	{
 		m_pool_sizes[m_pool_sizes_index++] = VkDescriptorPoolSize{ descriptor_type, count };
 		return this;
 	}
 
-	DescriptorPool::Builder* DescriptorPool::Builder::setPoolFlags(const VkDescriptorPoolCreateFlags flags)
-	{
-		m_pool_flags = flags;
-		return this;
-	}
-
-	DescriptorPool::Builder* DescriptorPool::Builder::setMaxSets(const unsigned int count)
-	{
-		m_max_sets = count;
-		return this;
-	}
-
-	DescriptorPool* DescriptorPool::Builder::build() const
-	{
-		return new DescriptorPool(m_device, m_max_sets, m_pool_flags, m_pool_sizes, m_pool_sizes_count);
-	}
-
-	DescriptorPool::DescriptorPool(Device* device, unsigned int max_sets, VkDescriptorPoolCreateFlags pool_flags, const VkDescriptorPoolSize* pool_sizes, const unsigned int pool_sizes_count)
-		: m_device(device)
+	DescriptorPool* DescriptorPool::build(const unsigned int max_sets, const VkDescriptorPoolCreateFlags pool_flags)
 	{
 		VkDescriptorPoolCreateInfo descriptor_pool_info{};
 		descriptor_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		descriptor_pool_info.poolSizeCount = pool_sizes_count;
-		descriptor_pool_info.pPoolSizes = pool_sizes;
+		descriptor_pool_info.poolSizeCount = m_pool_sizes_count;
+		descriptor_pool_info.pPoolSizes = m_pool_sizes;
 		descriptor_pool_info.maxSets = max_sets;
 		descriptor_pool_info.flags = pool_flags;
 
-		if (vkCreateDescriptorPool(device->getDevice(), &descriptor_pool_info, nullptr, &m_descriptor_pool) != VK_SUCCESS)
+		if (vkCreateDescriptorPool(m_device->getDevice(), &descriptor_pool_info, nullptr, &m_descriptor_pool) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create descriptor pool!");
 		}
-	}
 
-	DescriptorPool::~DescriptorPool()
-	{
-		vkDestroyDescriptorPool(m_device->getDevice(), m_descriptor_pool, nullptr);
+		return this;
 	}
 
 	bool DescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet* descriptor) const

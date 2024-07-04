@@ -43,25 +43,26 @@ void main()
 	//vec3 cameraUpWorld = vec3(ubo.view[0][1], ubo.view[1][1], ubo.view[2][1]) * HALF_SIZE;
 	vec3 upWorld = vec3(0.0, -Y_SCALE * HALF_SIZE, 0.0);
 
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld + upWorld, 1.0);
+	mat4 viewProjection = ubo.projection * ubo.view;
+	gl_Position = viewProjection * vec4(worldPosition - cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragCloudShadow = cloudShadow;
 	fragTexCoord = (vec2(0.0, 0.0) + uv) / ALPHA_MAP_SIZE;
 	EmitVertex();
   
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition - cameraRightWorld - upWorld, 1.0);
+	gl_Position = viewProjection * vec4(worldPosition - cameraRightWorld - upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragCloudShadow = cloudShadow;
 	fragTexCoord = (vec2(0.0, 1.0) + uv) / ALPHA_MAP_SIZE;
 	EmitVertex();
   
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld + upWorld, 1.0);
+	gl_Position = viewProjection * vec4(worldPosition + cameraRightWorld + upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragCloudShadow = cloudShadow;
 	fragTexCoord = (vec2(1.0, 0.0) + uv) / ALPHA_MAP_SIZE;
 	EmitVertex();
   
-	gl_Position = ubo.projection * ubo.view * vec4(worldPosition + cameraRightWorld - upWorld, 1.0);
+	gl_Position = viewProjection * vec4(worldPosition + cameraRightWorld - upWorld, 1.0);
 	fragNormalWorld = normal;
 	fragCloudShadow = cloudShadow;
 	fragTexCoord = (vec2(1.0, 1.0) + uv) / ALPHA_MAP_SIZE;

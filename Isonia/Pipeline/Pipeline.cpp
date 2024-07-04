@@ -7,14 +7,22 @@
 
 namespace Isonia::Pipeline
 {
-	Pipeline::Builder::Builder(Device* device, unsigned int m_shader_stages_count)
-		: m_device(device), m_shader_stages_count(m_shader_stages_count), m_shader_stages(new VkPipelineShaderStageCreateInfo[m_shader_stages_count])
+	Pipeline::Pipeline(Device* device, const unsigned int shader_stages_count)
+		: m_device(device), m_shader_stages_count(shader_stages_count), m_shader_stages(new VkPipelineShaderStageCreateInfo[shader_stages_count])
 	{
 	}
-
-	Pipeline::Builder* Pipeline::Builder::addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size)
+	Pipeline::~Pipeline()
 	{
-		VkShaderModule shader_module = createShaderModule(code, size);		
+		for (unsigned int i = 0; i < m_shader_stages_count; i++)
+		{
+			vkDestroyShaderModule(m_device->getDevice(), m_shader_stages[i].module, nullptr);
+		}
+		vkDestroyPipeline(m_device->getDevice(), m_graphics_pipeline, nullptr);
+	}
+
+	Pipeline* Pipeline::addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size)
+	{
+		VkShaderModule shader_module = createShaderModule(code, size);
 		m_shader_stages[m_shader_stages_index++] = VkPipelineShaderStageCreateInfo{
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
@@ -28,12 +36,7 @@ namespace Isonia::Pipeline
 		return this;
 	}
 
-	Pipeline* Pipeline::Builder::createGraphicsPipeline(const PipelineConfigInfo* config_info) const
-	{
-		return new Pipeline(m_device, m_shader_stages, m_shader_stages_count, config_info);
-	}
-
-	VkShaderModule Pipeline::Builder::createShaderModule(const unsigned char* const code, const unsigned int size)
+	VkShaderModule Pipeline::createShaderModule(const unsigned char* const code, const unsigned int size)
 	{
 		VkShaderModuleCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -46,21 +49,6 @@ namespace Isonia::Pipeline
 			throw std::runtime_error("Failed to create shader module");
 		}
 		return shader_module;
-	}
-
-	Pipeline::Pipeline(Device* device, VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info)
-		: m_device(device)
-	{
-		createGraphicsPipeline(shader_stages, shader_stages_count, config_info);
-	}
-
-	Pipeline::~Pipeline()
-	{
-		for (unsigned int i = 0; i < m_shader_stages_count; i++)
-		{
-			vkDestroyShaderModule(m_device->getDevice(), m_shader_stages[i].module, nullptr);
-		}
-		vkDestroyPipeline(m_device->getDevice(), m_graphics_pipeline, nullptr);
 	}
 
 	VkShaderStageFlags Pipeline::getStageFlags() const
@@ -209,7 +197,7 @@ namespace Isonia::Pipeline
 		makePixelPerfectConfigInfo(config_info);
 	}
 
-	void Pipeline::createGraphicsPipeline(VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info)
+	Pipeline* Pipeline::createGraphicsPipeline(const PipelineConfigInfo* config_info)
 	{
 		assert(config_info->pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(config_info->renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
@@ -221,17 +209,15 @@ namespace Isonia::Pipeline
 		vertex_input_info.pVertexAttributeDescriptions = config_info->attribute_descriptions;
 		vertex_input_info.pVertexBindingDescriptions = config_info->binding_descriptions;
 
-		m_shader_stages = shader_stages;
-		m_shader_stages_count = shader_stages_count;
-		for (unsigned int i = 0; i < shader_stages_count; i++)
+		for (unsigned int i = 0; i < m_shader_stages_count; i++)
 		{
-			m_stage_flags |= shader_stages[i].stage;
+			m_stage_flags |= m_shader_stages[i].stage;
 		}
 
 		VkGraphicsPipelineCreateInfo pipeline_info{};
 		pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipeline_info.stageCount = shader_stages_count;
-		pipeline_info.pStages = shader_stages;
+		pipeline_info.stageCount = m_shader_stages_count;
+		pipeline_info.pStages = m_shader_stages;
 		pipeline_info.pVertexInputState = &vertex_input_info;
 		pipeline_info.pInputAssemblyState = &config_info->input_assembly_info;
 		pipeline_info.pViewportState = &config_info->viewport_info;
@@ -252,5 +238,7 @@ namespace Isonia::Pipeline
 		{
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}
+
+		return this;
 	}
 }

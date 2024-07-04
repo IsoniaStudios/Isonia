@@ -243,7 +243,7 @@ namespace Isonia::Renderable
 	static constexpr const unsigned int vertices_count = vertices * vertices + (vertices - 2) * (vertices - 1);
 	static constexpr const unsigned int triangle_count = vertices_count - 2;
 
-	static constexpr const float grass_density = 1.0f;
+	static constexpr const float grass_density = 4.0f;
 	static constexpr const float grass_size = Math::pixels_per_unit / (16.0f * 2.0f);
 	static constexpr const unsigned int grass_count_side = static_cast<unsigned int>(grass_density * static_cast<float>(quads));
 	static constexpr const unsigned int grass_count = grass_count_side * grass_count_side;

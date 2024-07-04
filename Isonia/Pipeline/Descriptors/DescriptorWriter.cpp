@@ -1,11 +1,20 @@
 // internal
 #include "Descriptors.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Pipeline::Descriptors
 {
 	DescriptorWriter::DescriptorWriter(DescriptorSetLayout* set_layout, DescriptorPool* pool, const unsigned int count)
 		: m_set_layout(set_layout), m_pool(pool), m_writes(new VkWriteDescriptorSet[count]), m_writes_count(count)
 	{
+	}
+	DescriptorWriter::~DescriptorWriter()
+	{
+		delete m_set_layout;
+		delete m_pool;
+		delete m_writes;
 	}
 
 	DescriptorWriter* DescriptorWriter::writeBuffer(unsigned int binding, VkDescriptorBufferInfo* buffer_info)
@@ -42,15 +51,14 @@ namespace Isonia::Pipeline::Descriptors
 		return this;
 	}
 
-	bool DescriptorWriter::build(VkDescriptorSet* set)
+	DescriptorWriter* DescriptorWriter::build(VkDescriptorSet* set)
 	{
-		bool success = m_pool->allocateDescriptor(m_set_layout->getDescriptorSetLayout(), set);
-		if (!success)
+		if (!m_pool->allocateDescriptor(m_set_layout->getDescriptorSetLayout(), set))
 		{
-			return false;
+			throw std::runtime_error("Failed to allocate descriptor!");
 		}
 		overwrite(set);
-		return true;
+		return this;
 	}
 
 	void DescriptorWriter::overwrite(VkDescriptorSet* set)
@@ -60,5 +68,14 @@ namespace Isonia::Pipeline::Descriptors
 			m_writes[i].dstSet = *set;
 		}
 		vkUpdateDescriptorSets(m_pool->m_device->getDevice(), m_writes_count, m_writes, 0u, nullptr);
+	}
+
+	DescriptorSetLayout* DescriptorWriter::getSetLayout() const
+	{
+		return m_set_layout;
+	}
+	DescriptorPool* DescriptorWriter::getPool() const
+	{
+		return m_pool;
 	}
 }

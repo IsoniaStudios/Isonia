@@ -251,29 +251,14 @@ namespace Isonia::Pipeline
     struct Pipeline
     {
     public:
-        struct Builder
-        {
-        public:
-            Builder(Device* device, unsigned int m_shader_stages_count);
-
-            Builder* addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size);
-            Pipeline* createGraphicsPipeline(const PipelineConfigInfo* config_info) const;
-
-        private:
-            VkShaderModule createShaderModule(const unsigned char* const code, const unsigned int size);
-
-            Device* m_device;
-            VkPipelineShaderStageCreateInfo* m_shader_stages;
-            unsigned int m_shader_stages_count;
-            unsigned int m_shader_stages_index = 0u;
-        };
-
-        Pipeline(Device* device, VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info);
+        Pipeline(Device* device, const unsigned int shader_stages_count);
         ~Pipeline();
 
         VkShaderStageFlags getStageFlags() const;
 
         void bind(VkCommandBuffer command_buffer);
+
+        Pipeline* addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size);
 
         static void pixelPipelineTriangleStripConfigInfo(PipelineConfigInfo* config_info);
         static void pixelPipelineTriangleStripNormalConfigInfo(PipelineConfigInfo* config_info);
@@ -283,13 +268,16 @@ namespace Isonia::Pipeline
         static void makeTransparentConfigInfo(PipelineConfigInfo* config_info);
         static void makeTriangleStripConfigInfo(PipelineConfigInfo* config_info);
 
+        Pipeline* createGraphicsPipeline(const PipelineConfigInfo* config_info);
+
     private:
-        void createGraphicsPipeline(VkPipelineShaderStageCreateInfo* shader_stages, const unsigned int shader_stages_count, const PipelineConfigInfo* config_info);
+        VkShaderModule createShaderModule(const unsigned char* const code, const unsigned int size);
 
         Device* m_device;
         VkPipeline m_graphics_pipeline;
         VkPipelineShaderStageCreateInfo* m_shader_stages;
-        unsigned int m_shader_stages_count;
+        const unsigned int m_shader_stages_count;
+        unsigned int m_shader_stages_index = 0u;
         VkShaderStageFlags m_stage_flags{};
     };
 

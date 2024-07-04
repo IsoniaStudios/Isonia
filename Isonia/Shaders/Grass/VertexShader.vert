@@ -27,6 +27,7 @@ layout (set = 0, binding = 5) uniform sampler2D cloudShadowMap;
 layout (set = 0, binding = 7) uniform sampler2D windMap;
 
 const float CLOUD_HEIGHT = -100.0;
+const float ALPHA_MAP_SIZE = 9.0;
 
 void main()
 {
@@ -49,7 +50,8 @@ void main()
     fragCloudShadow = texture(cloudShadowMap, cloudShadowMapTexCoord).r;
     
     // set frag wind to middle
-    fragWindUV = texture(windMap, cloudShadowMapTexCoord).xy;
+    vec2 windMapTexCoord = position.xz / 64.0 + clock.time * windDirection / 16.0;
+    fragWindUV = floor((1.0 + texture(windMap, windMapTexCoord).xy) * 0.5 * ALPHA_MAP_SIZE) + 0.0001; // why do i need this epsilon
 
     gl_Position = vec4(position, 1);
 }

@@ -28,18 +28,18 @@ namespace Isonia::Pipeline::RenderSystems
 		Noise::ConstantScalarWarpNoise ground_warp_noise{ 0.05f };
 		Noise::FractalPerlinNoise ground_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
-		const int S_GROUNDS = static_cast<int>(grounds);
-		const int S_QUADS = static_cast<int>(Renderable::quads);
+		const int s_grounds = static_cast<int>(grounds);
+		const int s_quads = static_cast<int>(Renderable::quads);
 		m_grounds = static_cast<Renderable::BuilderXZUniformN*>(operator new[](sizeof(Renderable::BuilderXZUniformN)* grounds_count));
 		m_grasses = static_cast<Renderable::BuilderXZUniformNP*>(operator new[](sizeof(Renderable::BuilderXZUniformNP)* grounds_count));
 		for (int x = 0; x < grounds; x++)
 		{
 			for (int z = 0; z < grounds; z++)
 			{
-				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
-				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
-				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &ground_warp_noise, &ground_noise, 7.5f, xOffset, zOffset);
-				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
+				float x_offset = (x - s_grounds / 2l) * s_quads * Renderable::quad_size - s_quads * Renderable::quad_size * 0.5f;
+				float z_offset = (z - s_grounds / 2l) * s_quads * Renderable::quad_size - s_quads * Renderable::quad_size * 0.5f;
+				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * s_grounds + z) Renderable::BuilderXZUniformN(device, &ground_warp_noise, &ground_noise, 7.5f, x_offset, z_offset);
+				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * s_grounds + z) Renderable::BuilderXZUniformNP(device, ground);
 			}
 		}
 	}
@@ -182,7 +182,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Pipeline::pixelPipelineTriangleStripNormalConfigInfo(&pipeline_config);
 		pipeline_config.renderPass = render_pass;
 		pipeline_config.pipelineLayout = m_ground_pipeline_layout;
-		m_ground_pipeline = (new Pipeline::Builder(m_device, 2u))
+		m_ground_pipeline = (new Pipeline(m_device, 2u))
 			->addShaderModule(
 				VK_SHADER_STAGE_VERTEX_BIT,
 				Shaders::Ground::VERTEXSHADER_VERT,
@@ -221,7 +221,7 @@ namespace Isonia::Pipeline::RenderSystems
 		pixelPipelinePointListConfigInfo(&pipeline_config);
 		pipeline_config.renderPass = render_pass;
 		pipeline_config.pipelineLayout = m_grass_pipeline_layout;
-		m_grass_pipeline = (new Pipeline::Builder(m_device, 3u))
+		m_grass_pipeline = (new Pipeline(m_device, 3u))
 			->addShaderModule(
 				VK_SHADER_STAGE_GEOMETRY_BIT,
 				Shaders::Grass::GEOMSHADER_GEOM,

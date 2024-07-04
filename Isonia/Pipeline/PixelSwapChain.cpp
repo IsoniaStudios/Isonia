@@ -569,7 +569,6 @@ namespace Isonia::Pipeline
 
 	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
-		/*
 		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
@@ -586,7 +585,6 @@ namespace Isonia::Pipeline
 				return available_present_modes[i];
 			}
 		}
-		*/
 		std::cout << "Present mode: V-Sync" << std::endl;
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}

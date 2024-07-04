@@ -26,9 +26,9 @@ layout (set = 0, binding = 3) uniform sampler2D alphaMap;
 
 void main()
 {
-	outColor = vec4(fragTexCoord, 0, 0);
+	//outColor = vec4(fragTexCoord, 0, 0);
 	//outColor = texture(alphaMap, fragTexCoord);
-	return;
+	//return;
 	if (texture(alphaMap, fragTexCoord).r < 1)
 		discard;
 

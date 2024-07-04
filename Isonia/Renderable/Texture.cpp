@@ -12,7 +12,7 @@ namespace Isonia::Renderable
 	{
 		createTextureImage(warp_noise, tex_width, tex_height);
 		createTextureImageView();
-		createTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+		createTextureSampler(VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 		updateDescriptor();
 	}
 
@@ -21,7 +21,7 @@ namespace Isonia::Renderable
 	{
 		createTextureImage(warp_noise, noise, tex_width, tex_height);
 		createTextureImageView();
-		createTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+		createTextureSampler(VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 		updateDescriptor();
 	}
 
@@ -111,8 +111,10 @@ namespace Isonia::Renderable
 
 				const unsigned int i = (h_i + w) * 2u;
 				warp_noise->transformCoordinate(&s, &t);
-				pixels[i + 0] = static_cast<char>(s * 255.0f);
-				pixels[i + 1] = static_cast<char>(t * 255.0f);
+				const char sc = static_cast<char>(s * 127.0f);
+				const char tc = static_cast<char>(t * 127.0f);
+				pixels[i + 0] = sc;
+				pixels[i + 1] = tc;
 			}
 		}
 		createTextureImage(pixels, texWidth, texHeight, VK_FORMAT_R8G8_SNORM);
@@ -282,8 +284,10 @@ namespace Isonia::Renderable
 		case VK_FORMAT_R8_SNORM:
 		case VK_FORMAT_R8_SRGB:
 			return 1;
+		case VK_FORMAT_R8G8_SINT:
 		case VK_FORMAT_R8G8_SRGB:
 		case VK_FORMAT_R8G8_SNORM:
+		case VK_FORMAT_R8G8_UNORM:
 			return 2;
 		case VK_FORMAT_R8G8B8_SRGB:
 			return 3;

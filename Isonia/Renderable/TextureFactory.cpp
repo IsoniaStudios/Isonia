@@ -46,32 +46,31 @@ namespace Isonia::Renderable
 	static const unsigned int grass_atlas_width = 9u;
 	static const unsigned int grass_texture_height = 16u;
 	static const unsigned int grass_texture_width = 16u;
-	static const unsigned int grass_texture_msaa = 4u;
-	static struct Grass
-	{
-		float root_position;
-		float height;
-		float radius;
-		float radius_given_height(float t_h) const
-		{
-			const float h = 1.0f - t_h;
-			if (h > height)
-			{
-				return 0.0f;
-			}
-			const float s = Math::sigmoidf(0.75f, 10.0f, (h * 12.0f) / height);
-			return s * radius;
-		}
-	};
 	static inline Color grassSubTextureFiller(const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w)
 	{
 		// parameters
 		const float parameter_force = 0.01f;
 		const unsigned int parameter_blade_count = 3u;
+		struct Grass
+		{
+			float root_position;
+			float height;
+			float radius;
+			float radius_given_height(float t_h) const
+			{
+				const float h = 1.0f - t_h;
+				if (h > height)
+				{
+					return 0.0f;
+				}
+				const float s = Math::sigmoidf(0.75f, 10.0f, (h * 12.0f) / height);
+				return s * radius;
+			}
+		};
 		const Grass blades[] = {
-			{0.33f, 0.45f, 0.0425f},
-			{0.50f, 0.50f, 0.0450f},
-			{0.66f, 0.40f, 0.0400f},
+			{0.33f, 0.55f, 0.045f},
+			{0.50f, 0.60f, 0.0475f},
+			{0.66f, 0.50f, 0.0425f},
 		};
 
 		const float ah = static_cast<float>(static_cast<int>(a_h) - static_cast<int>(grass_atlas_height / 2u)) / static_cast<float>(grass_atlas_height);
