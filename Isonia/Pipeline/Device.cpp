@@ -79,13 +79,13 @@ namespace Isonia::Pipeline
 		throw std::runtime_error("Failed to find supported format!");
 	}
 
-	unsigned int Device::findMemoryType(unsigned int typeFilter, VkMemoryPropertyFlags properties) const
+	unsigned int Device::findMemoryType(unsigned int type_filter, VkMemoryPropertyFlags properties) const
 	{
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memProperties);
-		for (unsigned int i = 0; i < memProperties.memoryTypeCount; i++)
+		VkPhysicalDeviceMemoryProperties mem_properties;
+		vkGetPhysicalDeviceMemoryProperties(m_physical_device, &mem_properties);
+		for (unsigned int i = 0u; i < mem_properties.memoryTypeCount; i++)
 		{
-			if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+			if ((type_filter & (1u << i)) && (mem_properties.memoryTypes[i].propertyFlags & properties) == properties)
 			{
 				return i;
 			}
@@ -94,104 +94,104 @@ namespace Isonia::Pipeline
 		throw std::runtime_error("Failed to find suitable memory type!");
 	}
 
-	void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* bufferMemory)
+	void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer* buffer, VkDeviceMemory* buffer_memory)
 	{
-		VkBufferCreateInfo bufferInfo{};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		VkBufferCreateInfo buffer_info{};
+		buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		buffer_info.size = size;
+		buffer_info.usage = usage;
+		buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateBuffer(m_device, &bufferInfo, nullptr, buffer) != VK_SUCCESS)
+		if (vkCreateBuffer(m_device, &buffer_info, nullptr, buffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create vertex buffer!");
 		}
 
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(m_device, *buffer, &memRequirements);
+		VkMemoryRequirements mem_requirements;
+		vkGetBufferMemoryRequirements(m_device, *buffer, &mem_requirements);
 
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+		VkMemoryAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		alloc_info.allocationSize = mem_requirements.size;
+		alloc_info.memoryTypeIndex = findMemoryType(mem_requirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(m_device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
+		if (vkAllocateMemory(m_device, &alloc_info, nullptr, buffer_memory) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate vertex buffer memory!");
 		}
 
-		vkBindBufferMemory(m_device, *buffer, *bufferMemory, 0);
+		vkBindBufferMemory(m_device, *buffer, *buffer_memory, 0);
 	}
 
 	VkCommandBuffer Device::beginSingleTimeCommands()
 	{
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = m_command_pool;
-		allocInfo.commandBufferCount = 1;
+		VkCommandBufferAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		alloc_info.commandPool = m_command_pool;
+		alloc_info.commandBufferCount = 1;
 
-		VkCommandBuffer commandBuffer;
-		vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffer);
+		VkCommandBuffer command_buffer;
+		vkAllocateCommandBuffers(m_device, &alloc_info, &command_buffer);
 
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		VkCommandBufferBeginInfo begin_info{};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
-		return commandBuffer;
+		vkBeginCommandBuffer(command_buffer, &begin_info);
+		return command_buffer;
 	}
 
-	void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+	void Device::endSingleTimeCommands(VkCommandBuffer command_buffer)
 	{
-		vkEndCommandBuffer(commandBuffer);
+		vkEndCommandBuffer(command_buffer);
 
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
+		VkSubmitInfo submit_info{};
+		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submit_info.commandBufferCount = 1;
+		submit_info.pCommandBuffers = &command_buffer;
 
-		vkQueueSubmit(m_graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueSubmit(m_graphics_queue, 1, &submit_info, VK_NULL_HANDLE);
 		vkQueueWaitIdle(m_graphics_queue);
 
-		vkFreeCommandBuffers(m_device, m_command_pool, 1, &commandBuffer);
+		vkFreeCommandBuffers(m_device, m_command_pool, 1, &command_buffer);
 	}
 
-	void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+	void Device::copyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size)
 	{
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer command_buffer = beginSingleTimeCommands();
 
-		VkBufferCopy copyRegion{};
-		copyRegion.srcOffset = 0;  // Optional
-		copyRegion.dstOffset = 0;  // Optional
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+		VkBufferCopy copy_region{};
+		copy_region.srcOffset = 0; // Optional
+		copy_region.dstOffset = 0; // Optional
+		copy_region.size = size;
+		vkCmdCopyBuffer(command_buffer, src_buffer, dst_buffer, 1, &copy_region);
 
-		endSingleTimeCommands(commandBuffer);
+		endSingleTimeCommands(command_buffer);
 	}
 
-	void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, unsigned int mipLevels, unsigned int layerCount)
+	void Device::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout, unsigned int mip_levels, unsigned int layer_count)
 	{
 		// uses an image memory barrier transition image layouts and transfer queue
 		// family ownership when VK_SHARING_MODE_EXCLUSIVE is used. There is an
 		// equivalent buffer memory barrier to do this for buffers
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer command_buffer = beginSingleTimeCommands();
 
 		VkImageMemoryBarrier barrier{};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
+		barrier.oldLayout = old_layout;
+		barrier.newLayout = new_layout;
 
 		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
 		barrier.image = image;
 		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = mipLevels;
+		barrier.subresourceRange.levelCount = mip_levels;
 		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = layerCount;
+		barrier.subresourceRange.layerCount = layer_count;
 
-		if (newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		if (new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 		{
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 			if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT)
@@ -204,48 +204,48 @@ namespace Isonia::Pipeline
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		}
 
-		VkPipelineStageFlags sourceStage;
-		VkPipelineStageFlags destinationStage;
+		VkPipelineStageFlags source_stage;
+		VkPipelineStageFlags destination_stage;
 
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+		if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destination_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+		else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destination_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+		else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 		{
 			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			destination_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-			destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destination_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+		else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
 		{
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-			destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+			source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destination_stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 		}
 		else
 		{
@@ -253,9 +253,9 @@ namespace Isonia::Pipeline
 		}
 
 		vkCmdPipelineBarrier(
-			commandBuffer,
-			sourceStage,
-			destinationStage,
+			command_buffer,
+			source_stage,
+			destination_stage,
 			0,
 			0,
 			nullptr,
@@ -265,12 +265,12 @@ namespace Isonia::Pipeline
 			&barrier
 		);
 
-		endSingleTimeCommands(commandBuffer);
+		endSingleTimeCommands(command_buffer);
 	}
 
-	void Device::copyBufferToImage(VkBuffer buffer, VkImage image, unsigned int width, unsigned int height, unsigned int layerCount)
+	void Device::copyBufferToImage(VkBuffer buffer, VkImage image, unsigned int width, unsigned int height, unsigned int layer_count)
 	{
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+		VkCommandBuffer command_buffer = beginSingleTimeCommands();
 
 		VkBufferImageCopy region{};
 		region.bufferOffset = 0;
@@ -280,13 +280,13 @@ namespace Isonia::Pipeline
 		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		region.imageSubresource.mipLevel = 0;
 		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = layerCount;
+		region.imageSubresource.layerCount = layer_count;
 
 		region.imageOffset = { 0, 0, 0 };
 		region.imageExtent = { width, height, 1 };
 
 		vkCmdCopyBufferToImage(
-			commandBuffer,
+			command_buffer,
 			buffer,
 			image,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -294,75 +294,75 @@ namespace Isonia::Pipeline
 			&region
 		);
 
-		endSingleTimeCommands(commandBuffer);
+		endSingleTimeCommands(command_buffer);
 	}
 
-	void Device::createImageWithInfo(const VkImageCreateInfo* imageInfo, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* imageMemory)
+	void Device::createImageWithInfo(const VkImageCreateInfo* image_info, VkMemoryPropertyFlags properties, VkImage* image, VkDeviceMemory* image_memory)
 	{
-		if (vkCreateImage(m_device, imageInfo, nullptr, image) != VK_SUCCESS)
+		if (vkCreateImage(m_device, image_info, nullptr, image) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create image!");
 		}
 
-		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(m_device, *image, &memRequirements);
+		VkMemoryRequirements mem_requirements;
+		vkGetImageMemoryRequirements(m_device, *image, &mem_requirements);
 
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+		VkMemoryAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		alloc_info.allocationSize = mem_requirements.size;
+		alloc_info.memoryTypeIndex = findMemoryType(mem_requirements.memoryTypeBits, properties);
 
-		if (vkAllocateMemory(m_device, &allocInfo, nullptr, imageMemory) != VK_SUCCESS)
+		if (vkAllocateMemory(m_device, &alloc_info, nullptr, image_memory) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate image memory!");
 		}
 
-		if (vkBindImageMemory(m_device, *image, *imageMemory, 0) != VK_SUCCESS)
+		if (vkBindImageMemory(m_device, *image, *image_memory, 0) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to bind image memory!");
 		}
 	}
 
 #ifdef DEBUG
-	VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
+	VkResult Device::createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* create_info, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* debug_messenger)
 	{
 		PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
-			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+			return func(instance, create_info, allocator, debug_messenger);
 		}
 		return VK_ERROR_EXTENSION_NOT_PRESENT;
 	}
 
-	void Device::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+	void Device::destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debug_messenger, const VkAllocationCallbacks* allocator)
 	{
 		PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 		if (func != nullptr)
 		{
-			func(instance, debugMessenger, pAllocator);
+			func(instance, debug_messenger, allocator);
 		}
 	}
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL Device::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+	VKAPI_ATTR VkBool32 VKAPI_CALL Device::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
 	{
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		std::cerr << "validation layer: " << callback_data->pMessage << std::endl;
 		return VK_FALSE;
 	}
 
-	void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* createInfo)
+	void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* create_info)
 	{
-		createInfo->sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		createInfo->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-		createInfo->messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-		createInfo->pfnUserCallback = debugCallback;
-		createInfo->pUserData = nullptr;
+		create_info->sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		create_info->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		create_info->messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		create_info->pfnUserCallback = debugCallback;
+		create_info->pUserData = nullptr;
 	}
 
 	void Device::setupDebugMessenger()
 	{
-		VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-		populateDebugMessengerCreateInfo(&createInfo);
-		if (createDebugUtilsMessengerEXT(m_instance, &createInfo, nullptr, &m_debug_messenger) != VK_SUCCESS)
+		VkDebugUtilsMessengerCreateInfoEXT create_info{};
+		populateDebugMessengerCreateInfo(&create_info);
+		if (createDebugUtilsMessengerEXT(m_instance, &create_info, nullptr, &m_debug_messenger) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
@@ -370,33 +370,33 @@ namespace Isonia::Pipeline
 
 	bool Device::checkValidationLayerSupport()
 	{
-		unsigned int layerCount;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-		VkLayerProperties* availableLayers = new VkLayerProperties[layerCount];
-		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers);
+		unsigned int layer_count;
+		vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+		VkLayerProperties* available_layers = new VkLayerProperties[layer_count];
+		vkEnumerateInstanceLayerProperties(&layer_count, available_layers);
 
 		for (unsigned int i = 0; i < m_validation_layers_count; i++)
 		{
-			bool layerFound = false;
-			const char* layerName = m_validation_layers[i];
+			bool layer_found = false;
+			const char* layer_name = m_validation_layers[i];
 
-			for (unsigned int q = 0; q < layerCount; q++)
+			for (unsigned int q = 0; q < layer_count; q++)
 			{
-				if (strcmp(layerName, availableLayers[q].layerName) == 0)
+				if (strcmp(layer_name, available_layers[q].layerName) == 0)
 				{
-					layerFound = true;
+					layer_found = true;
 					break;
 				}
 			}
 
-			if (!layerFound)
+			if (!layer_found)
 			{
-				delete[] availableLayers;
+				delete[] available_layers;
 				return false;
 			}
 		}
 
-		delete[] availableLayers;
+		delete[] available_layers;
 		return true;
 	}
 #endif
@@ -419,27 +419,27 @@ namespace Isonia::Pipeline
 
 	void Device::hasRequiredInstanceExtensions()
 	{
-		unsigned int extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-		VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
+		unsigned int extension_count = 0;
+		vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
+		VkExtensionProperties* extensions = new VkExtensionProperties[extension_count];
+		vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, extensions);
 
 		std::cout << "available extensions:" << std::endl;
-		for (unsigned int i = 0; i < extensionCount; i++)
+		for (unsigned int i = 0; i < extension_count; i++)
 		{
 			std::cout << "\t" << extensions[i].extensionName << std::endl;
 		}
 
 		std::cout << "required extensions:" << std::endl;
-		unsigned int requiredExtensionsCount = 0;
-		const char** requiredExtensions = getRequiredExtensions(&requiredExtensionsCount);
-		for (unsigned int i = 0; i < requiredExtensionsCount; i++)
+		unsigned int required_extensions_count = 0;
+		const char** required_extensions = getRequiredExtensions(&required_extensions_count);
+		for (unsigned int i = 0; i < required_extensions_count; i++)
 		{
 			bool missing = true;
-			std::cout << "\t" << requiredExtensions[i] << std::endl;
-			for (unsigned int q = 0; q < extensionCount; q++)
+			std::cout << "\t" << required_extensions[i] << std::endl;
+			for (unsigned int q = 0; q < extension_count; q++)
 			{
-				if (strcmp(extensions[q].extensionName, requiredExtensions[i]) == 0)
+				if (strcmp(extensions[q].extensionName, required_extensions[i]) == 0)
 				{
 					missing = false;
 				}
@@ -455,18 +455,18 @@ namespace Isonia::Pipeline
 
 	bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device)
 	{
-		unsigned int extensionCount;
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-		VkExtensionProperties* availableExtensions = new VkExtensionProperties[extensionCount];
-		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions);
+		unsigned int extension_count;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+		VkExtensionProperties* available_extensions = new VkExtensionProperties[extension_count];
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions);
 
 		bool supported = true;
 		for (unsigned int req_i = 0; req_i < m_device_extensions_count; req_i++)
 		{
 			bool found = false;
-			for (unsigned int av_i = 0; av_i < extensionCount; av_i++)
+			for (unsigned int av_i = 0; av_i < extension_count; av_i++)
 			{
-				if (strcmp(m_device_extensions[req_i], availableExtensions[av_i].extensionName) == 0)
+				if (strcmp(m_device_extensions[req_i], available_extensions[av_i].extensionName) == 0)
 				{
 					found = true;
 					break;
@@ -479,7 +479,7 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		delete[] availableExtensions;
+		delete[] available_extensions;
 
 		return supported;
 	}
@@ -488,21 +488,21 @@ namespace Isonia::Pipeline
 	{
 		QueueFamilyIndices indices;
 
-		unsigned int queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-		VkQueueFamilyProperties* queueFamilies = new VkQueueFamilyProperties[queueFamilyCount];
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
+		unsigned int queue_family_count = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
+		VkQueueFamilyProperties* queue_families = new VkQueueFamilyProperties[queue_family_count];
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families);
 
-		for (unsigned int i = 0; i < queueFamilyCount; i++)
+		for (unsigned int i = 0; i < queue_family_count; i++)
 		{
-			if (queueFamilies[i].queueCount > 0 && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			if (queue_families[i].queueCount > 0 && queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
 				indices.graphics_family = i;
 				indices.graphics_family_has_value = true;
 			}
-			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
-			if (queueFamilies[i].queueCount > 0 && presentSupport)
+			VkBool32 present_support = false;
+			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &present_support);
+			if (queue_families[i].queueCount > 0 && present_support)
 			{
 				indices.present_family = i;
 				indices.present_family_has_value = true;
@@ -513,7 +513,7 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		delete[] queueFamilies;
+		delete[] queue_families;
 
 		return indices;
 	}
@@ -553,36 +553,36 @@ namespace Isonia::Pipeline
 		}
 #endif
 
-		VkApplicationInfo appInfo = {};
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Isonia";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "Isonia";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.apiVersion = VK_API_VERSION_1_0;
+		VkApplicationInfo app_info = {};
+		app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		app_info.pApplicationName = "Isonia";
+		app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		app_info.pEngineName = "Isonia";
+		app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		app_info.apiVersion = VK_API_VERSION_1_0;
 
-		VkInstanceCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		createInfo.pApplicationInfo = &appInfo;
+		VkInstanceCreateInfo create_info = {};
+		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		create_info.pApplicationInfo = &app_info;
 
 		unsigned int extensions_count;
 		const char** extensions = getRequiredExtensions(&extensions_count);
-		createInfo.enabledExtensionCount = extensions_count;
-		createInfo.ppEnabledExtensionNames = extensions;
+		create_info.enabledExtensionCount = extensions_count;
+		create_info.ppEnabledExtensionNames = extensions;
 
 #ifdef DEBUG
-		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		createInfo.enabledLayerCount = m_validation_layers_count;
-		createInfo.ppEnabledLayerNames = m_validation_layers;
+		VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
+		create_info.enabledLayerCount = m_validation_layers_count;
+		create_info.ppEnabledLayerNames = m_validation_layers;
 
-		populateDebugMessengerCreateInfo(&debugCreateInfo);
-		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+		populateDebugMessengerCreateInfo(&debug_create_info);
+		create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
 #else
-		createInfo.enabledLayerCount = 0;
-		createInfo.pNext = nullptr;
+		create_info.enabledLayerCount = 0;
+		create_info.pNext = nullptr;
 #endif
 
-		if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+		if (vkCreateInstance(&create_info, nullptr, &m_instance) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create instance!");
 		}
@@ -592,17 +592,17 @@ namespace Isonia::Pipeline
 
 	void Device::pickPhysicalDevice()
 	{
-		unsigned int deviceCount = 0;
-		vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
-		if (deviceCount == 0)
+		unsigned int device_count = 0;
+		vkEnumeratePhysicalDevices(m_instance, &device_count, nullptr);
+		if (device_count == 0)
 		{
 			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
 		}
-		std::cout << "Device count: " << deviceCount << std::endl;
-		VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
-		vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices);
+		std::cout << "Device count: " << device_count << std::endl;
+		VkPhysicalDevice* devices = new VkPhysicalDevice[device_count];
+		vkEnumeratePhysicalDevices(m_instance, &device_count, devices);
 
-		for (unsigned int i = 0; i < deviceCount; i++)
+		for (unsigned int i = 0; i < device_count; i++)
 		{
 			if (isDeviceSuitable(devices[i]))
 			{
@@ -629,49 +629,49 @@ namespace Isonia::Pipeline
 	{
 		QueueFamilyIndices indices = findQueueFamilies(m_physical_device);
 
-		float queuePriority = 1.0f;
-		unsigned int queueCreateInfosCount;
-		VkDeviceQueueCreateInfo* queueCreateInfos;
+		float queue_priority = 1.0f;
+		unsigned int queue_create_infos_count;
+		VkDeviceQueueCreateInfo* queue_create_infos;
 		if (indices.graphics_family != indices.present_family)
 		{
-			queueCreateInfosCount = 2;
-			queueCreateInfos = new VkDeviceQueueCreateInfo[queueCreateInfosCount];
+			queue_create_infos_count = 2;
+			queue_create_infos = new VkDeviceQueueCreateInfo[queue_create_infos_count];
 			// Queue families are distinct
-			queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfos[0].queueFamilyIndex = indices.graphics_family;
-			queueCreateInfos[0].queueCount = 1;
-			queueCreateInfos[0].pQueuePriorities = &queuePriority;
-			queueCreateInfos[0].pNext = nullptr;
+			queue_create_infos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queue_create_infos[0].queueFamilyIndex = indices.graphics_family;
+			queue_create_infos[0].queueCount = 1;
+			queue_create_infos[0].pQueuePriorities = &queue_priority;
+			queue_create_infos[0].pNext = nullptr;
 
-			queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfos[1].queueFamilyIndex = indices.present_family;
-			queueCreateInfos[1].queueCount = 1;
-			queueCreateInfos[1].pQueuePriorities = &queuePriority;
-			queueCreateInfos[1].pNext = nullptr;
+			queue_create_infos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queue_create_infos[1].queueFamilyIndex = indices.present_family;
+			queue_create_infos[1].queueCount = 1;
+			queue_create_infos[1].pQueuePriorities = &queue_priority;
+			queue_create_infos[1].pNext = nullptr;
 		}
 		else
 		{
-			queueCreateInfosCount = 1;
-			queueCreateInfos = new VkDeviceQueueCreateInfo {
+			queue_create_infos_count = 1;
+			queue_create_infos = new VkDeviceQueueCreateInfo {
 				VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 				nullptr,
 				0,
 				indices.graphics_family,
 				1,
-				&queuePriority
+				&queue_priority
 			};
 		}
 
-		VkPhysicalDeviceFeatures deviceFeatures = {};
-		deviceFeatures.geometryShader = VK_TRUE;
+		VkPhysicalDeviceFeatures device_features = {};
+		device_features.geometryShader = VK_TRUE;
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-		createInfo.queueCreateInfoCount = queueCreateInfosCount;
-		createInfo.pQueueCreateInfos = queueCreateInfos;
+		createInfo.queueCreateInfoCount = queue_create_infos_count;
+		createInfo.pQueueCreateInfos = queue_create_infos;
 
-		createInfo.pEnabledFeatures = &deviceFeatures;
+		createInfo.pEnabledFeatures = &device_features;
 		createInfo.enabledExtensionCount = m_device_extensions_count;
 		createInfo.ppEnabledExtensionNames = m_device_extensions;
 
@@ -694,14 +694,14 @@ namespace Isonia::Pipeline
 
 	void Device::createCommandPool()
 	{
-		QueueFamilyIndices queueFamilyIndices = getPhysicalQueueFamilies();
+		QueueFamilyIndices queue_family_indices = getPhysicalQueueFamilies();
 
-		VkCommandPoolCreateInfo poolInfo = {};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.queueFamilyIndex = queueFamilyIndices.graphics_family;
-		poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		VkCommandPoolCreateInfo pool_info = {};
+		pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		pool_info.queueFamilyIndex = queue_family_indices.graphics_family;
+		pool_info.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-		if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_command_pool) != VK_SUCCESS)
+		if (vkCreateCommandPool(m_device, &pool_info, nullptr, &m_command_pool) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create command pool!");
 		}
@@ -716,18 +716,18 @@ namespace Isonia::Pipeline
 	{
 		QueueFamilyIndices indices = findQueueFamilies(device);
 
-		bool extensionsSupported = checkDeviceExtensionSupport(device);
+		bool extensions_supported = checkDeviceExtensionSupport(device);
 
-		bool swapChainAdequate = false;
-		if (extensionsSupported)
+		bool swap_chain_adequate = false;
+		if (extensions_supported)
 		{
-			SwapChainSupportDetails swapChainSupport = findSwapChainSupport(device);
-			swapChainAdequate = swapChainSupport.formats_count != 0u && swapChainSupport.present_modes_count != 0u;
+			SwapChainSupportDetails swap_chain_support = findSwapChainSupport(device);
+			swap_chain_adequate = swap_chain_support.formats_count != 0u && swap_chain_support.present_modes_count != 0u;
 		}
 
-		VkPhysicalDeviceFeatures supportedFeatures;
-		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+		VkPhysicalDeviceFeatures supported_features;
+		vkGetPhysicalDeviceFeatures(device, &supported_features);
 
-		return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.geometryShader;
+		return indices.isComplete() && extensions_supported && swap_chain_adequate && supported_features.geometryShader;
 	}
 }

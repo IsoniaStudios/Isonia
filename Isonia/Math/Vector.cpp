@@ -310,4 +310,26 @@ namespace Isonia::Math
             w / magnitude
         };
     }
+
+    extern inline constexpr void float4Normalize(float* x, float* y, float* z, float* w)
+    {
+        const float magnitude = sqrtf(*x * *x + *y * *y + *z * *z + *w * *w);
+        *x /= magnitude;
+        *y /= magnitude;
+        *z /= magnitude;
+        *w /= magnitude;
+    }
+    extern inline constexpr void float3Normalize(float* x, float* y, float* z)
+    {
+        const float magnitude = sqrtf(*x * *x + *y * *y + *z * *z);
+        *x /= magnitude;
+        *y /= magnitude;
+        *z /= magnitude;
+    }
+    extern inline constexpr void float2Normalize(float* x, float* y)
+    {
+        const float magnitude = sqrtf(*x * *x + *y * *y);
+        *x /= magnitude;
+        *y /= magnitude;
+    }
 }

@@ -173,10 +173,10 @@ namespace Isonia::Renderable
 					const unsigned int base_i_t_h = t_h * texture_atlas_width;
 					for (unsigned int t_w = 0u; t_w < texture_width; t_w++)
 					{
-						unsigned int totalR = 0u;
-						unsigned int totalG = 0u;
-						unsigned int totalB = 0u;
-						unsigned int totalA = 0u;
+						unsigned int total_r = 0u;
+						unsigned int total_g = 0u;
+						unsigned int total_b = 0u;
+						unsigned int total_a = 0u;
 
 						for (unsigned int m_h = 0u; m_h < msaa; m_h++)
 						{
@@ -188,21 +188,21 @@ namespace Isonia::Renderable
 									(texture_width * a_w * msaa) +
 									(t_w * msaa + m_w);
 								Color sample = msaa_texture_atlas[msaa_index];
-								totalR += sample.r;
-								totalG += sample.g;
-								totalB += sample.b;
-								totalA += sample.a;
+								total_r += sample.r;
+								total_g += sample.g;
+								total_b += sample.b;
+								total_a += sample.a;
 							}
 						}
 
 						unsigned int rgba_divisor = msaa * msaa;
-						unsigned char avgR = static_cast<unsigned char>(totalR / rgba_divisor);
-						unsigned char avgG = static_cast<unsigned char>(totalG / rgba_divisor);
-						unsigned char avgB = static_cast<unsigned char>(totalB / rgba_divisor);
-						unsigned char avgA = static_cast<unsigned char>(totalA / rgba_divisor);
+						unsigned char avg_r = static_cast<unsigned char>(total_r / rgba_divisor);
+						unsigned char avg_g = static_cast<unsigned char>(total_g / rgba_divisor);
+						unsigned char avg_b = static_cast<unsigned char>(total_b / rgba_divisor);
+						unsigned char avg_a = static_cast<unsigned char>(total_a / rgba_divisor);
 
 						const unsigned int index = base_i_a_h + base_i_t_h + base_i_a_w + t_w;
-						texture_atlas[index] = Color(avgR, avgG, avgB, avgA);
+						texture_atlas[index] = Color(avg_r, avg_g, avg_b, avg_a);
 					}
 				}
 			}

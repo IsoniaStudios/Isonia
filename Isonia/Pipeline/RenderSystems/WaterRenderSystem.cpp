@@ -42,25 +42,25 @@ namespace Isonia::Pipeline::RenderSystems
 			nullptr
 		);
 
-		const float offsetToCenter = -(static_cast<float>(Renderable::quads) * 2.0f);
-		const Math::Vector3 cameraPosition = camera->getPositionVector();
-		const Math::Vector3 cameraForward = camera->getForwardVector();
-		const Math::Vector3 planePosition = Math::Vector3{ 0.0f, -5.0f, 0.0f };
-		const Math::Vector3 planeNormal = Math::Vector3{ 0.0f, -1.0f, 0.0f };
-		float intersectionDistance;
+		const float offset_to_center = -(static_cast<float>(Renderable::quads) * 2.0f);
+		const Math::Vector3 camera_position = camera->getPositionVector();
+		const Math::Vector3 camera_forward = camera->getForwardVector();
+		const Math::Vector3 plane_position = Math::Vector3{ 0.0f, -5.0f, 0.0f };
+		const Math::Vector3 plane_normal = Math::Vector3{ 0.0f, -1.0f, 0.0f };
+		float intersection_distance;
 		const bool intersects = Math::intersectRayPlane(
-			&cameraPosition,
-			&cameraForward,
-			&planePosition,
-			&planeNormal,
-			&intersectionDistance
+			&camera_position,
+			&camera_forward,
+			&plane_position,
+			&plane_normal,
+			&intersection_distance
 		);
-		Math::Vector3 intersectionPointLocal = Math::vec3Mul(&cameraForward, intersectionDistance);
-		Math::Vector3 intersectionPoint = Math::vec3Add(&cameraPosition, &intersectionPointLocal);
+		Math::Vector3 intersection_point_local = Math::vec3Mul(&camera_forward, intersection_distance);
+		Math::Vector3 intersection_point = Math::vec3Add(&camera_position, &intersection_point_local);
 		m_water->m_position = {
-			offsetToCenter + intersectionPoint.x,
+			offset_to_center + intersection_point.x,
 			-5,
-			offsetToCenter + intersectionPoint.z
+			offset_to_center + intersection_point.z
 		};
 
 		vkCmdPushConstants(

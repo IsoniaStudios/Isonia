@@ -9,7 +9,8 @@ namespace Isonia::Pipeline
 {
 	Pipeline::Builder::Builder(Device* device, unsigned int m_shader_stages_count)
 		: m_device(device), m_shader_stages_count(m_shader_stages_count), m_shader_stages(new VkPipelineShaderStageCreateInfo[m_shader_stages_count])
-	{ }
+	{
+	}
 
 	Pipeline::Builder* Pipeline::Builder::addShaderModule(VkShaderStageFlagBits stage, const unsigned char* const code, const unsigned int size)
 	{
@@ -213,12 +214,12 @@ namespace Isonia::Pipeline
 		assert(config_info->pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
 		assert(config_info->renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexAttributeDescriptionCount = config_info->attribute_descriptions_count;
-		vertexInputInfo.vertexBindingDescriptionCount = config_info->binding_descriptions_count;
-		vertexInputInfo.pVertexAttributeDescriptions = config_info->attribute_descriptions;
-		vertexInputInfo.pVertexBindingDescriptions = config_info->binding_descriptions;
+		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		vertex_input_info.vertexAttributeDescriptionCount = config_info->attribute_descriptions_count;
+		vertex_input_info.vertexBindingDescriptionCount = config_info->binding_descriptions_count;
+		vertex_input_info.pVertexAttributeDescriptions = config_info->attribute_descriptions;
+		vertex_input_info.pVertexBindingDescriptions = config_info->binding_descriptions;
 
 		m_shader_stages = shader_stages;
 		m_shader_stages_count = shader_stages_count;
@@ -231,7 +232,7 @@ namespace Isonia::Pipeline
 		pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipeline_info.stageCount = shader_stages_count;
 		pipeline_info.pStages = shader_stages;
-		pipeline_info.pVertexInputState = &vertexInputInfo;
+		pipeline_info.pVertexInputState = &vertex_input_info;
 		pipeline_info.pInputAssemblyState = &config_info->input_assembly_info;
 		pipeline_info.pViewportState = &config_info->viewport_info;
 		pipeline_info.pRasterizationState = &config_info->rasterization_info;

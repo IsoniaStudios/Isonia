@@ -57,7 +57,7 @@ namespace Isonia::Renderable
 		const unsigned int vertexSize = sizeof(VertexComplete);
 		const VkDeviceSize bufferSize = sizeof(VertexComplete) * vertex_count;
 
-		Pipeline::Buffer stagingBuffer{
+		Pipeline::Buffer staging_buffer{
 			m_device,
 			vertexSize,
 			vertex_count,
@@ -65,8 +65,8 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
 
-		stagingBuffer.map();
-		stagingBuffer.writeToBuffer((void*)vertices);
+		staging_buffer.map();
+		staging_buffer.writeToBuffer((void*)vertices);
 
 		m_vertex_buffer = new Pipeline::Buffer(
 			m_device,
@@ -76,7 +76,7 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_device->copyBuffer(stagingBuffer.getBuffer(), m_vertex_buffer->getBuffer(), bufferSize);
+		m_device->copyBuffer(staging_buffer.getBuffer(), m_vertex_buffer->getBuffer(), bufferSize);
 	}
 
 	void Model::createIndexBuffers(const unsigned int* indices, const unsigned int indexCount)
@@ -86,7 +86,7 @@ namespace Isonia::Renderable
 		const unsigned int indexSize = sizeof(unsigned int);
 		const VkDeviceSize bufferSize = sizeof(unsigned int) * indexCount;
 
-		Pipeline::Buffer stagingBuffer{
+		Pipeline::Buffer staging_buffer{
 			m_device,
 			indexSize,
 			indexCount,
@@ -94,8 +94,8 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
 
-		stagingBuffer.map();
-		stagingBuffer.writeToBuffer((void*)indices);
+		staging_buffer.map();
+		staging_buffer.writeToBuffer((void*)indices);
 
 		m_index_buffer = new Pipeline::Buffer(
 			m_device,
@@ -105,6 +105,6 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_device->copyBuffer(stagingBuffer.getBuffer(), m_index_buffer->getBuffer(), bufferSize);
+		m_device->copyBuffer(staging_buffer.getBuffer(), m_index_buffer->getBuffer(), bufferSize);
 	}
 }

@@ -50,7 +50,7 @@ namespace Isonia::Renderable
 		const VkDeviceSize buffer_size = sizeof(VertexPosition) * m_point_count;
 		const unsigned int vertex_size = sizeof(VertexPosition);
 
-		Pipeline::Buffer stagingBuffer{
+		Pipeline::Buffer staging_buffer{
 			m_device,
 			vertex_size,
 			vertex_count,
@@ -58,8 +58,8 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
 
-		stagingBuffer.map();
-		stagingBuffer.writeToBuffer(vertices);
+		staging_buffer.map();
+		staging_buffer.writeToBuffer(vertices);
 
 		m_vertex_buffer = new Pipeline::Buffer(
 			m_device,
@@ -69,7 +69,7 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_device->copyBuffer(stagingBuffer.getBuffer(), m_vertex_buffer->getBuffer(), buffer_size);
+		m_device->copyBuffer(staging_buffer.getBuffer(), m_vertex_buffer->getBuffer(), buffer_size);
 	}
 
 	BuilderXZUniform::BuilderXZUniform(Pipeline::Device* device)
@@ -146,7 +146,7 @@ namespace Isonia::Renderable
 		const VkDeviceSize buffer_size = sizeof(VertexXZUniform) * vertices_count;
 		const unsigned int vertex_size = sizeof(VertexXZUniform);
 
-		Pipeline::Buffer stagingBuffer{
+		Pipeline::Buffer staging_buffer{
 			m_device,
 			vertex_size,
 			vertices_count,
@@ -154,8 +154,8 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
 
-		stagingBuffer.map();
-		stagingBuffer.writeToBuffer(vertices);
+		staging_buffer.map();
+		staging_buffer.writeToBuffer(vertices);
 
 		m_vertex_buffer = new Pipeline::Buffer(
 			m_device,
@@ -165,7 +165,7 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_device->copyBuffer(stagingBuffer.getBuffer(), m_vertex_buffer->getBuffer(), buffer_size);
+		m_device->copyBuffer(staging_buffer.getBuffer(), m_vertex_buffer->getBuffer(), buffer_size);
 	}
 
 	BuilderXZUniformN::BuilderXZUniformN(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const float x, const float z)

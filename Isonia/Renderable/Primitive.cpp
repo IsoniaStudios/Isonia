@@ -8,8 +8,8 @@ namespace Isonia::Renderable
 {
 	extern constexpr void generatePrimitiveFaceVertices(VertexComplete* vertices, const unsigned int num_sides, const float height)
 	{
-		const float angleIncrement = Math::two_pi / static_cast<float>(num_sides);
-		const float angleOffset = num_sides % 2u == 0u ? angleIncrement * 0.5f : 0.0f;
+		const float angle_increment = Math::two_pi / static_cast<float>(num_sides);
+		const float angle_offset = num_sides % 2u == 0u ? angle_increment * 0.5f : 0.0f;
 		const float radius = 0.5f;
 
 		const Math::Vector3 normal = height == 0.0f ? Math::Vector3{ 0.0f, -1.0f, 0.0f } : Math::vec3Normalize(0.0f, height, 0.0f);
@@ -18,8 +18,8 @@ namespace Isonia::Renderable
 		const unsigned int num_vertices = generatePrimitiveFaceVerticesCount(num_sides);
 		for (unsigned int i = 0u; i < num_vertices; i++)
 		{
-			const float z = radius * Math::cosf(static_cast<float>(i) * angleIncrement + angleOffset);
-			const float x = radius * Math::sinf(static_cast<float>(i) * angleIncrement + angleOffset);
+			const float z = radius * Math::cosf(static_cast<float>(i) * angle_increment + angle_offset);
+			const float x = radius * Math::sinf(static_cast<float>(i) * angle_increment + angle_offset);
 			const Math::Vector3 position{ x, height, z };
 			const Math::Vector2 uv{ x + radius, z + radius };
 			vertices[i] = VertexComplete{ position, position, normal, uv, };

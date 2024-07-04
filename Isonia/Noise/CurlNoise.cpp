@@ -2,7 +2,10 @@
 
 namespace Isonia::Noise
 {
-    CurlNoise::CurlNoise(const VirtualNoise* base_noise, const VirtualWarpNoise* base_warp_noise) : VirtualWarpNoise(), base_noise(base_noise), base_warp_noise(base_warp_noise) { }
+    CurlNoise::CurlNoise(const VirtualNoise* base_noise, const VirtualWarpNoise* base_warp_noise)
+        : VirtualWarpNoise(), base_noise(base_noise), base_warp_noise(base_warp_noise)
+    {
+    }
 
     inline void CurlNoise::transformCoordinate(float* x, float* y) const
     {
@@ -16,6 +19,8 @@ namespace Isonia::Noise
 
         *x = dx;
         *y = dy;
+
+        Math::float2Normalize(x, y);
     }
 
     inline void CurlNoise::transformCoordinate(float* x, float* y, float* z) const
@@ -46,6 +51,8 @@ namespace Isonia::Noise
         *x = (dyz - dzy) / (Math::two_epsilon);
         *y = (dzx - dxz) / (Math::two_epsilon);
         *z = (dxy - dyx) / (Math::two_epsilon);
+
+        Math::float3Normalize(x, y, z);
     }
 
     inline void CurlNoise::transformCoordinate(float* x, float* y, float* z, float* w) const
@@ -96,5 +103,7 @@ namespace Isonia::Noise
         *y = (dzx - dxz) / (Math::two_epsilon);
         *z = (dxw - dyw) / (Math::two_epsilon);
         *w = (dxy - wdz) / (Math::two_epsilon);
+
+        Math::float4Normalize(x, y, z, w);
     }
 }

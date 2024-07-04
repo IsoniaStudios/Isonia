@@ -3,7 +3,10 @@
 
 namespace Isonia::Noise
 {
-	PerlinNoise::PerlinNoise(const unsigned int seed) : VirtualNoise(seed) { }
+	PerlinNoise::PerlinNoise(const unsigned int seed)
+		: VirtualNoise(seed)
+	{
+	}
 
 	inline float PerlinNoise::generateNoise(const float x, const float y) const
 	{

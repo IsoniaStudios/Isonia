@@ -82,27 +82,27 @@ namespace Isonia::Pipeline
 
 		m_is_frame_started = true;
 
-		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		VkCommandBuffer command_buffer = getCurrentCommandBuffer();
+		VkCommandBufferBeginInfo begin_info{};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+		if (vkBeginCommandBuffer(command_buffer, &begin_info) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to begin recording command buffer!");
 		}
-		return commandBuffer;
+		return command_buffer;
 	}
 
 	void PixelRenderer::endFrame()
 	{
 		assert(m_is_frame_started && "Can't call endFrame while frame is not in progress");
-		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+		VkCommandBuffer command_buffer = getCurrentCommandBuffer();
+		if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 
-		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
+		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&command_buffer, &m_current_image_index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->m_resized)
 		{
 			m_window->m_resized = false;
@@ -123,27 +123,27 @@ namespace Isonia::Pipeline
 		assert(m_is_frame_started && "Can't call begin SwapChainRenderPass if frame is not in progress");
 		assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = m_pixel_swap_chain->getRenderPass();
-		renderPassInfo.framebuffer = m_pixel_swap_chain->getFrameBuffer(m_current_image_index);
+		VkRenderPassBeginInfo render_pass_info{};
+		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		render_pass_info.renderPass = m_pixel_swap_chain->getRenderPass();
+		render_pass_info.framebuffer = m_pixel_swap_chain->getFrameBuffer(m_current_image_index);
 
 		const VkExtent2D extent = m_pixel_swap_chain->getRenderExtent();
 		const VkOffset2D offset = { 0, 0 };
 
-		renderPassInfo.renderArea.offset = offset;
-		renderPassInfo.renderArea.extent = extent;
+		render_pass_info.renderArea.offset = offset;
+		render_pass_info.renderArea.extent = extent;
 
-		const unsigned int clearValuesCount = 2;
-		VkClearValue clearValues[clearValuesCount]
+		const unsigned int clear_values_count = 2;
+		VkClearValue clear_values[clear_values_count]
 		{
 			{.color = { 0.01f, 0.01f, 0.01f, 1.0f }},
 			{.depthStencil = { 1.0f, 0 }}
 		};
-		renderPassInfo.clearValueCount = clearValuesCount;
-		renderPassInfo.pClearValues = clearValues;
+		render_pass_info.clearValueCount = clear_values_count;
+		render_pass_info.pClearValues = clear_values;
 
-		vkCmdBeginRenderPass(command_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
 		VkViewport viewport{
 			.x = 0.0f,
@@ -169,7 +169,7 @@ namespace Isonia::Pipeline
 	void PixelRenderer::blit(VkCommandBuffer command_buffer, Math::Vector2 offset)
 	{
 		// The common subresource thingies
-		VkImageSubresourceRange subresourceRange{
+		VkImageSubresourceRange subresource_range{
 			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
 			.baseMipLevel = 0,
 			.levelCount = 1,
@@ -185,7 +185,7 @@ namespace Isonia::Pipeline
 		};
 
 		// Transfer the swapchain image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
-		VkImageMemoryBarrier clearBarrier{
+		VkImageMemoryBarrier clear_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
 			.srcAccessMask = 0,
@@ -195,22 +195,22 @@ namespace Isonia::Pipeline
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.image = m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
-			.subresourceRange = subresourceRange
+			.subresourceRange = subresource_range
 		};
 
-		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clearBarrier);
+		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clear_barrier);
 
 		// Calculate pixel offsets
-		const float scaleFactor = Math::pixels_per_unit * static_cast<float>(m_render_factor);
-		const int offsetX = Math::roundf_i(offset.x * scaleFactor);
-		const int offsetY = Math::roundf_i(offset.y * scaleFactor);
+		const float scale_factor = Math::pixels_per_unit * static_cast<float>(m_render_factor);
+		const int offset_x = Math::roundf_i(offset.x * scale_factor);
+		const int offset_y = Math::roundf_i(offset.y * scale_factor);
 
 		// Define source and destination offsets for image blit
 		const int render_factor = static_cast<int>(m_render_factor);
-		const int srcWidth = static_cast<int>(m_pixel_swap_chain->getRenderWidth());
-		const int srcHeight = static_cast<int>(m_pixel_swap_chain->getRenderHeight());
-		const int dstWidth = srcWidth * render_factor;
-		const int dstHeight = srcHeight * render_factor;
+		const int src_width = static_cast<int>(m_pixel_swap_chain->getRenderWidth());
+		const int src_height = static_cast<int>(m_pixel_swap_chain->getRenderHeight());
+		const int dst_width = src_width * render_factor;
+		const int dst_height = src_height * render_factor;
 
 		// Create image blit configuration
 		VkImageBlit imageBlit
@@ -218,12 +218,12 @@ namespace Isonia::Pipeline
 			.srcSubresource = subresource,
 			.srcOffsets = {
 				{ 2, 2, 0 },
-				{ srcWidth - 2, srcHeight - 2, 1 }
+				{ src_width - 2, src_height - 2, 1 }
 			},
 			.dstSubresource = subresource,
 			.dstOffsets = {
-				{ render_factor + offsetX, render_factor + offsetY, 0 },
-				{ dstWidth - render_factor * 3 + offsetX, dstHeight - render_factor * 3 + offsetY, 1 }
+				{ render_factor + offset_x, render_factor + offset_y, 0 },
+				{ dst_width - render_factor * 3 + offset_x, dst_height - render_factor * 3 + offset_y, 1 }
 			}
 		};
 
@@ -232,9 +232,8 @@ namespace Isonia::Pipeline
 
 		// "Blit" the remaining renderFactor * 2 border using compute shader bc of hardware limitations of blit
 
-
 		// Transfer to the presentation layout
-		VkImageMemoryBarrier presentBarrier{
+		VkImageMemoryBarrier present_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
 			.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -244,21 +243,21 @@ namespace Isonia::Pipeline
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.image = m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
-			.subresourceRange = subresourceRange
+			.subresourceRange = subresource_range
 		};
 
-		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &presentBarrier);
+		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &present_barrier);
 	}
 
 	void PixelRenderer::createCommandBuffers()
 	{
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = m_device->getCommandPool();
-		allocInfo.commandBufferCount = PixelSwapChain::max_frames_in_flight;
+		VkCommandBufferAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		alloc_info.commandPool = m_device->getCommandPool();
+		alloc_info.commandBufferCount = PixelSwapChain::max_frames_in_flight;
 
-		if (vkAllocateCommandBuffers(m_device->getDevice(), &allocInfo, m_command_buffers) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(m_device->getDevice(), &alloc_info, m_command_buffers) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate command buffers!");
 		}
@@ -276,19 +275,19 @@ namespace Isonia::Pipeline
 
 	void PixelRenderer::calculateResolution(VkExtent2D window_extent, float* out_width, float* out_height, unsigned int* out_render_factor)
 	{
-		static const constexpr float idealPixelDensity = 640.0f * 360.0f; //512.0f * 288.0f;
+		static const constexpr float ideal_pixel_density = 640.0f * 360.0f; //512.0f * 288.0f;
 
-		float closestIdealPixelDensity = Math::float_max;
+		float closest_ideal_pixel_density = Math::float_max;
 		for (unsigned int factor = 1; factor <= 8; factor++)
 		{
 			const float width = static_cast<float>(window_extent.width) / static_cast<float>(factor);
 			const float height = static_cast<float>(window_extent.height) / static_cast<float>(factor);
-			const float pixelDensity = width * height;
-			const float difference = Math::absf(idealPixelDensity - pixelDensity);
+			const float pixel_density = width * height;
+			const float difference = Math::absf(ideal_pixel_density - pixel_density);
 
-			if (difference < Math::absf(idealPixelDensity - closestIdealPixelDensity))
+			if (difference < Math::absf(ideal_pixel_density - closest_ideal_pixel_density))
 			{
-				closestIdealPixelDensity = pixelDensity;
+				closest_ideal_pixel_density = pixel_density;
 				*out_width = width;
 				*out_height = height;
 

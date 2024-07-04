@@ -8,7 +8,8 @@ namespace Isonia::Noise
         y_constant(static_cast<float>(seed) + 78.2332f),
         z_constant(static_cast<float>(seed) + 53.5395f),
         w_constant(static_cast<float>(seed) + 94.4353f)
-    { }
+    {
+    }
 
     inline float WhiteNoise::generateNoise(const float x, const float y) const
     {

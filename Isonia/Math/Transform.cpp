@@ -8,8 +8,8 @@ namespace Isonia::Math
 	{
 	}
 
-	Transform::Transform(Math::Vector3 initialPosition, Math::Vector3 initialRotation, Math::Vector3 initialScale)
-		: position(initialPosition), rotation(initialRotation), scale(initialScale)
+	Transform::Transform(Math::Vector3 initial_position, Math::Vector3 initial_rotation, Math::Vector3 initial_scale)
+		: position(initial_position), rotation(initial_rotation), scale(initial_scale)
 	{
 	}
 

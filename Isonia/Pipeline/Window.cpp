@@ -55,12 +55,12 @@ namespace Isonia::Pipeline
 
     void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
     {
-        VkWin32SurfaceCreateInfoKHR createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-        createInfo.hwnd = static_cast<HWND>(m_window);
-        createInfo.hinstance = static_cast<HINSTANCE>(m_window_instance);
+        VkWin32SurfaceCreateInfoKHR create_info{};
+        create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        create_info.hwnd = static_cast<HWND>(m_window);
+        create_info.hinstance = static_cast<HINSTANCE>(m_window_instance);
 
-        if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, surface) != VK_SUCCESS)
+        if (vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, surface) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create window surface!");
         }
@@ -93,8 +93,8 @@ namespace Isonia::Pipeline
         {
         case WM_NCCREATE:
         {
-            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pCreate->lpCreateParams));
+            CREATESTRUCT* create = reinterpret_cast<CREATESTRUCT*>(lParam);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(create->lpCreateParams));
         }
         break;
 
@@ -239,17 +239,17 @@ namespace Isonia::Pipeline
             throw std::runtime_error("Failed to register window");
         }
 
-        int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-        int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-        int windowX = screenWidth / 2 - m_extent.width / 2;
-        int windowY = screenHeight / 2 - m_extent.height / 2;
+        int screen_width = GetSystemMetrics(SM_CXSCREEN);
+        int screen_height = GetSystemMetrics(SM_CYSCREEN);
+        int window_x = screen_width / 2 - m_extent.width / 2;
+        int window_y = screen_height / 2 - m_extent.height / 2;
 
-        RECT desiredRect = { 0, 0, static_cast<LONG>(m_extent.width), static_cast<LONG>(m_extent.height) };
-        AdjustWindowRect(&desiredRect, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, FALSE);
-        int windowWidth = desiredRect.right - desiredRect.left;
-        int windowHeight = desiredRect.bottom - desiredRect.top;
+        RECT desired_rect = { 0, 0, static_cast<LONG>(m_extent.width), static_cast<LONG>(m_extent.height) };
+        AdjustWindowRect(&desired_rect, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, FALSE);
+        int window_width = desired_rect.right - desired_rect.left;
+        int window_height = desired_rect.bottom - desired_rect.top;
 
-        m_window = CreateWindow(m_name, m_name, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, windowX, windowY, windowWidth, windowHeight, NULL, NULL, h_instance_recast, this);
+        m_window = CreateWindow(m_name, m_name, WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, window_x, window_y, window_width, window_height, NULL, NULL, h_instance_recast, this);
 
         HWND m_window_recast = static_cast<HWND>(m_window);
         ShowWindow(m_window_recast, SW_SHOW);

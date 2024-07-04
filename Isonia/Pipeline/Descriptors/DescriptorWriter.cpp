@@ -10,13 +10,13 @@ namespace Isonia::Pipeline::Descriptors
 
 	DescriptorWriter* DescriptorWriter::writeBuffer(unsigned int binding, VkDescriptorBufferInfo* buffer_info)
 	{
-		const VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
+		const VkDescriptorSetLayoutBinding binding_description = m_set_layout->m_bindings[binding];
 
-		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
+		assert(binding_description.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		write.descriptorType = bindingDescription.descriptorType;
+		write.descriptorType = binding_description.descriptorType;
 		write.dstBinding = binding;
 		write.pBufferInfo = buffer_info;
 		write.descriptorCount = 1;
@@ -27,13 +27,13 @@ namespace Isonia::Pipeline::Descriptors
 
 	DescriptorWriter* DescriptorWriter::writeImage(unsigned int binding, VkDescriptorImageInfo* image_info)
 	{
-		const VkDescriptorSetLayoutBinding& bindingDescription = m_set_layout->m_bindings[binding];
+		const VkDescriptorSetLayoutBinding binding_description = m_set_layout->m_bindings[binding];
 
-		assert(bindingDescription.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
+		assert(binding_description.descriptorCount == 1 && "Binding single descriptor info, but binding expects multiple");
 
 		VkWriteDescriptorSet write{};
 		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		write.descriptorType = bindingDescription.descriptorType;
+		write.descriptorType = binding_description.descriptorType;
 		write.dstBinding = binding;
 		write.pImageInfo = image_info;
 		write.descriptorCount = 1;

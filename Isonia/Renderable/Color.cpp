@@ -5,25 +5,25 @@ namespace Isonia::Renderable
 {
 	extern Color blendColors(const Color* colors, const unsigned int color_count)
 	{
-		unsigned int totalR = 0u;
-		unsigned int totalG = 0u;
-		unsigned int totalB = 0u;
-		unsigned int totalA = 0u;
+		unsigned int total_r = 0u;
+		unsigned int total_g = 0u;
+		unsigned int total_b = 0u;
+		unsigned int total_a = 0u;
 
 		for (unsigned int i = 0u; i < color_count; i++)
 		{
-			totalR += colors[i].r;
-			totalG += colors[i].g;
-			totalB += colors[i].b;
-			totalA += colors[i].a;
+			total_r += colors[i].r;
+			total_g += colors[i].g;
+			total_b += colors[i].b;
+			total_a += colors[i].a;
 		}
 
-		unsigned char avgR = static_cast<unsigned char>(totalR / color_count);
-		unsigned char avgG = static_cast<unsigned char>(totalG / color_count);
-		unsigned char avgB = static_cast<unsigned char>(totalB / color_count);
-		unsigned char avgA = static_cast<unsigned char>(totalA / color_count);
+		unsigned char avg_r = static_cast<unsigned char>(total_r / color_count);
+		unsigned char avg_g = static_cast<unsigned char>(total_g / color_count);
+		unsigned char avg_b = static_cast<unsigned char>(total_b / color_count);
+		unsigned char avg_a = static_cast<unsigned char>(total_a / color_count);
 
-		return Color(avgR, avgG, avgB, avgA);
+		return Color(avg_r, avg_g, avg_b, avg_a);
 	}
 
 	extern Texture* createGrassDayPalette(Pipeline::Device* device)

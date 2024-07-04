@@ -64,7 +64,7 @@ namespace Isonia
 
 			m_player.act(&m_window, frame_time_s);
 
-			if (auto command_buffer = m_renderer.beginFrame())
+			if (VkCommandBuffer command_buffer = m_renderer.beginFrame())
 			{
 				int frame_index = m_renderer.getFrameIndex();
 				State::FrameInfo frame_info{
@@ -137,20 +137,20 @@ namespace Isonia
 			m_clock_buffers[i]->map();
 		}
 
-		Noise::ConstantScalarWarpNoise cloudWarpNoise{ 5.0f };
-		Noise::FractalPerlinNoise cloudNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
+		Noise::ConstantScalarWarpNoise cloud_warp_noise{ 5.0f };
+		Noise::FractalPerlinNoise cloud_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 
-		Noise::ConstantScalarWarpNoise windW{ 0.001f };
-		Noise::FractalPerlinNoise windN{ 69, 3, 2.0f, 0.5f, 0.0f };
-		Noise::CurlNoise windNoise{ &windN, &windW };
+		Noise::ConstantScalarWarpNoise wind_w{ 0.001f };
+		Noise::FractalPerlinNoise wind_n{ 69, 3, 2.0f, 0.5f, 0.0f };
+		Noise::CurlNoise wind_noise{ &wind_n, &wind_w };
 
 		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
 		m_grass = Renderable::createGrassTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
-		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloudWarpNoise, &cloudNoise, 128, 128);
+		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloud_warp_noise, &cloud_noise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
-		m_wind = Renderable::Texture::createTextureFromNoise(&m_device, &windNoise, 512, 512);
+		m_wind = Renderable::Texture::createTextureFromNoise(&m_device, &wind_noise, 512, 512);
 		m_debugger = m_wind;
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout::Builder(&m_device, 8u))
 			->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -165,23 +165,23 @@ namespace Isonia
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			VkDescriptorBufferInfo uboBufferInfo = m_ubo_buffers[i]->descriptorInfo();
-			VkDescriptorBufferInfo clockBufferInfo = m_clock_buffers[i]->descriptorInfo();
-			VkDescriptorImageInfo grassDayPaletteInfo = m_grass_day_palette->getImageInfo();
-			VkDescriptorImageInfo grassInfo = m_grass->getImageInfo();
-			VkDescriptorImageInfo debuggerInfo = m_debugger->getImageInfo();
-			VkDescriptorImageInfo cloudInfo = m_cloud->getImageInfo();
-			VkDescriptorImageInfo waterDayPaletteInfo = m_water_day_palette->getImageInfo();
-			VkDescriptorImageInfo windInfo = m_wind->getImageInfo();
+			VkDescriptorBufferInfo ubo_buffer_info = m_ubo_buffers[i]->descriptorInfo();
+			VkDescriptorBufferInfo clock_buffer_info = m_clock_buffers[i]->descriptorInfo();
+			VkDescriptorImageInfo grass_day_palette_info = m_grass_day_palette->getImageInfo();
+			VkDescriptorImageInfo grass_info = m_grass->getImageInfo();
+			VkDescriptorImageInfo debugger_info = m_debugger->getImageInfo();
+			VkDescriptorImageInfo cloud_info = m_cloud->getImageInfo();
+			VkDescriptorImageInfo water_day_palette_info = m_water_day_palette->getImageInfo();
+			VkDescriptorImageInfo wind_info = m_wind->getImageInfo();
 			(new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 8u))
-				->writeBuffer(0, &uboBufferInfo)
-				->writeBuffer(1, &clockBufferInfo)
-				->writeImage(2, &grassDayPaletteInfo)
-				->writeImage(3, &grassInfo)
-				->writeImage(4, &debuggerInfo)
-				->writeImage(5, &cloudInfo)
-				->writeImage(6, &waterDayPaletteInfo)
-				->writeImage(7, &windInfo)
+				->writeBuffer(0, &ubo_buffer_info)
+				->writeBuffer(1, &clock_buffer_info)
+				->writeImage(2, &grass_day_palette_info)
+				->writeImage(3, &grass_info)
+				->writeImage(4, &debugger_info)
+				->writeImage(5, &cloud_info)
+				->writeImage(6, &water_day_palette_info)
+				->writeImage(7, &wind_info)
 				->build(&m_global_descriptor_sets[i]);
 		}
 	}

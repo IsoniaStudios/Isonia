@@ -3,5 +3,8 @@
 
 namespace Isonia::Noise
 {
-    VirtualNoise::VirtualNoise(const unsigned int seed) : seed(seed) { }
+    VirtualNoise::VirtualNoise(const unsigned int seed)
+        : seed(seed)
+    {
+    }
 }

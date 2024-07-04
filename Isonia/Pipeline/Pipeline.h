@@ -589,4 +589,3 @@ namespace Isonia::Pipeline
         Math::Vector4 m_pixel_global_top_left{};
     };
 }
-

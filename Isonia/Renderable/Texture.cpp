@@ -150,45 +150,45 @@ namespace Isonia::Renderable
 	{
 		m_image_type = tex_height == 1 ? VK_IMAGE_TYPE_1D : VK_IMAGE_TYPE_2D;
 		m_bytes_per_pixel = formatToBytesPerPixel(format);
-		VkDeviceSize imageSize = tex_width * tex_height * m_bytes_per_pixel;
+		VkDeviceSize image_size = tex_width * tex_height * m_bytes_per_pixel;
 
 		m_mip_levels = 1;
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
+		VkBuffer staging_buffer;
+		VkDeviceMemory staging_buffer_memory;
 
 		m_device->createBuffer(
-			imageSize,
+			image_size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			&stagingBuffer,
-			&stagingBufferMemory
+			&staging_buffer,
+			&staging_buffer_memory
 		);
 
 		void* data;
-		vkMapMemory(m_device->getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
-		memcpy(data, source, static_cast<size_t>(imageSize));
-		vkUnmapMemory(m_device->getDevice(), stagingBufferMemory);
+		vkMapMemory(m_device->getDevice(), staging_buffer_memory, 0, image_size, 0, &data);
+		memcpy(data, source, static_cast<size_t>(image_size));
+		vkUnmapMemory(m_device->getDevice(), staging_buffer_memory);
 
 		m_format = format;
 		m_extent = { tex_width, tex_height, 1 };
 
-		VkImageCreateInfo imageInfo{};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = m_image_type;
-		imageInfo.extent = m_extent;
-		imageInfo.mipLevels = m_mip_levels;
-		imageInfo.arrayLayers = m_layer_count;
-		imageInfo.format = format;
-		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		imageInfo.flags = 0;
+		VkImageCreateInfo image_info{};
+		image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		image_info.imageType = m_image_type;
+		image_info.extent = m_extent;
+		image_info.mipLevels = m_mip_levels;
+		image_info.arrayLayers = m_layer_count;
+		image_info.format = format;
+		image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+		image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		image_info.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+		image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		image_info.flags = 0;
 
 		m_device->createImageWithInfo(
-			&imageInfo,
+			&image_info,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 			&m_texture_image,
 			&m_texture_image_memory
@@ -202,7 +202,7 @@ namespace Isonia::Renderable
 			m_layer_count
 		);
 		m_device->copyBufferToImage(
-			stagingBuffer,
+			staging_buffer,
 			m_texture_image,
 			tex_width,
 			tex_height,
@@ -220,63 +220,63 @@ namespace Isonia::Renderable
 
 		m_texture_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-		vkDestroyBuffer(m_device->getDevice(), stagingBuffer, nullptr);
-		vkFreeMemory(m_device->getDevice(), stagingBufferMemory, nullptr);
+		vkDestroyBuffer(m_device->getDevice(), staging_buffer, nullptr);
+		vkFreeMemory(m_device->getDevice(), staging_buffer_memory, nullptr);
 	}
 
 	void Texture::createTextureImageView()
 	{
-		VkImageViewCreateInfo viewInfo{};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = m_texture_image;
-		viewInfo.viewType = static_cast<VkImageViewType>(m_image_type);
-		viewInfo.format = m_format;
-		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = m_mip_levels;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = m_layer_count;
+		VkImageViewCreateInfo view_info{};
+		view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		view_info.image = m_texture_image;
+		view_info.viewType = static_cast<VkImageViewType>(m_image_type);
+		view_info.format = m_format;
+		view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		view_info.subresourceRange.baseMipLevel = 0;
+		view_info.subresourceRange.levelCount = m_mip_levels;
+		view_info.subresourceRange.baseArrayLayer = 0;
+		view_info.subresourceRange.layerCount = m_layer_count;
 
-		if (vkCreateImageView(m_device->getDevice(), &viewInfo, nullptr, &m_texture_image_view) != VK_SUCCESS)
+		if (vkCreateImageView(m_device->getDevice(), &view_info, nullptr, &m_texture_image_view) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create texture image view!");
 		}
 	}
 
-	void Texture::createTextureSampler(VkFilter filter, VkSamplerAddressMode addressMode)
+	void Texture::createTextureSampler(VkFilter filter, VkSamplerAddressMode address_mode)
 	{
-		VkSamplerCreateInfo samplerInfo{};
-		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.magFilter = filter;
-		samplerInfo.minFilter = filter;
+		VkSamplerCreateInfo sampler_info{};
+		sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		sampler_info.magFilter = filter;
+		sampler_info.minFilter = filter;
 
-		samplerInfo.addressModeU = addressMode;
-		samplerInfo.addressModeV = addressMode;
-		samplerInfo.addressModeW = addressMode;
+		sampler_info.addressModeU = address_mode;
+		sampler_info.addressModeV = address_mode;
+		sampler_info.addressModeW = address_mode;
 
-		samplerInfo.anisotropyEnable = VK_FALSE;
-		samplerInfo.maxAnisotropy = 1.0f;
-		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		samplerInfo.unnormalizedCoordinates = VK_FALSE;
+		sampler_info.anisotropyEnable = VK_FALSE;
+		sampler_info.maxAnisotropy = 1.0f;
+		sampler_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		sampler_info.unnormalizedCoordinates = VK_FALSE;
 
 		// these fields useful for percentage close filtering for shadow maps
-		samplerInfo.compareEnable = VK_FALSE;
-		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+		sampler_info.compareEnable = VK_FALSE;
+		sampler_info.compareOp = VK_COMPARE_OP_ALWAYS;
 
-		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		samplerInfo.mipLodBias = 0.0f;
-		samplerInfo.minLod = 0.0f;
-		samplerInfo.maxLod = static_cast<float>(m_mip_levels);
+		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		sampler_info.mipLodBias = 0.0f;
+		sampler_info.minLod = 0.0f;
+		sampler_info.maxLod = static_cast<float>(m_mip_levels);
 
-		if (vkCreateSampler(m_device->getDevice(), &samplerInfo, nullptr, &m_texture_sampler) != VK_SUCCESS)
+		if (vkCreateSampler(m_device->getDevice(), &sampler_info, nullptr, &m_texture_sampler) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create texture sampler!");
 		}
 	}
 
-	constexpr const unsigned int Texture::formatToBytesPerPixel(const VkFormat imageFormat)
+	constexpr const unsigned int Texture::formatToBytesPerPixel(const VkFormat image_format)
 	{
-		switch (imageFormat)
+		switch (image_format)
 		{
 		case VK_FORMAT_R8_UNORM:
 		case VK_FORMAT_R8_SNORM:

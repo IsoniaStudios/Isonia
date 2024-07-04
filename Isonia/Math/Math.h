@@ -221,6 +221,10 @@ namespace Isonia::Math
     constexpr Vector2::Vector2(const float x, const float y) : x(x), y(y) { }
     constexpr Vector2::Vector2(const float xy) : x(xy), y(xy) { }
 
+    extern inline constexpr void float4Normalize(float* x, float* y, float* z, float* w);
+    extern inline constexpr void float3Normalize(float* x, float* y, float* z);
+    extern inline constexpr void float2Normalize(float* x, float* y);
+
     // Matrix
     struct Matrix3x3;
     struct Matrix4x4;

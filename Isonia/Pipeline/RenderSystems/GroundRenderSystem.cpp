@@ -25,8 +25,8 @@ namespace Isonia::Pipeline::RenderSystems
 		createGrassPipelineLayout(global_set_layout);
 		createGrassPipeline(render_pass);
 
-		Noise::ConstantScalarWarpNoise groundWarpNoise{ 0.05f };
-		Noise::FractalPerlinNoise groundNoise{ 69, 3, 2.0f, 0.5f, 0.0f };
+		Noise::ConstantScalarWarpNoise ground_warp_noise{ 0.05f };
+		Noise::FractalPerlinNoise ground_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
 
 		const int S_GROUNDS = static_cast<int>(grounds);
 		const int S_QUADS = static_cast<int>(Renderable::quads);
@@ -38,7 +38,7 @@ namespace Isonia::Pipeline::RenderSystems
 			{
 				float xOffset = (x - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
 				float zOffset = (z - S_GROUNDS / 2l) * S_QUADS * Renderable::quad_size - S_QUADS * Renderable::quad_size * 0.5f;
-				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &groundWarpNoise, &groundNoise, 7.5f, xOffset, zOffset);
+				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * S_GROUNDS + z) Renderable::BuilderXZUniformN(device, &ground_warp_noise, &ground_noise, 7.5f, xOffset, zOffset);
 				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * S_GROUNDS + z) Renderable::BuilderXZUniformNP(device, ground);
 			}
 		}

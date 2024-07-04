@@ -160,7 +160,7 @@ namespace Isonia::Math
 			+ m[0][2] * (m[1][0] * a1323 - m[1][1] * a0323 + m[1][3] * a0123)
 			- m[0][3] * (m[1][0] * a1223 - m[1][1] * a0223 + m[1][2] * a0123)
 			);
-		const float one_over_determinant = 1 / determinant;
+		const float one_over_determinant = 1.0f / determinant;
 
 		return Matrix4x4{
 			one_over_determinant * +(m[1][1] * a2323 - m[1][2] * a1323 + m[1][3] * a1223),

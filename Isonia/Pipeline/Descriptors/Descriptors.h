@@ -71,7 +71,7 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorPool(const DescriptorPool&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&) = delete;
 
-		bool allocateDescriptor(const VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet* descriptor) const;
+		bool allocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet* descriptor) const;
 		void freeDescriptors(const VkDescriptorSet* descriptors, const unsigned int descriptors_count) const;
 		void resetPool();
 

@@ -64,8 +64,8 @@ namespace Isonia::Renderable
 		void createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texWidth, const unsigned int texHeight);
 		void createTextureImage(const void* source, const unsigned int tex_width, const unsigned int tex_height, const VkFormat format);
 		void createTextureImageView();
-		void createTextureSampler(VkFilter filter, VkSamplerAddressMode addressMode);
-		static constexpr const unsigned int formatToBytesPerPixel(const VkFormat imageFormat);
+		void createTextureSampler(VkFilter filter, VkSamplerAddressMode address_mode);
+		static constexpr const unsigned int formatToBytesPerPixel(const VkFormat image_format);
 
 		VkDescriptorImageInfo m_descriptor{};
 		Pipeline::Device* m_device;

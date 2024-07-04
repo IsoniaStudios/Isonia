@@ -3,5 +3,7 @@
 
 namespace Isonia::Noise
 {
-    VirtualWarpNoise::VirtualWarpNoise() { }
+    VirtualWarpNoise::VirtualWarpNoise()
+    {
+    }
 }

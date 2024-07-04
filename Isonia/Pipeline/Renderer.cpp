@@ -81,27 +81,27 @@ namespace Isonia::Pipeline
 
 		m_is_frame_started = true;
 
-		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		VkCommandBuffer command_buffer = getCurrentCommandBuffer();
+		VkCommandBufferBeginInfo begin_info{};
+		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+		if (vkBeginCommandBuffer(command_buffer, &begin_info) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to begin recording command buffer!");
 		}
-		return commandBuffer;
+		return command_buffer;
 	}
 
 	void Renderer::endFrame()
 	{
 		assert(m_is_frame_started && "Can't call endFrame while frame is not in progress");
-		VkCommandBuffer commandBuffer = getCurrentCommandBuffer();
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+		VkCommandBuffer command_buffer = getCurrentCommandBuffer();
+		if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 
-		VkResult result = m_swap_chain->submitCommandBuffers(&commandBuffer, &m_current_image_index);
+		VkResult result = m_swap_chain->submitCommandBuffers(&command_buffer, &m_current_image_index);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->m_resized)
 		{
 			m_window->m_resized = false;
@@ -122,24 +122,24 @@ namespace Isonia::Pipeline
 		assert(m_is_frame_started && "Can't call beginSwapChainRenderPass if frame is not in progress");
 		assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = m_swap_chain->getRenderPass();
-		renderPassInfo.framebuffer = m_swap_chain->getFrameBuffer(m_current_image_index);
+		VkRenderPassBeginInfo render_pass_info{};
+		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		render_pass_info.renderPass = m_swap_chain->getRenderPass();
+		render_pass_info.framebuffer = m_swap_chain->getFrameBuffer(m_current_image_index);
 
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = m_swap_chain->getSwapChainExtent();
+		render_pass_info.renderArea.offset = { 0, 0 };
+		render_pass_info.renderArea.extent = m_swap_chain->getSwapChainExtent();
 
-		const unsigned int clearValuesCount = 2;
-		VkClearValue clearValues[clearValuesCount]
+		const unsigned int clear_values_count = 2;
+		VkClearValue clear_values[clear_values_count]
 		{
 			{.color = { 0.01f, 0.01f, 0.01f, 1.0f }},
 			{.depthStencil = { 1.0f, 0 }}
 		};
-		renderPassInfo.clearValueCount = clearValuesCount;
-		renderPassInfo.pClearValues = clearValues;
+		render_pass_info.clearValueCount = clear_values_count;
+		render_pass_info.pClearValues = clear_values;
 
-		vkCmdBeginRenderPass(command_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;
@@ -163,13 +163,13 @@ namespace Isonia::Pipeline
 
 	void Renderer::createCommandBuffers()
 	{
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = m_device->getCommandPool();
-		allocInfo.commandBufferCount = SwapChain::max_frames_in_flight;
+		VkCommandBufferAllocateInfo alloc_info{};
+		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		alloc_info.commandPool = m_device->getCommandPool();
+		alloc_info.commandBufferCount = SwapChain::max_frames_in_flight;
 
-		if (vkAllocateCommandBuffers(m_device->getDevice(), &allocInfo, m_command_buffers) != VK_SUCCESS)
+		if (vkAllocateCommandBuffers(m_device->getDevice(), &alloc_info, m_command_buffers) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to allocate command buffers!");
 		}

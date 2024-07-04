@@ -3,7 +3,10 @@
 
 namespace Isonia::Noise
 {
-    ConstantScalarWarpNoise::ConstantScalarWarpNoise(const float frequency) : VirtualWarpNoise(), frequency(frequency) { }
+    ConstantScalarWarpNoise::ConstantScalarWarpNoise(const float frequency)
+        : VirtualWarpNoise(), frequency(frequency)
+    {
+    }
 
     inline void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y) const
     {

@@ -3,11 +3,10 @@
 
 namespace Isonia::Noise
 {
-	FractalPerlinNoise::FractalPerlinNoise(
-		const unsigned int seed, const unsigned int octaves, const float lacunarity, const float gain, const float weighted_strength) :
-		PerlinNoise(seed),
-		octaves(octaves), lacunarity(lacunarity), gain(gain), weighted_strength(weighted_strength), fractal_bounding(calculateFractalBounding()
-	) { }
+	FractalPerlinNoise::FractalPerlinNoise(const unsigned int seed, const unsigned int octaves, const float lacunarity, const float gain, const float weighted_strength)
+		: PerlinNoise(seed), octaves(octaves), lacunarity(lacunarity), gain(gain), weighted_strength(weighted_strength), fractal_bounding(calculateFractalBounding())
+	{
+	}
 
 	inline float FractalPerlinNoise::generateNoise(float x, float y) const
 	{
@@ -74,12 +73,12 @@ namespace Isonia::Noise
 	{
 		float gain = Math::absf(this->gain);
 		float amp = gain;
-		float ampFractal = 1.0f;
+		float amp_fractal = 1.0f;
 		for (unsigned int i = 1; i < octaves; i++)
 		{
-			ampFractal += amp;
+			amp_fractal += amp;
 			amp *= gain;
 		}
-		return 1.0f / ampFractal;
+		return 1.0f / amp_fractal;
 	}
 }
