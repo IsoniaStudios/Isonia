@@ -104,4 +104,29 @@ namespace Isonia::Pipeline::RenderSystems
 
 		Renderable::BuilderXZUniform* m_water;
 	};
+
+	struct UIRenderSystem
+	{
+	public:
+		UIRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+		~UIRenderSystem();
+
+		UIRenderSystem(const UIRenderSystem&) = delete;
+		UIRenderSystem& operator=(const UIRenderSystem&) = delete;
+
+		void render(State::FrameInfo* frame_info);
+
+	private:
+		void createPipelineLayout(VkDescriptorSetLayout global_set_layout);
+		void createPipeline(VkRenderPass render_pass);
+
+		static void pipelineConfigInfo(PipelineConfigInfo* config_info);
+
+		Device* m_device;
+
+		Pipeline* m_pipeline;
+		VkPipelineLayout m_pipeline_layout;
+
+		Renderable::BuilderUI* m_ui;
+	};
 }

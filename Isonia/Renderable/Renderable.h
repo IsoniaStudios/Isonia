@@ -56,6 +56,7 @@ namespace Isonia::Renderable
 		static Texture* createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height);
 		static Texture* createTextureFromPalette(Pipeline::Device* device, const Color* colors, const unsigned int tex_width);
 		static Texture* createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height);
+		static Texture* createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height, VkFormat format);
 
 		void updateDescriptor();
 
@@ -156,6 +157,20 @@ namespace Isonia::Renderable
 		float gain;
 	};
 
+	struct VertexUI
+	{
+		VertexUI();
+		VertexUI(const float x, const float y, const float uv_x, const float uv_y);
+
+		static VkVertexInputBindingDescription* getBindingDescriptions();
+		static const unsigned int getBindingDescriptionsCount();
+		static VkVertexInputAttributeDescription* getAttributeDescriptions();
+		static const unsigned int getAttributeDescriptionsCount();
+
+		Math::Vector2 position;
+		Math::Vector2 uv;
+	};
+
 	// Primitives
 	enum PrimitiveType
 	{
@@ -222,7 +237,7 @@ namespace Isonia::Renderable
 
 	private:
 		void createVertexBuffers(const VertexComplete* vertices, const unsigned int vertex_count);
-		void createIndexBuffers(const unsigned int* indices, const unsigned int indexCount);
+		void createIndexBuffers(const unsigned int* indices, const unsigned int index_count);
 
 		Pipeline::Device* m_device;
 
@@ -329,5 +344,33 @@ namespace Isonia::Renderable
 
 		Pipeline::Device* m_device;
 		Pipeline::Buffer* m_vertex_buffer;
+	};
+
+	// text
+	extern Texture* create7x7PixelFontSingleRowTexture(Pipeline::Device* device);
+
+	struct BuilderUI
+	{
+		BuilderUI(Pipeline::Device* device, const char* text);
+		~BuilderUI();
+
+		void bind(VkCommandBuffer command_buffer);
+		void draw(VkCommandBuffer command_buffer);
+
+	private:
+		float charToSingleRowMonoASCIIOffset(const char character);
+		float charToSingleRowMonoASCIIWidth();
+		unsigned int getCharLength(const char* text);
+
+		void createVertexBuffers(const VertexUI* vertices, const unsigned int vertex_count);
+		void createIndexBuffers(const unsigned int* indices, const unsigned int index_count);
+
+		Pipeline::Device* m_device;
+
+		Pipeline::Buffer* m_vertex_buffer;
+		unsigned int m_vertex_count;
+
+		Pipeline::Buffer* m_index_buffer;
+		unsigned int m_index_count;
 	};
 }

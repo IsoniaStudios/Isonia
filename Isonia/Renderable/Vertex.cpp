@@ -115,4 +115,34 @@ namespace Isonia::Renderable
 	{
 		return 4u;
 	}
+
+	VertexUI::VertexUI()
+		: position(0.0f, 0.0f), uv(0.0f, 0.0f)
+	{
+	}
+	VertexUI::VertexUI(const float x, const float y, const float uv_x, const float uv_y)
+		: position(x, y), uv(uv_x, uv_y)
+	{
+	}
+	VkVertexInputBindingDescription* VertexUI::getBindingDescriptions()
+	{
+		return new VkVertexInputBindingDescription[]{
+			{0, sizeof(VertexUI), VK_VERTEX_INPUT_RATE_VERTEX}
+		};
+	}
+	const unsigned int VertexUI::getBindingDescriptionsCount()
+	{
+		return 1u;
+	}
+	VkVertexInputAttributeDescription* VertexUI::getAttributeDescriptions()
+	{
+		return new VkVertexInputAttributeDescription[]{
+			{ 0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexUI, position) },
+			{ 1, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexUI, uv) }
+		};
+	}
+	const unsigned int VertexUI::getAttributeDescriptionsCount()
+	{
+		return 2u;
+	}
 }

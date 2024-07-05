@@ -91,6 +91,11 @@ namespace Isonia::Renderable
 		return new Texture(device, texture, tex_width, tex_height, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 
+	Texture* Texture::createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height, VkFormat format)
+	{
+		return new Texture(device, texture, tex_width, tex_height, format);
+	}
+
 	void Texture::updateDescriptor()
 	{
 		m_descriptor.sampler = m_texture_sampler;

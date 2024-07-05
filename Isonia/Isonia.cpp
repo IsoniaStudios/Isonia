@@ -16,6 +16,7 @@ namespace Isonia
 
 	Isonia::~Isonia()
 	{
+		delete m_text;
 		delete m_wind;
 		delete m_cloud;
 		delete m_debugger;
@@ -30,6 +31,7 @@ namespace Isonia
 		}
 		*/
 
+		delete m_ui_render_system;
 		delete m_debugger_render_system;
 		delete m_ground_render_system;
 		delete m_water_render_system;
@@ -92,8 +94,9 @@ namespace Isonia
 				m_ground_render_system->render(&frame_info, &m_player.m_camera);
 				m_debugger_render_system->render(&frame_info);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
+				m_ui_render_system->render(&frame_info);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
+				//m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
 		}
@@ -103,9 +106,10 @@ namespace Isonia
 
 	void Isonia::initializeDescriptorPool()
 	{
-		m_global_pool = (new Pipeline::Descriptors::DescriptorPool(&m_device, 8u))
+		m_global_pool = (new Pipeline::Descriptors::DescriptorPool(&m_device, 9u))
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
@@ -148,15 +152,18 @@ namespace Isonia
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloud_warp_noise, &cloud_noise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 		m_wind = Renderable::Texture::createTextureFromNoise(&m_device, &wind_noise, 128, 128);
-		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, 8u))
-			->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+		m_text = Renderable::create7x7PixelFontSingleRowTexture(&m_device);
+		//m_debugger = m_text;
+		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, 9u))
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(1u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(2u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(3u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(4u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(5u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(6u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(7u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(8u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
@@ -169,15 +176,17 @@ namespace Isonia
 			VkDescriptorImageInfo cloud_info = m_cloud->getImageInfo();
 			VkDescriptorImageInfo water_day_palette_info = m_water_day_palette->getImageInfo();
 			VkDescriptorImageInfo wind_info = m_wind->getImageInfo();
-			m_global_writer = (new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 8u))
-				->writeBuffer(0, &ubo_buffer_info)
-				->writeBuffer(1, &clock_buffer_info)
-				->writeImage(2, &grass_day_palette_info)
-				->writeImage(3, &grass_info)
-				->writeImage(4, &debugger_info)
-				->writeImage(5, &cloud_info)
-				->writeImage(6, &water_day_palette_info)
-				->writeImage(7, &wind_info)
+			VkDescriptorImageInfo text_info = m_text->getImageInfo();
+			m_global_writer = (new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 9u))
+				->writeBuffer(0u, &ubo_buffer_info)
+				->writeBuffer(1u, &clock_buffer_info)
+				->writeImage(2u, &grass_day_palette_info)
+				->writeImage(3u, &grass_info)
+				->writeImage(4u, &debugger_info)
+				->writeImage(5u, &cloud_info)
+				->writeImage(6u, &water_day_palette_info)
+				->writeImage(7u, &wind_info)
+				->writeImage(8u, &text_info)
 				->build(&m_global_descriptor_sets[i]);
 		}
 	}
@@ -197,6 +206,12 @@ namespace Isonia
 		};
 
 		m_debugger_render_system = new Pipeline::RenderSystems::DebuggerRenderSystem{
+			&m_device,
+			m_renderer.getSwapChainRenderPass(),
+			m_global_set_layout->getDescriptorSetLayout()
+		};
+
+		m_ui_render_system = new Pipeline::RenderSystems::UIRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(),
 			m_global_set_layout->getDescriptorSetLayout()

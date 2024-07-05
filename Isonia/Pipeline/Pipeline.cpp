@@ -129,11 +129,6 @@ namespace Isonia::Pipeline
 		config_info->dynamic_state_info.pDynamicStates = config_info->dynamic_state_enables;
 		config_info->dynamic_state_info.dynamicStateCount = config_info->dynamic_state_enables_count;
 		config_info->dynamic_state_info.flags = 0;
-
-		config_info->binding_descriptions = Renderable::VertexComplete::getBindingDescriptions();
-		config_info->binding_descriptions_count = Renderable::VertexComplete::getBindingDescriptionsCount();
-		config_info->attribute_descriptions = Renderable::VertexComplete::getAttributeDescriptions();
-		config_info->attribute_descriptions_count = Renderable::VertexComplete::getAttributeDescriptionsCount();
 	}
 
 	void Pipeline::makePixelPerfectConfigInfo(PipelineConfigInfo* config_info)

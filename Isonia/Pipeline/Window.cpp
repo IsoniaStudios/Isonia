@@ -212,12 +212,6 @@ namespace Isonia::Pipeline
 
         m_window_instance = GetModuleHandle(NULL);
 
-        AllocConsole();
-        AttachConsole(GetCurrentProcessId());
-        FILE* stream_out = freopen("CON", "w", stdout);
-        FILE* stream_err = freopen("CON", "w", stderr);
-        SetConsoleTitle(TEXT(m_name));
-
         HINSTANCE h_instance_recast = static_cast<HINSTANCE>(m_window_instance);
         WNDCLASSEX wcex;
 

@@ -54,12 +54,12 @@ namespace Isonia::Renderable
 		m_vertex_count = vertex_count;
 		assert(vertex_count >= 3 && "Vertex count must be at least 3");
 
-		const unsigned int vertexSize = sizeof(VertexComplete);
-		const VkDeviceSize bufferSize = sizeof(VertexComplete) * vertex_count;
+		const unsigned int vertex_size = sizeof(VertexComplete);
+		const VkDeviceSize buffer_size = sizeof(VertexComplete) * vertex_count;
 
 		Pipeline::Buffer staging_buffer{
 			m_device,
-			vertexSize,
+			vertex_size,
 			vertex_count,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -70,26 +70,26 @@ namespace Isonia::Renderable
 
 		m_vertex_buffer = new Pipeline::Buffer(
 			m_device,
-			vertexSize,
+			vertex_size,
 			vertex_count,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_device->copyBuffer(staging_buffer.getBuffer(), m_vertex_buffer->getBuffer(), bufferSize);
+		m_device->copyBuffer(staging_buffer.getBuffer(), m_vertex_buffer->getBuffer(), buffer_size);
 	}
 
-	void Model::createIndexBuffers(const unsigned int* indices, const unsigned int indexCount)
+	void Model::createIndexBuffers(const unsigned int* indices, const unsigned int index_count)
 	{
-		m_index_count = indexCount;
+		m_index_count = index_count;
 
-		const unsigned int indexSize = sizeof(unsigned int);
-		const VkDeviceSize bufferSize = sizeof(unsigned int) * indexCount;
+		const unsigned int index_size = sizeof(unsigned int);
+		const VkDeviceSize buffer_size = sizeof(unsigned int) * index_count;
 
 		Pipeline::Buffer staging_buffer{
 			m_device,
-			indexSize,
-			indexCount,
+			index_size,
+			index_count,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		};
@@ -99,12 +99,12 @@ namespace Isonia::Renderable
 
 		m_index_buffer = new Pipeline::Buffer(
 			m_device,
-			indexSize,
-			indexCount,
+			index_size,
+			index_count,
 			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_device->copyBuffer(staging_buffer.getBuffer(), m_index_buffer->getBuffer(), bufferSize);
+		m_device->copyBuffer(staging_buffer.getBuffer(), m_index_buffer->getBuffer(), buffer_size);
 	}
 }
