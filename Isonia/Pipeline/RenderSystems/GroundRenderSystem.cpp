@@ -24,24 +24,6 @@ namespace Isonia::Pipeline::RenderSystems
 
 		createGrassPipelineLayout(global_set_layout);
 		createGrassPipeline(render_pass);
-
-		Noise::ConstantScalarWarpNoise ground_warp_noise{ 0.05f };
-		Noise::FractalPerlinNoise ground_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
-
-		const int s_grounds = static_cast<int>(grounds);
-		const int s_quads = static_cast<int>(Renderable::quads);
-		m_grounds = static_cast<Renderable::BuilderXZUniformN*>(operator new[](sizeof(Renderable::BuilderXZUniformN)* grounds_count));
-		m_grasses = static_cast<Renderable::BuilderXZUniformNP*>(operator new[](sizeof(Renderable::BuilderXZUniformNP)* grounds_count));
-		for (int x = 0; x < grounds; x++)
-		{
-			for (int z = 0; z < grounds; z++)
-			{
-				float x_offset = (x - s_grounds / 2l) * s_quads * Renderable::quad_size - s_quads * Renderable::quad_size * 0.5f;
-				float z_offset = (z - s_grounds / 2l) * s_quads * Renderable::quad_size - s_quads * Renderable::quad_size * 0.5f;
-				Renderable::BuilderXZUniformN* ground = new (m_grounds + x * s_grounds + z) Renderable::BuilderXZUniformN(device, &ground_warp_noise, &ground_noise, 7.5f, x_offset, z_offset);
-				Renderable::BuilderXZUniformNP* grass = new (m_grasses + x * s_grounds + z) Renderable::BuilderXZUniformNP(device, ground);
-			}
-		}
 	}
 
 	GroundRenderSystem::~GroundRenderSystem()
@@ -51,44 +33,124 @@ namespace Isonia::Pipeline::RenderSystems
 		vkDestroyPipelineLayout(m_device->getDevice(), m_ground_pipeline_layout, nullptr);
 		vkDestroyPipelineLayout(m_device->getDevice(), m_grass_pipeline_layout, nullptr);
 
-		for (long x = grounds - 1; x >= 0; x--)
+		for (unsigned int x = 0; x < grounds; x++)
 		{
-			for (long z = grounds - 1; z >= 0; z--)
+			for (unsigned int z = 0; z < grounds; z++)
 			{
-				m_grounds[x * grounds + z].~BuilderXZUniformN();
-				m_grasses[x * grounds + z].~BuilderXZUniformNP();
+				if (m_grounds[x][z] != nullptr)
+				{
+					delete m_grounds[x][z];
+				}
+				if (m_grasses[x][z] != nullptr)
+				{
+					delete m_grasses[x][z];
+				}
 			}
 		}
-		operator delete[](m_grounds);
-		operator delete[](m_grasses);
 	}
 
+	unsigned int GroundRenderSystem::mapWorldXToIndex(const float world_x) const
+	{
+		const float ground_width = Renderable::quads * Renderable::quad_size;
+		const float local_x = world_x + ground_width * grounds / 2u;
+		return static_cast<unsigned int>(local_x / ground_width);
+	}
+	unsigned int GroundRenderSystem::mapWorldZToIndex(const float world_z) const
+	{
+		const float ground_height = Renderable::quads * Renderable::quad_size;
+		const float local_z = world_z + ground_height * grounds / 2u;
+		return static_cast<unsigned int>(local_z / ground_height);
+	}
 	Renderable::BuilderXZUniformN* GroundRenderSystem::mapWorldToGround(const float world_x, const float world_z) const
 	{
-		unsigned int i_x = static_cast<unsigned int>(world_x / (Renderable::quads * Renderable::quad_size) + grounds / 2);
-		unsigned int i_z = static_cast<unsigned int>(world_z / (Renderable::quads * Renderable::quad_size) + grounds / 2);
-		return &m_grounds[i_x * grounds + i_z];
+		unsigned int index_x = mapWorldXToIndex(world_x);
+		unsigned int index_z = mapWorldZToIndex(world_z);
+		return m_grounds[index_x][index_z];
 	}
-
 	float GroundRenderSystem::mapWorldToHeight(const float world_x, const float world_z) const
 	{
 		const Renderable::BuilderXZUniformN* ground = mapWorldToGround(world_x, world_z);
 		return ground->mapWorldToHeight(world_x, world_z);
 	}
-
 	Math::Vector3 GroundRenderSystem::mapWorldToNormal(const float world_x, const float world_z) const
 	{
 		const Renderable::BuilderXZUniformN* ground = mapWorldToGround(world_x, world_z);
 		return ground->mapWorldToNormal(world_x, world_z);
 	}
 
-	void GroundRenderSystem::render(State::FrameInfo* frame_info)
+	void GroundRenderSystem::frustumCull(const Camera* camera)
 	{
+		for (unsigned int x = 0; x < grounds; x++)
+		{
+			for (unsigned int z = 0; z < grounds; z++)
+			{
+				if (m_grounds[x][z] != nullptr)
+				{
+					m_grounds[x][z]->m_culled = true;
+				}
+				if (m_grasses[x][z] != nullptr)
+				{
+					m_grasses[x][z]->m_culled = true;
+				}
+			}
+		}
+
+		const Math::Vector3 camera_position = camera->getPositionVector();
+		const Math::Vector3 camera_forward = camera->getForwardVector();
+		const Math::Vector3 plane_position = Math::Vector3{ 0.0f, 0.0f, 0.0f };
+		const Math::Vector3 plane_normal = Math::Vector3{ 0.0f, -1.0f, 0.0f };
+		float intersection_distance;
+		const bool intersects = Math::intersectRayPlane(
+			&camera_position,
+			&camera_forward,
+			&plane_position,
+			&plane_normal,
+			&intersection_distance
+		);
+		const Math::Vector3 intersection_point_local = Math::vec3Mul(&camera_forward, intersection_distance);
+		const Math::Vector3 intersection_point = Math::vec3Add(&camera_position, &intersection_point_local);
+
+		const int index_x = mapWorldXToIndex(intersection_point.x);
+		const int index_z = mapWorldZToIndex(intersection_point.z);
+		if (index_x < 0 || index_z < 0 || index_x >= grounds || index_z >= grounds)
+		{
+			return;
+		}
+
+		Renderable::BuilderXZUniformN** ground = &m_grounds[index_x][index_z];
+		if (*ground == nullptr)
+		{
+			const int s_grounds = static_cast<int>(grounds);
+			const float w_ground = Renderable::quads * Renderable::quad_size;
+
+			const float offset = grounds % 2u == 0u ? 0.0f : w_ground * 0.5f;
+			const float x_offset = (index_x - s_grounds / 2) * w_ground - offset;
+			const float z_offset = (index_z - s_grounds / 2) * w_ground - offset;
+			*ground = new Renderable::BuilderXZUniformN(m_device, &m_ground_warp_noise, &m_ground_noise, 7.5f, x_offset, z_offset);
+		}
+		else
+		{
+			(*ground)->m_culled = false;
+		}
+		Renderable::BuilderXZUniformNP** grass = &m_grasses[index_x][index_z];
+		if (*grass == nullptr)
+		{
+			*grass = new Renderable::BuilderXZUniformNP(m_device, *ground);
+		}
+		else
+		{
+			(*grass)->m_culled = false;
+		}
+	}
+
+	void GroundRenderSystem::render(const State::FrameInfo* frame_info, const Camera* camera)
+	{
+		frustumCull(camera);
 		renderGround(frame_info);
 		renderGrass(frame_info);
 	}
 
-	void GroundRenderSystem::renderGround(State::FrameInfo* frame_info)
+	void GroundRenderSystem::renderGround(const State::FrameInfo* frame_info)
 	{
 		m_ground_pipeline->bind(frame_info->command_buffer);
 
@@ -103,11 +165,15 @@ namespace Isonia::Pipeline::RenderSystems
 			nullptr
 		);
 
-		for (long x = 0; x < grounds; x++)
+		for (unsigned int x = 0; x < grounds; x++)
 		{
-			for (long z = 0; z < grounds; z++)
+			for (unsigned int z = 0; z < grounds; z++)
 			{
-				Renderable::BuilderXZUniformN* ground = &m_grounds[x * grounds + z];
+				Renderable::BuilderXZUniformN* ground = m_grounds[x][z];
+				if (ground == nullptr || ground->m_culled)
+				{
+					continue;
+				}
 
 				vkCmdPushConstants(
 					frame_info->command_buffer,
@@ -123,7 +189,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::renderGrass(State::FrameInfo* frame_info)
+	void GroundRenderSystem::renderGrass(const State::FrameInfo* frame_info)
 	{
 		m_grass_pipeline->bind(frame_info->command_buffer);
 
@@ -138,11 +204,15 @@ namespace Isonia::Pipeline::RenderSystems
 			nullptr
 		);
 
-		for (long x = 0; x < grounds; x++)
+		for (unsigned int x = 0; x < grounds; x++)
 		{
-			for (long z = 0; z < grounds; z++)
+			for (unsigned int z = 0; z < grounds; z++)
 			{
-				Renderable::BuilderXZUniformNP* grass = &m_grasses[x * grounds + z];
+				Renderable::BuilderXZUniformNP* grass = m_grasses[x][z];
+				if (grass == nullptr || grass->m_culled)
+				{
+					continue;
+				}
 
 				grass->bind(frame_info->command_buffer);
 				grass->draw(frame_info->command_buffer);

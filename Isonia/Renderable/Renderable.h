@@ -298,6 +298,7 @@ namespace Isonia::Renderable
 		Math::Vector3 mapWorldToNormal(const float world_x, const float world_z) const;
 
 		const Math::Vector2 m_positional_data;
+		bool m_culled = false;
 
 	private:
 		int calculateCol(const int index, const int strip) const;
@@ -320,6 +321,8 @@ namespace Isonia::Renderable
 
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
+
+		bool m_culled = false;
 
 	private:
 		void createVertexBuffers(void* vertices);
