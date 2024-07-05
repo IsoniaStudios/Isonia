@@ -63,12 +63,12 @@ namespace Isonia
 		Renderable::Model* m_sphere_model;
 		Renderable::Model* m_prism_models[20];
 
-		Controllers::Player m_player{};
-		//Controllers::PlayerIsometric m_player{};
+		//Controllers::Player m_player{};
+		Controllers::PlayerIsometric m_player{};
 
 		Pipeline::Window m_window{ width, height, name };
 		Pipeline::Device m_device{ &m_window };
-		Pipeline::Renderer m_renderer{ &m_window, &m_device };
-		//Pipeline::PixelRenderer m_renderer{ &m_window, &m_device };
+		//Pipeline::Renderer m_renderer{ &m_window, &m_device };
+		Pipeline::PixelRenderer m_renderer{ &m_window, &m_device };
 	};
 }
