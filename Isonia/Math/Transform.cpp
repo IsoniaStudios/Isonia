@@ -4,24 +4,24 @@
 namespace Isonia::Math
 {
 	Transform::Transform()
-		: position(0.f, 0.f, 0.f), rotation(0.f, 0.f, 0.f), scale(1.f, 1.f, 1.f)
+		: position(0.0f, 0.0f, 0.0f), rotation(0.0f, 0.0f, 0.0f), scale(1.f, 1.f, 1.f)
 	{
 	}
 
-	Transform::Transform(Math::Vector3 initial_position, Math::Vector3 initial_rotation, Math::Vector3 initial_scale)
+	Transform::Transform(Vector3 initial_position, Vector3 initial_rotation, Vector3 initial_scale)
 		: position(initial_position), rotation(initial_rotation), scale(initial_scale)
 	{
 	}
 
-	const Math::Matrix4x4 Transform::matrix4x4() const
+	const Matrix4x4 Transform::matrix4x4() const
 	{
-		const float c3 = Math::cosf(rotation.z);
-		const float s3 = Math::sinf(rotation.z);
-		const float c2 = Math::cosf(rotation.x);
-		const float s2 = Math::sinf(rotation.x);
-		const float c1 = Math::cosf(rotation.y);
-		const float s1 = Math::sinf(rotation.y);
-		return Math::Matrix4x4{
+		const float c3 = cosf(rotation.z);
+		const float s3 = sinf(rotation.z);
+		const float c2 = cosf(rotation.x);
+		const float s2 = sinf(rotation.x);
+		const float c1 = cosf(rotation.y);
+		const float s1 = sinf(rotation.y);
+		return Matrix4x4{
 			scale.x * (c1 * c3 + s1 * s2 * s3),
 			scale.x * (c2 * s3),
 			scale.x * (c1 * s2 * s3 - c3 * s1),
@@ -44,17 +44,17 @@ namespace Isonia::Math
 		};
 	}
 
-	const Math::Matrix3x3 Transform::normalMatrix3x3() const
+	const Matrix3x3 Transform::normalMatrix3x3() const
 	{
-		const float c3 = Math::cosf(rotation.z);
-		const float s3 = Math::sinf(rotation.z);
-		const float c2 = Math::cosf(rotation.x);
-		const float s2 = Math::sinf(rotation.x);
-		const float c1 = Math::cosf(rotation.y);
-		const float s1 = Math::sinf(rotation.y);
-		const Math::Vector3 invScale = Math::vec3Div(1.0f, &scale);
+		const float c3 = cosf(rotation.z);
+		const float s3 = sinf(rotation.z);
+		const float c2 = cosf(rotation.x);
+		const float s2 = sinf(rotation.x);
+		const float c1 = cosf(rotation.y);
+		const float s1 = sinf(rotation.y);
+		const Vector3 invScale = vec3Div(1.0f, &scale);
 
-		return Math::Matrix3x3{
+		return Matrix3x3{
 			invScale.x * (c1 * c3 + s1 * s2 * s3),
 			invScale.x * (c2 * s3),
 			invScale.x * (c1 * s2 * s3 - c3 * s1),

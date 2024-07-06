@@ -126,4 +126,9 @@ namespace Isonia::Pipeline
             position->x, position->y, position->z, 1.f
         };
     }
+
+    bool Camera::inFustrum(Math::BoundingPlane plane) const
+    {
+        return true;
+    }
 }

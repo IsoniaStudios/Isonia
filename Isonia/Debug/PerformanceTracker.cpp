@@ -2,7 +2,6 @@
 #include "Debug.h"
 
 // external
-#include <iostream>
 #include <iomanip>
 
 namespace Isonia::Debug
@@ -23,14 +22,15 @@ namespace Isonia::Debug
         m_highest_frame_time_ms = Math::maxf(m_highest_frame_time_ms, frame_time_ms);
 
         // Create a buffer to hold the performance statistics
-        char buffer[256];
+        char buffer[128];
 
         // Format the string
         int length = sprintf(buffer, "Frame Time: %.6f ms\nAverage Frame Time: %.6f ms\nHighest Frame Time: %.6f ms", frame_time_ms, m_average_frame_time_ms, m_highest_frame_time_ms);
 
         // Allocate memory for the char* to be returned
         char* cstr = (char*)malloc((length + 1) * sizeof(char));
-        if (cstr != NULL) {
+        if (cstr != NULL)
+        {
             strcpy(cstr, buffer);
         }
 

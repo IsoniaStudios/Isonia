@@ -67,12 +67,12 @@ namespace Isonia::Pipeline
         const float ortho_size = Math::pixels_per_unit * 2.0;
         // set projection
         setOrthographicProjection(
-            -(extent.width / ortho_size),
-            extent.width / ortho_size,
-            -(extent.height / ortho_size),
-            extent.height / ortho_size,
-            0.f,
-            1000.f
+            m_left = -(extent.width / ortho_size),
+            m_right = extent.width / ortho_size,
+            m_top = -(extent.height / ortho_size),
+            m_bottom = extent.height / ortho_size,
+            m_near = 0.0f,
+            m_far = 1000.0f
         );
 
         // NDC coordinates of the top left upmost center pixel position
@@ -91,5 +91,54 @@ namespace Isonia::Pipeline
             global_top_left.z + Math::units_per_pixel * 0.5f,
             global_top_left.w
         };
+    }
+
+    bool CameraIsometric::inFustrum(Math::BoundingPlane plane) const
+    {
+        Math::Vector3 half_size(plane.size.x * 0.5f, 0.0f, plane.size.y * 0.5f);
+        Math::Vector4 corners[4] = {
+            { plane.position.x - half_size.x, plane.position.y, plane.position.z - half_size.z, 1.0f },
+            { plane.position.x + half_size.x, plane.position.y, plane.position.z - half_size.z, 1.0f },
+            { plane.position.x + half_size.x, plane.position.y, plane.position.z + half_size.z, 1.0f },
+            { plane.position.x - half_size.x, plane.position.y, plane.position.z + half_size.z, 1.0f },
+        };
+        for (int i = 0; i < 4; i++)
+        {
+            corners[i] = Math::mat4Mul(m_view_matrix, &corners[i]);
+        }
+
+        // Check if any corner is inside the frustum
+        bool anyCornerInside = false;
+        bool allCornersOutsideSameSide = true;
+        int outsideTop = 0, outsideBottom = 0, outsideLeft = 0, outsideRight = 0;
+
+        for (int i = 0; i < 4; i++)
+        {
+            if ((corners[i].x >= m_left && corners[i].x <= m_right) &&
+                (corners[i].y >= m_top && corners[i].y <= m_bottom))
+            {
+                anyCornerInside = true;
+                break;
+            }
+
+            if (corners[i].x < m_left) outsideLeft++;
+            if (corners[i].x > m_right) outsideRight++;
+            if (corners[i].y < m_top) outsideTop++;
+            if (corners[i].y > m_bottom) outsideBottom++;
+        }
+
+        if (anyCornerInside)
+            return true;
+
+        // Check if all corners are outside on the same side
+        if (outsideLeft == 4 || outsideRight == 4 || outsideTop == 4 || outsideBottom == 4)
+            return false;
+
+        // Check if the frustum is entirely inside the plane
+        if (outsideLeft == 0 && outsideRight == 0 && outsideTop == 0 && outsideBottom == 0)
+            return true;
+
+        // At this point, the plane intersects the frustum
+        return true;
     }
 }

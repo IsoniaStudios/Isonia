@@ -55,11 +55,23 @@ namespace Isonia::Pipeline::RenderSystems
 		const float local_x = world_x + ground_width * grounds / 2u;
 		return static_cast<unsigned int>(local_x / ground_width);
 	}
+	float GroundRenderSystem::mapIndexToWorldX(const unsigned int index) const
+	{
+		const float ground_width = Renderable::quads * Renderable::quad_size;
+		const float local_x = index * ground_width;
+		return local_x - ground_width * grounds / 2u + Renderable::quads * Renderable::quad_size * 0.5f;
+	}
 	unsigned int GroundRenderSystem::mapWorldZToIndex(const float world_z) const
 	{
 		const float ground_height = Renderable::quads * Renderable::quad_size;
 		const float local_z = world_z + ground_height * grounds / 2u;
 		return static_cast<unsigned int>(local_z / ground_height);
+	}
+	float GroundRenderSystem::mapIndexToWorldZ(const unsigned int index) const
+	{
+		const float ground_height = Renderable::quads * Renderable::quad_size;
+		const float local_z = index * ground_height;
+		return local_z - ground_height * grounds / 2u + Renderable::quads * Renderable::quad_size * 0.5f;
 	}
 	Renderable::BuilderXZUniformN* GroundRenderSystem::mapWorldToGround(const float world_x, const float world_z) const
 	{
@@ -80,66 +92,54 @@ namespace Isonia::Pipeline::RenderSystems
 
 	void GroundRenderSystem::frustumCull(const Camera* camera)
 	{
-		for (unsigned int x = 0; x < grounds; x++)
+		for (int index_x = 0; index_x < grounds; index_x++)
 		{
-			for (unsigned int z = 0; z < grounds; z++)
+			for (int index_z = 0; index_z < grounds; index_z++)
 			{
-				if (m_grounds[x][z] != nullptr)
+				const Math::BoundingPlane bounding_plane{
+					{mapIndexToWorldX(index_x), 0.0f, mapIndexToWorldX(index_z)},
+					{Renderable::quads * Renderable::quad_size, Renderable::quads * Renderable::quad_size}
+				};
+
+				if (camera->inFustrum(bounding_plane))
 				{
-					m_grounds[x][z]->m_culled = true;
+					Renderable::BuilderXZUniformN** ground = &m_grounds[index_x][index_z];
+					if (*ground == nullptr)
+					{
+						const int s_grounds = static_cast<int>(grounds);
+						const float w_ground = Renderable::quads * Renderable::quad_size;
+
+						const float offset = grounds % 2u == 0u ? 0.0f : w_ground * 0.5f;
+						const float x_offset = (index_x - s_grounds / 2) * w_ground - offset;
+						const float z_offset = (index_z - s_grounds / 2) * w_ground - offset;
+						*ground = new Renderable::BuilderXZUniformN(m_device, &m_ground_warp_noise, &m_ground_noise, 7.5f, x_offset, z_offset);
+					}
+					else
+					{
+						(*ground)->m_culled = false;
+					}
+					Renderable::BuilderXZUniformNP** grass = &m_grasses[index_x][index_z];
+					if (*grass == nullptr)
+					{
+						*grass = new Renderable::BuilderXZUniformNP(m_device, *ground);
+					}
+					else
+					{
+						(*grass)->m_culled = false;
+					}
 				}
-				if (m_grasses[x][z] != nullptr)
+				else
 				{
-					m_grasses[x][z]->m_culled = true;
+					if (m_grounds[index_x][index_z] != nullptr)
+					{
+						m_grounds[index_x][index_z]->m_culled = true;
+					}
+					if (m_grasses[index_x][index_z] != nullptr)
+					{
+						m_grasses[index_x][index_z]->m_culled = true;
+					}
 				}
 			}
-		}
-
-		const Math::Vector3 camera_position = camera->getPositionVector();
-		const Math::Vector3 camera_forward = camera->getForwardVector();
-		const Math::Vector3 plane_position = Math::Vector3{ 0.0f, 0.0f, 0.0f };
-		const Math::Vector3 plane_normal = Math::Vector3{ 0.0f, -1.0f, 0.0f };
-		float intersection_distance;
-		const bool intersects = Math::intersectRayPlane(
-			&camera_position,
-			&camera_forward,
-			&plane_position,
-			&plane_normal,
-			&intersection_distance
-		);
-		const Math::Vector3 intersection_point_local = Math::vec3Mul(&camera_forward, intersection_distance);
-		const Math::Vector3 intersection_point = Math::vec3Add(&camera_position, &intersection_point_local);
-
-		const int index_x = mapWorldXToIndex(intersection_point.x);
-		const int index_z = mapWorldZToIndex(intersection_point.z);
-		if (index_x < 0 || index_z < 0 || index_x >= grounds || index_z >= grounds)
-		{
-			return;
-		}
-
-		Renderable::BuilderXZUniformN** ground = &m_grounds[index_x][index_z];
-		if (*ground == nullptr)
-		{
-			const int s_grounds = static_cast<int>(grounds);
-			const float w_ground = Renderable::quads * Renderable::quad_size;
-
-			const float offset = grounds % 2u == 0u ? 0.0f : w_ground * 0.5f;
-			const float x_offset = (index_x - s_grounds / 2) * w_ground - offset;
-			const float z_offset = (index_z - s_grounds / 2) * w_ground - offset;
-			*ground = new Renderable::BuilderXZUniformN(m_device, &m_ground_warp_noise, &m_ground_noise, 7.5f, x_offset, z_offset);
-		}
-		else
-		{
-			(*ground)->m_culled = false;
-		}
-		Renderable::BuilderXZUniformNP** grass = &m_grasses[index_x][index_z];
-		if (*grass == nullptr)
-		{
-			*grass = new Renderable::BuilderXZUniformNP(m_device, *ground);
-		}
-		else
-		{
-			(*grass)->m_culled = false;
 		}
 	}
 

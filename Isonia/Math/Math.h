@@ -323,15 +323,15 @@ namespace Isonia::Math
     struct Transform
     {
     public:
-        Math::Vector3 position;
-        Math::Vector3 rotation;
-        Math::Vector3 scale;
+        Vector3 position;
+        Vector3 rotation;
+        Vector3 scale;
 
         Transform();
-        Transform(Math::Vector3 initial_position, Math::Vector3 initial_rotation, Math::Vector3 initial_scale);
+        Transform(Vector3 initial_position, Vector3 initial_rotation, Vector3 initial_scale);
 
-        const Math::Matrix4x4 matrix4x4() const;
-        const Math::Matrix3x3 normalMatrix3x3() const;
+        const Matrix4x4 matrix4x4() const;
+        const Matrix3x3 normalMatrix3x3() const;
     };
 
     // Retro
@@ -371,4 +371,15 @@ namespace Isonia::Math
 
     // Random
     extern inline constexpr unsigned int randomInt(const unsigned int seed);
+
+    // Bounds
+    struct BoundingPlane
+    {
+    public:
+        Vector3 position;
+        Vector2 size;
+
+        BoundingPlane();
+        BoundingPlane(Vector3 position, Vector2 size);
+    };
 }

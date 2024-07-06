@@ -46,6 +46,8 @@ namespace Isonia::Pipeline::RenderSystems
 
 		unsigned int mapWorldXToIndex(const float world_x) const;
 		unsigned int mapWorldZToIndex(const float world_z) const;
+		float mapIndexToWorldX(const unsigned int index) const;
+		float mapIndexToWorldZ(const unsigned int index) const;
 		Renderable::BuilderXZUniformN* mapWorldToGround(const float world_x, const float world_z) const;
 		float mapWorldToHeight(const float world_x, const float world_z) const;
 		Math::Vector3 mapWorldToNormal(const float world_x, const float world_z) const;
@@ -72,7 +74,7 @@ namespace Isonia::Pipeline::RenderSystems
 		VkPipelineLayout m_ground_pipeline_layout;
 		VkPipelineLayout m_grass_pipeline_layout;
 
-		static constexpr const unsigned int grounds = 32;
+		static constexpr const unsigned int grounds = 32u;
 		static constexpr const unsigned int grounds_count = grounds * grounds;
 
 		Renderable::BuilderXZUniformN* m_grounds[grounds][grounds] = {};
