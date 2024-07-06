@@ -127,7 +127,7 @@ namespace Isonia::Pipeline
         };
     }
 
-    bool Camera::inFustrum(Math::BoundingPlane plane) const
+    bool Camera::inFrustum(const Math::BoundingPlane* plane) const
     {
         return true;
     }

@@ -543,7 +543,7 @@ namespace Isonia::Pipeline
         virtual void setView(Math::Transform* transform);
         void setProjection(Renderer* renderer);
 
-        virtual bool inFustrum(Math::BoundingPlane plane) const;
+        virtual bool inFrustum(const Math::BoundingPlane* plane) const;
 
         const Math::Matrix4x4* getProjection() const;
         const Math::Matrix4x4* getView() const;
@@ -568,14 +568,11 @@ namespace Isonia::Pipeline
         void setView(Math::Transform* transform) override;
         void setProjection(PixelRenderer* renderer);
 
-        bool inFustrum(Math::BoundingPlane plane) const override;
+        bool inFrustum(const Math::BoundingPlane* plane) const override;
 
         Math::Vector2 m_sub_pixel_offset{};
 
     private:
-        //bool intersectsFrustumEdge(const Math::Vector3* start, const Math::Vector3* end) const;
-        //bool intersectsPlane(const Math::Vector3* start, const Math::Vector3* end, const Math::Vector3* normal, float d) const;
-
         float m_left, m_right, m_top, m_bottom, m_near, m_far;
 
         const float camera_distance = 500.0f;

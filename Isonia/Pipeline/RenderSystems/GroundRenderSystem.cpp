@@ -101,7 +101,7 @@ namespace Isonia::Pipeline::RenderSystems
 					{Renderable::quads * Renderable::quad_size, Renderable::quads * Renderable::quad_size}
 				};
 
-				if (camera->inFustrum(bounding_plane))
+				if (camera->inFrustum(&bounding_plane))
 				{
 					Renderable::BuilderXZUniformN** ground = &m_grounds[index_x][index_z];
 					if (*ground == nullptr)

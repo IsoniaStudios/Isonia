@@ -93,52 +93,31 @@ namespace Isonia::Pipeline
         };
     }
 
-    bool CameraIsometric::inFustrum(Math::BoundingPlane plane) const
+    bool CameraIsometric::inFrustum(const Math::BoundingPlane* plane) const
     {
-        Math::Vector3 half_size(plane.size.x * 0.5f, 0.0f, plane.size.y * 0.5f);
-        Math::Vector4 corners[4] = {
-            { plane.position.x - half_size.x, plane.position.y, plane.position.z - half_size.z, 1.0f },
-            { plane.position.x + half_size.x, plane.position.y, plane.position.z - half_size.z, 1.0f },
-            { plane.position.x + half_size.x, plane.position.y, plane.position.z + half_size.z, 1.0f },
-            { plane.position.x - half_size.x, plane.position.y, plane.position.z + half_size.z, 1.0f },
+        const Math::Vector3 half_size(plane->size.x * 0.5f, 0.0f, plane->size.y * 0.5f);
+        const Math::Vector4 corners[4] = {
+            { plane->position.x - half_size.x, plane->position.y, plane->position.z - half_size.z, 1.0f },
+            { plane->position.x + half_size.x, plane->position.y, plane->position.z - half_size.z, 1.0f },
+            { plane->position.x + half_size.x, plane->position.y, plane->position.z + half_size.z, 1.0f },
+            { plane->position.x - half_size.x, plane->position.y, plane->position.z + half_size.z, 1.0f },
         };
-        for (int i = 0; i < 4; i++)
+
+        unsigned char outcode = 0xF;
+        for (unsigned int i = 0; i < 4; ++i)
         {
-            corners[i] = Math::mat4Mul(m_view_matrix, &corners[i]);
+            const Math::Vector4 transformed = Math::mat4Mul(m_view_matrix, &corners[i]);
+
+            unsigned char corner_outcode = 0;
+            if (transformed.x < m_left)  corner_outcode |= 1;
+            if (transformed.x > m_right) corner_outcode |= 2;
+            if (transformed.y < m_top)   corner_outcode |= 4;
+            if (transformed.y > m_bottom) corner_outcode |= 8;
+
+            if (!corner_outcode) return true;
+            outcode &= corner_outcode;
         }
 
-        // Check if any corner is inside the frustum
-        bool anyCornerInside = false;
-        bool allCornersOutsideSameSide = true;
-        int outsideTop = 0, outsideBottom = 0, outsideLeft = 0, outsideRight = 0;
-
-        for (int i = 0; i < 4; i++)
-        {
-            if ((corners[i].x >= m_left && corners[i].x <= m_right) &&
-                (corners[i].y >= m_top && corners[i].y <= m_bottom))
-            {
-                anyCornerInside = true;
-                break;
-            }
-
-            if (corners[i].x < m_left) outsideLeft++;
-            if (corners[i].x > m_right) outsideRight++;
-            if (corners[i].y < m_top) outsideTop++;
-            if (corners[i].y > m_bottom) outsideBottom++;
-        }
-
-        if (anyCornerInside)
-            return true;
-
-        // Check if all corners are outside on the same side
-        if (outsideLeft == 4 || outsideRight == 4 || outsideTop == 4 || outsideBottom == 4)
-            return false;
-
-        // Check if the frustum is entirely inside the plane
-        if (outsideLeft == 0 && outsideRight == 0 && outsideTop == 0 && outsideBottom == 0)
-            return true;
-
-        // At this point, the plane intersects the frustum
-        return true;
+        return !outcode;
     }
 }
