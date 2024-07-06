@@ -11,7 +11,7 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	DebuggerRenderSystem::DebuggerRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
+	DebuggerRenderSystem::DebuggerRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout)
 		: m_device(device)
 	{
 		createPipelineLayout(global_set_layout);
@@ -28,7 +28,7 @@ namespace Isonia::Pipeline::RenderSystems
 		delete m_debugger;
 	}
 
-	void DebuggerRenderSystem::render(State::FrameInfo* frame_info)
+	void DebuggerRenderSystem::render(const State::FrameInfo* frame_info)
 	{
 		m_pipeline->bind(frame_info->command_buffer);
 
@@ -47,7 +47,7 @@ namespace Isonia::Pipeline::RenderSystems
 		m_debugger->draw(frame_info->command_buffer);
 	}
 
-	void DebuggerRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout)
+	void DebuggerRenderSystem::createPipelineLayout(const VkDescriptorSetLayout global_set_layout)
 	{
 		const constexpr unsigned int descriptor_set_layouts_length = 1;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
@@ -66,7 +66,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void DebuggerRenderSystem::createPipeline(VkRenderPass render_pass)
+	void DebuggerRenderSystem::createPipeline(const VkRenderPass render_pass)
 	{
 		assert(m_pipeline_layout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 

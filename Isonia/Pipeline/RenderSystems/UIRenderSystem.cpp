@@ -10,13 +10,13 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	UIRenderSystem::UIRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
-		: m_device(device)
+	UIRenderSystem::UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int max_text_length)
+		: m_device(device), m_ui(nullptr)
 	{
 		createPipelineLayout(global_set_layout);
 		createPipeline(render_pass);
 
-		m_ui = new Renderable::BuilderUI(m_device, " !\"#$%&'()*+,-./\n0123456789\n:;<=>?@\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n[\\]^_`\nabcdefghijklmnopqrstuvwxyz\n{|}~");
+		m_ui = new Renderable::BuilderUI(m_device, max_text_length);
 	}
 
 	UIRenderSystem::~UIRenderSystem()
@@ -27,7 +27,12 @@ namespace Isonia::Pipeline::RenderSystems
 		delete m_ui;
 	}
 
-	void UIRenderSystem::render(State::FrameInfo* frame_info)
+	void UIRenderSystem::update(const char* text)
+	{
+		m_ui->update(text);
+	}
+
+	void UIRenderSystem::render(const State::FrameInfo* frame_info, const Camera* camera)
 	{
 		m_pipeline->bind(frame_info->command_buffer);
 
@@ -46,7 +51,7 @@ namespace Isonia::Pipeline::RenderSystems
 		m_ui->draw(frame_info->command_buffer);
 	}
 
-	void UIRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout)
+	void UIRenderSystem::createPipelineLayout(const VkDescriptorSetLayout global_set_layout)
 	{
 		const constexpr unsigned int descriptor_set_layouts_length = 1;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
@@ -65,7 +70,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void UIRenderSystem::createPipeline(VkRenderPass render_pass)
+	void UIRenderSystem::createPipeline(const VkRenderPass render_pass)
 	{
 		assert(m_pipeline_layout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 

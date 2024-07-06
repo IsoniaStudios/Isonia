@@ -13,17 +13,17 @@ namespace Isonia::Pipeline::RenderSystems
 	struct DebuggerRenderSystem
 	{
 	public:
-		DebuggerRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+		DebuggerRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout);
 		~DebuggerRenderSystem();
 
 		DebuggerRenderSystem(const DebuggerRenderSystem&) = delete;
 		DebuggerRenderSystem& operator=(const DebuggerRenderSystem&) = delete;
 
-		void render(State::FrameInfo* frame_info);
+		void render(const State::FrameInfo* frame_info);
 
 	private:
-		void createPipelineLayout(VkDescriptorSetLayout global_set_layout);
-		void createPipeline(VkRenderPass render_pass);
+		void createPipelineLayout(const VkDescriptorSetLayout global_set_layout);
+		void createPipeline(const VkRenderPass render_pass);
 
 		static void pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info);
 
@@ -38,7 +38,7 @@ namespace Isonia::Pipeline::RenderSystems
 	struct GroundRenderSystem
 	{
 	public:
-		GroundRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+		GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout);
 		~GroundRenderSystem();
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
@@ -58,10 +58,10 @@ namespace Isonia::Pipeline::RenderSystems
 		void renderGround(const State::FrameInfo* frame_info);
 		void renderGrass(const State::FrameInfo* frame_info);
 
-		void createGroundPipelineLayout(VkDescriptorSetLayout global_set_layout);
-		void createGroundPipeline(VkRenderPass render_pass);
-		void createGrassPipelineLayout(VkDescriptorSetLayout global_set_layout);
-		void createGrassPipeline(VkRenderPass render_pass);
+		void createGroundPipelineLayout(const VkDescriptorSetLayout global_set_layout);
+		void createGroundPipeline(const VkRenderPass render_pass);
+		void createGrassPipelineLayout(const VkDescriptorSetLayout global_set_layout);
+		void createGrassPipeline(const VkRenderPass render_pass);
 
 		static void pixelPipelinePointListConfigInfo(PipelineConfigInfo* config_info);
 
@@ -85,17 +85,17 @@ namespace Isonia::Pipeline::RenderSystems
 	struct WaterRenderSystem
 	{
 	public:
-		WaterRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+		WaterRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout);
 		~WaterRenderSystem();
 
 		WaterRenderSystem(const WaterRenderSystem&) = delete;
 		WaterRenderSystem& operator=(const WaterRenderSystem&) = delete;
 
-		void render(State::FrameInfo* frame_info, Camera* camera);
+		void render(const State::FrameInfo* frame_info, const Camera* camera);
 
 	private:
-		void createpipelineLayout(VkDescriptorSetLayout global_set_layout);
-		void createpipeline(VkRenderPass render_pass);
+		void createpipelineLayout(const VkDescriptorSetLayout global_set_layout);
+		void createpipeline(const VkRenderPass render_pass);
 
 		Device* m_device;
 
@@ -108,17 +108,19 @@ namespace Isonia::Pipeline::RenderSystems
 	struct UIRenderSystem
 	{
 	public:
-		UIRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+		UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int max_text_length);
 		~UIRenderSystem();
 
 		UIRenderSystem(const UIRenderSystem&) = delete;
 		UIRenderSystem& operator=(const UIRenderSystem&) = delete;
 
-		void render(State::FrameInfo* frame_info);
+		void update(const char* text);
+
+		void render(const State::FrameInfo* frame_info, const Camera* camera);
 
 	private:
-		void createPipelineLayout(VkDescriptorSetLayout global_set_layout);
-		void createPipeline(VkRenderPass render_pass);
+		void createPipelineLayout(const VkDescriptorSetLayout global_set_layout);
+		void createPipeline(const VkRenderPass render_pass);
 
 		static void pipelineConfigInfo(PipelineConfigInfo* config_info);
 

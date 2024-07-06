@@ -16,7 +16,7 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	GroundRenderSystem::GroundRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
+	GroundRenderSystem::GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout)
 		: m_device(device)
 	{
 		createGroundPipelineLayout(global_set_layout);
@@ -220,7 +220,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::createGroundPipelineLayout(VkDescriptorSetLayout global_set_layout)
+	void GroundRenderSystem::createGroundPipelineLayout(const VkDescriptorSetLayout global_set_layout)
 	{
 		VkPushConstantRange push_constant_range{};
 		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -244,7 +244,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::createGroundPipeline(VkRenderPass render_pass)
+	void GroundRenderSystem::createGroundPipeline(const VkRenderPass render_pass)
 	{
 		assert(m_ground_pipeline_layout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 
@@ -264,7 +264,7 @@ namespace Isonia::Pipeline::RenderSystems
 			)->createGraphicsPipeline(&pipeline_config);
 	}
 
-	void GroundRenderSystem::createGrassPipelineLayout(VkDescriptorSetLayout global_set_layout)
+	void GroundRenderSystem::createGrassPipelineLayout(const VkDescriptorSetLayout global_set_layout)
 	{
 		const constexpr unsigned int descriptor_set_layouts_length = 1;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
@@ -283,7 +283,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::createGrassPipeline(VkRenderPass render_pass)
+	void GroundRenderSystem::createGrassPipeline(const VkRenderPass render_pass)
 	{
 		assert(m_grass_pipeline_layout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 

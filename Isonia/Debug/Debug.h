@@ -8,7 +8,7 @@ namespace Isonia::Debug
     struct PerformanceTracker
     {
     public:
-        void logFrameTime(float frame_time_s);
+        char* logFrameTime(float frame_time_s);
 
     private:
         unsigned int m_frame_count = 0;

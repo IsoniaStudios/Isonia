@@ -7,7 +7,7 @@
 
 namespace Isonia::Debug
 {
-    void PerformanceTracker::logFrameTime(float frame_time_s)
+    char* PerformanceTracker::logFrameTime(float frame_time_s)
     {
         // Convert frame_time_s to ms
         float frame_time_ms = frame_time_s * 1000.0f;
@@ -22,14 +22,19 @@ namespace Isonia::Debug
         // Update highest frame time
         m_highest_frame_time_ms = Math::maxf(m_highest_frame_time_ms, frame_time_ms);
 
-        // Move the cursor to the beginning of the line
-        std::cout << "\r";
+        // Create a buffer to hold the performance statistics
+        char buffer[256];
 
-        // Print performance statistics
-        std::cout << std::fixed << std::setw(8) << std::setprecision(6)
-                  << "Frame Time: " << frame_time_ms << " ms"
-                  << " | Average Frame Time: " << m_average_frame_time_ms << " ms"
-                  << " | Highest Frame Time: " << m_highest_frame_time_ms << " ms"
-                  << std::flush;
+        // Format the string
+        int length = sprintf(buffer, "Frame Time: %.6f ms\nAverage Frame Time: %.6f ms\nHighest Frame Time: %.6f ms", frame_time_ms, m_average_frame_time_ms, m_highest_frame_time_ms);
+
+        // Allocate memory for the char* to be returned
+        char* cstr = (char*)malloc((length + 1) * sizeof(char));
+        if (cstr != NULL) {
+            strcpy(cstr, buffer);
+        }
+
+        // Return the allocated char*
+        return cstr;
     }
 }

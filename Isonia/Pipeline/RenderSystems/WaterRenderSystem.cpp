@@ -10,7 +10,7 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	WaterRenderSystem::WaterRenderSystem(Device* device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
+	WaterRenderSystem::WaterRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout)
 		: m_device(device)
 	{
 		createpipelineLayout(global_set_layout);
@@ -27,7 +27,7 @@ namespace Isonia::Pipeline::RenderSystems
 		delete m_water;
 	}
 
-	void WaterRenderSystem::render(State::FrameInfo* frame_info, Camera* camera)
+	void WaterRenderSystem::render(const State::FrameInfo* frame_info, const Camera* camera)
 	{
 		m_pipeline->bind(frame_info->command_buffer);
 
@@ -75,7 +75,7 @@ namespace Isonia::Pipeline::RenderSystems
 		m_water->draw(frame_info->command_buffer);
 	}
 
-	void WaterRenderSystem::createpipelineLayout(VkDescriptorSetLayout global_set_layout)
+	void WaterRenderSystem::createpipelineLayout(const VkDescriptorSetLayout global_set_layout)
 	{
 		VkPushConstantRange push_constant_range{};
 		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -99,7 +99,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void WaterRenderSystem::createpipeline(VkRenderPass render_pass)
+	void WaterRenderSystem::createpipeline(const VkRenderPass render_pass)
 	{
 		assert(m_pipeline_layout != nullptr && "Cannot create pipeline before a pipeline layout is instantiated");
 

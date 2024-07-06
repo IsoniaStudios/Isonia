@@ -1,6 +1,9 @@
 // internal
 #include "Renderable.h"
 
+// external
+#include <stdexcept>
+
 namespace Isonia::Renderable
 {
 	extern Texture* create7x7PixelFontSingleRowTexture(Pipeline::Device* device)
@@ -61,24 +64,60 @@ namespace Isonia::Renderable
 		return Renderable::Texture::createTexture(device, pixel_font_single_row_byte_7x7, 672u, 7u, VK_FORMAT_R8_UNORM);
 	}
 
-	BuilderUI::BuilderUI(Pipeline::Device* device, const char* text)
-		: m_device(device)
+	BuilderUI::BuilderUI(Pipeline::Device* device, const unsigned int max_text_length)
+		: m_device(device), m_max_text_length(max_text_length),
+		  m_vertex_count(vertices_per_quad * max_text_length), m_index_count(indices_per_quad * max_text_length),
+		  m_vertices(new VertexUI[m_vertex_count]{}), m_indices(new unsigned int[m_index_count]{})
+	{
+		const unsigned int vertex_size = sizeof(VertexUI);
+		const unsigned int index_size = sizeof(unsigned int);
+
+		m_vertex_staging_buffer = new Pipeline::Buffer(
+			m_device,
+			vertex_size,
+			m_vertex_count,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		);
+
+		m_index_staging_buffer = new Pipeline::Buffer(
+			m_device,
+			index_size,
+			m_index_count,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		);
+
+		m_vertex_buffer = new Pipeline::Buffer(
+			m_device,
+			vertex_size,
+			m_vertex_count,
+			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+		);
+
+		m_index_buffer = new Pipeline::Buffer(
+			m_device,
+			index_size,
+			m_index_count,
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+		);
+	}
+
+	void BuilderUI::update(const char* text)
 	{
 		const unsigned int char_length = getCharLength(text);
 
-		const unsigned int vertices_per_quad = 4u;
-		const unsigned int indices_per_quad = 6u;
+		if (char_length > m_max_text_length)
+		{
+			throw std::runtime_error("Tried to write outside of buffer!");
+		}
 
-		const unsigned int vertices_count = vertices_per_quad * char_length;
-		const unsigned int indices_count = indices_per_quad * char_length;
+		float x = -0.95f;
+		float y = -0.95f;
 
-		float x = -0.5f;
-		float y = 0.0f;
-
-		VertexUI* vertices = new VertexUI[vertices_count];
-		unsigned int* indices = new unsigned int[indices_count];
-
-		const float test = 0.05f;
+		const float test = 0.045f;
 
 		for (unsigned int i = 0; i < char_length; i++)
 		{
@@ -92,24 +131,24 @@ namespace Isonia::Renderable
 			VertexUI p2{ x, y + test, uv_x, 1.0f };
 			VertexUI p3{ x + test, y + test, uv_x + charToSingleRowMonoASCIIWidth(), 1.0f };
 
-			vertices[(i * vertices_per_quad) + 0] = p0;
-			vertices[(i * vertices_per_quad) + 1] = p1;
-			vertices[(i * vertices_per_quad) + 2] = p2;
-			vertices[(i * vertices_per_quad) + 3] = p3;
+			m_vertices[(i * vertices_per_quad) + 0] = p0;
+			m_vertices[(i * vertices_per_quad) + 1] = p1;
+			m_vertices[(i * vertices_per_quad) + 2] = p2;
+			m_vertices[(i * vertices_per_quad) + 3] = p3;
 
-			indices[(i * indices_per_quad) + 0] = (i * vertices_per_quad) + 0;
-			indices[(i * indices_per_quad) + 1] = (i * vertices_per_quad) + 2;
-			indices[(i * indices_per_quad) + 2] = (i * vertices_per_quad) + 1;
-			indices[(i * indices_per_quad) + 3] = (i * vertices_per_quad) + 1;
-			indices[(i * indices_per_quad) + 4] = (i * vertices_per_quad) + 2;
-			indices[(i * indices_per_quad) + 5] = (i * vertices_per_quad) + 3;
+			m_indices[(i * indices_per_quad) + 0] = (i * vertices_per_quad) + 0;
+			m_indices[(i * indices_per_quad) + 1] = (i * vertices_per_quad) + 2;
+			m_indices[(i * indices_per_quad) + 2] = (i * vertices_per_quad) + 1;
+			m_indices[(i * indices_per_quad) + 3] = (i * vertices_per_quad) + 1;
+			m_indices[(i * indices_per_quad) + 4] = (i * vertices_per_quad) + 2;
+			m_indices[(i * indices_per_quad) + 5] = (i * vertices_per_quad) + 3;
 
 			x += test;
 
 			if (c == '\n')
 			{
-				x = -0.5f;
-				y += test;
+				x = -0.95f;
+				y += test * 1.5f;
 			}
 			else if (c == '\t')
 			{
@@ -117,13 +156,24 @@ namespace Isonia::Renderable
 			}
 		}
 
-		createVertexBuffers(vertices, vertices_count);
-		createIndexBuffers(indices, indices_count);
+		m_vertex_staging_buffer->map();
+		m_vertex_staging_buffer->writeToBuffer(m_vertices);
+		m_device->copyBuffer(m_vertex_staging_buffer->getBuffer(), m_vertex_buffer->getBuffer(), sizeof(VertexUI) * m_vertex_count);
+		m_vertex_staging_buffer->unmap();
+
+		m_index_staging_buffer->map();
+		m_index_staging_buffer->writeToBuffer(m_indices);
+		m_device->copyBuffer(m_index_staging_buffer->getBuffer(), m_index_buffer->getBuffer(), sizeof(unsigned int) * m_index_count);
+		m_index_staging_buffer->unmap();
 	}
 
 	BuilderUI::~BuilderUI()
 	{
+		delete m_vertices;
+		delete m_vertex_staging_buffer;
 		delete m_vertex_buffer;
+		delete m_indices;
+		delete m_index_staging_buffer;
 		delete m_index_buffer;
 	}
 
@@ -157,63 +207,5 @@ namespace Isonia::Renderable
 	void BuilderUI::draw(VkCommandBuffer command_buffer)
 	{
 		vkCmdDrawIndexed(command_buffer, m_index_count, 1, 0, 0, 0);
-	}
-
-	void BuilderUI::createVertexBuffers(const VertexUI* vertices, const unsigned int vertex_count)
-	{
-		m_vertex_count = vertex_count;
-
-		const unsigned int vertex_size = sizeof(VertexUI);
-		const VkDeviceSize buffer_size = sizeof(VertexUI) * vertex_count;
-
-		Pipeline::Buffer staging_buffer{
-			m_device,
-			vertex_size,
-			vertex_count,
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		};
-
-		staging_buffer.map();
-		staging_buffer.writeToBuffer((void*)vertices);
-
-		m_vertex_buffer = new Pipeline::Buffer(
-			m_device,
-			vertex_size,
-			vertex_count,
-			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-		);
-
-		m_device->copyBuffer(staging_buffer.getBuffer(), m_vertex_buffer->getBuffer(), buffer_size);
-	}
-
-	void BuilderUI::createIndexBuffers(const unsigned int* indices, const unsigned int index_count)
-	{
-		m_index_count = index_count;
-
-		const unsigned int index_size = sizeof(unsigned int);
-		const VkDeviceSize buffer_size = sizeof(unsigned int) * index_count;
-
-		Pipeline::Buffer staging_buffer{
-			m_device,
-			index_size,
-			index_count,
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		};
-
-		staging_buffer.map();
-		staging_buffer.writeToBuffer((void*)indices);
-
-		m_index_buffer = new Pipeline::Buffer(
-			m_device,
-			index_size,
-			index_count,
-			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-		);
-
-		m_device->copyBuffer(staging_buffer.getBuffer(), m_index_buffer->getBuffer(), buffer_size);
 	}
 }

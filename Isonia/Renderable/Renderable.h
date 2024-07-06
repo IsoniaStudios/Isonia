@@ -351,26 +351,33 @@ namespace Isonia::Renderable
 
 	struct BuilderUI
 	{
-		BuilderUI(Pipeline::Device* device, const char* text);
+		BuilderUI(Pipeline::Device* device, const unsigned int max_text_length);
 		~BuilderUI();
 
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
+
+		void update(const char* text);
 
 	private:
 		float charToSingleRowMonoASCIIOffset(const char character);
 		float charToSingleRowMonoASCIIWidth();
 		unsigned int getCharLength(const char* text);
 
-		void createVertexBuffers(const VertexUI* vertices, const unsigned int vertex_count);
-		void createIndexBuffers(const unsigned int* indices, const unsigned int index_count);
-
 		Pipeline::Device* m_device;
 
-		Pipeline::Buffer* m_vertex_buffer;
-		unsigned int m_vertex_count;
+		const unsigned int m_max_text_length;
 
+		static const constexpr unsigned int vertices_per_quad = 4u;
+		const unsigned int m_vertex_count;
+		VertexUI* m_vertices;
+		Pipeline::Buffer* m_vertex_buffer;
+		Pipeline::Buffer* m_vertex_staging_buffer;
+
+		static const constexpr const unsigned int indices_per_quad = 6u;
+		const unsigned int m_index_count;
+		unsigned int* m_indices;
 		Pipeline::Buffer* m_index_buffer;
-		unsigned int m_index_count;
+		Pipeline::Buffer* m_index_staging_buffer;
 	};
 }

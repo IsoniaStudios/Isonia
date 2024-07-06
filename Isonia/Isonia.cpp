@@ -61,7 +61,9 @@ namespace Isonia
 			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time_s - current_time_s).count();
 			current_time_s = new_time_s;
 
-			performance_tracker.logFrameTime(frame_time_s);
+			char* performance_text = performance_tracker.logFrameTime(frame_time_s);
+			m_ui_render_system->update(performance_text);
+			delete performance_text;
 
 			m_player.act(&m_window, frame_time_s);
 
@@ -94,7 +96,7 @@ namespace Isonia
 				m_ground_render_system->render(&frame_info, &m_player.m_camera);
 				m_debugger_render_system->render(&frame_info);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
-				m_ui_render_system->render(&frame_info);
+				m_ui_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
 				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
@@ -214,7 +216,8 @@ namespace Isonia
 		m_ui_render_system = new Pipeline::RenderSystems::UIRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(),
-			m_global_set_layout->getDescriptorSetLayout()
+			m_global_set_layout->getDescriptorSetLayout(),
+			128u
 		};
 	}
 
