@@ -27,9 +27,9 @@ namespace Isonia::Pipeline::RenderSystems
 		delete m_ui;
 	}
 
-	void UIRenderSystem::update(const char* text)
+	void UIRenderSystem::update(const VkExtent2D extent, const char* text)
 	{
-		m_ui->update(text);
+		m_ui->update(extent, text);
 	}
 
 	void UIRenderSystem::render(const State::FrameInfo* frame_info, const Camera* camera)

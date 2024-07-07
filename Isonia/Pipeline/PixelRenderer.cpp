@@ -64,6 +64,11 @@ namespace Isonia::Pipeline
 		return m_current_frame_index;
 	}
 
+	unsigned int PixelRenderer::getRenderFactor() const
+	{
+		return m_render_factor;
+	}
+
 	VkCommandBuffer PixelRenderer::beginFrame()
 	{
 		assert(!m_is_frame_started && "Can't call beginFrame while already in progress");
@@ -318,8 +323,8 @@ namespace Isonia::Pipeline
 		VkExtent2D window_extent = m_window->m_extent;
 		while (window_extent.width == 0 || window_extent.height == 0)
 		{
+			m_window->pollEvents();
 			window_extent = m_window->m_extent;
-			m_window->waitEvents();
 		}
 		vkDeviceWaitIdle(m_device->getDevice());
 

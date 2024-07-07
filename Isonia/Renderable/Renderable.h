@@ -347,7 +347,8 @@ namespace Isonia::Renderable
 	};
 
 	// text
-	extern Texture* create7x7PixelFontSingleRowTexture(Pipeline::Device* device);
+	extern Texture* create3x6PixelFontSingleRowTexture(Pipeline::Device* device);
+	extern Math::Vector2 sample3x6PixelFontSingleRowTexture(const char c);
 
 	struct BuilderUI
 	{
@@ -357,7 +358,7 @@ namespace Isonia::Renderable
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
 
-		void update(const char* text);
+		void update(const VkExtent2D extent, const char* text);
 
 	private:
 		float charToSingleRowMonoASCIIOffset(const char character);

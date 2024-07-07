@@ -61,11 +61,11 @@ namespace Isonia
 			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time_s - current_time_s).count();
 			current_time_s = new_time_s;
 
-			char* performance_text = performance_tracker.logFrameTime(frame_time_s);
-			m_ui_render_system->update(performance_text);
-			delete performance_text;
-
 			m_player.act(&m_window, frame_time_s);
+
+			char* performance_text = performance_tracker.logFrameTime(frame_time_s);
+			m_ui_render_system->update(m_renderer.getExtent(), performance_text);
+			delete performance_text;
 
 			if (VkCommandBuffer command_buffer = m_renderer.beginFrame())
 			{
@@ -154,8 +154,7 @@ namespace Isonia
 		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloud_warp_noise, &cloud_noise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 		m_wind = Renderable::Texture::createTextureFromNoise(&m_device, &wind_noise, 128, 128);
-		m_text = Renderable::create7x7PixelFontSingleRowTexture(&m_device);
-		//m_debugger = m_text;
+		m_text = Renderable::create3x6PixelFontSingleRowTexture(&m_device);
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, 9u))
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)

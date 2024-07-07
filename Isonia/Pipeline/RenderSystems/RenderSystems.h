@@ -116,7 +116,7 @@ namespace Isonia::Pipeline::RenderSystems
 		UIRenderSystem(const UIRenderSystem&) = delete;
 		UIRenderSystem& operator=(const UIRenderSystem&) = delete;
 
-		void update(const char* text);
+		void update(const VkExtent2D extent, const char* text);
 
 		void render(const State::FrameInfo* frame_info, const Camera* camera);
 

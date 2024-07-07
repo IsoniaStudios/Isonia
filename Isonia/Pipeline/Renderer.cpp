@@ -190,8 +190,8 @@ namespace Isonia::Pipeline
 		VkExtent2D extent = m_window->m_extent;
 		while (extent.width == 0 || extent.height == 0)
 		{
+			m_window->pollEvents();
 			extent = m_window->m_extent;
-			m_window->waitEvents();
 		}
 		vkDeviceWaitIdle(m_device->getDevice());
 

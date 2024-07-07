@@ -392,6 +392,8 @@ namespace Isonia::Pipeline
         void endSwapChainRenderPass(VkCommandBuffer command_buffer);
         void blit(VkCommandBuffer command_buffer, Math::Vector2 offset);
 
+        unsigned int getRenderFactor() const;
+
     protected:
         void createCommandBuffers();
         void freeCommandBuffers();
@@ -553,9 +555,12 @@ namespace Isonia::Pipeline
         const Math::Vector3 getRightVector() const;
         const Math::Vector3 getPositionVector() const;
 
+        float getAspect() const;
+
     protected:
         void setViewYXZ(const Math::Vector3* position, const Math::Vector3* rotation);
 
+        float m_aspect;
         Math::Matrix4x4 m_projection_matrix{ 1.f };
         Math::Matrix4x4 m_inverse_projection_matrix{ 1.f };
         Math::Matrix4x4 m_view_matrix{ 1.f };

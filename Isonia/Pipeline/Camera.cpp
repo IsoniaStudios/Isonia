@@ -12,6 +12,7 @@ namespace Isonia::Pipeline
             -(right + left) / (right - left), -(bottom + top) / (bottom - top), -near / (far - near), 1.f
         };
         m_inverse_projection_matrix = Math::mat4Inverse(m_projection_matrix);
+        m_aspect = (right - left) / (bottom - top);
     }
 
     void Camera::setPerspectiveProjection(float fovy, float aspect, float near, float far)
@@ -25,6 +26,7 @@ namespace Isonia::Pipeline
             0.f, 0.f, -(far * near) / (far - near), 0.f
         };
         m_inverse_projection_matrix = Math::mat4Inverse(m_projection_matrix);
+        m_aspect = aspect;
     }
 
     void Camera::setViewDirection(const Math::Vector3* position, const  Math::Vector3* direction, const Math::Vector3* up)
@@ -129,6 +131,11 @@ namespace Isonia::Pipeline
 
     bool Camera::inFrustum(const Math::BoundingPlane* plane) const
     {
-        return true;
+        return false;
+    }
+
+    float Camera::getAspect() const
+    {
+        return m_aspect;
     }
 }
