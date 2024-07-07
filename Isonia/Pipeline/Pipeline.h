@@ -557,6 +557,8 @@ namespace Isonia::Pipeline
 
         float getAspect() const;
 
+        virtual Math::Ray ndcToRay(float ndc_x, float ndc_y) const;
+
     protected:
         void setViewYXZ(const Math::Vector3* position, const Math::Vector3* rotation);
 
@@ -576,6 +578,8 @@ namespace Isonia::Pipeline
         bool inFrustum(const Math::BoundingPlane* plane) const override;
 
         Math::Vector2 m_sub_pixel_offset{};
+
+        Math::Ray ndcToRay(float ndc_x, float ndc_y) const override;
 
     private:
         float m_left, m_right, m_top, m_bottom, m_near, m_far;

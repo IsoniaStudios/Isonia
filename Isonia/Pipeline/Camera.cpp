@@ -138,4 +138,21 @@ namespace Isonia::Pipeline
     {
         return m_aspect;
     }
+
+    Math::Ray Camera::ndcToRay(float ndc_x, float ndc_y) const
+    {
+        // Convert NDC to homogeneous clip space
+        Math::Vector4 clip_space_pos(ndc_x, ndc_x, -1.0f, 1.0f);
+
+        // Transform from clip space to view space
+        Math::Vector4 view_space_pos = Math::mat4Mul(m_inverse_projection_matrix, &clip_space_pos);
+        Math::Vector4 view_space_pos_normalized = Math::vec4Div(&view_space_pos, view_space_pos.w);
+
+        // Transform from view space to world space
+        Math::Vector4 world_space_pos = Math::mat4Mul(m_inverse_view_matrix, &view_space_pos_normalized);
+        Math::Vector3 world_space_dir = Math::vec3Normalize(world_space_pos.x, world_space_pos.y, world_space_pos.z);
+
+        // Create and return the ray
+        return Math::Ray{ world_space_pos, world_space_dir };
+    }
 }

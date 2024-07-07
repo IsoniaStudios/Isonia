@@ -92,24 +92,75 @@ namespace Isonia::Pipeline::RenderSystems
 
 	void GroundRenderSystem::frustumCull(const Camera* camera)
 	{
-		for (int index_x = 0; index_x < grounds; index_x++)
-		{
-			for (int index_z = 0; index_z < grounds; index_z++)
-			{
-				const Math::BoundingPlane bounding_plane{
-					{mapIndexToWorldX(index_x), 0.0f, mapIndexToWorldX(index_z)},
-					{Renderable::quads * Renderable::quad_size, Renderable::quads * Renderable::quad_size}
-				};
+		const Math::Plane plane{
+			Math::Vector3{0.0f, 0.0f, 0.0f},
+			Math::Vector3{0.0f, -1.0f, 0.0f}
+		};
 
-				if (camera->inFrustum(&bounding_plane))
+		const Math::Ray rays[4]{
+			camera->ndcToRay(-1.0f, -1.0f),
+			camera->ndcToRay(1.0f, -1.0f),
+			camera->ndcToRay(-1.0f, 1.0f),
+			camera->ndcToRay(1.0f, 1.0f)
+		};
+
+		float intersection_distance;
+		Math::Vector3 intersections[4];
+		for (int i = 0; i < 4; ++i)
+		{
+			if (!Math::intersectRayPlane(&rays[i], &plane, &intersection_distance))
+			{
+				return;
+			}
+			Math::Vector3 intersection_point_local = Math::vec3Mul(&rays[i].direction, intersection_distance);
+			intersections[i] = Math::vec3Add(&rays[i].origin, &intersection_point_local);
+		}
+
+		float min_x = intersections[0].x;
+		float max_x = min_x;
+		float min_z = intersections[0].z;
+		float max_z = min_z;
+		for (int i = 1; i < 4; i++)
+		{
+			min_x = Math::minf(min_x, intersections[i].x);
+			max_x = Math::maxf(max_x, intersections[i].x);
+			min_z = Math::minf(min_z, intersections[i].z);
+			max_z = Math::maxf(max_z, intersections[i].z);
+		}
+
+		const int max_x_index = mapWorldXToIndex(max_x);
+		const int min_x_index = mapWorldXToIndex(min_x);
+		const int max_z_index = mapWorldZToIndex(max_z);
+		const int min_z_index = mapWorldZToIndex(min_z);
+
+		const int s_grounds = static_cast<int>(grounds);
+		const float w_ground = Renderable::quads * Renderable::quad_size;
+		const float offset = grounds % 2u == 0u ? 0.0f : w_ground * 0.5f;
+
+		for (int index_x = min_x_index - 1; index_x <= max_x_index + 1; index_x++)
+		{
+			for (int index_z = min_z_index - 1; index_z <= max_z_index + 1; index_z++)
+			{
+				if (index_x < min_x_index || index_x > max_x_index ||
+					index_z < min_z_index || index_z > max_z_index)
+				{
+					Renderable::BuilderXZUniformN* ground = m_grounds[index_x][index_z];
+					Renderable::BuilderXZUniformNP* grass = m_grasses[index_x][index_z];
+					if (ground != nullptr)
+					{
+						ground->m_culled = true;
+					}
+					if (grass != nullptr)
+					{
+						grass->m_culled = true;
+					}
+				}
+				else
 				{
 					Renderable::BuilderXZUniformN** ground = &m_grounds[index_x][index_z];
+					Renderable::BuilderXZUniformNP** grass = &m_grasses[index_x][index_z];
 					if (*ground == nullptr)
 					{
-						const int s_grounds = static_cast<int>(grounds);
-						const float w_ground = Renderable::quads * Renderable::quad_size;
-
-						const float offset = grounds % 2u == 0u ? 0.0f : w_ground * 0.5f;
 						const float x_offset = (index_x - s_grounds / 2) * w_ground - offset;
 						const float z_offset = (index_z - s_grounds / 2) * w_ground - offset;
 						*ground = new Renderable::BuilderXZUniformN(m_device, &m_ground_warp_noise, &m_ground_noise, 7.5f, x_offset, z_offset);
@@ -118,7 +169,6 @@ namespace Isonia::Pipeline::RenderSystems
 					{
 						(*ground)->m_culled = false;
 					}
-					Renderable::BuilderXZUniformNP** grass = &m_grasses[index_x][index_z];
 					if (*grass == nullptr)
 					{
 						*grass = new Renderable::BuilderXZUniformNP(m_device, *ground);
@@ -126,17 +176,6 @@ namespace Isonia::Pipeline::RenderSystems
 					else
 					{
 						(*grass)->m_culled = false;
-					}
-				}
-				else
-				{
-					if (m_grounds[index_x][index_z] != nullptr)
-					{
-						m_grounds[index_x][index_z]->m_culled = true;
-					}
-					if (m_grasses[index_x][index_z] != nullptr)
-					{
-						m_grasses[index_x][index_z]->m_culled = true;
 					}
 				}
 			}

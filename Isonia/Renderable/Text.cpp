@@ -118,8 +118,8 @@ namespace Isonia::Renderable
 		float x = -0.95f;
 		float y = -0.95f;
 
-		const float pixel_screen_size_x = 2.0 / extent.width;
-		const float pixel_screen_size_y = 2.0 / extent.height;
+		const float pixel_screen_size_x = 2.0f / extent.width;
+		const float pixel_screen_size_y = 2.0f / extent.height;
 
 		for (unsigned int i = 0; i < char_length; i++)
 		{

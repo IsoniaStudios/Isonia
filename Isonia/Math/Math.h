@@ -26,6 +26,7 @@ namespace Isonia::Math
     extern inline constexpr const float inverse_rotation_grid = 1.0f / rotation_grid;
 
     extern inline constexpr const float float_max = 3.402823466e+38F;
+    extern inline constexpr const float float_min = -float_max;
     extern inline constexpr const unsigned int unsigned_int_max = 2147483647;
     extern inline constexpr const unsigned long unsigned_long_max = 2147483647L;
 
@@ -339,6 +340,27 @@ namespace Isonia::Math
     extern inline constexpr Vector4 roundVec4ToPixel(const Vector4 vector);
 
     // Geometry
+    struct Ray
+    {
+    public:
+        Vector3 origin;
+        Vector3 direction;
+
+        Ray();
+        Ray(Vector3 origin, Vector3 direction);
+        Ray(Vector4 origin, Vector3 direction);
+    };
+    struct Plane
+    {
+    public:
+        Vector3 origin;
+        Vector3 normal;
+
+        Plane();
+        Plane(Vector3 origin, Vector3 normal);
+    };
+
+    extern inline constexpr bool intersectRayPlane(const Ray* ray, const Plane* plane, float* intersection_distance);
     extern inline constexpr bool intersectRayPlane(const Vector3* origin, const Vector3* direction, const Vector3* plane_origin, const Vector3* plane_normal, float* intersection_distance);
 
     // Interpolation

@@ -120,4 +120,22 @@ namespace Isonia::Pipeline
 
         return !outcode;
     }
+
+    Math::Ray CameraIsometric::ndcToRay(float ndcX, float ndcY) const
+    {
+        const Math::Vector3 camera_position = getPositionVector();
+        const Math::Vector3 camera_right = getRightVector();
+        const Math::Vector3 camera_up = getUpVector();
+
+        const float horizontal_offset = (m_right - m_left) * ndcX * 0.5f;
+        const float vertical_offset = (m_bottom - m_top) * ndcY * 0.5f;
+
+        const Math::Vector3 horizontal_displacement = Math::vec3Mul(&camera_right, horizontal_offset);
+        const Math::Vector3 vertical_displacement = Math::vec3Mul(&camera_up, vertical_offset);
+
+        const Math::Vector3 intermediate_position = Math::vec3Add(&camera_position, &horizontal_displacement);
+        const Math::Vector3 ray_origin = Math::vec3Add(&intermediate_position, &vertical_displacement);
+
+        return Math::Ray{ ray_origin, getForwardVector() };
+    }
 }
