@@ -377,8 +377,6 @@ namespace Isonia::Renderable
 
 		static const constexpr unsigned int indices_per_quad = 6u;
 		const unsigned int m_index_count;
-		unsigned int* m_indices;
 		Pipeline::Buffer* m_index_buffer;
-		Pipeline::Buffer* m_index_staging_buffer;
 	};
 }

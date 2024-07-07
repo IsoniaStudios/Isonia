@@ -70,9 +70,7 @@ namespace Isonia::Renderable
 	}
 
 	BuilderUI::BuilderUI(Pipeline::Device* device, const unsigned int max_text_length)
-		: m_device(device), m_max_text_length(max_text_length),
-		  m_vertex_count(vertices_per_quad * max_text_length), m_index_count(indices_per_quad * max_text_length),
-		  m_vertices(new VertexUI[m_vertex_count]{}), m_indices(new unsigned int[m_index_count]{})
+		: m_device(device), m_max_text_length(max_text_length), m_vertex_count(vertices_per_quad* max_text_length), m_vertices(new VertexUI[m_vertex_count]{}), m_index_count(indices_per_quad* max_text_length)
 	{
 		const unsigned int vertex_size = sizeof(VertexUI);
 		const unsigned int index_size = sizeof(unsigned int);
@@ -85,14 +83,6 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 		);
 
-		m_index_staging_buffer = new Pipeline::Buffer(
-			m_device,
-			index_size,
-			m_index_count,
-			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-		);
-
 		m_vertex_buffer = new Pipeline::Buffer(
 			m_device,
 			vertex_size,
@@ -101,6 +91,23 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
+		unsigned int* indices = new unsigned int[m_index_count];
+		for (unsigned int i = 0; i < max_text_length; i++)
+		{
+			indices[(i * indices_per_quad) + 0] = (i * vertices_per_quad) + 0;
+			indices[(i * indices_per_quad) + 1] = (i * vertices_per_quad) + 2;
+			indices[(i * indices_per_quad) + 2] = (i * vertices_per_quad) + 1;
+			indices[(i * indices_per_quad) + 3] = (i * vertices_per_quad) + 1;
+			indices[(i * indices_per_quad) + 4] = (i * vertices_per_quad) + 2;
+			indices[(i * indices_per_quad) + 5] = (i * vertices_per_quad) + 3;
+		}
+		Pipeline::Buffer index_staging_buffer = Pipeline::Buffer{
+			m_device,
+			index_size,
+			m_index_count,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		};
 		m_index_buffer = new Pipeline::Buffer(
 			m_device,
 			index_size,
@@ -108,6 +115,10 @@ namespace Isonia::Renderable
 			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
+		index_staging_buffer.map();
+		index_staging_buffer.writeToBuffer(indices);
+		m_device->copyBuffer(index_staging_buffer.getBuffer(), m_index_buffer->getBuffer(), sizeof(unsigned int) * m_index_count);
+		delete[] indices;
 	}
 
 	void BuilderUI::update(const VkExtent2D extent, const char* text)
@@ -151,26 +162,14 @@ namespace Isonia::Renderable
 			m_vertices[(i * vertices_per_quad) + 2] = p2;
 			m_vertices[(i * vertices_per_quad) + 3] = p3;
 
-			m_indices[(i * indices_per_quad) + 0] = (i * vertices_per_quad) + 0;
-			m_indices[(i * indices_per_quad) + 1] = (i * vertices_per_quad) + 2;
-			m_indices[(i * indices_per_quad) + 2] = (i * vertices_per_quad) + 1;
-			m_indices[(i * indices_per_quad) + 3] = (i * vertices_per_quad) + 1;
-			m_indices[(i * indices_per_quad) + 4] = (i * vertices_per_quad) + 2;
-			m_indices[(i * indices_per_quad) + 5] = (i * vertices_per_quad) + 3;
-
 			x += offset_screen_x;
 		}
-		memset(&m_indices[char_length * indices_per_quad], 0, (m_max_text_length - char_length) * sizeof(int));
+		memset(&m_vertices[char_length * vertices_per_quad], 0, (m_max_text_length - char_length) * sizeof(VertexUI));
 
 		m_vertex_staging_buffer->map();
 		m_vertex_staging_buffer->writeToBuffer(m_vertices);
 		m_device->copyBuffer(m_vertex_staging_buffer->getBuffer(), m_vertex_buffer->getBuffer(), sizeof(VertexUI) * m_vertex_count);
 		m_vertex_staging_buffer->unmap();
-
-		m_index_staging_buffer->map();
-		m_index_staging_buffer->writeToBuffer(m_indices);
-		m_device->copyBuffer(m_index_staging_buffer->getBuffer(), m_index_buffer->getBuffer(), sizeof(unsigned int) * m_index_count);
-		m_index_staging_buffer->unmap();
 	}
 
 	BuilderUI::~BuilderUI()
@@ -178,8 +177,6 @@ namespace Isonia::Renderable
 		delete m_vertices;
 		delete m_vertex_staging_buffer;
 		delete m_vertex_buffer;
-		delete m_indices;
-		delete m_index_staging_buffer;
 		delete m_index_buffer;
 	}
 
