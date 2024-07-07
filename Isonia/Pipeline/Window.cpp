@@ -26,14 +26,10 @@ namespace Isonia::Pipeline
 
     void Window::pollEvents()
     {
-        /*
         // switch current and previous
-        unsigned char* old_previous_key_state = m_input.previous_key_state;
-        m_input.previous_key_state = m_input.current_key_state;
-        m_input.current_key_state = old_previous_key_state;
-        */
-        MSG message;
+        memcpy(m_input.previous_key_state, m_input.current_key_state, sizeof(m_input.current_key_state));
 
+        MSG message;
         while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
         {
             if (message.message == WM_QUIT)
@@ -87,7 +83,7 @@ namespace Isonia::Pipeline
         }
     }
 
-    LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         switch (message)
         {
