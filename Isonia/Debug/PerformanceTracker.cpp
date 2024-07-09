@@ -25,7 +25,7 @@ namespace Isonia::Debug
         char buffer[128];
 
         // Format the string
-        int length = sprintf(buffer, "Frame Time: %.6f ms\nAverage Frame Time: %.6f ms\nHighest Frame Time: %.6f ms", frame_time_ms, m_average_frame_time_ms, m_highest_frame_time_ms);
+        int length = sprintf(buffer, "Frame Time: %.4f ms\nAverage Frame Time: %.4f ms\nHighest Frame Time: %.4f ms", frame_time_ms, m_average_frame_time_ms, m_highest_frame_time_ms);
 
         // Allocate memory for the char* to be returned
         char* cstr = (char*)malloc((length + 1) * sizeof(char));

@@ -97,11 +97,12 @@ namespace Isonia::Pipeline::RenderSystems
 			Math::Vector3{0.0f, -1.0f, 0.0f}
 		};
 
+		const float ndc_offset = 1.25f;
 		const Math::Ray rays[4]{
-			camera->ndcToRay(-1.0f, -1.0f),
-			camera->ndcToRay(1.0f, -1.0f),
-			camera->ndcToRay(-1.0f, 1.0f),
-			camera->ndcToRay(1.0f, 1.0f)
+			camera->ndcToRay(-ndc_offset, -ndc_offset),
+			camera->ndcToRay(ndc_offset, -ndc_offset),
+			camera->ndcToRay(-ndc_offset, ndc_offset),
+			camera->ndcToRay(ndc_offset, ndc_offset)
 		};
 
 		float intersection_distance;

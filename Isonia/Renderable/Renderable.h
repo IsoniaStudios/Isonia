@@ -367,6 +367,8 @@ namespace Isonia::Renderable
 
 		Pipeline::Device* m_device;
 
+		unsigned int m_previous_char_length = 0u;
+
 		const unsigned int m_max_text_length;
 
 		static const constexpr unsigned int vertices_per_quad = 4u;

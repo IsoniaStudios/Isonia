@@ -144,11 +144,13 @@ namespace Isonia::Renderable
 			{
 				x = -0.95f;
 				y += offset_screen_y;
+				memset(&m_vertices[i * vertices_per_quad], 0, vertices_per_quad * sizeof(VertexUI));
 				continue;
 			}
 			else if (c == '\t')
 			{
 				x += offset_screen_x * 4.0f;
+				memset(&m_vertices[i * vertices_per_quad], 0, vertices_per_quad * sizeof(VertexUI));
 				continue;
 			}
 
@@ -164,12 +166,14 @@ namespace Isonia::Renderable
 
 			x += offset_screen_x;
 		}
-		memset(&m_vertices[char_length * vertices_per_quad], 0, (m_max_text_length - char_length) * sizeof(VertexUI));
 
+		const unsigned int write_length = Math::maxi(m_previous_char_length, char_length);
+		memset(&m_vertices[char_length * vertices_per_quad], 0, (write_length - char_length) * vertices_per_quad * sizeof(VertexUI));
 		m_vertex_staging_buffer->map();
 		m_vertex_staging_buffer->writeToBuffer(m_vertices);
-		m_device->copyBuffer(m_vertex_staging_buffer->getBuffer(), m_vertex_buffer->getBuffer(), sizeof(VertexUI) * m_vertex_count);
+		m_device->copyBuffer(m_vertex_staging_buffer->getBuffer(), m_vertex_buffer->getBuffer(), sizeof(VertexUI) * vertices_per_quad * write_length);
 		m_vertex_staging_buffer->unmap();
+		m_previous_char_length = char_length;
 	}
 
 	BuilderUI::~BuilderUI()
