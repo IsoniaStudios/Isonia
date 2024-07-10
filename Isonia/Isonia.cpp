@@ -98,7 +98,7 @@ namespace Isonia
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_ui_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				//m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
+				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
 		}
@@ -159,8 +159,6 @@ namespace Isonia
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 		m_text = Renderable::create3x6PixelFontSingleRowTexture(&m_device);
-
-		//m_debugger = m_grass;
 
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, 9u))
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
