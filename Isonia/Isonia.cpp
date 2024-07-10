@@ -148,13 +148,13 @@ namespace Isonia
 		Noise::ConstantScalarWarpNoise cloud_warp_noise{ 5.0f };
 		Noise::FractalPerlinNoise cloud_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
 		Renderable::Noise4DTextureFactory cloudTextureFactory = Renderable::Noise4DTextureFactory{ &cloud_warp_noise, &cloud_noise, 128u, 128u, 1u };
-		m_cloud = cloudTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8_UNORM);
+		m_cloud = cloudTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8_UNORM, VK_FILTER_LINEAR);
 
 		Noise::ConstantScalarWarpNoise wind_w{ 5.0f };
 		Noise::PerlinNoise wind_n{ 69 };
 		Noise::CurlNoise wind_noise{ &wind_n, &wind_w };
 		Renderable::WarpNoiseTextureFactory windTextureFactory = Renderable::WarpNoiseTextureFactory{ &wind_noise, 128u, 128u, 2u };
-		m_wind = windTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8G8_SNORM);
+		m_wind = windTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8G8_SNORM, VK_FILTER_LINEAR);
 
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);

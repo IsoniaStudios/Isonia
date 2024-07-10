@@ -156,7 +156,7 @@ namespace Isonia::Renderable
 		const char sc = static_cast<char>(s * 127.0f);
 		const char tc = static_cast<char>(t * 127.0f);
 
-		unsigned char* value = static_cast<unsigned char*>(memory) + index;
+		unsigned char* value = static_cast<unsigned char*>(memory) + index * 2u;
 		*value = sc;
 		*(value + 1) = tc;
 	}
