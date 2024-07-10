@@ -41,7 +41,7 @@ namespace Isonia::Renderable
 			{ 195, 239, 126 },
 			{ 218, 250, 139 },
 		};
-		return Texture::createTextureFromPalette(device, grass_day_palette, palette_length);
+		return new Texture(device, grass_day_palette, 1u, palette_length, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 
 	extern Texture* createGrassNightPalette(Pipeline::Device* device)
@@ -59,7 +59,7 @@ namespace Isonia::Renderable
 			{ 86, 154, 181 },
 			{ 102, 173, 198 },
 		};
-		return Texture::createTextureFromPalette(device, grass_night_palette, palette_length);
+		return new Texture(device, grass_night_palette, 1u, palette_length, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 
 	extern Texture* createWaterDayPalette(Pipeline::Device* device)
@@ -77,6 +77,6 @@ namespace Isonia::Renderable
 			{ 15, 101, 138 },
 			{ 16, 81, 123 },
 		};
-		return Texture::createTextureFromPalette(device, water_day_palette, palette_length);
+		return new Texture(device, water_day_palette, 1u, palette_length, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 }

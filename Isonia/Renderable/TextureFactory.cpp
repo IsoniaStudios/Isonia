@@ -7,12 +7,12 @@ namespace Isonia::Renderable
 	{
 		const unsigned int texture_width = 2u;
 		const unsigned int texture_height = 2u;
-		const Color NULL_TEXTURE[texture_width][texture_height] =
+		const Color null_texture[texture_width][texture_height] =
 		{
 			{ { 255, 0, 255 }, { 0 } },
 			{ { 0 }, { 255, 0, 255 } }
 		};
-		return Renderable::Texture::createTexture(device, NULL_TEXTURE, texture_width, texture_height);
+		return new Texture(device, null_texture, texture_width, texture_height, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 
 	extern Texture* createDebugTexture(Pipeline::Device* device)
@@ -20,7 +20,7 @@ namespace Isonia::Renderable
 		const unsigned int texture_width = 32u;
 		const unsigned int texture_height = 32u;
 
-		Color texture[texture_width * texture_height];
+		Color debug_texture[texture_width * texture_height];
 
 		const Color black = { 0, 0, 0, 255 };
 		const Color transparent = { 0, 0, 0, 0 };
@@ -31,22 +31,141 @@ namespace Isonia::Renderable
 			{
 				if ((i + j) % 2 == 0)
 				{
-					texture[i * texture_height + j] = black;
+					debug_texture[i * texture_height + j] = black;
 				}
 				else
 				{
-					texture[i * texture_height + j] = transparent;
+					debug_texture[i * texture_height + j] = transparent;
 				}
 			}
 		}
-		return Texture::createTexture(device, texture, texture_width, texture_height);
+		return new Texture(device, debug_texture, texture_width, texture_height, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 
-	static const unsigned int grass_atlas_height = 9u;
-	static const unsigned int grass_atlas_width = 9u;
-	static const unsigned int grass_texture_height = 16u;
-	static const unsigned int grass_texture_width = 16u;
-	static inline Color grassSubTextureFiller(const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w)
+	TextureFactory::TextureFactory(const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride)
+		: texture_height(texture_height), texture_width(texture_width), stride(stride)
+	{
+	}
+	inline unsigned int TextureFactory::getTextureHeight() const
+	{
+		return texture_height;
+	}
+	inline unsigned int TextureFactory::getTextureWidth() const
+	{
+		return texture_width;
+	}
+	inline unsigned int TextureFactory::getTextureSize() const
+	{
+		return getTextureHeight() * getTextureWidth() * stride;
+	}
+	Texture* TextureFactory::instantiateTexture(Pipeline::Device* device, const VkFormat format, const VkFilter filter, const VkSamplerAddressMode address_mode) const
+	{
+		void* texture_data = createTexture();
+		Texture* texture = new Texture(device, texture_data, getTextureHeight(), getTextureWidth(), format, filter, address_mode);
+		delete texture_data;
+		return texture;
+	}
+	void* TextureFactory::createTexture() const
+	{
+		// NOTE: using modulus is a lot cleaner but a lot slower
+		const unsigned int texture_size = getTextureSize();
+		void* texture = malloc(texture_size);
+		for (unsigned int t_h = 0u; t_h < texture_height; t_h++)
+		{
+			const unsigned int base_i_t_h = t_h * texture_width;
+			for (unsigned int t_w = 0u; t_w < texture_width; t_w++)
+			{
+				const unsigned int index = base_i_t_h + t_w;
+				textureFiller(texture, index, t_h, t_w);
+			}
+		}
+		return texture;
+	}
+
+	TextureAtlasFactory::TextureAtlasFactory(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride)
+		: TextureFactory(texture_height, texture_width, stride),  atlas_height(atlas_height), atlas_width(atlas_width)
+	{
+	}
+	inline unsigned int TextureAtlasFactory::getTextureHeight() const
+	{
+		return texture_height * atlas_height;
+	}
+	inline unsigned int TextureAtlasFactory::getTextureWidth() const
+	{
+		return texture_width * atlas_width;
+	}
+	void* TextureAtlasFactory::createTexture() const
+	{
+		// NOTE: using modulus is a lot cleaner but a lot slower
+		const unsigned int texture_atlas_width = getTextureWidth();
+		const unsigned int texture_size = getTextureSize();
+		void* texture = malloc(texture_size);
+		for (unsigned int a_h = 0u; a_h < atlas_height; a_h++)
+		{
+			const unsigned int base_i_a_h = texture_height * texture_atlas_width * a_h;
+			for (unsigned int a_w = 0u; a_w < atlas_width; a_w++)
+			{
+				const unsigned int base_i_a_w = texture_width * a_w;
+				for (unsigned int t_h = 0u; t_h < texture_height; t_h++)
+				{
+					const unsigned int base_i_t_h = t_h * texture_atlas_width;
+					for (unsigned int t_w = 0u; t_w < texture_width; t_w++)
+					{
+						const unsigned int index = base_i_a_h + base_i_t_h + base_i_a_w + t_w;
+						textureFiller(texture, index, a_h, a_w, t_h, t_w);
+					}
+				}
+			}
+		}
+		return texture;
+	}
+
+	Noise4DTextureFactory::Noise4DTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride)
+		: TextureFactory(texture_height, texture_width, stride), warp_noise(warp_noise), noise(noise)
+	{
+	}
+	inline void Noise4DTextureFactory::textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const
+	{
+		unsigned char* value = static_cast<unsigned char*>(memory) + index;
+
+		const float s = t_h / static_cast<float>(getTextureHeight());
+		const float t = t_w / static_cast<float>(getTextureWidth());
+
+		float nx = Math::cosf(s * Math::two_pi) / (Math::two_pi);
+		float ny = Math::cosf(t * Math::two_pi) / (Math::two_pi);
+		float nz = Math::sinf(s * Math::two_pi) / (Math::two_pi);
+		float nt = Math::sinf(t * Math::two_pi) / (Math::two_pi);
+
+		warp_noise->transformCoordinate(&nx, &ny, &nz, &nt);
+		const float noise_value = noise->generateNoise(nx, ny, nz, nt);
+		const float pushed_value = (noise_value + 1.0f) * 0.5f;
+		*value = static_cast<unsigned char>(pushed_value * 255.0f + 0.5f);
+	}
+
+	WarpNoiseTextureFactory::WarpNoiseTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride)
+		: TextureFactory(texture_height, texture_width, stride), warp_noise(warp_noise)
+	{
+	}
+	inline void WarpNoiseTextureFactory::textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const
+	{
+		float s = static_cast<float>(t_h) / getTextureHeight();
+		float t = static_cast<float>(t_w) / getTextureWidth();
+
+		warp_noise->transformCoordinate(&s, &t);
+
+		const char sc = static_cast<char>(s * 127.0f);
+		const char tc = static_cast<char>(t * 127.0f);
+
+		unsigned char* value = static_cast<unsigned char*>(memory) + index;
+		*value = sc;
+		*(value + 1) = tc;
+	}
+
+	GrassTextureAtlasFactory::GrassTextureAtlasFactory(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride)
+		: TextureAtlasFactory(atlas_height, atlas_width, texture_height, texture_width, stride)
+	{
+	}
+	inline void GrassTextureAtlasFactory::textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const
 	{
 		// parameters
 		const float parameter_force = 0.01f;
@@ -73,11 +192,13 @@ namespace Isonia::Renderable
 			{0.66f, 0.50f, 0.0425f},
 		};
 
-		const float ah = static_cast<float>(static_cast<int>(a_h) - static_cast<int>(grass_atlas_height / 2u)) / static_cast<float>(grass_atlas_height);
-		const float aw = static_cast<float>(static_cast<int>(a_w) - static_cast<int>(grass_atlas_width / 2u)) / static_cast<float>(grass_atlas_width);
+		const float ah = static_cast<float>(static_cast<int>(a_h) - static_cast<int>(atlas_height / 2u)) / static_cast<float>(atlas_height);
+		const float aw = static_cast<float>(static_cast<int>(a_w) - static_cast<int>(atlas_width / 2u)) / static_cast<float>(atlas_width);
 
-		const float th = static_cast<float>(t_h) / static_cast<float>(grass_texture_height);
-		const float tw = static_cast<float>(t_w) / static_cast<float>(grass_texture_width);
+		const float th = static_cast<float>(t_h) / static_cast<float>(texture_height);
+		const float tw = static_cast<float>(t_w) / static_cast<float>(texture_width);
+
+		unsigned char* value = static_cast<unsigned char*>(memory) + index;
 
 		for (unsigned int i = 0; i < parameter_blade_count; i++)
 		{
@@ -95,72 +216,24 @@ namespace Isonia::Renderable
 			const float base_blade_position = blades[i].root_position;
 			if (Math::absf(tw - base_blade_position - wind_x) < radius)
 			{
-				return { 255 };
+				*value = 255;
+				return;
 			}
 		}
-		return { 0, 0, 0 };
-	}
-	extern Texture* createGrassTexture(Pipeline::Device* device)
-	{
-		return createTextureAtlas(device, grassSubTextureFiller, grass_atlas_height, grass_atlas_width, grass_texture_height, grass_texture_width);
+		*value = 0;
 	}
 
-	extern Color* createTextureAtlas(SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width)
+	/*
+	extern void* createTextureAtlasMSAA(SubTextureFiller sub_texture_filler, const unsigned char stride, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned int msaa)
 	{
+		void* msaa_texture_atlas = createTextureAtlas(sub_texture_filler, stride, atlas_height, atlas_width, texture_height * msaa, texture_width * msaa);
+
 		const unsigned int texture_atlas_height = atlas_height * texture_height;
 		const unsigned int texture_atlas_width = atlas_width * texture_width;
 		const unsigned int texture_atlas_size = texture_atlas_height * texture_atlas_width;
 
-		Color* texture_atlas = new Color[texture_atlas_size];
-		for (unsigned int a_h = 0u; a_h < atlas_height; a_h++)
-		{
-			const unsigned int base_i_a_h = texture_height * texture_atlas_width * a_h;
-			for (unsigned int a_w = 0u; a_w < atlas_width; a_w++)
-			{
-				const unsigned int base_i_a_w = texture_width * a_w;
-				for (unsigned int t_h = 0u; t_h < texture_height; t_h++)
-				{
-					const unsigned int base_i_t_h = t_h * texture_atlas_width;
-					for (unsigned int t_w = 0u; t_w < texture_width; t_w++)
-					{
-						const unsigned int index = base_i_a_h + base_i_t_h + base_i_a_w + t_w;
-						texture_atlas[index] = sub_texture_filler(a_h, a_w, t_h, t_w);
-					}
-				}
-			}
-		}
-		/* cleaner but slower, a lot slower
-		for (unsigned int index = 0; index < texture_atlas_size; index++)
-		{
-			const unsigned int atlas_row = index / texture_atlas_width;
-			const unsigned int atlas_col = index % texture_atlas_width;
-
-			const unsigned int a_h = atlas_row / texture_height;
-			const unsigned int t_h = atlas_row % texture_height;
-			const unsigned int a_w = atlas_col / texture_width;
-			const unsigned int t_w = atlas_col % texture_width;
-
-			texture_atlas[index] = sub_texture_filler(a_h, a_w, t_h, t_w);
-		}
-		*/
-		return texture_atlas;
-	}
-	extern Texture* createTextureAtlas(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width)
-	{
-		Color* texture_atlas = createTextureAtlas(sub_texture_filler, atlas_height, atlas_width, texture_height, texture_width);
-		Texture* texture = Texture::createTexture(device, texture_atlas, atlas_width * texture_width, atlas_height * texture_height);
-		delete texture_atlas;
-		return texture;
-	}
-	extern Texture* createTextureAtlasMSAA(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned int msaa)
-	{
-		Color* msaa_texture_atlas = createTextureAtlas(sub_texture_filler, atlas_height, atlas_width, texture_height * msaa, texture_width * msaa);
-
-		const unsigned int texture_atlas_height = atlas_height * texture_height;
-		const unsigned int texture_atlas_width = atlas_width * texture_width;
-		const unsigned int texture_atlas_size = texture_atlas_height * texture_atlas_width;
-		Color* texture_atlas = new Color[texture_atlas_size];
-
+		// NOTE: using modulus is a lot cleaner but a lot slower
+		void* texture_atlas = malloc(texture_atlas_size * stride);
 		for (unsigned int a_h = 0u; a_h < atlas_height; a_h++)
 		{
 			const unsigned int base_i_a_h = texture_height * texture_atlas_width * a_h;
@@ -206,9 +279,8 @@ namespace Isonia::Renderable
 				}
 			}
 		}
-		Texture* texture = Texture::createTexture(device, texture_atlas, texture_atlas_width, texture_atlas_height);
 		delete msaa_texture_atlas;
-		delete texture_atlas;
-		return texture;
+		return texture_atlas;
 	}
+	*/
 }

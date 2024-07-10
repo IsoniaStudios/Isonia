@@ -18,7 +18,7 @@ namespace Isonia::Renderable
 		constexpr Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a)
 			: r(r), g(g), b(b), a(a) { }
 		constexpr Color(const unsigned char c)
-			: r(c), g(c), b(c), a(c) { }
+			: r(c), g(c), b(c), a(255) { }
 		constexpr Color() { }
 
 		struct
@@ -36,9 +36,7 @@ namespace Isonia::Renderable
 	struct Texture
 	{
 	public:
-		Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height);
-		Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height);
-		Texture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height, const VkFormat format);
+		Texture(Pipeline::Device* device, const void* texture, const unsigned int tex_height, const unsigned int tex_width, const VkFormat format, const VkFilter filter = VK_FILTER_NEAREST, const VkSamplerAddressMode address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT);
 		~Texture();
 
 		Texture(const Texture&) = delete;
@@ -52,18 +50,10 @@ namespace Isonia::Renderable
 		VkExtent3D getExtent() const;
 		VkFormat getFormat() const;
 
-		static Texture* createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height);
-		static Texture* createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height);
-		static Texture* createTextureFromPalette(Pipeline::Device* device, const Color* colors, const unsigned int tex_width);
-		static Texture* createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height);
-		static Texture* createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height, VkFormat format);
-
 		void updateDescriptor();
 
 	private:
-		void createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texWidth, const unsigned int texHeight);
-		void createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texWidth, const unsigned int texHeight);
-		void createTextureImage(const void* source, const unsigned int tex_width, const unsigned int tex_height, const VkFormat format);
+		void createTextureImage(const void* source, const unsigned int tex_height, const unsigned int tex_width, const VkFormat format);
 		void createTextureImageView();
 		void createTextureSampler(VkFilter filter, VkSamplerAddressMode address_mode);
 		static constexpr const unsigned int formatToBytesPerPixel(const VkFormat image_format);
@@ -91,12 +81,66 @@ namespace Isonia::Renderable
 	extern Texture* createNullTexture(Pipeline::Device* device);
 	extern Texture* createDebugTexture(Pipeline::Device* device);
 
-	typedef Color (*SubTextureFiller)(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
-	extern Color* createTextureAtlas(SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
-	extern Texture* createTextureAtlas(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width);
-	extern Texture* createTextureAtlasMSAA(Pipeline::Device* device, SubTextureFiller sub_texture_filler, const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned int msaa);
+	struct TextureFactory
+	{
+	public:
+		TextureFactory(const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+		Texture* instantiateTexture(Pipeline::Device* device, const VkFormat format, const VkFilter filter = VK_FILTER_NEAREST, const VkSamplerAddressMode address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT) const;
+		virtual void* createTexture() const;
 
-	extern Texture* createGrassTexture(Pipeline::Device* device);
+	protected:
+		virtual inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const = 0;
+
+		virtual inline unsigned int getTextureHeight() const;
+		virtual inline unsigned int getTextureWidth() const;
+		inline unsigned int getTextureSize() const;
+
+		const unsigned int texture_height;
+		const unsigned int texture_width;
+		const unsigned char stride;
+	};
+
+	struct TextureAtlasFactory : public TextureFactory
+	{
+	public:
+		TextureAtlasFactory(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+		void* createTexture() const override;
+
+	protected:
+		virtual inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const { static_assert("Do not use!"); };
+		virtual inline void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const = 0;
+
+		inline unsigned int getTextureHeight() const override;
+		inline unsigned int getTextureWidth() const override;
+
+		const unsigned int atlas_height;
+		const unsigned int atlas_width;
+	};
+
+	struct GrassTextureAtlasFactory : public TextureAtlasFactory
+	{
+		GrassTextureAtlasFactory(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+		inline void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const override;
+	};
+
+	struct Noise4DTextureFactory : public TextureFactory
+	{
+		Noise4DTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+		inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
+
+	private:
+		const Noise::VirtualWarpNoise* warp_noise;
+		const Noise::VirtualNoise* noise;
+	};
+
+	struct WarpNoiseTextureFactory : public TextureFactory
+	{
+		WarpNoiseTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+		inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
+
+	private:
+		const Noise::VirtualWarpNoise* warp_noise;
+	};
 
 	// Vertices
 	struct VertexComplete
@@ -346,7 +390,7 @@ namespace Isonia::Renderable
 		Pipeline::Buffer* m_vertex_buffer;
 	};
 
-	// text
+	// Text
 	extern Texture* create3x6PixelFontSingleRowTexture(Pipeline::Device* device);
 	extern Math::Vector2 sample3x6PixelFontSingleRowTexture(const char c);
 
@@ -361,8 +405,6 @@ namespace Isonia::Renderable
 		void update(const VkExtent2D extent, const char* text);
 
 	private:
-		float charToSingleRowMonoASCIIOffset(const char character);
-		float charToSingleRowMonoASCIIWidth();
 		unsigned int getCharLength(const char* text);
 
 		Pipeline::Device* m_device;

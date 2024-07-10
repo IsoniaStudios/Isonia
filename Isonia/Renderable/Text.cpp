@@ -47,7 +47,7 @@ namespace Isonia::Renderable
 				pixel_font_single_row_byte_3x6[index] = pixel;
 			}
 		}
-		return Renderable::Texture::createTexture(device, pixel_font_single_row_byte_3x6, pixel_font_single_row_binary_3x6_length, 8u, VK_FORMAT_R8_UNORM);
+		return new Texture(device, pixel_font_single_row_byte_3x6, 8u, pixel_font_single_row_binary_3x6_length, VK_FORMAT_R8_UNORM);
 	}
 	
 	extern Math::Vector2 sample3x6PixelFontSingleRowTexture(const char c)
@@ -182,15 +182,6 @@ namespace Isonia::Renderable
 		delete m_vertex_staging_buffer;
 		delete m_vertex_buffer;
 		delete m_index_buffer;
-	}
-
-	float BuilderUI::charToSingleRowMonoASCIIOffset(const char character)
-	{
-		return (character - 32) * charToSingleRowMonoASCIIWidth();
-	}
-	float BuilderUI::charToSingleRowMonoASCIIWidth()
-	{
-		return 1.0f / 96.0f;
 	}
 
 	unsigned int BuilderUI::getCharLength(const char* text)

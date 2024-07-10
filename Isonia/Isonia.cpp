@@ -98,7 +98,7 @@ namespace Isonia
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_ui_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
-				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
+				//m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
 		}
@@ -141,20 +141,27 @@ namespace Isonia
 			m_clock_buffers[i]->map();
 		}
 
+		Renderable::GrassTextureAtlasFactory grassTextureAtlasFactory = Renderable::GrassTextureAtlasFactory{ 9u, 9u, 16u, 16u, 1u };
+		m_grass = grassTextureAtlasFactory.instantiateTexture(&m_device, VK_FORMAT_R8_UNORM);
+		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
+
 		Noise::ConstantScalarWarpNoise cloud_warp_noise{ 5.0f };
 		Noise::FractalPerlinNoise cloud_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
+		Renderable::Noise4DTextureFactory cloudTextureFactory = Renderable::Noise4DTextureFactory{ &cloud_warp_noise, &cloud_noise, 128u, 128u, 1u };
+		m_cloud = cloudTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8_UNORM);
 
 		Noise::ConstantScalarWarpNoise wind_w{ 5.0f };
 		Noise::PerlinNoise wind_n{ 69 };
 		Noise::CurlNoise wind_noise{ &wind_n, &wind_w };
+		Renderable::WarpNoiseTextureFactory windTextureFactory = Renderable::WarpNoiseTextureFactory{ &wind_noise, 128u, 128u, 2u };
+		m_wind = windTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8G8_SNORM);
 
-		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
-		m_grass = Renderable::createGrassTexture(&m_device);
 		m_debugger = Renderable::createDebugTexture(&m_device);
-		m_cloud = Renderable::Texture::createTextureFromNoise(&m_device, &cloud_warp_noise, &cloud_noise, 128, 128);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
-		m_wind = Renderable::Texture::createTextureFromNoise(&m_device, &wind_noise, 128, 128);
 		m_text = Renderable::create3x6PixelFontSingleRowTexture(&m_device);
+
+		//m_debugger = m_grass;
+
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, 9u))
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)

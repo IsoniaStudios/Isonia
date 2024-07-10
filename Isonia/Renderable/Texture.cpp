@@ -7,30 +7,12 @@
 
 namespace Isonia::Renderable
 {
-	Texture::Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height)
+	Texture::Texture(Pipeline::Device* device, const void* texture, const unsigned int tex_height, const unsigned int tex_width, const VkFormat format, const VkFilter filter, const VkSamplerAddressMode address_mode)
 		: m_device{ device }
 	{
-		createTextureImage(warp_noise, tex_width, tex_height);
+		createTextureImage(texture, tex_height, tex_width, format);
 		createTextureImageView();
-		createTextureSampler(VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
-		updateDescriptor();
-	}
-
-	Texture::Texture(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
-		: m_device{ device }
-	{
-		createTextureImage(warp_noise, noise, tex_width, tex_height);
-		createTextureImageView();
-		createTextureSampler(VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
-		updateDescriptor();
-	}
-
-	Texture::Texture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height, const VkFormat format)
-		: m_device{ device }
-	{
-		createTextureImage(texture, tex_width, tex_height, format);
-		createTextureImageView();
-		createTextureSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
+		createTextureSampler(filter, address_mode);
 		updateDescriptor();
 	}
 
@@ -71,31 +53,6 @@ namespace Isonia::Renderable
 		return m_format;
 	}
 
-	Texture* Texture::createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height)
-	{
-		return new Texture(device, warp_noise, tex_width, tex_height);
-	}
-
-	Texture* Texture::createTextureFromNoise(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
-	{
-		return new Texture(device, warp_noise, noise, tex_width, tex_height);
-	}
-
-	Texture* Texture::createTextureFromPalette(Pipeline::Device* device, const Color* colors, const unsigned int tex_width)
-	{
-		return new Texture(device, (void*)colors, tex_width, 1, VK_FORMAT_R8G8B8A8_SRGB);
-	}
-
-	Texture* Texture::createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height)
-	{
-		return new Texture(device, texture, tex_width, tex_height, VK_FORMAT_R8G8B8A8_SRGB);
-	}
-
-	Texture* Texture::createTexture(Pipeline::Device* device, const void* texture, const unsigned int tex_width, const unsigned int tex_height, VkFormat format)
-	{
-		return new Texture(device, texture, tex_width, tex_height, format);
-	}
-
 	void Texture::updateDescriptor()
 	{
 		m_descriptor.sampler = m_texture_sampler;
@@ -103,61 +60,11 @@ namespace Isonia::Renderable
 		m_descriptor.imageLayout = m_texture_layout;
 	}
 
-	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height)
-	{
-		char* pixels = new char[tex_width * tex_height * 2u];
-		for (unsigned int h = 0; h < tex_height; h++)
-		{
-			const unsigned int h_i = h * tex_height;
-			for (unsigned int w = 0; w < tex_width; w++)
-			{
-				float s = h / static_cast<float>(tex_height);
-				float t = w / static_cast<float>(tex_width);
-
-				const unsigned int i = (h_i + w) * 2u;
-				warp_noise->transformCoordinate(&s, &t);
-				const char sc = static_cast<char>(s * 127.0f);
-				const char tc = static_cast<char>(t * 127.0f);
-				pixels[i + 0] = sc;
-				pixels[i + 1] = tc;
-			}
-		}
-		createTextureImage(pixels, tex_width, tex_height, VK_FORMAT_R8G8_SNORM);
-		delete[] pixels;
-	}
-
-	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
-	{
-		unsigned char* pixels = new unsigned char[tex_width * tex_height];
-		for (unsigned int h = 0; h < tex_height; h++)
-		{
-			const unsigned int h_i = h * tex_height;
-			for (unsigned int w = 0; w < tex_width; w++)
-			{
-				const float s = h / static_cast<float>(tex_height);
-				const float t = w / static_cast<float>(tex_width);
-
-				float nx = Math::cosf(s * Math::two_pi) / (Math::two_pi);
-				float ny = Math::cosf(t * Math::two_pi) / (Math::two_pi);
-				float nz = Math::sinf(s * Math::two_pi) / (Math::two_pi);
-				float nt = Math::sinf(t * Math::two_pi) / (Math::two_pi);
-
-				const unsigned int i = h_i + w;
-				warp_noise->transformCoordinate(&nx, &ny, &nz, &nt);
-				const float noise_value = noise->generateNoise(nx, ny, nz, nt);
-				const float pushed_value = (noise_value + 1.0f) * 0.5f;
-				pixels[i] = static_cast<unsigned char>(pushed_value * 255.0f + 0.5f);
-			}
-		}
-		createTextureImage(pixels, tex_width, tex_height, VK_FORMAT_R8_UNORM);
-		delete[] pixels;
-	}
-
-	void Texture::createTextureImage(const void* source, const unsigned int tex_width, const unsigned int tex_height, const VkFormat format)
+	void Texture::createTextureImage(const void* source, const unsigned int tex_height, const unsigned int tex_width, const VkFormat format)
 	{
 		m_image_type = tex_height == 1 ? VK_IMAGE_TYPE_1D : VK_IMAGE_TYPE_2D;
 		m_bytes_per_pixel = formatToBytesPerPixel(format);
-		VkDeviceSize image_size = tex_width * tex_height * m_bytes_per_pixel;
+		VkDeviceSize image_size = tex_height * tex_width * m_bytes_per_pixel;
 
 		m_mip_levels = 1;
 
