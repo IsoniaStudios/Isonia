@@ -103,16 +103,16 @@ namespace Isonia::Renderable
 		m_descriptor.imageLayout = m_texture_layout;
 	}
 
-	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texWidth, const unsigned int texHeight)
+	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const unsigned int tex_width, const unsigned int tex_height)
 	{
-		char* pixels = new char[texWidth * texHeight * 2u];
-		for (unsigned int h = 0; h < texHeight; h++)
+		char* pixels = new char[tex_width * tex_height * 2u];
+		for (unsigned int h = 0; h < tex_height; h++)
 		{
-			const unsigned int h_i = h * texHeight;
-			for (unsigned int w = 0; w < texWidth; w++)
+			const unsigned int h_i = h * tex_height;
+			for (unsigned int w = 0; w < tex_width; w++)
 			{
-				float s = h / static_cast<float>(texHeight);
-				float t = w / static_cast<float>(texWidth);
+				float s = h / static_cast<float>(tex_height);
+				float t = w / static_cast<float>(tex_width);
 
 				const unsigned int i = (h_i + w) * 2u;
 				warp_noise->transformCoordinate(&s, &t);
@@ -122,20 +122,20 @@ namespace Isonia::Renderable
 				pixels[i + 1] = tc;
 			}
 		}
-		createTextureImage(pixels, texWidth, texHeight, VK_FORMAT_R8G8_SNORM);
+		createTextureImage(pixels, tex_width, tex_height, VK_FORMAT_R8G8_SNORM);
 		delete[] pixels;
 	}
 
-	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texWidth, const unsigned int texHeight)
+	void Texture::createTextureImage(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int tex_width, const unsigned int tex_height)
 	{
-		unsigned char* pixels = new unsigned char[texWidth * texHeight];
-		for (unsigned int h = 0; h < texHeight; h++)
+		unsigned char* pixels = new unsigned char[tex_width * tex_height];
+		for (unsigned int h = 0; h < tex_height; h++)
 		{
-			const unsigned int h_i = h * texHeight;
-			for (unsigned int w = 0; w < texWidth; w++)
+			const unsigned int h_i = h * tex_height;
+			for (unsigned int w = 0; w < tex_width; w++)
 			{
-				const float s = h / static_cast<float>(texHeight);
-				const float t = w / static_cast<float>(texWidth);
+				const float s = h / static_cast<float>(tex_height);
+				const float t = w / static_cast<float>(tex_width);
 
 				float nx = Math::cosf(s * Math::two_pi) / (Math::two_pi);
 				float ny = Math::cosf(t * Math::two_pi) / (Math::two_pi);
@@ -144,12 +144,12 @@ namespace Isonia::Renderable
 
 				const unsigned int i = h_i + w;
 				warp_noise->transformCoordinate(&nx, &ny, &nz, &nt);
-				const float noiseValue = noise->generateNoise(nx, ny, nz, nt);
-				const float pushedValue = (noiseValue + 1.0f) * 0.5f;
-				pixels[i] = static_cast<unsigned char>(pushedValue * 255.0f + 0.5f);
+				const float noise_value = noise->generateNoise(nx, ny, nz, nt);
+				const float pushed_value = (noise_value + 1.0f) * 0.5f;
+				pixels[i] = static_cast<unsigned char>(pushed_value * 255.0f + 0.5f);
 			}
 		}
-		createTextureImage(pixels, texWidth, texHeight, VK_FORMAT_R8_UNORM);
+		createTextureImage(pixels, tex_width, tex_height, VK_FORMAT_R8_UNORM);
 		delete[] pixels;
 	}
 
@@ -174,7 +174,7 @@ namespace Isonia::Renderable
 
 		void* data;
 		vkMapMemory(m_device->getDevice(), staging_buffer_memory, 0, image_size, 0, &data);
-		memcpy(data, source, static_cast<size_t>(image_size));
+		memcpy(data, source, image_size);
 		vkUnmapMemory(m_device->getDevice(), staging_buffer_memory);
 
 		m_format = format;
