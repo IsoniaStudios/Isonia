@@ -25,30 +25,13 @@ layout(push_constant) uniform Push {
 } push;
 
 const float QUAD_SIZE = 128.0;
-const int QUADS = 2;
-const int VERTICES = QUADS + 1;
-const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
-
-int calculateCol(int index, int strip)
-{
-    return abs(((strip + 1) / 2) * (VERTICES * 2 - 1) - ((index + (strip % 2)) / 2));
-}
-int calculateRow(int index, int strip)
-{
-    return ((index + strip) % 2) + strip;
-}
-int calculateStrip(int index)
-{
-    return (index - 1) / (VERTICES * 2 - 1);
-}
-
 void main()
 {
-    int strip = calculateStrip(gl_VertexIndex);
-    int row = calculateRow(gl_VertexIndex, strip);
-    int col = calculateCol(gl_VertexIndex, strip);
-
-    fragPosWorld = vec3(col * QUAD_SIZE + push.x, 0, row * QUAD_SIZE + push.z);
+    fragPosWorld = vec3(
+        (gl_VertexIndex / 2) * QUAD_SIZE + push.x,
+        push.y,
+        (gl_VertexIndex % 2) * QUAD_SIZE + push.z
+    );
 
     gl_Position = ubo.projection * ubo.view * vec4(fragPosWorld, 1);
 }

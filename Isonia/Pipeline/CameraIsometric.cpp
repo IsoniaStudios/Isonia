@@ -104,7 +104,7 @@ namespace Isonia::Pipeline
         };
 
         unsigned char outcode = 0xF;
-        for (unsigned int i = 0; i < 4; ++i)
+        for (unsigned int i = 0; i < 4; i++)
         {
             const Math::Vector4 transformed = Math::mat4Mul(m_view_matrix, &corners[i]);
 

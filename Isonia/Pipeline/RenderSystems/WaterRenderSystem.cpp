@@ -59,7 +59,7 @@ namespace Isonia::Pipeline::RenderSystems
 		Math::Vector3 intersection_point = Math::vec3Add(&camera_position, &intersection_point_local);
 		m_water->m_position = {
 			offset_to_center + intersection_point.x,
-			-5,
+			0.25f,
 			offset_to_center + intersection_point.z
 		};
 

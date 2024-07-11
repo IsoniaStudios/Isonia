@@ -107,7 +107,7 @@ namespace Isonia::Pipeline::RenderSystems
 
 		float intersection_distance;
 		Math::Vector3 intersections[4];
-		for (int i = 0; i < 4; ++i)
+		for (int i = 0; i < 4; i++)
 		{
 			if (!Math::intersectRayPlane(&rays[i], &plane, &intersection_distance))
 			{

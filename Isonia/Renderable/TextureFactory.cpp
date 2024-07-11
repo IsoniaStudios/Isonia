@@ -139,7 +139,7 @@ namespace Isonia::Renderable
 		warp_noise->transformCoordinate(&nx, &ny, &nz, &nt);
 		const float noise_value = noise->generateNoise(nx, ny, nz, nt);
 		const float pushed_value = (noise_value + 1.0f) * 0.5f;
-		*value = static_cast<unsigned char>(pushed_value * 255.0f + 0.5f);
+		*value = static_cast<unsigned char>(pushed_value * 255.0f);
 	}
 
 	WarpNoiseTextureFactory::WarpNoiseTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride)
