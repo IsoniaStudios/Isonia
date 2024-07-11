@@ -202,7 +202,8 @@ namespace Isonia
 		m_ground_render_system = new Pipeline::RenderSystems::GroundRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(),
-			m_global_set_layout->getDescriptorSetLayout()
+			m_global_set_layout->getDescriptorSetLayout(),
+			64, 1.0f, 4.0f
 		};
 
 		m_water_render_system = new Pipeline::RenderSystems::WaterRenderSystem{

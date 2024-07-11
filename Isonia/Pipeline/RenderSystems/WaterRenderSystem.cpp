@@ -16,7 +16,7 @@ namespace Isonia::Pipeline::RenderSystems
 		createpipelineLayout(global_set_layout);
 		createpipeline(render_pass);
 
-		m_water = new Renderable::BuilderXZUniform(m_device);
+		m_water = new Renderable::BuilderXZUniform(m_device, 2u, 100.0f);
 	}
 
 	WaterRenderSystem::~WaterRenderSystem()
@@ -42,7 +42,7 @@ namespace Isonia::Pipeline::RenderSystems
 			nullptr
 		);
 
-		const float offset_to_center = -(static_cast<float>(Renderable::quads) * 2.0f);
+		const float offset_to_center = -64.0f;
 		const Math::Vector3 camera_position = camera->getPositionVector();
 		const Math::Vector3 camera_forward = camera->getForwardVector();
 		const Math::Vector3 plane_position = Math::Vector3{ 0.0f, -5.0f, 0.0f };

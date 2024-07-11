@@ -38,7 +38,7 @@ namespace Isonia::Pipeline::RenderSystems
 	struct GroundRenderSystem
 	{
 	public:
-		GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout);
+		GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int quad_side_count, const float quad_size, const float density);
 		~GroundRenderSystem();
 
 		GroundRenderSystem(const GroundRenderSystem&) = delete;
@@ -73,6 +73,10 @@ namespace Isonia::Pipeline::RenderSystems
 		Pipeline* m_grass_pipeline;
 		VkPipelineLayout m_ground_pipeline_layout;
 		VkPipelineLayout m_grass_pipeline_layout;
+
+		const unsigned int m_quad_side_count;
+		const float m_quad_size;
+		const float m_density;
 
 		static constexpr const unsigned int grounds = 32u;
 		static constexpr const unsigned int grounds_count = grounds * grounds;

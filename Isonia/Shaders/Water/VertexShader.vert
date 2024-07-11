@@ -24,8 +24,8 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
-const float QUAD_SIZE = 4.0;
-const int QUADS = 64;
+const float QUAD_SIZE = 128.0;
+const int QUADS = 2;
 const int VERTICES = QUADS + 1;
 const int VERTICES_COUNT = VERTICES * VERTICES + (VERTICES - 2) * (VERTICES - 1);
 

@@ -16,8 +16,8 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	GroundRenderSystem::GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout)
-		: m_device(device)
+	GroundRenderSystem::GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int quad_side_count, const float quad_size, const float density)
+		: m_device(device), m_quad_side_count(quad_side_count), m_quad_size(quad_size), m_density(density)
 	{
 		createGroundPipelineLayout(global_set_layout);
 		createGroundPipeline(render_pass);
@@ -51,27 +51,27 @@ namespace Isonia::Pipeline::RenderSystems
 
 	unsigned int GroundRenderSystem::mapWorldXToIndex(const float world_x) const
 	{
-		const float ground_width = Renderable::quads * Renderable::quad_size;
+		const float ground_width = m_quad_side_count * m_quad_size;
 		const float local_x = world_x + ground_width * grounds / 2u;
 		return static_cast<unsigned int>(local_x / ground_width);
 	}
 	float GroundRenderSystem::mapIndexToWorldX(const unsigned int index) const
 	{
-		const float ground_width = Renderable::quads * Renderable::quad_size;
+		const float ground_width = m_quad_side_count * m_quad_size;
 		const float local_x = index * ground_width;
-		return local_x - ground_width * grounds / 2u + Renderable::quads * Renderable::quad_size * 0.5f;
+		return local_x - ground_width * grounds / 2u + m_quad_side_count * m_quad_size * 0.5f;
 	}
 	unsigned int GroundRenderSystem::mapWorldZToIndex(const float world_z) const
 	{
-		const float ground_height = Renderable::quads * Renderable::quad_size;
+		const float ground_height = m_quad_side_count * m_quad_size;
 		const float local_z = world_z + ground_height * grounds / 2u;
 		return static_cast<unsigned int>(local_z / ground_height);
 	}
 	float GroundRenderSystem::mapIndexToWorldZ(const unsigned int index) const
 	{
-		const float ground_height = Renderable::quads * Renderable::quad_size;
+		const float ground_height = m_quad_side_count * m_quad_size;
 		const float local_z = index * ground_height;
-		return local_z - ground_height * grounds / 2u + Renderable::quads * Renderable::quad_size * 0.5f;
+		return local_z - ground_height * grounds / 2u + m_quad_side_count * m_quad_size * 0.5f;
 	}
 	Renderable::BuilderXZUniformN* GroundRenderSystem::mapWorldToGround(const float world_x, const float world_z) const
 	{
@@ -135,7 +135,7 @@ namespace Isonia::Pipeline::RenderSystems
 		const int min_z_index = mapWorldZToIndex(min_z);
 
 		const int s_grounds = static_cast<int>(grounds);
-		const float w_ground = Renderable::quads * Renderable::quad_size;
+		const float w_ground = m_quad_side_count * m_quad_size;
 		const float offset = grounds % 2u == 0u ? 0.0f : w_ground * 0.5f;
 
 		for (int index_x = min_x_index - 1; index_x <= max_x_index + 1; index_x++)
@@ -164,7 +164,7 @@ namespace Isonia::Pipeline::RenderSystems
 					{
 						const float x_offset = (index_x - s_grounds / 2) * w_ground - offset;
 						const float z_offset = (index_z - s_grounds / 2) * w_ground - offset;
-						*ground = new Renderable::BuilderXZUniformN(m_device, &m_ground_warp_noise, &m_ground_noise, 7.5f, x_offset, z_offset);
+						*ground = new Renderable::BuilderXZUniformN(m_device, &m_ground_warp_noise, &m_ground_noise, 7.5f, x_offset, z_offset, m_quad_side_count + 1, m_quad_size);
 					}
 					else
 					{
@@ -172,7 +172,7 @@ namespace Isonia::Pipeline::RenderSystems
 					}
 					if (*grass == nullptr)
 					{
-						*grass = new Renderable::BuilderXZUniformNP(m_device, *ground);
+						*grass = new Renderable::BuilderXZUniformNP(m_device, *ground, m_density);
 					}
 					else
 					{

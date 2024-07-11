@@ -293,20 +293,6 @@ namespace Isonia::Renderable
 	};
 
 	// Builder
-	static constexpr const float quad_size = 1.0f;
-	static constexpr const unsigned int quads = 64;
-	static constexpr const unsigned int vertices = quads + 1;
-	static constexpr const unsigned int unique_vertices_count = vertices * vertices;
-	static constexpr const unsigned int sample = vertices + 2;
-	static constexpr const unsigned int sample_count = sample * sample;
-	static constexpr const unsigned int vertices_count = vertices * vertices + (vertices - 2) * (vertices - 1);
-	static constexpr const unsigned int triangle_count = vertices_count - 2;
-
-	static constexpr const float grass_density = 4.0f;
-	static constexpr const float grass_size = Math::pixels_per_unit / (16.0f * 2.0f);
-	static constexpr const unsigned int grass_count_side = static_cast<unsigned int>(grass_density * static_cast<float>(quads));
-	static constexpr const unsigned int grass_count = grass_count_side * grass_count_side;
-
 	struct BuilderPosition
 	{
 		BuilderPosition(Pipeline::Device* device);
@@ -325,8 +311,8 @@ namespace Isonia::Renderable
 
 	struct BuilderXZUniform
 	{
-		BuilderXZUniform(Pipeline::Device* device);
-		BuilderXZUniform(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const Math::Vector3 position);
+		BuilderXZUniform(Pipeline::Device* device, const unsigned int vertices_side_count, const float quad_size);
+		BuilderXZUniform(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const Math::Vector3 position, const unsigned int vertices_side_count, const float quad_size);
 		~BuilderXZUniform();
 
 		void bind(VkCommandBuffer command_buffer);
@@ -343,11 +329,15 @@ namespace Isonia::Renderable
 
 		Pipeline::Device* m_device;
 		Pipeline::Buffer* m_vertex_buffer;
+
+		const unsigned int m_vertices_side_count;
+		const unsigned int m_vertices_count;
+		const float m_quad_size;
 	};
 
 	struct BuilderXZUniformN
 	{
-		BuilderXZUniformN(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const float x, const float z);
+		BuilderXZUniformN(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const float x, const float z, const unsigned int vertices_side_count, const float quad_size);
 		~BuilderXZUniformN();
 
 		void bind(VkCommandBuffer command_buffer);
@@ -364,18 +354,27 @@ namespace Isonia::Renderable
 		int calculateRow(const int index, const int strip) const;
 		int calculateStrip(const int index) const;
 
-		void createVertexBuffers(void* vertices);
+		float* sampleAltitude(const unsigned int i_z, const unsigned int i_x) const;
+		Math::Vector3* sampleNormal(const unsigned int i_z, const unsigned int i_x) const;
 
-		float m_sample_altitudes[sample][sample];
-		Math::Vector3 m_normals[vertices][vertices];
+		void createVertexBuffers(void* vertices);
 
 		Pipeline::Device* m_device;
 		Pipeline::Buffer* m_vertex_buffer;
+
+		const unsigned int m_vertices_side_count;
+		const unsigned int m_vertices_count;
+		const float m_quad_size;
+
+		float* m_sample_altitudes;
+		Math::Vector3* m_normals;
+
+		friend struct BuilderXZUniformNP;
 	};
 
 	struct BuilderXZUniformNP
 	{
-		BuilderXZUniformNP(Pipeline::Device* device, BuilderXZUniformN* ground);
+		BuilderXZUniformNP(Pipeline::Device* device, BuilderXZUniformN* ground, const float density);
 		~BuilderXZUniformNP();
 
 		void bind(VkCommandBuffer command_buffer);
@@ -388,6 +387,9 @@ namespace Isonia::Renderable
 
 		Pipeline::Device* m_device;
 		Pipeline::Buffer* m_vertex_buffer;
+
+		const unsigned int m_count_side;
+		const unsigned int m_count;
 	};
 
 	// Text
