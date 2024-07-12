@@ -12,6 +12,12 @@ namespace Isonia::Pipeline
         m_alignment_size = getAlignment(instance_size, min_offset_alignment);
         m_buffer_size = m_alignment_size * instance_count;
         device->createBuffer(m_buffer_size, usage_flags, memory_property_flags, &m_buffer, &m_memory);
+        m_buffer_info = VkDescriptorBufferInfo{
+            m_buffer,
+            //m_buffer_size, m_alignment_size
+            //0, VK_WHOLE_SIZE
+            0, m_buffer_size
+        };
     }
 
     Buffer::~Buffer()
@@ -72,13 +78,9 @@ namespace Isonia::Pipeline
         return vkInvalidateMappedMemoryRanges(m_device->getDevice(), 1, &mapped_range);
     }
 
-    VkDescriptorBufferInfo Buffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset)
+    const VkDescriptorBufferInfo* Buffer::getDescriptorInfo() const
     {
-        return VkDescriptorBufferInfo{
-            m_buffer,
-            offset,
-            size,
-        };
+        return &m_buffer_info;
     }
 
     void Buffer::writeToIndex(void* data, int index)
@@ -89,11 +91,6 @@ namespace Isonia::Pipeline
     VkResult Buffer::flushIndex(int index)
     {
         return flush(m_alignment_size, index * m_alignment_size);
-    }
-
-    VkDescriptorBufferInfo Buffer::descriptorInfoForIndex(int index)
-    {
-        return descriptorInfo(m_alignment_size, index * m_alignment_size);
     }
 
     VkResult Buffer::invalidateIndex(int index)

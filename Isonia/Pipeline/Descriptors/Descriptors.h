@@ -71,8 +71,8 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorWriter(const DescriptorWriter&) = delete;
 		DescriptorWriter& operator=(const DescriptorWriter&) = delete;
 
-		DescriptorWriter* writeBuffer(unsigned int binding, VkDescriptorBufferInfo* buffer_info);
-		DescriptorWriter* writeImage(unsigned int binding, VkDescriptorImageInfo* image_info);
+		DescriptorWriter* writeBuffer(const unsigned int binding, const VkDescriptorBufferInfo* buffer_info);
+		DescriptorWriter* writeImage(const unsigned int binding, const VkDescriptorImageInfo* image_info);
 
 		DescriptorWriter* build(VkDescriptorSet* set);
 		void overwrite(VkDescriptorSet* set);

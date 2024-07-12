@@ -105,9 +105,9 @@ namespace Isonia::Pipeline
 	{
 		return m_color_images_intermediate[index];
 	}
-	VkDescriptorImageInfo PixelSwapChain::getIntermediateImageInfo(int index) const
+	const VkDescriptorImageInfo* PixelSwapChain::getIntermediateImageInfo(int index) const
 	{
-		return m_color_descriptors_intermediate[index];
+		return &m_color_descriptors_intermediate[index];
 	}
 
 	VkFramebuffer PixelSwapChain::getFrameBuffer(int index) const

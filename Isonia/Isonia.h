@@ -41,7 +41,7 @@ namespace Isonia
 		void initializePlayer();
 
 		Pipeline::Descriptors::DescriptorPool* m_global_pool;
-		Pipeline::Descriptors::DescriptorWriter* m_global_writer;
+		Pipeline::Descriptors::DescriptorWriter* m_global_writers[Pipeline::SwapChain::max_frames_in_flight];
 		Pipeline::Descriptors::DescriptorSetLayout* m_global_set_layout;
 		VkDescriptorSet m_global_descriptor_sets[Pipeline::SwapChain::max_frames_in_flight];
 		Pipeline::Buffer* m_ubo_buffers[Pipeline::SwapChain::max_frames_in_flight];

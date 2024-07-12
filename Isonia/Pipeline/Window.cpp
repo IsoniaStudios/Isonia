@@ -113,6 +113,11 @@ namespace Isonia::Pipeline
             const unsigned int height = HIWORD(lParam);
 
             Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+            const VkExtent2D old_extent = window->m_extent;
+            if (width == old_extent.width && height == old_extent.height)
+            {
+                break;
+            }
             window->m_resized = true;
             window->m_extent = { width, height };
             window->propagateEvent();

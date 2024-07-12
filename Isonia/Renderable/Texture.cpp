@@ -36,9 +36,9 @@ namespace Isonia::Renderable
 	{
 		return m_texture_image_view;
 	}
-	VkDescriptorImageInfo Texture::getImageInfo() const
+	const VkDescriptorImageInfo* Texture::getImageInfo() const
 	{
-		return m_descriptor;
+		return &m_descriptor;
 	}
 	VkImageLayout Texture::getImageLayout() const
 	{

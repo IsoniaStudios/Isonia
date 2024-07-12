@@ -2,6 +2,7 @@
 #extension GL_KHR_vulkan_glsl : enable
 
 layout(location = 0) out vec3 frag_position_world;
+layout(location = 1) out vec4 frag_clip_position;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
@@ -31,5 +32,6 @@ void main()
         (gl_VertexIndex % 2) * QUAD_SIZE + push.z
     );
 
-    gl_Position = ubo.projection * ubo.view * vec4(frag_position_world, 1);
+    frag_clip_position = ubo.projection * ubo.view * vec4(frag_position_world, 1);
+    gl_Position = frag_clip_position;
 }

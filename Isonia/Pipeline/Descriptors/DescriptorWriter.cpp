@@ -12,12 +12,10 @@ namespace Isonia::Pipeline::Descriptors
 	}
 	DescriptorWriter::~DescriptorWriter()
 	{
-		delete m_set_layout;
-		delete m_pool;
-		delete m_writes;
+		delete[] m_writes;
 	}
 
-	DescriptorWriter* DescriptorWriter::writeBuffer(unsigned int binding, VkDescriptorBufferInfo* buffer_info)
+	DescriptorWriter* DescriptorWriter::writeBuffer(const unsigned int binding, const VkDescriptorBufferInfo* buffer_info)
 	{
 		const VkDescriptorSetLayoutBinding binding_description = m_set_layout->m_bindings[binding];
 
@@ -34,7 +32,7 @@ namespace Isonia::Pipeline::Descriptors
 		return this;
 	}
 
-	DescriptorWriter* DescriptorWriter::writeImage(unsigned int binding, VkDescriptorImageInfo* image_info)
+	DescriptorWriter* DescriptorWriter::writeImage(const unsigned int binding, const VkDescriptorImageInfo* image_info)
 	{
 		const VkDescriptorSetLayoutBinding binding_description = m_set_layout->m_bindings[binding];
 

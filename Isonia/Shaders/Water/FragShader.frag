@@ -2,6 +2,7 @@
 #extension GL_KHR_vulkan_glsl : enable
 
 layout(location = 0) in vec3 frag_position_world;
+layout(location = 1) in vec4 frag_clip_position;
 
 layout(location = 0) out vec4 out_color;
 
@@ -25,10 +26,13 @@ layout(push_constant) uniform Push {
 } push;
 
 layout (set = 0, binding = 6) uniform sampler1D color_map;
-layout (set = 0, binding = 9) uniform sampler1D texture_map;
+layout (set = 0, binding = 9) uniform sampler2D texture_map;
 
 void main()
 {
-	//out_color = vec4(texture(color_map, 0).rgb, 0.1);
-	out_color = texture(texture_map, 0);
+    vec3 ndc = frag_clip_position.xyz / frag_clip_position.w;
+    vec2 screen_uv = (ndc.xy * 0.5) + 0.5;
+
+    vec4 color = texture(texture_map, screen_uv);
+    out_color = vec4(color.rgb, 1.0);
 }

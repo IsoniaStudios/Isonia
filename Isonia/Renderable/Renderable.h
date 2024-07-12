@@ -46,7 +46,7 @@ namespace Isonia::Renderable
 		VkSampler getSampler() const;
 		VkImage getImage() const;
 		VkImageView getImageView() const;
-		VkDescriptorImageInfo getImageInfo() const;
+		const VkDescriptorImageInfo* getImageInfo() const;
 		VkImageLayout getImageLayout() const;
 		VkExtent3D getExtent() const;
 		VkFormat getFormat() const;

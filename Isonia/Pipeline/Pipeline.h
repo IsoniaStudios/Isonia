@@ -199,10 +199,9 @@ namespace Isonia::Pipeline
         void writeToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
         VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
         VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
-        VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+        const VkDescriptorBufferInfo* getDescriptorInfo() const;
         void writeToIndex(void* data, int index);
         VkResult flushIndex(int index);
-        VkDescriptorBufferInfo descriptorInfoForIndex(int index);
         VkResult invalidateIndex(int index);
 
         VkBuffer getBuffer() const;
@@ -222,6 +221,7 @@ namespace Isonia::Pipeline
         VkBuffer m_buffer = nullptr;
         VkDeviceMemory m_memory = nullptr;
 
+        VkDescriptorBufferInfo m_buffer_info;
         VkDeviceSize m_buffer_size;
         unsigned int m_instance_count;
         VkDeviceSize m_instance_size;
@@ -310,7 +310,7 @@ namespace Isonia::Pipeline
         VkImage getSwapChainImage(int index) const;
         VkImage getImage(int index) const;
         VkImage getIntermediateImage(int index) const;
-        VkDescriptorImageInfo getIntermediateImageInfo(int index) const;
+        const VkDescriptorImageInfo* getIntermediateImageInfo(int index) const;
 
         VkFramebuffer getFrameBuffer(int index) const;
         VkRenderPass getRenderPass() const;

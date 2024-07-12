@@ -36,7 +36,11 @@ namespace Isonia
 		delete m_ground_render_system;
 		delete m_water_render_system;
 
-		delete m_global_writer;
+		for (Pipeline::Descriptors::DescriptorWriter* writer : m_global_writers) {
+			delete writer;
+		}
+		delete m_global_set_layout;
+		delete m_global_pool;
 		for (Pipeline::Buffer* buffer : m_clock_buffers) {
 			delete buffer;
 		}
@@ -96,6 +100,7 @@ namespace Isonia
 				m_ground_render_system->render(&frame_info, &m_player.m_camera);
 				m_debugger_render_system->render(&frame_info);
 				m_renderer.copyToIntermediates(command_buffer);
+				m_global_writers[frame_index]->overwrite(&frame_info.global_descriptor_set);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_ui_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
@@ -178,27 +183,28 @@ namespace Isonia
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			VkDescriptorBufferInfo ubo_buffer_info = m_ubo_buffers[i]->descriptorInfo();
-			VkDescriptorBufferInfo clock_buffer_info = m_clock_buffers[i]->descriptorInfo();
-			VkDescriptorImageInfo grass_day_palette_info = m_grass_day_palette->getImageInfo();
-			VkDescriptorImageInfo grass_info = m_grass->getImageInfo();
-			VkDescriptorImageInfo debugger_info = m_debugger->getImageInfo();
-			VkDescriptorImageInfo cloud_info = m_cloud->getImageInfo();
-			VkDescriptorImageInfo water_day_palette_info = m_water_day_palette->getImageInfo();
-			VkDescriptorImageInfo wind_info = m_wind->getImageInfo();
-			VkDescriptorImageInfo text_info = m_text->getTexture()->getImageInfo();
-			VkDescriptorImageInfo intermediate_image_info = m_renderer.getPixelSwapChain()->getIntermediateImageInfo(i);
-			m_global_writer = (new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 10u))
-				->writeBuffer(0u, &ubo_buffer_info)
-				->writeBuffer(1u, &clock_buffer_info)
-				->writeImage(2u, &grass_day_palette_info)
-				->writeImage(3u, &grass_info)
-				->writeImage(4u, &debugger_info)
-				->writeImage(5u, &cloud_info)
-				->writeImage(6u, &water_day_palette_info)
-				->writeImage(7u, &wind_info)
-				->writeImage(8u, &text_info)
-				->writeImage(9u, &intermediate_image_info)
+			const VkDescriptorBufferInfo* ubo_buffer_info = m_ubo_buffers[i]->getDescriptorInfo();
+			const VkDescriptorBufferInfo* clock_buffer_info = m_clock_buffers[i]->getDescriptorInfo();
+			const VkDescriptorImageInfo* grass_day_palette_info = m_grass_day_palette->getImageInfo();
+			const VkDescriptorImageInfo* grass_info = m_grass->getImageInfo();
+			const VkDescriptorImageInfo* debugger_info = m_debugger->getImageInfo();
+			const VkDescriptorImageInfo* cloud_info = m_cloud->getImageInfo();
+			const VkDescriptorImageInfo* water_day_palette_info = m_water_day_palette->getImageInfo();
+			const VkDescriptorImageInfo* wind_info = m_wind->getImageInfo();
+			const VkDescriptorImageInfo* text_info = m_text->getTexture()->getImageInfo();
+			const VkDescriptorImageInfo* intermediate_image_info = m_renderer.getPixelSwapChain()->getIntermediateImageInfo(i);
+
+			m_global_writers[i] = new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 10u);
+			m_global_writers[i]->writeBuffer(0u, ubo_buffer_info)
+				->writeBuffer(1u, clock_buffer_info)
+				->writeImage(2u, grass_day_palette_info)
+				->writeImage(3u, grass_info)
+				->writeImage(4u, debugger_info)
+				->writeImage(5u, cloud_info)
+				->writeImage(6u, water_day_palette_info)
+				->writeImage(7u, wind_info)
+				->writeImage(8u, text_info)
+				->writeImage(9u, intermediate_image_info)
 				->build(&m_global_descriptor_sets[i]);
 		}
 	}
