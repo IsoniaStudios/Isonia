@@ -65,7 +65,7 @@ namespace Isonia::Controllers
         Player(const Player&) = delete;
         Player& operator=(const Player&) = delete;
 
-        void act(Pipeline::Window* window, float frameTime);
+        void act(Pipeline::Window* window, float frame_time_s);
 
         Pipeline::Renderer::EventHandler getOnAspectChangeCallback();
         static void onAspectChange(Pipeline::Renderer* renderer, void* user_data);
@@ -84,7 +84,7 @@ namespace Isonia::Controllers
         PlayerIsometric(const PlayerIsometric&) = delete;
         PlayerIsometric& operator=(const PlayerIsometric&) = delete;
 
-        void act(Pipeline::Window* window, float frameTime);
+        void act(Pipeline::Window* window, float frame_time_s);
 
         Pipeline::PixelRenderer::EventHandler getOnAspectChangeCallback();
         static void onAspectChange(Pipeline::PixelRenderer* renderer, void* user_data);

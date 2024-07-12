@@ -66,16 +66,15 @@ namespace Isonia::Renderable
 		float x = -0.95f;
 		float y = -0.95f;
 
-		const float pixel_screen_size_x = 2.0f / extent.width;
-		const float pixel_screen_size_y = 2.0f / extent.height;
+		const VkExtent3D font_extend = m_font->getTexture()->getExtent();
+
+		const float pixel_screen_size_x = 2.0f / static_cast<float>(extent.width);
+		const float pixel_screen_size_y = 2.0f / static_cast<float>(extent.height);
+		const float offset_screen_y = pixel_screen_size_y * static_cast<float>(font_extend.height);
 
 		for (unsigned int i = 0; i < char_length; i++)
 		{
 			const unsigned char c = text[i];
-
-			const Math::Vector2 uv_x = m_font->sampleFontSingleRowTexture(c);
-			const float offset_screen_x = pixel_screen_size_x * (uv_x.y - uv_x.x) * 376.0f;
-			const float offset_screen_y = pixel_screen_size_y * 8.0f;
 
 			if (c == '\n')
 			{
@@ -86,10 +85,14 @@ namespace Isonia::Renderable
 			}
 			else if (c == '\t')
 			{
-				x += offset_screen_x * 4.0f;
+				const Math::Vector2 uv_x = m_font->sampleFontSingleRowTexture(' ');
+				x += pixel_screen_size_x * (uv_x.y - uv_x.x) * static_cast<float>(font_extend.width);
 				memset(&m_vertices[i * vertices_per_quad], 0, vertices_per_quad * sizeof(VertexUI));
 				continue;
 			}
+
+			const Math::Vector2 uv_x = m_font->sampleFontSingleRowTexture(c);
+			const float offset_screen_x = pixel_screen_size_x * (uv_x.y - uv_x.x) * static_cast<float>(font_extend.width);
 
 			VertexUI p0{ x, y, uv_x.x, 0.0f };
 			VertexUI p1{ x + offset_screen_x, y, uv_x.y, 0.0f };

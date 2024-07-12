@@ -6,14 +6,14 @@ layout(location = 0) in vec3 position;
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
   mat4 view;
-  mat4 invView;
-  vec4 ambientLightColor; // w is intensity
-  vec3 lightDirection;
+  mat4 inverse_view;
+  vec4 recording_time_elapsed_s;
+  vec3 light_direction;
 } ubo;
 
 layout(set = 0, binding = 1) uniform GlobalClock {
-  float time;
-  float frameTime;
+  float time_s;
+  float frame_time_s;
 } clock;
 
 void main()

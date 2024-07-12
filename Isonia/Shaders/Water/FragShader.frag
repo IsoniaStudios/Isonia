@@ -1,21 +1,21 @@
 #version 450
 #extension GL_KHR_vulkan_glsl : enable
 
-layout(location = 0) in vec3 fragPosWorld;
+layout(location = 0) in vec3 frag_position_world;
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 out_color;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
   mat4 view;
-  mat4 invView;
-  vec4 ambientLightColor; // w is intensity
-  vec3 lightDirection;
+  mat4 inverse_view;
+  vec4 recording_time_elapsed_s;
+  vec3 light_direction;
 } ubo;
 
 layout(set = 0, binding = 1) uniform GlobalClock {
-  float time;
-  float frameTime;
+  float time_s;
+  float frame_time_s;
 } clock;
 
 layout(push_constant) uniform Push {
@@ -24,9 +24,9 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
-layout (set = 0, binding = 6) uniform sampler1D colorMap;
+layout (set = 0, binding = 6) uniform sampler1D color_map;
 
 void main()
 {
-	outColor = vec4(texture(colorMap, 0).rgb, 0.1);
+	out_color = vec4(texture(color_map, 0).rgb, 0.1);
 }

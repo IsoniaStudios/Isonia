@@ -1,29 +1,29 @@
 #version 450
 #extension GL_KHR_vulkan_glsl : enable
 
-layout (location = 0) in vec2 fragTexCoord;
+layout (location = 0) in vec2 frag_texture_coord;
 
-layout (location = 0) out vec4 outColor;
+layout (location = 0) out vec4 out_color;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
   mat4 projection;
   mat4 view;
-  mat4 invView;
-  vec4 ambientLightColor; // w is intensity
-  vec3 lightDirection;
+  mat4 inverse_view;
+  vec4 recording_time_elapsed_s;
+  vec3 light_direction;
 } ubo;
 
 layout(set = 0, binding = 1) uniform GlobalClock {
-  float time;
-  float frameTime;
+  float time_s;
+  float frame_time_s;
 } clock;
 
-layout (set = 0, binding = 8) uniform sampler2D textureMap;
+layout (set = 0, binding = 8) uniform sampler2D texture_map;
 
 void main()
 {
-	vec4 textureValue = texture(textureMap, fragTexCoord);
-	if (textureValue.a < 1)
+	vec4 texture_value = texture(texture_map, frag_texture_coord);
+	if (texture_value.a < 1)
 		discard;
-	outColor = textureValue;
+	out_color = texture_value;
 }

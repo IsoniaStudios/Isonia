@@ -217,6 +217,7 @@ namespace Isonia::Pipeline
 
 		present_info.pImageIndices = image_index;
 
+		// TODO: Exception thrown at 0x00007FF83E6AF39C in Isonia.exe: Microsoft C++ exception: Poco::NotFoundException at memory location 0x00000038C074EF50.
 		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
 
 		m_current_frame = (m_current_frame + 1) % max_frames_in_flight;

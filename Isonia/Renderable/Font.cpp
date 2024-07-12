@@ -7,7 +7,7 @@ namespace Isonia::Renderable
 	{
 		const unsigned int texture_size = width * height;
 		unsigned char* texture_byte = new unsigned char[texture_size];
-		for (int i = 0; i < width; i++)
+		for (unsigned int i = 0; i < width; i++)
 		{
 			const unsigned char binary_pixel = texture_binary[i];
 			for (char bit = 0; bit < 8; bit++)
@@ -22,7 +22,6 @@ namespace Isonia::Renderable
 
 	Math::Vector2 Font::sampleFontSingleRowTexture(const char c) const
 	{
-		assert(c > 31 && "Invalid char");
 		const float width = static_cast<float>(m_font_map.getExtent().width);
 		return Math::Vector2{
 			m_char_to_offsets[c - 32] / width,
