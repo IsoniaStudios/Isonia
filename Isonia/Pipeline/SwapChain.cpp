@@ -135,7 +135,7 @@ namespace Isonia::Pipeline
 			m_swap_chain,
 			Math::unsigned_long_max,
 			m_image_available_semaphores[m_current_frame],  // must be a not signaled semaphore
-			VK_NULL_HANDLE,
+			nullptr,
 			image_index
 		);
 
@@ -144,7 +144,7 @@ namespace Isonia::Pipeline
 
 	VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index)
 	{
-		if (m_images_in_flight[*image_index] != VK_NULL_HANDLE)
+		if (m_images_in_flight[*image_index] != nullptr)
 		{
 			vkWaitForFences(m_device->getDevice(), 1, &m_images_in_flight[*image_index], VK_TRUE, UINT64_MAX);
 		}
@@ -254,7 +254,7 @@ namespace Isonia::Pipeline
 		create_info.presentMode = present_mode;
 		create_info.clipped = VK_TRUE;
 
-		create_info.oldSwapchain = m_old_swap_chain == nullptr ? VK_NULL_HANDLE : m_old_swap_chain->m_swap_chain;
+		create_info.oldSwapchain = m_old_swap_chain == nullptr ? nullptr : m_old_swap_chain->m_swap_chain;
 
 		if (vkCreateSwapchainKHR(m_device->getDevice(), &create_info, nullptr, &m_swap_chain) != VK_SUCCESS)
 		{
@@ -438,7 +438,7 @@ namespace Isonia::Pipeline
 		m_images_in_flight = new VkFence[m_image_count];
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
-			m_images_in_flight[i] = VK_NULL_HANDLE;
+			m_images_in_flight[i] = nullptr;
 		}
 
 		VkSemaphoreCreateInfo semaphore_info = {};

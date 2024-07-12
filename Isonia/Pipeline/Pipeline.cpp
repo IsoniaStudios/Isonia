@@ -194,8 +194,8 @@ namespace Isonia::Pipeline
 
 	Pipeline* Pipeline::createGraphicsPipeline(const PipelineConfigInfo* config_info)
 	{
-		assert(config_info->pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
-		assert(config_info->renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
+		assert(config_info->pipelineLayout != nullptr && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
+		assert(config_info->renderPass != nullptr && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
 		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
 		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -227,9 +227,9 @@ namespace Isonia::Pipeline
 		pipeline_info.subpass = config_info->subpass;
 
 		pipeline_info.basePipelineIndex = -1;
-		pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+		pipeline_info.basePipelineHandle = nullptr;
 
-		if (vkCreateGraphicsPipelines(m_device->getDevice(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &m_graphics_pipeline) != VK_SUCCESS)
+		if (vkCreateGraphicsPipelines(m_device->getDevice(), nullptr, 1, &pipeline_info, nullptr, &m_graphics_pipeline) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create graphics pipeline");
 		}

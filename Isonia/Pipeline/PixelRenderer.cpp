@@ -51,6 +51,10 @@ namespace Isonia::Pipeline
 	{
 		return m_is_frame_started;
 	}
+	PixelSwapChain* PixelRenderer::getPixelSwapChain() const
+	{
+		return m_pixel_swap_chain;
+	}
 
 	VkCommandBuffer PixelRenderer::getCurrentCommandBuffer() const
 	{
@@ -203,7 +207,11 @@ namespace Isonia::Pipeline
 			.subresourceRange = subresource_range
 		};
 
-		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &clear_barrier);
+		vkCmdPipelineBarrier(
+			command_buffer,
+			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &clear_barrier
+		);
 
 		// Calculate pixel offsets
 		const float scale_factor = Math::pixels_per_unit * static_cast<float>(m_render_factor);
@@ -251,7 +259,95 @@ namespace Isonia::Pipeline
 			.subresourceRange = subresource_range
 		};
 
-		vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &present_barrier);
+		vkCmdPipelineBarrier(
+			command_buffer,
+			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &present_barrier
+		);
+	}
+
+	void PixelRenderer::copyToIntermediates(VkCommandBuffer command_buffer)
+	{
+		// The common subresource thingies
+		VkImageSubresourceRange subresource_range{
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		};
+
+		VkImageSubresourceLayers subresource{
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.mipLevel = 0,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		};
+
+		// Transfer the swapchain image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+		VkImageMemoryBarrier clear_barrier{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			.pNext = nullptr,
+			.srcAccessMask = 0,
+			.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+			.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
+			.subresourceRange = subresource_range
+		};
+
+		vkCmdPipelineBarrier(
+			command_buffer,
+			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &clear_barrier
+		);
+
+		// Set up the copy region
+		VkImageCopy copy_region{
+			.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
+			.srcOffset = { 0, 0, 0 },
+			.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
+			.dstOffset = { 0, 0, 0 },
+			.extent = {
+				m_pixel_swap_chain->getRenderWidth(),
+				m_pixel_swap_chain->getRenderHeight(),
+				1
+			}
+		};
+
+		// Perform the copy operation
+		vkCmdCopyImage(
+			command_buffer,
+			m_pixel_swap_chain->getImage(m_current_image_index),
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1, &copy_region
+		);
+
+		// Transfer to the presentation layout
+		VkImageMemoryBarrier present_barrier{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			.pNext = nullptr,
+			.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+			.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+			.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
+			.subresourceRange = subresource_range
+		};
+
+		vkCmdPipelineBarrier(
+			command_buffer,
+			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &present_barrier
+		);
 	}
 
 	void PixelRenderer::createCommandBuffers()

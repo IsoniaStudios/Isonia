@@ -59,7 +59,7 @@ namespace Isonia::Renderable
 		void createTextureSampler(VkFilter filter, VkSamplerAddressMode address_mode);
 		static constexpr const unsigned int formatToBytesPerPixel(const VkFormat image_format);
 
-		VkDescriptorImageInfo m_descriptor{};
+		VkDescriptorImageInfo m_descriptor;
 		Pipeline::Device* m_device;
 		VkImage m_texture_image;
 		VkDeviceMemory m_texture_image_memory;

@@ -25,8 +25,10 @@ layout(push_constant) uniform Push {
 } push;
 
 layout (set = 0, binding = 6) uniform sampler1D color_map;
+layout (set = 0, binding = 9) uniform sampler1D texture_map;
 
 void main()
 {
-	out_color = vec4(texture(color_map, 0).rgb, 0.1);
+	//out_color = vec4(texture(color_map, 0).rgb, 0.1);
+	out_color = texture(texture_map, 0);
 }

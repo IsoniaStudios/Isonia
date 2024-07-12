@@ -151,7 +151,7 @@ namespace Isonia::Pipeline
 		submit_info.commandBufferCount = 1;
 		submit_info.pCommandBuffers = &command_buffer;
 
-		vkQueueSubmit(m_graphics_queue, 1, &submit_info, VK_NULL_HANDLE);
+		vkQueueSubmit(m_graphics_queue, 1, &submit_info, nullptr);
 		vkQueueWaitIdle(m_graphics_queue);
 
 		vkFreeCommandBuffers(m_device, m_command_pool, 1, &command_buffer);
@@ -617,7 +617,7 @@ namespace Isonia::Pipeline
 
 		delete[] devices;
 
-		if (m_physical_device == VK_NULL_HANDLE)
+		if (m_physical_device == nullptr)
 		{
 			throw std::runtime_error("Failed to find a suitable GPU!");
 		}

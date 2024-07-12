@@ -159,7 +159,7 @@ namespace Isonia::Pipeline
         Window* m_window;
         
         VkInstance m_instance;
-		VkPhysicalDevice m_physical_device = VK_NULL_HANDLE;
+		VkPhysicalDevice m_physical_device = nullptr;
 		VkCommandPool m_command_pool;
 		VkDevice m_device;
 		VkSurfaceKHR m_surface;
@@ -219,8 +219,8 @@ namespace Isonia::Pipeline
 
         Device* m_device;
         void* m_mapped = nullptr;
-        VkBuffer m_buffer = VK_NULL_HANDLE;
-        VkDeviceMemory m_memory = VK_NULL_HANDLE;
+        VkBuffer m_buffer = nullptr;
+        VkDeviceMemory m_memory = nullptr;
 
         VkDeviceSize m_buffer_size;
         unsigned int m_instance_count;
@@ -309,6 +309,8 @@ namespace Isonia::Pipeline
 
         VkImage getSwapChainImage(int index) const;
         VkImage getImage(int index) const;
+        VkImage getIntermediateImage(int index) const;
+        VkDescriptorImageInfo getIntermediateImageInfo(int index) const;
 
         VkFramebuffer getFrameBuffer(int index) const;
         VkRenderPass getRenderPass() const;
@@ -339,6 +341,7 @@ namespace Isonia::Pipeline
 		void createColorResources();
 		void createDepthResources();
 		void createSyncObjects();
+        void createIntermediates();
 
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count);
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
@@ -356,12 +359,21 @@ namespace Isonia::Pipeline
 		VkRenderPass m_render_pass;
 
 		VkFence* m_images_in_flight;
-		VkImage* m_depth_images;
+		
+        VkImage* m_depth_images;
 		VkDeviceMemory* m_depth_image_memorys;
 		VkImageView* m_depth_image_views;
-		VkImage* m_color_images;
-		VkDeviceMemory* m_color_image_memorys;
-		VkImageView* m_color_image_views;
+		
+        VkImage* m_color_images;
+        VkDeviceMemory* m_color_image_memorys;
+        VkImageView* m_color_image_views;
+
+        VkDescriptorImageInfo* m_color_descriptors_intermediate;
+        VkImage* m_color_images_intermediate;
+        VkDeviceMemory* m_color_image_memorys_intermediate;
+        VkImageView* m_color_image_views_intermediate;
+        VkSampler* m_color_samplers_intermediate;
+
 		VkImage* m_swap_chain_images;
 		VkFramebuffer* m_swap_chain_framebuffers;
 		VkImageView* m_swap_chain_image_views;
@@ -396,6 +408,7 @@ namespace Isonia::Pipeline
         float getAspectRatio() const;
         VkExtent2D getExtent() const;
         bool isFrameInProgress() const;
+        PixelSwapChain* getPixelSwapChain() const;
 
         VkCommandBuffer getCurrentCommandBuffer() const;
         int getFrameIndex() const;
@@ -406,6 +419,8 @@ namespace Isonia::Pipeline
         void blit(VkCommandBuffer command_buffer, Math::Vector2 offset);
 
         unsigned int getRenderFactor() const;
+
+        void copyToIntermediates(VkCommandBuffer command_buffer);
 
     protected:
         void createCommandBuffers();
