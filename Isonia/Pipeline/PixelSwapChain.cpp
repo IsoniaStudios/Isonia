@@ -624,6 +624,19 @@ namespace Isonia::Pipeline
 			}
 		}
 
+		// Transition swap chain images to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL because render pipeline expects it
+		for (unsigned int i = 0; i < m_image_count; i++)
+		{
+			m_device->transitionImageLayout(
+				m_color_images_intermediate[i],
+				m_swap_chain_image_format,
+				VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+				1,
+				1
+			);
+		}
+
 		// samplers
 		m_color_samplers_intermediate = new VkSampler[m_image_count];
 		for (unsigned int i = 0; i < m_image_count; i++)

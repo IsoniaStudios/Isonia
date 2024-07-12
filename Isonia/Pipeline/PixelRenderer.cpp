@@ -285,13 +285,13 @@ namespace Isonia::Pipeline
 			.layerCount = 1
 		};
 
-		// Transfer the swapchain image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+		// Transfer the intermediate image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
 		VkImageMemoryBarrier clear_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
 			.srcAccessMask = 0,
 			.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-			.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+			.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -335,7 +335,7 @@ namespace Isonia::Pipeline
 			.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
 			.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
 			.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+			.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),

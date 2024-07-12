@@ -95,7 +95,7 @@ namespace Isonia
 				m_renderer.beginSwapChainRenderPass(command_buffer);
 				m_ground_render_system->render(&frame_info, &m_player.m_camera);
 				m_debugger_render_system->render(&frame_info);
-				//m_renderer.copyToIntermediates(command_buffer);
+				m_renderer.copyToIntermediates(command_buffer);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_ui_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
