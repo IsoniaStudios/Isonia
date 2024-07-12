@@ -158,7 +158,8 @@ namespace Isonia
 
 		m_debugger = Renderable::createDebugTexture(&m_device);
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
-		m_text = Renderable::create3x6PixelFontSingleRowTexture(&m_device);
+
+		m_text = Renderable::Font::pixelFont3x6(&m_device);
 
 		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, 9u))
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -182,7 +183,7 @@ namespace Isonia
 			VkDescriptorImageInfo cloud_info = m_cloud->getImageInfo();
 			VkDescriptorImageInfo water_day_palette_info = m_water_day_palette->getImageInfo();
 			VkDescriptorImageInfo wind_info = m_wind->getImageInfo();
-			VkDescriptorImageInfo text_info = m_text->getImageInfo();
+			VkDescriptorImageInfo text_info = m_text->getTexture()->getImageInfo();
 			m_global_writer = (new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, 9u))
 				->writeBuffer(0u, &ubo_buffer_info)
 				->writeBuffer(1u, &clock_buffer_info)
@@ -222,6 +223,7 @@ namespace Isonia
 			&m_device,
 			m_renderer.getSwapChainRenderPass(),
 			m_global_set_layout->getDescriptorSetLayout(),
+			m_text,
 			128u
 		};
 	}

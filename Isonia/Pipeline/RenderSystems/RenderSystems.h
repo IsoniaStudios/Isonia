@@ -114,7 +114,7 @@ namespace Isonia::Pipeline::RenderSystems
 	struct UIRenderSystem
 	{
 	public:
-		UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int max_text_length);
+		UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const Renderable::Font* font, const unsigned int max_text_length);
 		~UIRenderSystem();
 
 		UIRenderSystem(const UIRenderSystem&) = delete;

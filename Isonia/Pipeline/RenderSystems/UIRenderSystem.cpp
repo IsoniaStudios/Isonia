@@ -10,13 +10,13 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	UIRenderSystem::UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int max_text_length)
+	UIRenderSystem::UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const Renderable::Font* font, const unsigned int max_text_length)
 		: m_device(device), m_ui(nullptr)
 	{
 		createPipelineLayout(global_set_layout);
 		createPipeline(render_pass);
 
-		m_ui = new Renderable::BuilderUI(m_device, max_text_length);
+		m_ui = new Renderable::BuilderUI(m_device, font, max_text_length);
 	}
 
 	UIRenderSystem::~UIRenderSystem()

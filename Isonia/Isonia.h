@@ -58,7 +58,7 @@ namespace Isonia
 		Renderable::Texture* m_debugger;
 		Renderable::Texture* m_cloud;
 		Renderable::Texture* m_wind;
-		Renderable::Texture* m_text;
+		Renderable::Font* m_text;
 
 		Renderable::Model* m_sphere_model;
 		Renderable::Model* m_prism_models[20];
