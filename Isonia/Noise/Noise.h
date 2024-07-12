@@ -11,6 +11,10 @@ namespace Isonia::Noise
     public:
         VirtualNoise(const unsigned int seed);
 
+        VirtualNoise() = delete;
+        VirtualNoise(const VirtualNoise&) = delete;
+        VirtualNoise& operator=(const VirtualNoise&) = delete;
+
         virtual inline float generateNoise(const float x, const float y) const = 0;
         virtual inline float generateNoise(const float x, const float y, const float z) const = 0;
         virtual inline float generateNoise(const float x, const float y, const float z, const float w) const = 0;
@@ -22,7 +26,11 @@ namespace Isonia::Noise
     struct WhiteNoise : public VirtualNoise
     {
     public:
-        WhiteNoise(const unsigned int seed = 0);
+        WhiteNoise(const unsigned int seed = 69u);
+
+        WhiteNoise() = delete;
+        WhiteNoise(const WhiteNoise&) = delete;
+        WhiteNoise& operator=(const WhiteNoise&) = delete;
 
         inline float generateNoise(const float x, const float y) const override;
         inline float generateNoise(const float x, const float y, const float z) const override;
@@ -43,7 +51,11 @@ namespace Isonia::Noise
     struct PerlinNoise : public VirtualNoise
     {
     public:
-        PerlinNoise(const unsigned int seed = 0);
+        PerlinNoise(const unsigned int seed = 69u);
+
+        PerlinNoise() = delete;
+        PerlinNoise(const PerlinNoise&) = delete;
+        PerlinNoise& operator=(const PerlinNoise&) = delete;
 
         inline float generateNoise(const float x, const float y) const override;
         inline float generateNoise(const float x, const float y, const float z) const override;
@@ -58,6 +70,10 @@ namespace Isonia::Noise
     {
     public:
         FractalPerlinNoise(const unsigned int seed, const unsigned int octaves, const float lacunarity, const float gain, const float weighted_strength);
+
+        FractalPerlinNoise() = delete;
+        FractalPerlinNoise(const FractalPerlinNoise&) = delete;
+        FractalPerlinNoise& operator=(const FractalPerlinNoise&) = delete;
 
         inline float generateNoise(const float x, const float y) const override;
         inline float generateNoise(const float x, const float y, const float z) const override;
@@ -79,6 +95,9 @@ namespace Isonia::Noise
     public:
         VirtualWarpNoise();
 
+        VirtualWarpNoise(const VirtualWarpNoise&) = delete;
+        VirtualWarpNoise& operator=(const VirtualWarpNoise&) = delete;
+
         virtual inline void transformCoordinate(float* x, float* y) const = 0;
         virtual inline void transformCoordinate(float* x, float* y, float* z) const = 0;
         virtual inline void transformCoordinate(float* x, float* y, float* z, float* w) const = 0;
@@ -88,6 +107,10 @@ namespace Isonia::Noise
     {
     public:
         ConstantScalarWarpNoise(const float frequency);
+
+        ConstantScalarWarpNoise() = delete;
+        ConstantScalarWarpNoise(const ConstantScalarWarpNoise&) = delete;
+        ConstantScalarWarpNoise& operator=(const ConstantScalarWarpNoise&) = delete;
 
         inline void transformCoordinate(float* x, float* y) const override;
         inline void transformCoordinate(float* x, float* y, float* z) const override;
@@ -101,6 +124,10 @@ namespace Isonia::Noise
     {
     public:
         CurlNoise(const VirtualNoise* base_noise, const VirtualWarpNoise* base_warp_noise);
+
+        CurlNoise() = delete;
+        CurlNoise(const CurlNoise&) = delete;
+        CurlNoise& operator=(const CurlNoise&) = delete;
 
         inline void transformCoordinate(float* x, float* y) const override;
         inline void transformCoordinate(float* x, float* y, float* z) const override;

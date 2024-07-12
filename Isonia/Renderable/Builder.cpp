@@ -361,7 +361,7 @@ namespace Isonia::Renderable
 		// alloc memory
 		VertexXZUniformNP* vertices = static_cast<VertexXZUniformNP*>(operator new[](sizeof(VertexXZUniformNP) * m_count));
 
-		const Noise::WhiteNoise offset_noise = {};
+		const Noise::WhiteNoise offset_noise = { 69u };
 		const float size = ground->m_quad_size / density;
 		const float half_size = size * 0.33f;
 

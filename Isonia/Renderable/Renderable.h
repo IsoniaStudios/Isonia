@@ -39,6 +39,7 @@ namespace Isonia::Renderable
 		Texture(Pipeline::Device* device, const void* texture, const unsigned int tex_height, const unsigned int tex_width, const VkFormat format, const VkFilter filter = VK_FILTER_NEAREST, const VkSamplerAddressMode address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT);
 		~Texture();
 
+		Texture() = delete;
 		Texture(const Texture&) = delete;
 		Texture& operator=(const Texture&) = delete;
 
@@ -85,6 +86,11 @@ namespace Isonia::Renderable
 	{
 	public:
 		TextureFactory(const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+
+		TextureFactory() = delete;
+		TextureFactory(const TextureFactory&) = delete;
+		TextureFactory& operator=(const TextureFactory&) = delete;
+
 		Texture* instantiateTexture(Pipeline::Device* device, const VkFormat format, const VkFilter filter = VK_FILTER_NEAREST, const VkSamplerAddressMode address_mode = VK_SAMPLER_ADDRESS_MODE_REPEAT) const;
 		virtual void* createTexture() const;
 
@@ -104,6 +110,11 @@ namespace Isonia::Renderable
 	{
 	public:
 		TextureAtlasFactory(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+
+		TextureAtlasFactory() = delete;
+		TextureAtlasFactory(const TextureAtlasFactory&) = delete;
+		TextureAtlasFactory& operator=(const TextureAtlasFactory&) = delete;
+		
 		void* createTexture() const override;
 
 	protected:
@@ -120,12 +131,22 @@ namespace Isonia::Renderable
 	struct GrassTextureAtlasFactory : public TextureAtlasFactory
 	{
 		GrassTextureAtlasFactory(const unsigned int atlas_height, const unsigned int atlas_width, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+
+		GrassTextureAtlasFactory() = delete;
+		GrassTextureAtlasFactory(const GrassTextureAtlasFactory&) = delete;
+		GrassTextureAtlasFactory& operator=(const GrassTextureAtlasFactory&) = delete;
+		
 		inline void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const override;
 	};
 
 	struct Noise4DTextureFactory : public TextureFactory
 	{
 		Noise4DTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+
+		Noise4DTextureFactory() = delete;
+		Noise4DTextureFactory(const Noise4DTextureFactory&) = delete;
+		Noise4DTextureFactory& operator=(const Noise4DTextureFactory&) = delete;
+
 		inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
 
 	private:
@@ -136,6 +157,11 @@ namespace Isonia::Renderable
 	struct WarpNoiseTextureFactory : public TextureFactory
 	{
 		WarpNoiseTextureFactory(const Noise::VirtualWarpNoise* warp_noise, const unsigned int texture_height, const unsigned int texture_width, const unsigned char stride);
+
+		WarpNoiseTextureFactory() = delete;
+		WarpNoiseTextureFactory(const WarpNoiseTextureFactory&) = delete;
+		WarpNoiseTextureFactory& operator=(const WarpNoiseTextureFactory&) = delete;
+
 		inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
 
 	private:
@@ -299,6 +325,10 @@ namespace Isonia::Renderable
 		BuilderPosition(Pipeline::Device* device);
 		~BuilderPosition();
 
+		BuilderPosition() = delete;
+		BuilderPosition(const BuilderPosition&) = delete;
+		BuilderPosition& operator=(const BuilderPosition&) = delete;
+
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
 
@@ -315,6 +345,10 @@ namespace Isonia::Renderable
 		BuilderXZUniform(Pipeline::Device* device, const unsigned int vertices_side_count, const float quad_size);
 		BuilderXZUniform(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const Math::Vector3 position, const unsigned int vertices_side_count, const float quad_size);
 		~BuilderXZUniform();
+
+		BuilderXZUniform() = delete;
+		BuilderXZUniform(const BuilderXZUniform&) = delete;
+		BuilderXZUniform& operator=(const BuilderXZUniform&) = delete;
 
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
@@ -340,6 +374,10 @@ namespace Isonia::Renderable
 	{
 		BuilderXZUniformN(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const float x, const float z, const unsigned int vertices_side_count, const float quad_size);
 		~BuilderXZUniformN();
+
+		BuilderXZUniformN() = delete;
+		BuilderXZUniformN(const BuilderXZUniformN&) = delete;
+		BuilderXZUniformN& operator=(const BuilderXZUniformN&) = delete;
 
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
@@ -378,6 +416,10 @@ namespace Isonia::Renderable
 		BuilderXZUniformNP(Pipeline::Device* device, BuilderXZUniformN* ground, const float density);
 		~BuilderXZUniformNP();
 
+		BuilderXZUniformNP() = delete;
+		BuilderXZUniformNP(const BuilderXZUniformNP&) = delete;
+		BuilderXZUniformNP& operator=(const BuilderXZUniformNP&) = delete;
+
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);
 
@@ -405,6 +447,11 @@ namespace Isonia::Renderable
 
 	public:
 		Font(Pipeline::Device* device, const unsigned int height, const unsigned int width, const unsigned char* texture, const unsigned int char_to_offsets[char_count]);
+
+		Font() = delete;
+		Font(const Font&) = delete;
+		Font& operator=(const Font&) = delete;
+
 		Math::Vector2 sampleFontSingleRowTexture(const char c) const;
 
 		const Texture* getTexture() const;
@@ -467,6 +514,10 @@ namespace Isonia::Renderable
 	{
 		BuilderUI(Pipeline::Device* device, const Font* font, const unsigned int max_text_length);
 		~BuilderUI();
+
+		BuilderUI() = delete;
+		BuilderUI(const BuilderUI&) = delete;
+		BuilderUI& operator=(const BuilderUI&) = delete;
 
 		void bind(VkCommandBuffer command_buffer);
 		void draw(VkCommandBuffer command_buffer);

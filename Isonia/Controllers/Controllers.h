@@ -11,6 +11,10 @@ namespace Isonia::Controllers
     public:
         struct KeyMappings
         {
+            KeyMappings() = default;
+            KeyMappings(const KeyMappings&) = delete;
+            KeyMappings& operator=(const KeyMappings&) = delete;
+
             unsigned int move_left = Pipeline::KeyCodes::a;
             unsigned int move_right = Pipeline::KeyCodes::d;
             unsigned int move_forward = Pipeline::KeyCodes::w;
@@ -29,6 +33,10 @@ namespace Isonia::Controllers
             unsigned int perspective = Pipeline::KeyCodes::tab;
         };
 
+        KeyboardController() = default;
+        KeyboardController(const KeyboardController&) = delete;
+        KeyboardController& operator=(const KeyboardController&) = delete;
+
         virtual void move(Pipeline::Window* window, float dt, Math::Transform* transform);
 
         KeyMappings m_keys{};
@@ -41,6 +49,10 @@ namespace Isonia::Controllers
     struct KeyboardControllerIsometric : public KeyboardController
     {
     public:
+        KeyboardControllerIsometric() = default;
+        KeyboardControllerIsometric(const KeyboardControllerIsometric&) = delete;
+        KeyboardControllerIsometric& operator=(const KeyboardControllerIsometric&) = delete;
+
         void move(Pipeline::Window* window, float dt, Math::Transform* transform) override;
     };
 

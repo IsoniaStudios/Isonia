@@ -14,6 +14,7 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorSetLayout(Device* device, const unsigned int count);
 		~DescriptorSetLayout();
 
+		DescriptorSetLayout() = delete;
 		DescriptorSetLayout(const DescriptorSetLayout&) = delete;
 		DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
 
@@ -38,6 +39,7 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorPool(Device* device, const unsigned int count);
 		~DescriptorPool();
 
+		DescriptorPool() = delete;
 		DescriptorPool(const DescriptorPool&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&) = delete;
 
@@ -64,6 +66,10 @@ namespace Isonia::Pipeline::Descriptors
 	public:
 		DescriptorWriter(DescriptorSetLayout* set_layout, DescriptorPool* pool, const unsigned int count);
 		~DescriptorWriter();
+
+		DescriptorWriter() = delete;
+		DescriptorWriter(const DescriptorWriter&) = delete;
+		DescriptorWriter& operator=(const DescriptorWriter&) = delete;
 
 		DescriptorWriter* writeBuffer(unsigned int binding, VkDescriptorBufferInfo* buffer_info);
 		DescriptorWriter* writeImage(unsigned int binding, VkDescriptorImageInfo* image_info);

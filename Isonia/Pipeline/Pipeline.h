@@ -51,6 +51,7 @@ namespace Isonia::Pipeline
         Window(unsigned int width, unsigned int height, const char* name);
         ~Window();
 
+        Window() = delete;
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
 
@@ -86,6 +87,8 @@ namespace Isonia::Pipeline
 
     struct SwapChainSupportDetails
     {
+        SwapChainSupportDetails() = default;
+
         VkSurfaceCapabilitiesKHR capabilities;
         VkSurfaceFormatKHR* formats;
         unsigned int formats_count;
@@ -95,6 +98,8 @@ namespace Isonia::Pipeline
 
     struct QueueFamilyIndices
     {
+        QueueFamilyIndices() = default;
+
         unsigned int graphics_family;
         unsigned int present_family;
         bool graphics_family_has_value = false;
@@ -111,8 +116,9 @@ namespace Isonia::Pipeline
         Device(Window* window);
         ~Device();
 
-		Device(const Device&) = delete;
-		Device& operator=(const Device&) = delete;
+        Device() = delete;
+        Device(const Device&) = delete;
+        Device& operator=(const Device&) = delete;
 
         VkDevice getDevice() const;
         VkCommandPool getCommandPool() const;
@@ -184,6 +190,7 @@ namespace Isonia::Pipeline
         Buffer(Device* device, VkDeviceSize instance_size, unsigned int instance_count, VkBufferUsageFlags usage_flags, VkMemoryPropertyFlags memory_property_flags, VkDeviceSize min_offset_alignment = 1);
         ~Buffer();
 
+        Buffer() = delete;
         Buffer(const Buffer&) = delete;
         Buffer& operator=(const Buffer&) = delete;
 
@@ -254,6 +261,10 @@ namespace Isonia::Pipeline
         Pipeline(Device* device, const unsigned int shader_stages_count);
         ~Pipeline();
 
+        Pipeline() = delete;
+        Pipeline(const Pipeline&) = delete;
+        Pipeline& operator=(const Pipeline&) = delete;
+
         VkShaderStageFlags getStageFlags() const;
 
         void bind(VkCommandBuffer command_buffer);
@@ -292,8 +303,9 @@ namespace Isonia::Pipeline
         ~PixelSwapChain();
         void freeOldPixelSwapChain();
 
-		PixelSwapChain(const PixelSwapChain&) = delete;
-		PixelSwapChain& operator=(const PixelSwapChain&) = delete;
+        PixelSwapChain() = delete;
+        PixelSwapChain(const PixelSwapChain&) = delete;
+        PixelSwapChain& operator=(const PixelSwapChain&) = delete;
 
         VkImage getSwapChainImage(int index) const;
         VkImage getImage(int index) const;
@@ -373,6 +385,7 @@ namespace Isonia::Pipeline
         PixelRenderer(Window* window, Device* device);
         ~PixelRenderer();
 
+        PixelRenderer() = delete;
         PixelRenderer(const PixelRenderer&) = delete;
         PixelRenderer& operator=(const PixelRenderer&) = delete;
 
@@ -428,6 +441,7 @@ namespace Isonia::Pipeline
         ~SwapChain();
         void freeOldSwapChain();
 
+        SwapChain() = delete;
         SwapChain(const SwapChain&) = delete;
         SwapChain& operator=(const SwapChain&) = delete;
 
@@ -496,8 +510,9 @@ namespace Isonia::Pipeline
         Renderer(Window* window, Device* device);
         ~Renderer();
 
-		Renderer(const Renderer&) = delete;
-		Renderer& operator=(const Renderer&) = delete;
+        Renderer() = delete;
+        Renderer(const Renderer&) = delete;
+        Renderer& operator=(const Renderer&) = delete;
 
         typedef void (*EventHandler)(Renderer*, void*);
         void registerRenderResizeCallback(EventHandler, void*);
@@ -538,6 +553,10 @@ namespace Isonia::Pipeline
     struct Camera
     {
     public:
+        Camera() = default;
+        Camera(const Camera&) = delete;
+        Camera& operator=(const Camera&) = delete;
+
         void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
         void setPerspectiveProjection(float fovy, float aspect, float near, float far);
         void setViewDirection(const Math::Vector3* position, const Math::Vector3* direction, const Math::Vector3* up);
@@ -572,6 +591,10 @@ namespace Isonia::Pipeline
     struct CameraIsometric : public Camera
     {
     public:
+        CameraIsometric() = default;
+        CameraIsometric(const CameraIsometric&) = delete;
+        CameraIsometric& operator=(const CameraIsometric&) = delete;
+
         void setView(Math::Transform* transform) override;
         void setProjection(PixelRenderer* renderer);
 
