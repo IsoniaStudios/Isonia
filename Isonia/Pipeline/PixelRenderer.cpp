@@ -269,8 +269,8 @@ namespace Isonia::Pipeline
 
 	void PixelRenderer::copyToIntermediates(VkCommandBuffer command_buffer)
 	{
-		// The common subresource thingies
-		VkImageSubresourceRange subresource_range{
+		// The common subresource thingies for color
+		VkImageSubresourceRange color_subresource_range{
 			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
 			.baseMipLevel = 0,
 			.levelCount = 1,
@@ -278,15 +278,31 @@ namespace Isonia::Pipeline
 			.layerCount = 1
 		};
 
-		VkImageSubresourceLayers subresource{
+		VkImageSubresourceLayers color_subresource{
 			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
 			.mipLevel = 0,
 			.baseArrayLayer = 0,
 			.layerCount = 1
 		};
 
-		// Transfer the intermediate image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
-		VkImageMemoryBarrier clear_barrier{
+		// The common subresource thingies for depth
+		VkImageSubresourceRange depth_subresource_range{
+			.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		};
+
+		VkImageSubresourceLayers depth_subresource{
+			.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+			.mipLevel = 0,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		};
+
+		// Transfer the intermediate color image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+		VkImageMemoryBarrier clear_color_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
 			.srcAccessMask = 0,
@@ -296,17 +312,38 @@ namespace Isonia::Pipeline
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
-			.subresourceRange = subresource_range
+			.subresourceRange = color_subresource_range
 		};
+
+		// Transfer the intermediate depth image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+		VkImageMemoryBarrier clear_depth_barrier{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			.pNext = nullptr,
+			.srcAccessMask = 0,
+			.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+			.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.image = m_pixel_swap_chain->getIntermediateDepthImage(m_current_image_index),
+			.subresourceRange = depth_subresource_range
+		};
+
+		// Pipeline barriers for color and depth
+		vkCmdPipelineBarrier(
+			command_buffer,
+			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &clear_color_barrier
+		);
 
 		vkCmdPipelineBarrier(
 			command_buffer,
 			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-			0, 0, nullptr, 0, nullptr, 1, &clear_barrier
+			0, 0, nullptr, 0, nullptr, 1, &clear_depth_barrier
 		);
 
-		// Set up the copy region
-		VkImageCopy copy_region{
+		// Set up the copy region for color
+		VkImageCopy color_copy_region{
 			.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
 			.srcOffset = { 0, 0, 0 },
 			.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 },
@@ -318,18 +355,41 @@ namespace Isonia::Pipeline
 			}
 		};
 
-		// Perform the copy operation
+		// Set up the copy region for depth
+		VkImageCopy depth_copy_region{
+			.srcSubresource = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 0, 1 },
+			.srcOffset = { 0, 0, 0 },
+			.dstSubresource = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 0, 1 },
+			.dstOffset = { 0, 0, 0 },
+			.extent = {
+				m_pixel_swap_chain->getRenderWidth(),
+				m_pixel_swap_chain->getRenderHeight(),
+				1
+			}
+		};
+
+		// Perform the copy operation for color
 		vkCmdCopyImage(
 			command_buffer,
 			m_pixel_swap_chain->getImage(m_current_image_index),
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 			m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1, &copy_region
+			1, &color_copy_region
 		);
 
-		// Transfer to the presentation layout
-		VkImageMemoryBarrier present_barrier{
+		// Perform the copy operation for depth
+		vkCmdCopyImage(
+			command_buffer,
+			m_pixel_swap_chain->getDepthImage(m_current_image_index),
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			m_pixel_swap_chain->getIntermediateDepthImage(m_current_image_index),
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1, &depth_copy_region
+		);
+
+		// Transfer the intermediate color image to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		VkImageMemoryBarrier present_color_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
 			.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -339,14 +399,36 @@ namespace Isonia::Pipeline
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
-			.subresourceRange = subresource_range
+			.subresourceRange = color_subresource_range
 		};
+
+		// Transfer the intermediate depth image to VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL
+		VkImageMemoryBarrier present_depth_barrier{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			.pNext = nullptr,
+			.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+			.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+			.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+			.image = m_pixel_swap_chain->getIntermediateDepthImage(m_current_image_index),
+			.subresourceRange = depth_subresource_range
+		};
+
+		// Pipeline barriers for color and depth to presentation layout
+		vkCmdPipelineBarrier(
+			command_buffer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &present_color_barrier
+		);
 
 		vkCmdPipelineBarrier(
 			command_buffer,
-			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-			0, 0, nullptr, 0, nullptr, 1, &present_barrier
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			0, 0, nullptr, 0, nullptr, 1, &present_depth_barrier
 		);
 	}
 

@@ -20,7 +20,7 @@ layout(set = 0, binding = 1) uniform GlobalClock {
   float frame_time_s;
 } clock;
 
-layout (set = 0, binding = 2) uniform sampler1D color_map;
+layout (set = 0, binding = 2) uniform sampler1D colors;
 
 layout (set = 0, binding = 3) uniform sampler2D alpha_map;
 
@@ -31,5 +31,5 @@ void main()
 
 	float directional_light = -dot(frag_normal_world, ubo.light_direction);
 	float light_intensity = max(directional_light * frag_cloud_shadow, ubo.recording_time_elapsed_s.w);
-	out_color = texture(color_map, light_intensity);
+	out_color = texture(colors, light_intensity);
 }

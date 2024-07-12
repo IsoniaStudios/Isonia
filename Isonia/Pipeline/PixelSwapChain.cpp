@@ -101,6 +101,10 @@ namespace Isonia::Pipeline
 	{
 		return m_color_images[index];
 	}
+	VkImage PixelSwapChain::getDepthImage(int index) const
+	{
+		return m_depth_images[index];
+	}
 	VkImage PixelSwapChain::getIntermediateImage(int index) const
 	{
 		return m_color_images_intermediate[index];
@@ -109,7 +113,15 @@ namespace Isonia::Pipeline
 	{
 		return &m_color_descriptors_intermediate[index];
 	}
-
+	VkImage PixelSwapChain::getIntermediateDepthImage(int index) const
+	{
+		return m_depth_images_intermediate[index];
+	}
+	const VkDescriptorImageInfo* PixelSwapChain::getIntermediateDepthImageInfo(int index) const
+	{
+		return &m_depth_descriptors_intermediate[index];
+	}
+	
 	VkFramebuffer PixelSwapChain::getFrameBuffer(int index) const
 	{
 		return m_swap_chain_framebuffers[index];
@@ -260,7 +272,8 @@ namespace Isonia::Pipeline
 		createDepthResources();
 		createFramebuffers();
 		createSyncObjects();
-		createIntermediates();
+		createColorIntermediates();
+		createDepthIntermediates();
 	}
 
 	void PixelSwapChain::createPixelSwapChain()
@@ -576,7 +589,7 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	void PixelSwapChain::createIntermediates()
+	void PixelSwapChain::createColorIntermediates()
 	{
 		m_color_images_intermediate = new VkImage[m_image_count];
 		m_color_image_memorys_intermediate = new VkDeviceMemory[m_image_count];
@@ -677,6 +690,110 @@ namespace Isonia::Pipeline
 			m_color_descriptors_intermediate[i].sampler = m_color_samplers_intermediate[i];
 			m_color_descriptors_intermediate[i].imageView = m_color_image_views_intermediate[i];
 			m_color_descriptors_intermediate[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		}
+	}
+
+	void PixelSwapChain::createDepthIntermediates()
+	{
+		m_depth_images_intermediate = new VkImage[m_image_count];
+		m_depth_image_memorys_intermediate = new VkDeviceMemory[m_image_count];
+		m_depth_image_views_intermediate = new VkImageView[m_image_count];
+
+		for (unsigned int i = 0; i < m_image_count; i++)
+		{
+			VkImageCreateInfo image_info{};
+			image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+			image_info.imageType = VK_IMAGE_TYPE_2D;
+			image_info.extent.width = getRenderWidth();
+			image_info.extent.height = getRenderHeight();
+			image_info.extent.depth = 1;
+			image_info.mipLevels = 1;
+			image_info.arrayLayers = 1;
+			image_info.format = m_swap_chain_depth_format;
+			image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+			image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+			image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+			image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			image_info.flags = 0;
+
+			m_device->createImageWithInfo(
+				&image_info,
+				VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+				&m_depth_images_intermediate[i],
+				&m_depth_image_memorys_intermediate[i]
+			);
+
+			VkImageViewCreateInfo view_info{};
+			view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			view_info.image = m_depth_images_intermediate[i];
+			view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			view_info.format = m_swap_chain_depth_format;
+			view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			view_info.subresourceRange.baseMipLevel = 0;
+			view_info.subresourceRange.levelCount = 1;
+			view_info.subresourceRange.baseArrayLayer = 0;
+			view_info.subresourceRange.layerCount = 1;
+
+			if (vkCreateImageView(m_device->getDevice(), &view_info, nullptr, &m_depth_image_views_intermediate[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create texture image view!");
+			}
+		}
+
+		// Transition swap chain images to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL because render pipeline expects it
+		for (unsigned int i = 0; i < m_image_count; i++)
+		{
+			m_device->transitionImageLayout(
+				m_depth_images_intermediate[i],
+				m_swap_chain_image_format,
+				VK_IMAGE_LAYOUT_UNDEFINED,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+				1,
+				1
+			);
+		}
+
+		// samplers
+		m_depth_samplers_intermediate = new VkSampler[m_image_count];
+		for (unsigned int i = 0; i < m_image_count; i++)
+		{
+			m_depth_samplers_intermediate[i] = nullptr;
+		}
+
+		VkSamplerCreateInfo sampler_info{};
+		sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		sampler_info.magFilter = VK_FILTER_NEAREST;
+		sampler_info.minFilter = VK_FILTER_NEAREST;
+		sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		sampler_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		sampler_info.anisotropyEnable = VK_FALSE;
+		sampler_info.maxAnisotropy = 1.0f;
+		sampler_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+		sampler_info.unnormalizedCoordinates = VK_FALSE;
+		sampler_info.compareEnable = VK_FALSE;
+		sampler_info.compareOp = VK_COMPARE_OP_ALWAYS;
+		sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+		sampler_info.mipLodBias = 0.0f;
+		sampler_info.minLod = 0.0f;
+		sampler_info.maxLod = 0.0f;
+
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		{
+			if (vkCreateSampler(m_device->getDevice(), &sampler_info, nullptr, &m_depth_samplers_intermediate[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create samplers!");
+			}
+		}
+
+		// descriptors
+		m_depth_descriptors_intermediate = new VkDescriptorImageInfo[m_image_count];
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		{
+			m_depth_descriptors_intermediate[i].sampler = m_depth_samplers_intermediate[i];
+			m_depth_descriptors_intermediate[i].imageView = m_depth_image_views_intermediate[i];
+			m_depth_descriptors_intermediate[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		}
 	}
 

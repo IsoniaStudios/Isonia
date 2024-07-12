@@ -142,7 +142,11 @@ namespace Isonia::Pipeline::RenderSystems
 		{
 			for (int index_z = min_z_index - 1; index_z <= max_z_index + 1; index_z++)
 			{
-				if (index_x < min_x_index || index_x > max_x_index ||
+				if (index_x < 0 || index_z < 0 || index_x >= grounds || index_z >= grounds)
+				{
+					continue;
+				}
+				else if (index_x < min_x_index || index_x > max_x_index ||
 					index_z < min_z_index || index_z > max_z_index)
 				{
 					Renderable::BuilderXZUniformN* ground = m_grounds[index_x][index_z];

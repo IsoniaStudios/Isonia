@@ -80,7 +80,7 @@ namespace Isonia::Pipeline::RenderSystems
 		const float m_quad_size;
 		const float m_density;
 
-		static constexpr const unsigned int grounds = 32u;
+		static constexpr const unsigned int grounds = 4u;
 		static constexpr const unsigned int grounds_count = grounds * grounds;
 
 		Renderable::BuilderXZUniformN* m_grounds[grounds][grounds] = {};

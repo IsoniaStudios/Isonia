@@ -309,9 +309,12 @@ namespace Isonia::Pipeline
 
         VkImage getSwapChainImage(int index) const;
         VkImage getImage(int index) const;
+        VkImage getDepthImage(int index) const;
         VkImage getIntermediateImage(int index) const;
         const VkDescriptorImageInfo* getIntermediateImageInfo(int index) const;
-
+        VkImage getIntermediateDepthImage(int index) const;
+        const VkDescriptorImageInfo* getIntermediateDepthImageInfo(int index) const;
+        
         VkFramebuffer getFrameBuffer(int index) const;
         VkRenderPass getRenderPass() const;
         VkImageView getImageView(int index) const;
@@ -341,7 +344,8 @@ namespace Isonia::Pipeline
 		void createColorResources();
 		void createDepthResources();
 		void createSyncObjects();
-        void createIntermediates();
+        void createColorIntermediates();
+        void createDepthIntermediates();
 
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count);
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
@@ -373,6 +377,12 @@ namespace Isonia::Pipeline
         VkDeviceMemory* m_color_image_memorys_intermediate;
         VkImageView* m_color_image_views_intermediate;
         VkSampler* m_color_samplers_intermediate;
+
+        VkDescriptorImageInfo* m_depth_descriptors_intermediate;
+        VkImage* m_depth_images_intermediate;
+        VkDeviceMemory* m_depth_image_memorys_intermediate;
+        VkImageView* m_depth_image_views_intermediate;
+        VkSampler* m_depth_samplers_intermediate;
 
 		VkImage* m_swap_chain_images;
 		VkFramebuffer* m_swap_chain_framebuffers;
