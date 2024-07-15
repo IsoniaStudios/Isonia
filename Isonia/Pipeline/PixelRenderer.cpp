@@ -35,9 +35,9 @@ namespace Isonia::Pipeline
 		}
 	}
 
-	VkRenderPass PixelRenderer::getSwapChainRenderPass() const
+	VkRenderPass PixelRenderer::getSwapChainRenderPass(const unsigned int index) const
 	{
-		return m_pixel_swap_chain->getRenderPass();
+		return m_pixel_swap_chain->getRenderPass(index);
 	}
 	float PixelRenderer::getAspectRatio() const
 	{
@@ -127,14 +127,16 @@ namespace Isonia::Pipeline
 		m_current_frame_index = (m_current_frame_index + 1) % PixelSwapChain::max_frames_in_flight;
 	}
 
-	void PixelRenderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
+	void PixelRenderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer, unsigned int render_pass_index)
 	{
 		assert(m_is_frame_started && "Can't call begin SwapChainRenderPass if frame is not in progress");
 		assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
+		m_pixel_swap_chain->m_current_render_pass_index = render_pass_index;
+
 		VkRenderPassBeginInfo render_pass_info{};
 		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		render_pass_info.renderPass = m_pixel_swap_chain->getRenderPass();
+		render_pass_info.renderPass = m_pixel_swap_chain->getRenderPass(render_pass_index);
 		render_pass_info.framebuffer = m_pixel_swap_chain->getFrameBuffer(m_current_image_index);
 
 		const VkExtent2D extent = m_pixel_swap_chain->getRenderExtent();
@@ -146,7 +148,7 @@ namespace Isonia::Pipeline
 		const unsigned int clear_values_count = 2;
 		VkClearValue clear_values[clear_values_count]
 		{
-			{.color = { 0.01f, 0.01f, 0.01f, 1.0f }},
+			{.color = { 0.00f, 0.00f, 0.00f, 1.0f }},
 			{.depthStencil = { 1.0f, 0 }}
 		};
 		render_pass_info.clearValueCount = clear_values_count;
@@ -239,6 +241,19 @@ namespace Isonia::Pipeline
 				{ dst_width - render_factor * 3 + offset_x, dst_height - render_factor * 3 + offset_y, 1 }
 			}
 		};
+		//imageBlit =
+		//{
+		//	.srcSubresource = subresource,
+		//	.srcOffsets = {
+		//		{ 0, 0, 0 },
+		//		{ src_width, src_height, 1 }
+		//	},
+		//	.dstSubresource = subresource,
+		//	.dstOffsets = {
+		//		{ 0, 0, 0 },
+		//		{ src_width, src_height, 1 }
+		//	}
+		//};
 
 		// Blit the image to the swapchain image
 		vkCmdBlitImage(command_buffer, m_pixel_swap_chain->getImage(m_current_image_index), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_pixel_swap_chain->getSwapChainImage(m_current_image_index), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
@@ -301,7 +316,7 @@ namespace Isonia::Pipeline
 			.layerCount = 1
 		};
 
-		// Transfer the intermediate color image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+		// Transfer the intermediate color image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can copy to it
 		VkImageMemoryBarrier clear_color_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
@@ -315,13 +330,13 @@ namespace Isonia::Pipeline
 			.subresourceRange = color_subresource_range
 		};
 
-		// Transfer the intermediate depth image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can blit to it
+		// Transfer the intermediate depth image to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, so we can copy to it
 		VkImageMemoryBarrier clear_depth_barrier{
 			.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 			.pNext = nullptr,
 			.srcAccessMask = 0,
 			.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-			.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+			.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -485,6 +500,10 @@ namespace Isonia::Pipeline
 		calculateResolution(window_extent, &render_width, &render_height, out_render_factor);
 
 		// extended so we can render sub-pixels
+		//return {
+		//	static_cast<unsigned int>(Math::floorf_i(render_width)),
+		//	static_cast<unsigned int>(Math::floorf_i(render_height))
+		//};
 		return {
 			static_cast<unsigned int>(Math::floorf_i(render_width)) + 2,
 			static_cast<unsigned int>(Math::floorf_i(render_height)) + 2

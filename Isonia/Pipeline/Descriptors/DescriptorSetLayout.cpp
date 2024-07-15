@@ -7,13 +7,13 @@
 namespace Isonia::Pipeline::Descriptors
 {
 	DescriptorSetLayout::DescriptorSetLayout(Device* device, const unsigned int count)
-		: m_device(device), m_bindings(new VkDescriptorSetLayoutBinding[count]), m_bindings_count(count)
+		: m_device(device), m_bindings((VkDescriptorSetLayoutBinding*)malloc(count * sizeof(VkDescriptorSetLayoutBinding))), m_bindings_count(count)
 	{
 	};
 	DescriptorSetLayout::~DescriptorSetLayout()
 	{
 		vkDestroyDescriptorSetLayout(m_device->getDevice(), m_descriptor_set_layout, nullptr);
-		delete m_bindings;
+		free(m_bindings);
 	}
 
 	DescriptorSetLayout* DescriptorSetLayout::addBinding(unsigned int binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags, unsigned int count)

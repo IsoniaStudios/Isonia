@@ -208,14 +208,20 @@ namespace Isonia::Pipeline
         HANDLE h_process = GetCurrentProcess();
         if (!SetPriorityClass(h_process, HIGH_PRIORITY_CLASS))
         {
-            std::cerr << "Failed to set process priority." << std::endl;
+            std::cerr << "Failed to set process priority." << '\n';
         }
 
         m_window_instance = GetModuleHandle(NULL);
 
         HINSTANCE h_instance_recast = static_cast<HINSTANCE>(m_window_instance);
         WNDCLASSEX wcex;
-
+        
+        AllocConsole();
+        AttachConsole(GetCurrentProcessId());
+        FILE* stream_out = freopen("CON", "w", stdout);
+        FILE* stream_err = freopen("CON", "w", stderr);
+        SetConsoleTitle(TEXT(m_name));
+        
         wcex.cbSize = sizeof(WNDCLASSEX);
         wcex.lpfnWndProc = WndProc;
         wcex.cbClsExtra = 0;

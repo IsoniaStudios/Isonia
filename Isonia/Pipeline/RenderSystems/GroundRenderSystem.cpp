@@ -294,8 +294,8 @@ namespace Isonia::Pipeline::RenderSystems
 
 		PipelineConfigInfo pipeline_config{};
 		Pipeline::pixelPipelineTriangleStripNormalConfigInfo(&pipeline_config);
-		pipeline_config.renderPass = render_pass;
-		pipeline_config.pipelineLayout = m_ground_pipeline_layout;
+		pipeline_config.render_pass = render_pass;
+		pipeline_config.pipeline_layout = m_ground_pipeline_layout;
 		m_ground_pipeline = (new Pipeline(m_device, 2u))
 			->addShaderModule(
 				VK_SHADER_STAGE_VERTEX_BIT,
@@ -333,8 +333,8 @@ namespace Isonia::Pipeline::RenderSystems
 
 		PipelineConfigInfo pipeline_config{};
 		pixelPipelinePointListConfigInfo(&pipeline_config);
-		pipeline_config.renderPass = render_pass;
-		pipeline_config.pipelineLayout = m_grass_pipeline_layout;
+		pipeline_config.render_pass = render_pass;
+		pipeline_config.pipeline_layout = m_grass_pipeline_layout;
 		m_grass_pipeline = (new Pipeline(m_device, 3u))
 			->addShaderModule(
 				VK_SHADER_STAGE_GEOMETRY_BIT,

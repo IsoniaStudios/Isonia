@@ -16,6 +16,7 @@ namespace Isonia::State
 		Math::Matrix4x4 inverse_view{ 1.f };
 		Math::Vector4 ambient_light_color{ 1.f, 1.f, 1.f, .02f }; 
 		Math::Vector3 light_direction = Math::vec3Normalize(-1.f, 3.f, -1.f);
+		Math::Vector2 sub_pixel_offset{};
 
 		GlobalUbo() = default;
 		GlobalUbo(const GlobalUbo&) = delete;

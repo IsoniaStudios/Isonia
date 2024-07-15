@@ -7,13 +7,13 @@
 namespace Isonia::Pipeline::Descriptors
 {
 	DescriptorPool::DescriptorPool(Device* device, const unsigned int count)
-		: m_device(device), m_pool_sizes(new VkDescriptorPoolSize[count]), m_pool_sizes_count(count)
+		: m_device(device), m_pool_sizes((VkDescriptorPoolSize*) malloc(count * sizeof(VkDescriptorPoolSize))), m_pool_sizes_count(count)
 	{
 	}
 	DescriptorPool::~DescriptorPool()
 	{
 		vkDestroyDescriptorPool(m_device->getDevice(), m_descriptor_pool, nullptr);
-		delete m_pool_sizes;
+		free(m_pool_sizes);
 	}
 
 	DescriptorPool* DescriptorPool::addPoolSize(const VkDescriptorType descriptor_type, const unsigned int count)

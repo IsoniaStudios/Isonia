@@ -7,12 +7,12 @@
 namespace Isonia::Pipeline::Descriptors
 {
 	DescriptorWriter::DescriptorWriter(DescriptorSetLayout* set_layout, DescriptorPool* pool, const unsigned int count)
-		: m_set_layout(set_layout), m_pool(pool), m_writes(new VkWriteDescriptorSet[count]), m_writes_count(count)
+		: m_set_layout(set_layout), m_pool(pool), m_writes((VkWriteDescriptorSet*)malloc(count * sizeof(VkWriteDescriptorSet))), m_writes_count(count)
 	{
 	}
 	DescriptorWriter::~DescriptorWriter()
 	{
-		delete[] m_writes;
+		free(m_writes);
 	}
 
 	DescriptorWriter* DescriptorWriter::writeBuffer(const unsigned int binding, const VkDescriptorBufferInfo* buffer_info)

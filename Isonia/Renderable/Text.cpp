@@ -7,7 +7,7 @@
 namespace Isonia::Renderable
 {
 	BuilderUI::BuilderUI(Pipeline::Device* device, const Font* font, const unsigned int max_text_length)
-		: m_device(device), m_font(font), m_max_text_length(max_text_length), m_vertex_count(vertices_per_quad* max_text_length), m_vertices(new VertexUI[m_vertex_count]{}), m_index_count(indices_per_quad* max_text_length)
+		: m_device(device), m_font(font), m_max_text_length(max_text_length), m_vertex_count(vertices_per_quad* max_text_length), m_vertices((VertexUI*)malloc(m_vertex_count * sizeof(VertexUI))), m_index_count(indices_per_quad* max_text_length)
 	{
 		const unsigned int vertex_size = sizeof(VertexUI);
 		const unsigned int index_size = sizeof(unsigned int);
@@ -28,7 +28,7 @@ namespace Isonia::Renderable
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		unsigned int* indices = new unsigned int[m_index_count];
+		unsigned int* indices = (unsigned int*)malloc(m_index_count * sizeof(unsigned int));
 		for (unsigned int i = 0; i < max_text_length; i++)
 		{
 			indices[(i * indices_per_quad) + 0] = (i * vertices_per_quad) + 0;
@@ -55,7 +55,7 @@ namespace Isonia::Renderable
 		index_staging_buffer.map();
 		index_staging_buffer.writeToBuffer(indices);
 		m_device->copyBuffer(index_staging_buffer.getBuffer(), m_index_buffer->getBuffer(), sizeof(unsigned int) * m_index_count);
-		delete[] indices;
+		free(indices);
 	}
 
 	void BuilderUI::update(const VkExtent2D extent, const char* text)
@@ -118,7 +118,7 @@ namespace Isonia::Renderable
 
 	BuilderUI::~BuilderUI()
 	{
-		delete m_vertices;
+		free(m_vertices);
 		delete m_vertex_staging_buffer;
 		delete m_vertex_buffer;
 		delete m_index_buffer;

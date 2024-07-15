@@ -479,7 +479,7 @@ namespace Isonia::Pipeline
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
-				std::cout << "Present mode: Immediate" << std::endl;
+				std::cout << "Present mode: Immediate" << '\n';
 				return available_present_modes[i];
 			}
 		}
@@ -487,11 +487,11 @@ namespace Isonia::Pipeline
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
-				std::cout << "Present mode: Mailbox" << std::endl;
+				std::cout << "Present mode: Mailbox" << '\n';
 				return available_present_modes[i];
 			}
 		}
-		std::cout << "Present mode: V-Sync" << std::endl;
+		std::cout << "Present mode: V-Sync" << '\n';
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 

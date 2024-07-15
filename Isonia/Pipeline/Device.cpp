@@ -191,7 +191,7 @@ namespace Isonia::Pipeline
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = layer_count;
 
-		if (new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		if (format == VK_FORMAT_D32_SFLOAT || new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 		{
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 			if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT)
@@ -353,7 +353,7 @@ namespace Isonia::Pipeline
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL Device::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_type, const VkDebugUtilsMessengerCallbackDataEXT* callback_data, void* user_data)
 	{
-		std::cerr << "validation layer: " << callback_data->pMessage << std::endl;
+		std::cerr << "validation layer: " << callback_data->pMessage << '\n';
 		return VK_FALSE;
 	}
 
@@ -380,7 +380,7 @@ namespace Isonia::Pipeline
 	{
 		unsigned int layer_count;
 		vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-		VkLayerProperties* available_layers = new VkLayerProperties[layer_count];
+		VkLayerProperties* available_layers = (VkLayerProperties*)malloc(layer_count * sizeof(VkLayerProperties));
 		vkEnumerateInstanceLayerProperties(&layer_count, available_layers);
 
 		for (unsigned int i = 0; i < m_validation_layers_count; i++)
@@ -399,12 +399,12 @@ namespace Isonia::Pipeline
 
 			if (!layer_found)
 			{
-				delete[] available_layers;
+				free(available_layers);
 				return false;
 			}
 		}
 
-		delete[] available_layers;
+		free(available_layers);
 		return true;
 	}
 #endif
@@ -429,22 +429,22 @@ namespace Isonia::Pipeline
 	{
 		unsigned int extension_count = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr);
-		VkExtensionProperties* extensions = new VkExtensionProperties[extension_count];
+		VkExtensionProperties* extensions = (VkExtensionProperties*)malloc(extension_count * sizeof(VkExtensionProperties));
 		vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, extensions);
 
-		std::cout << "available extensions:" << std::endl;
+		std::cout << "available extensions:" << '\n';
 		for (unsigned int i = 0; i < extension_count; i++)
 		{
-			std::cout << "\t" << extensions[i].extensionName << std::endl;
+			std::cout << "\t" << extensions[i].extensionName << '\n';
 		}
 
-		std::cout << "required extensions:" << std::endl;
+		std::cout << "required extensions:" << '\n';
 		unsigned int required_extensions_count = 0;
 		const char** required_extensions = getRequiredExtensions(&required_extensions_count);
 		for (unsigned int i = 0; i < required_extensions_count; i++)
 		{
 			bool missing = true;
-			std::cout << "\t" << required_extensions[i] << std::endl;
+			std::cout << "\t" << required_extensions[i] << '\n';
 			for (unsigned int q = 0; q < extension_count; q++)
 			{
 				if (strcmp(extensions[q].extensionName, required_extensions[i]) == 0)
@@ -458,14 +458,14 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		delete[] extensions;
+		free(extensions);
 	}
 
 	bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device)
 	{
 		unsigned int extension_count;
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
-		VkExtensionProperties* available_extensions = new VkExtensionProperties[extension_count];
+		VkExtensionProperties* available_extensions = (VkExtensionProperties*)malloc(extension_count * sizeof(VkExtensionProperties));
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions);
 
 		bool supported = true;
@@ -487,8 +487,7 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		delete[] available_extensions;
-
+		free(available_extensions);
 		return supported;
 	}
 
@@ -498,7 +497,7 @@ namespace Isonia::Pipeline
 
 		unsigned int queue_family_count = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
-		VkQueueFamilyProperties* queue_families = new VkQueueFamilyProperties[queue_family_count];
+		VkQueueFamilyProperties* queue_families = (VkQueueFamilyProperties*)malloc(queue_family_count * sizeof(VkQueueFamilyProperties));
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families);
 
 		for (unsigned int i = 0; i < queue_family_count; i++)
@@ -521,8 +520,7 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		delete[] queue_families;
-
+		free(queue_families);
 		return indices;
 	}
 
@@ -534,14 +532,14 @@ namespace Isonia::Pipeline
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &details.formats_count, nullptr);
 		if (details.formats_count != 0)
 		{
-			details.formats = new VkSurfaceFormatKHR[details.formats_count];
+			details.formats = (VkSurfaceFormatKHR*)malloc(details.formats_count * sizeof(VkSurfaceFormatKHR));
 			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &details.formats_count, details.formats);
 		}
 
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &details.present_modes_count, nullptr);
 		if (details.present_modes_count != 0)
 		{
-			details.present_modes = new VkPresentModeKHR[details.present_modes_count];
+			details.present_modes = (VkPresentModeKHR*)malloc(details.present_modes_count * sizeof(VkPresentModeKHR));
 			vkGetPhysicalDeviceSurfacePresentModesKHR(
 				device,
 				m_surface,
@@ -606,8 +604,8 @@ namespace Isonia::Pipeline
 		{
 			throw std::runtime_error("Failed to find GPUs with Vulkan support!");
 		}
-		std::cout << "Device count: " << device_count << std::endl;
-		VkPhysicalDevice* devices = new VkPhysicalDevice[device_count];
+		std::cout << "Device count: " << device_count << '\n';
+		VkPhysicalDevice* devices = (VkPhysicalDevice*)malloc(device_count * sizeof(VkPhysicalDevice));
 		vkEnumeratePhysicalDevices(m_instance, &device_count, devices);
 
 		for (unsigned int i = 0; i < device_count; i++)
@@ -623,14 +621,14 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		delete[] devices;
+		free(devices);
 
 		if (m_physical_device == nullptr)
 		{
 			throw std::runtime_error("Failed to find a suitable GPU!");
 		}
 
-		std::cout << "Physical device: " << m_properties.deviceName << std::endl;
+		std::cout << "Physical device: " << m_properties.deviceName << '\n';
 	}
 
 	void Device::createLogicalDevice()
@@ -643,7 +641,7 @@ namespace Isonia::Pipeline
 		if (indices.graphics_family != indices.present_family)
 		{
 			queue_create_infos_count = 2;
-			queue_create_infos = new VkDeviceQueueCreateInfo[queue_create_infos_count];
+			queue_create_infos = (VkDeviceQueueCreateInfo*)malloc(queue_create_infos_count * sizeof(VkDeviceQueueCreateInfo));
 			// Queue families are distinct
 			queue_create_infos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queue_create_infos[0].queueFamilyIndex = indices.graphics_family;

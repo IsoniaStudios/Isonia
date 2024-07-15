@@ -6,7 +6,7 @@ namespace Isonia::Renderable
 	Texture Font::createFontMap(Pipeline::Device* device, const unsigned int height, const unsigned int width, const unsigned char* texture_binary) const
 	{
 		const unsigned int texture_size = width * height;
-		unsigned char* texture_byte = new unsigned char[texture_size];
+		unsigned char* texture_byte = (unsigned char*)malloc(texture_size * sizeof(unsigned char));
 		for (unsigned int i = 0; i < width; i++)
 		{
 			const unsigned char binary_pixel = texture_binary[i];

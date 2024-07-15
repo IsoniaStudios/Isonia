@@ -250,8 +250,8 @@ namespace Isonia::Pipeline
         VkDynamicState* dynamic_state_enables;
         unsigned int dynamic_state_enables_count;
         VkPipelineDynamicStateCreateInfo dynamic_state_info;
-        VkPipelineLayout pipelineLayout = nullptr;
-        VkRenderPass renderPass = nullptr;
+        VkPipelineLayout pipeline_layout = nullptr;
+        VkRenderPass render_pass = nullptr;
         unsigned int subpass = 0;
     };
 
@@ -292,10 +292,17 @@ namespace Isonia::Pipeline
         VkShaderStageFlags m_stage_flags{};
     };
 
+    struct RenderPassInfo
+    {
+        VkRenderPass m_render_pass;
+        VkFramebuffer* m_framebuffers;
+        unsigned int count;
+    };
+
 	struct PixelSwapChain
 	{
 	public:
-		static constexpr const unsigned int max_frames_in_flight = 2;
+		static constexpr const unsigned int max_frames_in_flight = 2u;
 
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent);
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent, PixelSwapChain* previous);
@@ -316,7 +323,7 @@ namespace Isonia::Pipeline
         const VkDescriptorImageInfo* getIntermediateDepthImageInfo(int index) const;
         
         VkFramebuffer getFrameBuffer(int index) const;
-        VkRenderPass getRenderPass() const;
+        VkRenderPass getRenderPass(const unsigned int index) const;
         VkImageView getImageView(int index) const;
         unsigned int getImageCount() const;
 
@@ -335,6 +342,10 @@ namespace Isonia::Pipeline
 		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index);
 		bool compareSwapFormats(const PixelSwapChain* swap_chain) const;
 
+        RenderPassInfo* m_render_passes = (RenderPassInfo*)malloc(2u * sizeof(RenderPassInfo));
+        unsigned int m_render_pass_count = 2u;
+        unsigned int m_current_render_pass_index;
+
 	private:
 		void init();
 		void createPixelSwapChain();
@@ -351,7 +362,7 @@ namespace Isonia::Pipeline
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
-		static constexpr const unsigned int attachments_length = 2;
+		static constexpr const unsigned int attachments_length = 2u;
 
 		unsigned int m_image_count;
 
@@ -359,8 +370,6 @@ namespace Isonia::Pipeline
 		VkFormat m_swap_chain_color_format;
 		VkFormat m_swap_chain_depth_format;
 		VkExtent2D m_swap_chain_extent;
-
-		VkRenderPass m_render_pass;
 
 		VkFence* m_images_in_flight;
 		
@@ -385,7 +394,6 @@ namespace Isonia::Pipeline
         VkSampler* m_depth_samplers_intermediate;
 
 		VkImage* m_swap_chain_images;
-		VkFramebuffer* m_swap_chain_framebuffers;
 		VkImageView* m_swap_chain_image_views;
 
 		Device* m_device;
@@ -414,17 +422,19 @@ namespace Isonia::Pipeline
         typedef void (*EventHandler)(PixelRenderer*, void*);
         void registerRenderResizeCallback(EventHandler, void*);
         void propigateRenderResizeEvent();
-        VkRenderPass getSwapChainRenderPass() const;
+        VkRenderPass getSwapChainRenderPass(const unsigned int index) const;
         float getAspectRatio() const;
         VkExtent2D getExtent() const;
         bool isFrameInProgress() const;
         PixelSwapChain* getPixelSwapChain() const;
 
+        void addRenderPass(const RenderPassInfo* render_pass_info);
+
         VkCommandBuffer getCurrentCommandBuffer() const;
         int getFrameIndex() const;
         VkCommandBuffer beginFrame();
         void endFrame();
-        void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
+        void beginSwapChainRenderPass(VkCommandBuffer command_buffer, unsigned int render_pass_index);
         void endSwapChainRenderPass(VkCommandBuffer command_buffer);
         void blit(VkCommandBuffer command_buffer, Math::Vector2 offset);
 
@@ -458,7 +468,7 @@ namespace Isonia::Pipeline
     struct SwapChain
     {
     public:
-        static constexpr const unsigned int max_frames_in_flight = 2;
+        static constexpr const unsigned int max_frames_in_flight = 2u;
 
         SwapChain(Device* device_ref, VkExtent2D extent);
         SwapChain(Device* device_ref, VkExtent2D extent, SwapChain* previous);
@@ -498,7 +508,7 @@ namespace Isonia::Pipeline
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
-        static constexpr const unsigned int attachments_length = 2;
+        static constexpr const unsigned int attachments_length = 2u;
 
         unsigned int m_image_count;
 

@@ -6,7 +6,7 @@ namespace Isonia::Renderable
 	BuilderPosition::BuilderPosition(Pipeline::Device* device) : m_device(device), m_point_count(7 * 7)
 	{
 		// alloc memory
-		VertexPosition* vertices = static_cast<VertexPosition*>(operator new[](sizeof(VertexPosition)* m_point_count));
+		VertexPosition* vertices = (VertexPosition*)malloc(sizeof(VertexPosition) * m_point_count);
 
 		for (int z = -3; z <= 3; z++)
 		{
@@ -23,7 +23,7 @@ namespace Isonia::Renderable
 		createVertexBuffers(vertices);
 
 		// free
-		delete vertices;
+		free(vertices);
 	}
 
 	BuilderPosition::~BuilderPosition()
@@ -76,18 +76,18 @@ namespace Isonia::Renderable
 		: m_device(device), m_vertices_side_count(vertices_side_count), m_vertices_count(vertices_side_count * vertices_side_count + (vertices_side_count - 2) * (vertices_side_count - 1)), m_quad_size(quad_size)
 	{
 		// alloc memory
-		VertexXZUniform* vertices = static_cast<VertexXZUniform*>(operator new[](sizeof(VertexXZUniform) * m_vertices_count));
+		VertexXZUniform* vertices = (VertexXZUniform*)malloc(sizeof(VertexXZUniform) * m_vertices_count);
 		// create the buffers
 		createVertexBuffers(vertices);
 		// cleanup
-		delete vertices;
+		free(vertices);
 	}
 
 	BuilderXZUniform::BuilderXZUniform(Pipeline::Device* device, const Noise::VirtualWarpNoise* warp_noise, const Noise::VirtualNoise* noise, const float amplitude, const Math::Vector3 position, const unsigned int vertices_side_count, const float quad_size)
 		: m_device(device), m_position(position), m_vertices_side_count(vertices_side_count), m_vertices_count(vertices_side_count * vertices_side_count + (vertices_side_count - 2) * (vertices_side_count - 1)), m_quad_size(quad_size)
 	{
 		// alloc memory
-		VertexXZUniform* vertices = static_cast<VertexXZUniform*>(operator new[](sizeof(VertexXZUniform) * m_vertices_count));
+		VertexXZUniform* vertices = (VertexXZUniform*)malloc(sizeof(VertexXZUniform) * m_vertices_count);
 
 		// calculate and assign perlin altitude
 		for (unsigned int i = 0; i < m_vertices_count; i++)
@@ -108,7 +108,7 @@ namespace Isonia::Renderable
 		createVertexBuffers(vertices);
 
 		// cleanup
-		delete vertices;
+		free(vertices);
 	}
 
 	BuilderXZUniform::~BuilderXZUniform()
@@ -172,7 +172,7 @@ namespace Isonia::Renderable
 		: m_device(device), m_positional_data(x, z), m_vertices_side_count(vertices_side_count), m_vertices_count(vertices_side_count * vertices_side_count + (vertices_side_count - 2) * (vertices_side_count - 1)), m_quad_size(quad_size)
 	{
 		// alloc memory
-		VertexXZUniformN* vertices = static_cast<VertexXZUniformN*>(operator new[](sizeof(VertexXZUniformN) * m_vertices_count));
+		VertexXZUniformN* vertices = (VertexXZUniformN*)malloc(sizeof(VertexXZUniformN) * m_vertices_count);
 
 		const unsigned int sample = m_vertices_side_count + 2;
 		m_sample_altitudes = (float*)malloc(sample * sample * sizeof(float));
@@ -220,7 +220,7 @@ namespace Isonia::Renderable
 		createVertexBuffers(vertices);
 
 		// cleanup
-		delete vertices;
+		free(vertices);
 	}
 
 	BuilderXZUniformN::~BuilderXZUniformN()
@@ -359,7 +359,7 @@ namespace Isonia::Renderable
 		: m_device(device), m_count_side(static_cast<unsigned int>(density* static_cast<float>(ground->m_vertices_side_count - 1u))), m_count(m_count_side * m_count_side)
 	{
 		// alloc memory
-		VertexXZUniformNP* vertices = static_cast<VertexXZUniformNP*>(operator new[](sizeof(VertexXZUniformNP) * m_count));
+		VertexXZUniformNP* vertices = (VertexXZUniformNP*)malloc(sizeof(VertexXZUniformNP) * m_count);
 
 		const Noise::WhiteNoise offset_noise = { 69u };
 		const float size = ground->m_quad_size / density;
@@ -398,7 +398,7 @@ namespace Isonia::Renderable
 		createVertexBuffers(vertices);
 
 		// free
-		delete vertices;
+		free(vertices);
 	}
 
 	BuilderXZUniformNP::~BuilderXZUniformNP()

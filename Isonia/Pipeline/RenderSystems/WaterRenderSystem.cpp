@@ -106,8 +106,8 @@ namespace Isonia::Pipeline::RenderSystems
 		PipelineConfigInfo pipeline_config{};
 		Pipeline::pixelPipelineTriangleStripConfigInfo(&pipeline_config);
 		Pipeline::makeTransparentConfigInfo(&pipeline_config);
-		pipeline_config.renderPass = render_pass;
-		pipeline_config.pipelineLayout = m_pipeline_layout;
+		pipeline_config.render_pass = render_pass;
+		pipeline_config.pipeline_layout = m_pipeline_layout;
 		m_pipeline = (new Pipeline(m_device, 2u))
 			->addShaderModule(
 				VK_SHADER_STAGE_VERTEX_BIT,

@@ -3,6 +3,7 @@
 
 // external
 #include <chrono>
+#include <thread>
 
 namespace Isonia
 {
@@ -55,6 +56,7 @@ namespace Isonia
 		std::chrono::time_point current_time_s = std::chrono::high_resolution_clock::now();
 		while (!m_window.m_should_close)
 		{
+			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			m_window.pollEvents();
 			if (m_window.m_should_close)
 			{
@@ -85,6 +87,7 @@ namespace Isonia
 				m_ubo.projection = *m_player.m_camera.getProjection();
 				m_ubo.view = *m_player.m_camera.getView();
 				m_ubo.inverse_view = *m_player.m_camera.getInverseView();
+				m_ubo.sub_pixel_offset = m_player.m_camera.m_sub_pixel_offset;
 
 				m_ubo_buffers[frame_index]->writeToBuffer(&m_ubo);
 				m_ubo_buffers[frame_index]->flush();
@@ -96,14 +99,18 @@ namespace Isonia
 				m_clock_buffers[frame_index]->flush();
 
 				// render
-				m_renderer.beginSwapChainRenderPass(command_buffer);
+				m_renderer.beginSwapChainRenderPass(command_buffer, 0u);
 				m_ground_render_system->render(&frame_info, &m_player.m_camera);
 				m_debugger_render_system->render(&frame_info);
+				m_renderer.endSwapChainRenderPass(command_buffer);
+
 				m_renderer.copyToIntermediates(command_buffer);
-				m_global_writers[frame_index]->overwrite(&frame_info.global_descriptor_set);
+
+				m_renderer.beginSwapChainRenderPass(command_buffer, 1u);
 				m_water_render_system->render(&frame_info, &m_player.m_camera);
 				m_ui_render_system->render(&frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
+
 				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
 				m_renderer.endFrame();
 			}
@@ -217,26 +224,26 @@ namespace Isonia
 	{
 		m_ground_render_system = new Pipeline::RenderSystems::GroundRenderSystem{
 			&m_device,
-			m_renderer.getSwapChainRenderPass(),
+			m_renderer.getSwapChainRenderPass(0u),
 			m_global_set_layout->getDescriptorSetLayout(),
 			64, 1.0f, 4.0f
 		};
 
-		m_water_render_system = new Pipeline::RenderSystems::WaterRenderSystem{
+		m_debugger_render_system = new Pipeline::RenderSystems::DebuggerRenderSystem{
 			&m_device,
-			m_renderer.getSwapChainRenderPass(),
+			m_renderer.getSwapChainRenderPass(0u),
 			m_global_set_layout->getDescriptorSetLayout()
 		};
 
-		m_debugger_render_system = new Pipeline::RenderSystems::DebuggerRenderSystem{
+		m_water_render_system = new Pipeline::RenderSystems::WaterRenderSystem{
 			&m_device,
-			m_renderer.getSwapChainRenderPass(),
+			m_renderer.getSwapChainRenderPass(1u),
 			m_global_set_layout->getDescriptorSetLayout()
 		};
 
 		m_ui_render_system = new Pipeline::RenderSystems::UIRenderSystem{
 			&m_device,
-			m_renderer.getSwapChainRenderPass(),
+			m_renderer.getSwapChainRenderPass(1u),
 			m_global_set_layout->getDescriptorSetLayout(),
 			m_text,
 			128u

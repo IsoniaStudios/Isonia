@@ -8,7 +8,7 @@
 namespace Isonia::Pipeline
 {
 	Pipeline::Pipeline(Device* device, const unsigned int shader_stages_count)
-		: m_device(device), m_shader_stages_count(shader_stages_count), m_shader_stages(new VkPipelineShaderStageCreateInfo[shader_stages_count])
+		: m_device(device), m_shader_stages_count(shader_stages_count), m_shader_stages((VkPipelineShaderStageCreateInfo*)malloc(shader_stages_count * sizeof(VkPipelineShaderStageCreateInfo)))
 	{
 	}
 	Pipeline::~Pipeline()
@@ -194,8 +194,8 @@ namespace Isonia::Pipeline
 
 	Pipeline* Pipeline::createGraphicsPipeline(const PipelineConfigInfo* config_info)
 	{
-		assert(config_info->pipelineLayout != nullptr && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
-		assert(config_info->renderPass != nullptr && "Cannot create graphics pipeline: no renderPass provided in configInfo");
+		assert(config_info->pipeline_layout != nullptr && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
+		assert(config_info->render_pass != nullptr && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
 		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
 		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -222,8 +222,8 @@ namespace Isonia::Pipeline
 		pipeline_info.pDepthStencilState = &config_info->depth_stencil_info;
 		pipeline_info.pDynamicState = &config_info->dynamic_state_info;
 
-		pipeline_info.layout = config_info->pipelineLayout;
-		pipeline_info.renderPass = config_info->renderPass;
+		pipeline_info.layout = config_info->pipeline_layout;
+		pipeline_info.renderPass = config_info->render_pass;
 		pipeline_info.subpass = config_info->subpass;
 
 		pipeline_info.basePipelineIndex = -1;

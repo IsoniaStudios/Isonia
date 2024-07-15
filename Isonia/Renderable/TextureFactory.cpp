@@ -62,7 +62,7 @@ namespace Isonia::Renderable
 	{
 		void* texture_data = createTexture();
 		Texture* texture = new Texture(device, texture_data, getTextureHeight(), getTextureWidth(), format, filter, address_mode);
-		delete texture_data;
+		free(texture_data);
 		return texture;
 	}
 	void* TextureFactory::createTexture() const

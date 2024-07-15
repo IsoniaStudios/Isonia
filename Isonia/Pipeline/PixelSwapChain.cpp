@@ -25,14 +25,14 @@ namespace Isonia::Pipeline
 		{
 			vkDestroyImageView(m_device->getDevice(), m_swap_chain_image_views[i], nullptr);
 		}
-		delete[] m_swap_chain_image_views;
+		free(m_swap_chain_image_views);
 
 		if (m_swap_chain != nullptr)
 		{
 			// the same as vkDestroyImage(m_device->getDevice(), swapChainImages[i], nullptr);
 			vkDestroySwapchainKHR(m_device->getDevice(), m_swap_chain, nullptr);
 			m_swap_chain = nullptr;
-			delete[] m_swap_chain_images;
+			free(m_swap_chain_images);
 		}
 
 		for (unsigned int i = 0; i < m_image_count; i++)
@@ -41,9 +41,9 @@ namespace Isonia::Pipeline
 			vkDestroyImage(m_device->getDevice(), m_color_images[i], nullptr);
 			vkFreeMemory(m_device->getDevice(), m_color_image_memorys[i], nullptr);
 		}
-		delete[] m_color_image_views;
-		delete[] m_color_images;
-		delete[] m_color_image_memorys;
+		free(m_color_image_views);
+		free(m_color_images);
+		free(m_color_image_memorys);
 
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
@@ -51,17 +51,19 @@ namespace Isonia::Pipeline
 			vkDestroyImage(m_device->getDevice(), m_depth_images[i], nullptr);
 			vkFreeMemory(m_device->getDevice(), m_depth_image_memorys[i], nullptr);
 		}
-		delete[] m_depth_image_views;
-		delete[] m_depth_images;
-		delete[] m_depth_image_memorys;
+		free(m_depth_image_views);
+		free(m_depth_images);
+		free(m_depth_image_memorys);
 
+		/*
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			vkDestroyFramebuffer(m_device->getDevice(), m_swap_chain_framebuffers[i], nullptr);
 		}
-		delete[] m_swap_chain_framebuffers;
+		free(m_swap_chain_framebuffers);
 
 		vkDestroyRenderPass(m_device->getDevice(), m_render_pass, nullptr);
+		*/
 
 		// cleanup synchronization objects
 		for (unsigned int i = 0; i < max_frames_in_flight; i++)
@@ -79,10 +81,22 @@ namespace Isonia::Pipeline
 			vkFreeMemory(m_device->getDevice(), m_color_image_memorys_intermediate[i], nullptr);
 			vkDestroySampler(m_device->getDevice(), m_color_samplers_intermediate[i], nullptr);
 		}
-		delete[] m_color_image_views_intermediate;
-		delete[] m_color_images_intermediate;
-		delete[] m_color_image_memorys_intermediate;
-		delete[] m_color_samplers_intermediate;
+		free(m_color_image_views_intermediate);
+		free(m_color_images_intermediate);
+		free(m_color_image_memorys_intermediate);
+		free(m_color_samplers_intermediate);
+
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		{
+			vkDestroyImageView(m_device->getDevice(), m_depth_image_views_intermediate[i], nullptr);
+			vkDestroyImage(m_device->getDevice(), m_depth_images_intermediate[i], nullptr);
+			vkFreeMemory(m_device->getDevice(), m_depth_image_memorys_intermediate[i], nullptr);
+			vkDestroySampler(m_device->getDevice(), m_depth_samplers_intermediate[i], nullptr);
+		}
+		free(m_depth_image_views_intermediate);
+		free(m_depth_images_intermediate);
+		free(m_depth_image_memorys_intermediate);
+		free(m_depth_samplers_intermediate);
 	}
 
 	void PixelSwapChain::freeOldPixelSwapChain()
@@ -124,11 +138,11 @@ namespace Isonia::Pipeline
 	
 	VkFramebuffer PixelSwapChain::getFrameBuffer(int index) const
 	{
-		return m_swap_chain_framebuffers[index];
+		return m_render_passes[m_current_render_pass_index].m_framebuffers[index];
 	}
-	VkRenderPass PixelSwapChain::getRenderPass() const
+	VkRenderPass PixelSwapChain::getRenderPass(const unsigned int index) const
 	{
-		return m_render_pass;
+		return m_render_passes[index].m_render_pass;
 	}
 	VkImageView PixelSwapChain::getImageView(int index) const
 	{
@@ -289,7 +303,10 @@ namespace Isonia::Pipeline
 		{
 			m_image_count = swap_chain_support.capabilities.maxImageCount;
 		}
-
+		if (m_image_count > max_frames_in_flight)
+		{
+			m_image_count = max_frames_in_flight;
+		}
 		VkSwapchainCreateInfoKHR create_info = {};
 		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		create_info.surface = m_device->getSurface();
@@ -335,7 +352,7 @@ namespace Isonia::Pipeline
 		// images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 		// retrieve the handles.
 		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &m_image_count, nullptr);
-		m_swap_chain_images = new VkImage[m_image_count];
+		m_swap_chain_images = (VkImage*)malloc(m_image_count * sizeof(VkImage));
 		vkGetSwapchainImagesKHR(m_device->getDevice(), m_swap_chain, &m_image_count, m_swap_chain_images);
 
 		m_swap_chain_image_format = surface_format.format;
@@ -357,7 +374,7 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::createImageViews()
 	{
-		m_swap_chain_image_views = new VkImageView[m_image_count];
+		m_swap_chain_image_views = (VkImageView*)malloc(m_image_count * sizeof(VkImageView));
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			VkImageViewCreateInfo view_info{};
@@ -384,7 +401,7 @@ namespace Isonia::Pipeline
 		depth_attachment.format = findDepthFormat();
 		depth_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depth_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depth_attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depth_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		depth_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depth_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -432,7 +449,18 @@ namespace Isonia::Pipeline
 		render_pass_info.dependencyCount = 1;
 		render_pass_info.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(m_device->getDevice(), &render_pass_info, nullptr, &m_render_pass) != VK_SUCCESS)
+		if (vkCreateRenderPass(m_device->getDevice(), &render_pass_info, nullptr, &m_render_passes[0].m_render_pass) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create render pass!");
+		}
+
+		VkAttachmentDescription load_attachments[attachments_length] = { color_attachment, depth_attachment };
+		load_attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		load_attachments[0].initialLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		load_attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		load_attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		render_pass_info.pAttachments = load_attachments;
+		if (vkCreateRenderPass(m_device->getDevice(), &render_pass_info, nullptr, &m_render_passes[1].m_render_pass) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create render pass!");
 		}
@@ -440,23 +468,26 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::createFramebuffers()
 	{
-		m_swap_chain_framebuffers = new VkFramebuffer[m_image_count];
-		for (unsigned int i = 0; i < m_image_count; i++)
+		for (unsigned int r = 0; r < m_render_pass_count; r++)
 		{
-			VkImageView attachments[attachments_length] = { m_color_image_views[i], m_depth_image_views[i] };
-
-			VkFramebufferCreateInfo framebuffer_info = {};
-			framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebuffer_info.renderPass = m_render_pass;
-			framebuffer_info.attachmentCount = attachments_length;
-			framebuffer_info.pAttachments = attachments;
-			framebuffer_info.width = getRenderWidth();
-			framebuffer_info.height = getRenderHeight();
-			framebuffer_info.layers = 1;
-
-			if (vkCreateFramebuffer(m_device->getDevice(), &framebuffer_info, nullptr, &m_swap_chain_framebuffers[i]) != VK_SUCCESS)
+			m_render_passes[r].m_framebuffers = (VkFramebuffer*)malloc(m_image_count * sizeof(VkFramebuffer));
+			for (unsigned int i = 0; i < m_image_count; i++)
 			{
-				throw std::runtime_error("Failed to create framebuffer!");
+				VkImageView attachments[attachments_length] = { m_color_image_views[i], m_depth_image_views[i] };
+
+				VkFramebufferCreateInfo framebuffer_info = {};
+				framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+				framebuffer_info.renderPass = m_render_passes[r].m_render_pass;
+				framebuffer_info.attachmentCount = attachments_length;
+				framebuffer_info.pAttachments = attachments;
+				framebuffer_info.width = getRenderWidth();
+				framebuffer_info.height = getRenderHeight();
+				framebuffer_info.layers = 1;
+
+				if (vkCreateFramebuffer(m_device->getDevice(), &framebuffer_info, nullptr, &m_render_passes[r].m_framebuffers[i]) != VK_SUCCESS)
+				{
+					throw std::runtime_error("Failed to create framebuffer!");
+				}
 			}
 		}
 	}
@@ -465,9 +496,9 @@ namespace Isonia::Pipeline
 	{
 		m_swap_chain_color_format = getPixelSwapChainImageFormat();
 
-		m_color_images = new VkImage[m_image_count];
-		m_color_image_memorys = new VkDeviceMemory[m_image_count];
-		m_color_image_views = new VkImageView[m_image_count];
+		m_color_images = (VkImage*)malloc(m_image_count * sizeof(VkImage));
+		m_color_image_memorys = (VkDeviceMemory*)malloc(m_image_count * sizeof(VkDeviceMemory));
+		m_color_image_views = (VkImageView*)malloc(m_image_count * sizeof(VkImageView));
 
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
@@ -516,9 +547,9 @@ namespace Isonia::Pipeline
 	{
 		m_swap_chain_depth_format = findDepthFormat();
 
-		m_depth_images = new VkImage[m_image_count];
-		m_depth_image_memorys = new VkDeviceMemory[m_image_count];
-		m_depth_image_views = new VkImageView[m_image_count];
+		m_depth_images = (VkImage*)malloc(m_image_count * sizeof(VkImage));
+		m_depth_image_memorys = (VkDeviceMemory*)malloc(m_image_count * sizeof(VkDeviceMemory));
+		m_depth_image_views = (VkImageView*)malloc(m_image_count * sizeof(VkImageView));
 
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
@@ -533,7 +564,7 @@ namespace Isonia::Pipeline
 			image_info.format = m_swap_chain_depth_format;
 			image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
 			image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			image_info.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 			image_info.samples = VK_SAMPLE_COUNT_1_BIT;
 			image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			image_info.flags = 0;
@@ -565,7 +596,7 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::createSyncObjects()
 	{
-		m_images_in_flight = new VkFence[m_image_count];
+		m_images_in_flight = (VkFence*)malloc(m_image_count * sizeof(VkFence));
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_images_in_flight[i] = nullptr;
@@ -591,9 +622,9 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::createColorIntermediates()
 	{
-		m_color_images_intermediate = new VkImage[m_image_count];
-		m_color_image_memorys_intermediate = new VkDeviceMemory[m_image_count];
-		m_color_image_views_intermediate = new VkImageView[m_image_count];
+		m_color_images_intermediate = (VkImage*)malloc(m_image_count * sizeof(VkImage));
+		m_color_image_memorys_intermediate = (VkDeviceMemory*)malloc(m_image_count * sizeof(VkDeviceMemory));
+		m_color_image_views_intermediate = (VkImageView*)malloc(m_image_count * sizeof(VkImageView));
 
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
@@ -651,7 +682,7 @@ namespace Isonia::Pipeline
 		}
 
 		// samplers
-		m_color_samplers_intermediate = new VkSampler[m_image_count];
+		m_color_samplers_intermediate = (VkSampler*)malloc(m_image_count * sizeof(VkSampler));
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_color_samplers_intermediate[i] = nullptr;
@@ -684,7 +715,7 @@ namespace Isonia::Pipeline
 		}
 
 		// descriptors
-		m_color_descriptors_intermediate = new VkDescriptorImageInfo[m_image_count];
+		m_color_descriptors_intermediate = (VkDescriptorImageInfo*)malloc(m_image_count * sizeof(VkDescriptorImageInfo));
 		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			m_color_descriptors_intermediate[i].sampler = m_color_samplers_intermediate[i];
@@ -695,9 +726,9 @@ namespace Isonia::Pipeline
 
 	void PixelSwapChain::createDepthIntermediates()
 	{
-		m_depth_images_intermediate = new VkImage[m_image_count];
-		m_depth_image_memorys_intermediate = new VkDeviceMemory[m_image_count];
-		m_depth_image_views_intermediate = new VkImageView[m_image_count];
+		m_depth_images_intermediate = (VkImage*)malloc(m_image_count * sizeof(VkImage));
+		m_depth_image_memorys_intermediate = (VkDeviceMemory*)malloc(m_image_count * sizeof(VkDeviceMemory));
+		m_depth_image_views_intermediate = (VkImageView*)malloc(m_image_count * sizeof(VkImageView));
 
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
@@ -746,7 +777,7 @@ namespace Isonia::Pipeline
 		{
 			m_device->transitionImageLayout(
 				m_depth_images_intermediate[i],
-				m_swap_chain_image_format,
+				m_swap_chain_depth_format,
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 				1,
@@ -755,7 +786,7 @@ namespace Isonia::Pipeline
 		}
 
 		// samplers
-		m_depth_samplers_intermediate = new VkSampler[m_image_count];
+		m_depth_samplers_intermediate = (VkSampler*)malloc(m_image_count * sizeof(VkSampler));
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_depth_samplers_intermediate[i] = nullptr;
@@ -788,7 +819,7 @@ namespace Isonia::Pipeline
 		}
 
 		// descriptors
-		m_depth_descriptors_intermediate = new VkDescriptorImageInfo[m_image_count];
+		m_depth_descriptors_intermediate = (VkDescriptorImageInfo*)malloc(m_image_count * sizeof(VkDescriptorImageInfo));
 		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			m_depth_descriptors_intermediate[i].sampler = m_depth_samplers_intermediate[i];
@@ -813,11 +844,11 @@ namespace Isonia::Pipeline
 
 	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
-		for (unsigned int i = 0; i < available_present_modes_count; i++)
+		/*for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
-				std::cout << "Present mode: Immediate" << std::endl;
+				std::cout << "Present mode: Immediate" << '\n';
 				return available_present_modes[i];
 			}
 		}
@@ -825,11 +856,11 @@ namespace Isonia::Pipeline
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
 			{
-				std::cout << "Present mode: Mailbox" << std::endl;
+				std::cout << "Present mode: Mailbox" << '\n';
 				return available_present_modes[i];
 			}
-		}
-		std::cout << "Present mode: V-Sync" << std::endl;
+		}*/
+		std::cout << "Present mode: V-Sync" << '\n';
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
