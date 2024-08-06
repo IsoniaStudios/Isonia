@@ -405,7 +405,7 @@ namespace Isonia::Pipeline
 		depth_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depth_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depth_attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		depth_attachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
 		VkAttachmentReference depth_attachment_ref{};
 		depth_attachment_ref.attachment = 1;
@@ -458,7 +458,7 @@ namespace Isonia::Pipeline
 		load_attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		load_attachments[0].initialLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 		load_attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		load_attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		load_attachments[1].initialLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 		render_pass_info.pAttachments = load_attachments;
 		if (vkCreateRenderPass(m_device->getDevice(), &render_pass_info, nullptr, &m_render_passes[1].m_render_pass) != VK_SUCCESS)
 		{
@@ -844,7 +844,7 @@ namespace Isonia::Pipeline
 
 	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
-		/*for (unsigned int i = 0; i < available_present_modes_count; i++)
+		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
 			{
@@ -859,7 +859,7 @@ namespace Isonia::Pipeline
 				std::cout << "Present mode: Mailbox" << '\n';
 				return available_present_modes[i];
 			}
-		}*/
+		}
 		std::cout << "Present mode: V-Sync" << '\n';
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}

@@ -3,7 +3,6 @@
 
 // external
 #include <chrono>
-#include <thread>
 
 namespace Isonia
 {
@@ -56,7 +55,6 @@ namespace Isonia
 		std::chrono::time_point current_time_s = std::chrono::high_resolution_clock::now();
 		while (!m_window.m_should_close)
 		{
-			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			m_window.pollEvents();
 			if (m_window.m_should_close)
 			{

@@ -345,6 +345,7 @@ namespace Isonia::Pipeline
 		};
 
 		// Pipeline barriers for color and depth
+		/*
 		vkCmdPipelineBarrier(
 			command_buffer,
 			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -356,6 +357,7 @@ namespace Isonia::Pipeline
 			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
 			0, 0, nullptr, 0, nullptr, 1, &clear_depth_barrier
 		);
+		*/
 
 		// Set up the copy region for color
 		VkImageCopy color_copy_region{
@@ -432,6 +434,7 @@ namespace Isonia::Pipeline
 		};
 
 		// Pipeline barriers for color and depth to presentation layout
+		/*
 		vkCmdPipelineBarrier(
 			command_buffer,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -445,6 +448,7 @@ namespace Isonia::Pipeline
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 			0, 0, nullptr, 0, nullptr, 1, &present_depth_barrier
 		);
+		*/
 	}
 
 	void PixelRenderer::createCommandBuffers()
