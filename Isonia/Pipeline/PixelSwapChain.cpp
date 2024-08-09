@@ -772,14 +772,14 @@ namespace Isonia::Pipeline
 			}
 		}
 
-		// Transition swap chain images to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL because render pipeline expects it
+		// Transition swap chain images to VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL because render pipeline expects it
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_device->transitionImageLayout(
 				m_depth_images_intermediate[i],
 				m_swap_chain_depth_format,
 				VK_IMAGE_LAYOUT_UNDEFINED,
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+				VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
 				1,
 				1
 			);
@@ -824,7 +824,7 @@ namespace Isonia::Pipeline
 		{
 			m_depth_descriptors_intermediate[i].sampler = m_depth_samplers_intermediate[i];
 			m_depth_descriptors_intermediate[i].imageView = m_depth_image_views_intermediate[i];
-			m_depth_descriptors_intermediate[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			m_depth_descriptors_intermediate[i].imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 		}
 	}
 

@@ -241,22 +241,16 @@ namespace Isonia::Pipeline
 				{ dst_width - render_factor * 3 + offset_x, dst_height - render_factor * 3 + offset_y, 1 }
 			}
 		};
-		//imageBlit =
-		//{
-		//	.srcSubresource = subresource,
-		//	.srcOffsets = {
-		//		{ 0, 0, 0 },
-		//		{ src_width, src_height, 1 }
-		//	},
-		//	.dstSubresource = subresource,
-		//	.dstOffsets = {
-		//		{ 0, 0, 0 },
-		//		{ src_width, src_height, 1 }
-		//	}
-		//};
 
 		// Blit the image to the swapchain image
-		vkCmdBlitImage(command_buffer, m_pixel_swap_chain->getImage(m_current_image_index), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_pixel_swap_chain->getSwapChainImage(m_current_image_index), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_NEAREST);
+		vkCmdBlitImage(
+			command_buffer,
+			m_pixel_swap_chain->getImage(m_current_image_index),
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1, &imageBlit, VK_FILTER_NEAREST
+		);
 
 		// "Blit" the remaining renderFactor * 2 border using compute shader bc of hardware limitations of blit
 
@@ -336,7 +330,7 @@ namespace Isonia::Pipeline
 			.pNext = nullptr,
 			.srcAccessMask = 0,
 			.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-			.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
@@ -345,7 +339,6 @@ namespace Isonia::Pipeline
 		};
 
 		// Pipeline barriers for color and depth
-		/*
 		vkCmdPipelineBarrier(
 			command_buffer,
 			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -357,7 +350,6 @@ namespace Isonia::Pipeline
 			VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
 			0, 0, nullptr, 0, nullptr, 1, &clear_depth_barrier
 		);
-		*/
 
 		// Set up the copy region for color
 		VkImageCopy color_copy_region{
@@ -434,7 +426,6 @@ namespace Isonia::Pipeline
 		};
 
 		// Pipeline barriers for color and depth to presentation layout
-		/*
 		vkCmdPipelineBarrier(
 			command_buffer,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -448,7 +439,6 @@ namespace Isonia::Pipeline
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 			0, 0, nullptr, 0, nullptr, 1, &present_depth_barrier
 		);
-		*/
 	}
 
 	void PixelRenderer::createCommandBuffers()

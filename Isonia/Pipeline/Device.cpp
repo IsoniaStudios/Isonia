@@ -191,7 +191,7 @@ namespace Isonia::Pipeline
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = layer_count;
 
-		if (format == VK_FORMAT_D32_SFLOAT || new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		if (format == VK_FORMAT_D32_SFLOAT || format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT)
 		{
 			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 			if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT)
@@ -255,6 +255,14 @@ namespace Isonia::Pipeline
 			source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			destination_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
+		else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL)
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+
+			source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destination_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		}
 		else
 		{
 			throw std::invalid_argument("Unsupported layout transition!");
@@ -275,6 +283,7 @@ namespace Isonia::Pipeline
 
 		endSingleTimeCommands(command_buffer);
 	}
+
 
 	void Device::copyBufferToImage(VkBuffer buffer, VkImage image, unsigned int width, unsigned int height, unsigned int layer_count)
 	{
