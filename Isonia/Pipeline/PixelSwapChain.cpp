@@ -66,7 +66,7 @@ namespace Isonia::Pipeline
 		*/
 
 		// cleanup synchronization objects
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			vkDestroySemaphore(m_device->getDevice(), m_render_finished_semaphores[i], nullptr);
 			vkDestroySemaphore(m_device->getDevice(), m_image_available_semaphores[i], nullptr);
@@ -74,7 +74,7 @@ namespace Isonia::Pipeline
 		}
 
 		// cleanup intermediate objects
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			vkDestroyImageView(m_device->getDevice(), m_color_image_views_intermediate[i], nullptr);
 			vkDestroyImage(m_device->getDevice(), m_color_images_intermediate[i], nullptr);
@@ -86,7 +86,7 @@ namespace Isonia::Pipeline
 		free(m_color_image_memorys_intermediate);
 		free(m_color_samplers_intermediate);
 
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			vkDestroyImageView(m_device->getDevice(), m_depth_image_views_intermediate[i], nullptr);
 			vkDestroyImage(m_device->getDevice(), m_depth_images_intermediate[i], nullptr);
@@ -267,7 +267,7 @@ namespace Isonia::Pipeline
 		// TODO: Exception thrown at 0x00007FF83E6AF39C in Isonia.exe: Microsoft C++ exception: Poco::NotFoundException at memory location 0x00000038C074EF50.
 		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
 
-		m_current_frame = (m_current_frame + 1) % max_frames_in_flight;
+		m_current_frame = (m_current_frame + 1) % m_image_count;
 
 		return result;
 	}
@@ -303,10 +303,7 @@ namespace Isonia::Pipeline
 		{
 			m_image_count = swap_chain_support.capabilities.maxImageCount;
 		}
-		if (m_image_count > max_frames_in_flight)
-		{
-			m_image_count = max_frames_in_flight;
-		}
+
 		VkSwapchainCreateInfoKHR create_info = {};
 		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		create_info.surface = m_device->getSurface();
@@ -597,9 +594,15 @@ namespace Isonia::Pipeline
 	void PixelSwapChain::createSyncObjects()
 	{
 		m_images_in_flight = (VkFence*)malloc(m_image_count * sizeof(VkFence));
+		m_image_available_semaphores = (VkSemaphore*)malloc(m_image_count * sizeof(VkSemaphore));
+		m_render_finished_semaphores = (VkSemaphore*)malloc(m_image_count * sizeof(VkSemaphore));
+		m_in_flight_fences = (VkFence*)malloc(m_image_count * sizeof(VkFence));
 		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_images_in_flight[i] = nullptr;
+			m_image_available_semaphores[i] = nullptr;
+			m_render_finished_semaphores[i] = nullptr;
+			m_in_flight_fences[i] = nullptr;
 		}
 
 		VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -609,7 +612,7 @@ namespace Isonia::Pipeline
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			if (vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_image_available_semaphores[i]) != VK_SUCCESS ||
 				vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &m_render_finished_semaphores[i]) != VK_SUCCESS ||
@@ -706,7 +709,7 @@ namespace Isonia::Pipeline
 		sampler_info.minLod = 0.0f;
 		sampler_info.maxLod = 0.0f;
 
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			if (vkCreateSampler(m_device->getDevice(), &sampler_info, nullptr, &m_color_samplers_intermediate[i]) != VK_SUCCESS)
 			{
@@ -716,7 +719,7 @@ namespace Isonia::Pipeline
 
 		// descriptors
 		m_color_descriptors_intermediate = (VkDescriptorImageInfo*)malloc(m_image_count * sizeof(VkDescriptorImageInfo));
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_color_descriptors_intermediate[i].sampler = m_color_samplers_intermediate[i];
 			m_color_descriptors_intermediate[i].imageView = m_color_image_views_intermediate[i];
@@ -810,7 +813,7 @@ namespace Isonia::Pipeline
 		sampler_info.minLod = 0.0f;
 		sampler_info.maxLod = 0.0f;
 
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			if (vkCreateSampler(m_device->getDevice(), &sampler_info, nullptr, &m_depth_samplers_intermediate[i]) != VK_SUCCESS)
 			{
@@ -820,7 +823,7 @@ namespace Isonia::Pipeline
 
 		// descriptors
 		m_depth_descriptors_intermediate = (VkDescriptorImageInfo*)malloc(m_image_count * sizeof(VkDescriptorImageInfo));
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < m_image_count; i++)
 		{
 			m_depth_descriptors_intermediate[i].sampler = m_depth_samplers_intermediate[i];
 			m_depth_descriptors_intermediate[i].imageView = m_depth_image_views_intermediate[i];

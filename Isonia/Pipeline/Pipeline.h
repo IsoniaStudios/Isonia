@@ -302,7 +302,7 @@ namespace Isonia::Pipeline
 	struct PixelSwapChain
 	{
 	public:
-		static constexpr const unsigned int max_frames_in_flight = 2u;
+		static constexpr const unsigned int max_frames_in_flight = 3u;
 
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent);
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent, PixelSwapChain* previous);
@@ -403,9 +403,9 @@ namespace Isonia::Pipeline
 		VkSwapchainKHR m_swap_chain;
 		PixelSwapChain* m_old_swap_chain;
 
-		VkSemaphore m_image_available_semaphores[max_frames_in_flight];
-		VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
-		VkFence m_in_flight_fences[max_frames_in_flight];
+		VkSemaphore* m_image_available_semaphores;
+		VkSemaphore* m_render_finished_semaphores;
+		VkFence* m_in_flight_fences;
 		unsigned int m_current_frame = 0;
 	};
 
@@ -468,7 +468,7 @@ namespace Isonia::Pipeline
     struct SwapChain
     {
     public:
-        static constexpr const unsigned int max_frames_in_flight = 2u;
+        static constexpr const unsigned int max_frames_in_flight = 3u;
 
         SwapChain(Device* device_ref, VkExtent2D extent);
         SwapChain(Device* device_ref, VkExtent2D extent, SwapChain* previous);
