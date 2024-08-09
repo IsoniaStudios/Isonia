@@ -299,6 +299,40 @@ namespace Isonia::Pipeline
         unsigned int count;
     };
 
+
+    struct PixelSwapChainResourceSet
+    {
+    public:
+        VkFence m_image_in_flight = nullptr;
+
+        VkImage m_depth_image;
+        VkDeviceMemory m_depth_image_memory;
+        VkImageView m_depth_image_view;
+
+        VkImage m_color_image;
+        VkDeviceMemory m_color_image_memory;
+        VkImageView m_color_image_view;
+
+        VkDescriptorImageInfo m_color_descriptor_intermediate;
+        VkImage m_color_image_intermediate;
+        VkDeviceMemory m_color_image_memory_intermediate;
+        VkImageView m_color_image_view_intermediate;
+        VkSampler m_color_sampler_intermediate = nullptr;
+
+        VkDescriptorImageInfo m_depth_descriptor_intermediate;
+        VkImage m_depth_image_intermediate;
+        VkDeviceMemory m_depth_image_memory_intermediate;
+        VkImageView m_depth_image_view_intermediate;
+        VkSampler m_depth_sampler_intermediate = nullptr;
+
+        VkImage m_swap_chain_image;
+        VkImageView m_swap_chain_image_view;
+
+        VkSemaphore m_image_available_semaphore = nullptr;
+        VkSemaphore m_render_finished_semaphore = nullptr;
+        VkFence m_in_flight_fence = nullptr;
+    };
+
 	struct PixelSwapChain
 	{
 	public:
@@ -371,30 +405,8 @@ namespace Isonia::Pipeline
 		VkFormat m_swap_chain_depth_format;
 		VkExtent2D m_swap_chain_extent;
 
-		VkFence* m_images_in_flight;
-		
-        VkImage* m_depth_images;
-		VkDeviceMemory* m_depth_image_memorys;
-		VkImageView* m_depth_image_views;
-		
-        VkImage* m_color_images;
-        VkDeviceMemory* m_color_image_memorys;
-        VkImageView* m_color_image_views;
-
-        VkDescriptorImageInfo* m_color_descriptors_intermediate;
-        VkImage* m_color_images_intermediate;
-        VkDeviceMemory* m_color_image_memorys_intermediate;
-        VkImageView* m_color_image_views_intermediate;
-        VkSampler* m_color_samplers_intermediate;
-
-        VkDescriptorImageInfo* m_depth_descriptors_intermediate;
-        VkImage* m_depth_images_intermediate;
-        VkDeviceMemory* m_depth_image_memorys_intermediate;
-        VkImageView* m_depth_image_views_intermediate;
-        VkSampler* m_depth_samplers_intermediate;
-
-		VkImage* m_swap_chain_images;
-		VkImageView* m_swap_chain_image_views;
+        PixelSwapChainResourceSet m_resource_set[max_frames_in_flight];
+        PixelSwapChainResourceSet* m_current_resource_set = &m_resource_set[0];
 
 		Device* m_device;
 		VkExtent2D m_window_extent;
@@ -403,10 +415,7 @@ namespace Isonia::Pipeline
 		VkSwapchainKHR m_swap_chain;
 		PixelSwapChain* m_old_swap_chain;
 
-		VkSemaphore* m_image_available_semaphores;
-		VkSemaphore* m_render_finished_semaphores;
-		VkFence* m_in_flight_fences;
-		unsigned int m_current_frame = 0;
+        unsigned int m_current_frame = 0;
 	};
 
     struct PixelRenderer
