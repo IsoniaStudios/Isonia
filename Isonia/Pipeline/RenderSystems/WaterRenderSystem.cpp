@@ -10,10 +10,10 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	WaterRenderSystem::WaterRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout)
+	WaterRenderSystem::WaterRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout global_swapchain_set_layout)
 		: m_device(device)
 	{
-		createpipelineLayout(global_set_layout);
+		createpipelineLayout(global_set_layout, global_swapchain_set_layout);
 		createpipeline(render_pass);
 
 		m_water = new Renderable::BuilderXZUniform(m_device, 2u, 100.0f);
@@ -35,10 +35,10 @@ namespace Isonia::Pipeline::RenderSystems
 			frame_info->command_buffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipeline_layout,
-			0,
-			1,
+			0u,
+			2u,
 			&frame_info->global_descriptor_set,
-			0,
+			0u,
 			nullptr
 		);
 
@@ -75,16 +75,17 @@ namespace Isonia::Pipeline::RenderSystems
 		m_water->draw(frame_info->command_buffer);
 	}
 
-	void WaterRenderSystem::createpipelineLayout(const VkDescriptorSetLayout global_set_layout)
+	void WaterRenderSystem::createpipelineLayout(const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout global_swapchain_set_layout)
 	{
 		VkPushConstantRange push_constant_range{};
 		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		push_constant_range.offset = 0;
 		push_constant_range.size = sizeof(Math::Vector3);
 
-		const constexpr unsigned int descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 2;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
-			global_set_layout
+			global_set_layout,
+			global_swapchain_set_layout
 		};
 
 		VkPipelineLayoutCreateInfo pipeline_layout_info{};

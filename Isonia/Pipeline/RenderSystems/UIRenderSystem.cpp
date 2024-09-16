@@ -40,10 +40,10 @@ namespace Isonia::Pipeline::RenderSystems
 			frame_info->command_buffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipeline_layout,
-			0,
-			1,
+			0u,
+			1u,
 			&frame_info->global_descriptor_set,
-			0,
+			0u,
 			nullptr
 		);
 

@@ -35,15 +35,24 @@ namespace Isonia
 		State::Clock m_clock{};
 
 	private:
-		void initializeDescriptorPool();
+		void initializeDescriptorPools();
+		void initializeGlobalDescriptorPool();
+		void initializeSwapChainDescriptorPool();
+
 		void initializeRenderSystems();
 		void initializeEntities();
 		void initializePlayer();
 
+		Pipeline::Descriptors::DescriptorPool* m_global_swapchain_pool;
+		Pipeline::Descriptors::DescriptorSetLayout* m_global_swapchain_set_layout;
+		Pipeline::Descriptors::DescriptorWriter* m_global_swapchain_writers[Pipeline::SwapChain::max_frames_in_flight];
+		VkDescriptorSet m_global_swapchain_descriptor_sets[Pipeline::SwapChain::max_frames_in_flight];
+
 		Pipeline::Descriptors::DescriptorPool* m_global_pool;
-		Pipeline::Descriptors::DescriptorWriter* m_global_writers[Pipeline::SwapChain::max_frames_in_flight];
 		Pipeline::Descriptors::DescriptorSetLayout* m_global_set_layout;
+		Pipeline::Descriptors::DescriptorWriter* m_global_writers[Pipeline::SwapChain::max_frames_in_flight];
 		VkDescriptorSet m_global_descriptor_sets[Pipeline::SwapChain::max_frames_in_flight];
+
 		Pipeline::Buffer* m_ubo_buffers[Pipeline::SwapChain::max_frames_in_flight];
 		Pipeline::Buffer* m_clock_buffers[Pipeline::SwapChain::max_frames_in_flight];
 

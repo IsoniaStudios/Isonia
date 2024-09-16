@@ -93,7 +93,7 @@ namespace Isonia::Pipeline::RenderSystems
 	struct WaterRenderSystem
 	{
 	public:
-		WaterRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout);
+		WaterRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout global_swapchain_set_layout);
 		~WaterRenderSystem();
 
 		WaterRenderSystem() = delete;
@@ -103,7 +103,7 @@ namespace Isonia::Pipeline::RenderSystems
 		void render(const State::FrameInfo* frame_info, const Camera* camera);
 
 	private:
-		void createpipelineLayout(const VkDescriptorSetLayout global_set_layout);
+		void createpipelineLayout(const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout global_swapchain_set_layout);
 		void createpipeline(const VkRenderPass render_pass);
 
 		Device* m_device;

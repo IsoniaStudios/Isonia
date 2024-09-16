@@ -39,9 +39,10 @@ namespace Isonia::State
 		float frame_time_s;
 		VkCommandBuffer command_buffer;
 		VkDescriptorSet global_descriptor_set;
+		VkDescriptorSet global_swapchain_descriptor_set;
 
-		FrameInfo(int frame_index, float frame_time_s, VkCommandBuffer command_buffer, VkDescriptorSet global_descriptor_set)
-			: frame_index(frame_index), frame_time_s(frame_time_s), command_buffer(command_buffer), global_descriptor_set(global_descriptor_set)
+		FrameInfo(int frame_index, float frame_time_s, VkCommandBuffer command_buffer, VkDescriptorSet global_descriptor_set, VkDescriptorSet global_swapchain_descriptor_set)
+			: frame_index(frame_index), frame_time_s(frame_time_s), command_buffer(command_buffer), global_descriptor_set(global_descriptor_set), global_swapchain_descriptor_set(global_swapchain_descriptor_set)
 		{
 
 		}
