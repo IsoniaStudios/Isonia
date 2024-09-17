@@ -16,13 +16,13 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	GroundRenderSystem::GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const unsigned int quad_side_count, const float quad_size, const float density)
+	GroundRenderSystem::GroundRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout ground_set_layout, const VkDescriptorSetLayout weather_set_layout, const unsigned int quad_side_count, const float quad_size, const float density)
 		: m_device(device), m_quad_side_count(quad_side_count), m_quad_size(quad_size), m_density(density)
 	{
-		createGroundPipelineLayout(global_set_layout);
+		createGroundPipelineLayout(global_set_layout, ground_set_layout, weather_set_layout);
 		createGroundPipeline(render_pass);
 
-		createGrassPipelineLayout(global_set_layout);
+		createGrassPipelineLayout(global_set_layout, ground_set_layout, weather_set_layout);
 		createGrassPipeline(render_pass);
 	}
 
@@ -147,7 +147,7 @@ namespace Isonia::Pipeline::RenderSystems
 					continue;
 				}
 				else if (index_x < min_x_index || index_x > max_x_index ||
-					index_z < min_z_index || index_z > max_z_index)
+						 index_z < min_z_index || index_z > max_z_index)
 				{
 					Renderable::BuilderXZUniformN* ground = m_grounds[index_x][index_z];
 					Renderable::BuilderXZUniformNP* grass = m_grasses[index_x][index_z];
@@ -187,14 +187,14 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::render(const State::FrameInfo* frame_info, const Camera* camera)
+	void GroundRenderSystem::render(const VkDescriptorSet* ground_descriptor_set, const VkDescriptorSet* weather_descriptor_set, const State::FrameInfo* frame_info, const Camera* camera)
 	{
 		frustumCull(camera);
-		renderGround(frame_info);
-		renderGrass(frame_info);
+		renderGround(ground_descriptor_set, weather_descriptor_set, frame_info);
+		renderGrass(ground_descriptor_set, weather_descriptor_set, frame_info);
 	}
 
-	void GroundRenderSystem::renderGround(const State::FrameInfo* frame_info)
+	void GroundRenderSystem::renderGround(const VkDescriptorSet* ground_descriptor_set, const VkDescriptorSet* weather_descriptor_set, const State::FrameInfo* frame_info)
 	{
 		m_ground_pipeline->bind(frame_info->command_buffer);
 
@@ -205,6 +205,26 @@ namespace Isonia::Pipeline::RenderSystems
 			0u,
 			1u,
 			&frame_info->global_descriptor_set,
+			0u,
+			nullptr
+		);
+		vkCmdBindDescriptorSets(
+			frame_info->command_buffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_ground_pipeline_layout,
+			1u,
+			1u,
+			ground_descriptor_set,
+			0u,
+			nullptr
+		);
+		vkCmdBindDescriptorSets(
+			frame_info->command_buffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_ground_pipeline_layout,
+			2u,
+			1u,
+			weather_descriptor_set,
 			0u,
 			nullptr
 		);
@@ -233,7 +253,7 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::renderGrass(const State::FrameInfo* frame_info)
+	void GroundRenderSystem::renderGrass(const VkDescriptorSet* ground_descriptor_set, const VkDescriptorSet* weather_descriptor_set, const State::FrameInfo* frame_info)
 	{
 		m_grass_pipeline->bind(frame_info->command_buffer);
 
@@ -244,6 +264,26 @@ namespace Isonia::Pipeline::RenderSystems
 			0u,
 			1u,
 			&frame_info->global_descriptor_set,
+			0u,
+			nullptr
+		);
+		vkCmdBindDescriptorSets(
+			frame_info->command_buffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_grass_pipeline_layout,
+			1u,
+			1u,
+			ground_descriptor_set,
+			0u,
+			nullptr
+		);
+		vkCmdBindDescriptorSets(
+			frame_info->command_buffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_grass_pipeline_layout,
+			2u,
+			1u,
+			weather_descriptor_set,
 			0u,
 			nullptr
 		);
@@ -264,16 +304,18 @@ namespace Isonia::Pipeline::RenderSystems
 		}
 	}
 
-	void GroundRenderSystem::createGroundPipelineLayout(const VkDescriptorSetLayout global_set_layout)
+	void GroundRenderSystem::createGroundPipelineLayout(const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout ground_set_layout, const VkDescriptorSetLayout weather_set_layout)
 	{
 		VkPushConstantRange push_constant_range{};
 		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		push_constant_range.offset = 0;
 		push_constant_range.size = sizeof(Math::Vector2);
 
-		const constexpr unsigned int descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 3;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
-			global_set_layout
+			global_set_layout,
+			ground_set_layout,
+			weather_set_layout
 		};
 
 		VkPipelineLayoutCreateInfo pipeline_layout_info{};
@@ -308,11 +350,13 @@ namespace Isonia::Pipeline::RenderSystems
 			)->createGraphicsPipeline(&pipeline_config);
 	}
 
-	void GroundRenderSystem::createGrassPipelineLayout(const VkDescriptorSetLayout global_set_layout)
+	void GroundRenderSystem::createGrassPipelineLayout(const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout ground_set_layout, const VkDescriptorSetLayout weather_set_layout)
 	{
-		const constexpr unsigned int descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 3;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
-			global_set_layout
+			global_set_layout,
+			ground_set_layout,
+			weather_set_layout
 		};
 
 		VkPipelineLayoutCreateInfo pipeline_layout_info{};

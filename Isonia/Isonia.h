@@ -38,20 +38,24 @@ namespace Isonia
 		void initializeDescriptorPools();
 		void initializeGlobalDescriptorPool();
 		void initializeSwapChainDescriptorPool();
+		void initializeWeatherDescriptorPool();
+		void initializeGroundDescriptorPool();
+		void initializeWaterDescriptorPool();
+		void initializeTextDescriptorPool();
+		void initializeDebuggerDescriptorPool();
 
 		void initializeRenderSystems();
 		void initializeEntities();
 		void initializePlayer();
 
-		Pipeline::Descriptors::DescriptorPool* m_global_swapchain_pool;
-		Pipeline::Descriptors::DescriptorSetLayout* m_global_swapchain_set_layout;
-		Pipeline::Descriptors::DescriptorWriter* m_global_swapchain_writers[Pipeline::SwapChain::max_frames_in_flight];
-		VkDescriptorSet m_global_swapchain_descriptor_sets[Pipeline::SwapChain::max_frames_in_flight];
+		Pipeline::Descriptors::DescriptorManager* m_global_swapchain_descriptor_manager;
+		Pipeline::Descriptors::DescriptorManager* m_global_descriptor_manager;
 
-		Pipeline::Descriptors::DescriptorPool* m_global_pool;
-		Pipeline::Descriptors::DescriptorSetLayout* m_global_set_layout;
-		Pipeline::Descriptors::DescriptorWriter* m_global_writers[Pipeline::SwapChain::max_frames_in_flight];
-		VkDescriptorSet m_global_descriptor_sets[Pipeline::SwapChain::max_frames_in_flight];
+		Pipeline::Descriptors::DescriptorManager* m_weather_descriptor_manager;
+		Pipeline::Descriptors::DescriptorManager* m_water_descriptor_manager;
+		Pipeline::Descriptors::DescriptorManager* m_ground_descriptor_manager;		
+		Pipeline::Descriptors::DescriptorManager* m_text_descriptor_manager;
+		Pipeline::Descriptors::DescriptorManager* m_debugger_descriptor_manager;
 
 		Pipeline::Buffer* m_ubo_buffers[Pipeline::SwapChain::max_frames_in_flight];
 		Pipeline::Buffer* m_clock_buffers[Pipeline::SwapChain::max_frames_in_flight];

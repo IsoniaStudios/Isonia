@@ -11,10 +11,10 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	DebuggerRenderSystem::DebuggerRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout)
+	DebuggerRenderSystem::DebuggerRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout debugger_set_layout)
 		: m_device(device)
 	{
-		createPipelineLayout(global_set_layout);
+		createPipelineLayout(global_set_layout, debugger_set_layout);
 		createPipeline(render_pass);
 
 		m_debugger = new Renderable::BuilderPosition(m_device);
@@ -28,7 +28,7 @@ namespace Isonia::Pipeline::RenderSystems
 		delete m_debugger;
 	}
 
-	void DebuggerRenderSystem::render(const State::FrameInfo* frame_info)
+	void DebuggerRenderSystem::render(const VkDescriptorSet* debugger_descriptor_set, const State::FrameInfo* frame_info)
 	{
 		m_pipeline->bind(frame_info->command_buffer);
 
@@ -42,16 +42,27 @@ namespace Isonia::Pipeline::RenderSystems
 			0u,
 			nullptr
 		);
+		vkCmdBindDescriptorSets(
+			frame_info->command_buffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_pipeline_layout,
+			1u,
+			1u,
+			debugger_descriptor_set,
+			0u,
+			nullptr
+		);
 
 		m_debugger->bind(frame_info->command_buffer);
 		m_debugger->draw(frame_info->command_buffer);
 	}
 
-	void DebuggerRenderSystem::createPipelineLayout(const VkDescriptorSetLayout global_set_layout)
+	void DebuggerRenderSystem::createPipelineLayout(const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout debugger_set_layout)
 	{
-		const constexpr unsigned int descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 2;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
-			global_set_layout
+			global_set_layout,
+			debugger_set_layout
 		};
 
 		VkPipelineLayoutCreateInfo pipeline_layout_info{};

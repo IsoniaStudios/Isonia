@@ -25,9 +25,9 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
-layout (set = 0, binding = 6) uniform sampler1D colors;
 layout (set = 1, binding = 0) uniform sampler2D color_map;
 layout (set = 1, binding = 1) uniform sampler2D depth_map;
+layout (set = 2, binding = 0) uniform sampler1D colors;
 
 vec4 alphaBlend(vec4 src_color, vec4 dst_color)
 {

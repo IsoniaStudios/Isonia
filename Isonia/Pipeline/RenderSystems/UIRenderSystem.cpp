@@ -10,10 +10,10 @@
 
 namespace Isonia::Pipeline::RenderSystems
 {
-	UIRenderSystem::UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const Renderable::Font* font, const unsigned int max_text_length)
+	UIRenderSystem::UIRenderSystem(Device* device, const VkRenderPass render_pass, const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout text_set_layout, const Renderable::Font* font, const unsigned int max_text_length)
 		: m_device(device), m_ui(nullptr)
 	{
-		createPipelineLayout(global_set_layout);
+		createPipelineLayout(global_set_layout, text_set_layout);
 		createPipeline(render_pass);
 
 		m_ui = new Renderable::BuilderUI(m_device, font, max_text_length);
@@ -32,7 +32,7 @@ namespace Isonia::Pipeline::RenderSystems
 		m_ui->update(extent, text);
 	}
 
-	void UIRenderSystem::render(const State::FrameInfo* frame_info, const Camera* camera)
+	void UIRenderSystem::render(const VkDescriptorSet* text_descriptor_set, const State::FrameInfo* frame_info, const Camera* camera)
 	{
 		m_pipeline->bind(frame_info->command_buffer);
 
@@ -46,16 +46,27 @@ namespace Isonia::Pipeline::RenderSystems
 			0u,
 			nullptr
 		);
+		vkCmdBindDescriptorSets(
+			frame_info->command_buffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_pipeline_layout,
+			1u,
+			1u,
+			text_descriptor_set,
+			0u,
+			nullptr
+		);
 
 		m_ui->bind(frame_info->command_buffer);
 		m_ui->draw(frame_info->command_buffer);
 	}
 
-	void UIRenderSystem::createPipelineLayout(const VkDescriptorSetLayout global_set_layout)
+	void UIRenderSystem::createPipelineLayout(const VkDescriptorSetLayout global_set_layout, const VkDescriptorSetLayout text_set_layout)
 	{
-		const constexpr unsigned int descriptor_set_layouts_length = 1;
+		const constexpr unsigned int descriptor_set_layouts_length = 2;
 		const VkDescriptorSetLayout descriptor_set_layouts[descriptor_set_layouts_length]{
-			global_set_layout
+			global_set_layout, 
+			text_set_layout
 		};
 
 		VkPipelineLayoutCreateInfo pipeline_layout_info{};

@@ -15,7 +15,7 @@ namespace Isonia::Pipeline::Descriptors
 		~DescriptorSetLayout();
 
 		DescriptorSetLayout() = delete;
-		DescriptorSetLayout(const DescriptorSetLayout&) = delete;
+		//DescriptorSetLayout(const DescriptorSetLayout&) = delete;
 		DescriptorSetLayout& operator=(const DescriptorSetLayout&) = delete;
 
 		DescriptorSetLayout* addBinding(unsigned int binding, VkDescriptorType descriptor_type, VkShaderStageFlags stage_flags, unsigned int count = 1u);
@@ -40,7 +40,7 @@ namespace Isonia::Pipeline::Descriptors
 		~DescriptorPool();
 
 		DescriptorPool() = delete;
-		DescriptorPool(const DescriptorPool&) = delete;
+		//DescriptorPool(const DescriptorPool&) = delete;
 		DescriptorPool& operator=(const DescriptorPool&) = delete;
 
 		DescriptorPool* addPoolSize(const VkDescriptorType descriptor_type, const unsigned int count);
@@ -68,7 +68,7 @@ namespace Isonia::Pipeline::Descriptors
 		~DescriptorWriter();
 
 		DescriptorWriter() = delete;
-		DescriptorWriter(const DescriptorWriter&) = delete;
+		//DescriptorWriter(const DescriptorWriter&) = delete;
 		DescriptorWriter& operator=(const DescriptorWriter&) = delete;
 
 		DescriptorWriter* writeBuffer(const unsigned int binding, const VkDescriptorBufferInfo* buffer_info);
@@ -85,5 +85,28 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorPool* m_pool;
 		VkWriteDescriptorSet* m_writes;
 		const unsigned int m_writes_count;
+	};
+
+	struct DescriptorManager
+	{
+	public:
+		DescriptorManager(Device* device, const unsigned int size);
+		~DescriptorManager();
+
+		DescriptorManager() = delete;
+		DescriptorManager(const DescriptorManager&) = delete;
+		DescriptorManager& operator=(const DescriptorManager&) = delete;
+
+		DescriptorPool* getPool();
+		DescriptorSetLayout* getSetLayout();
+		DescriptorWriter* getWriters(unsigned int index = 0u);
+		VkDescriptorSet* getDescriptorSets(unsigned int index = 0u);
+
+	private:
+		DescriptorWriter createWriter(const unsigned int index);
+		DescriptorPool m_pool;
+		DescriptorSetLayout m_set_layout;
+		DescriptorWriter m_writers[SwapChain::max_frames_in_flight];
+		VkDescriptorSet m_descriptor_sets[SwapChain::max_frames_in_flight];
 	};
 }

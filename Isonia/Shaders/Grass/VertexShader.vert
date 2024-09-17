@@ -24,8 +24,8 @@ layout(set = 0, binding = 1) uniform GlobalClock {
   float frame_time_s;
 } clock;
 
-layout (set = 0, binding = 5) uniform sampler2D cloud_shadow_map;
-layout (set = 0, binding = 7) uniform sampler2D wind_map;
+layout (set = 2, binding = 0) uniform sampler2D cloud_shadow_map;
+layout (set = 2, binding = 1) uniform sampler2D wind_map;
 
 const float CLOUD_HEIGHT = -100.0;
 const float ALPHA_MAP_SIZE = 9.0;

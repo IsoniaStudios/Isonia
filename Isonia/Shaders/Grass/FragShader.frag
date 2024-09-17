@@ -21,9 +21,9 @@ layout(set = 0, binding = 1) uniform GlobalClock {
   float frame_time_s;
 } clock;
 
-layout (set = 0, binding = 2) uniform sampler1D colors;
+layout (set = 1, binding = 0) uniform sampler1D colors;
 
-layout (set = 0, binding = 3) uniform sampler2D alpha_map;
+layout (set = 1, binding = 1) uniform sampler2D alpha_map;
 
 void main()
 {

@@ -32,15 +32,19 @@ namespace Isonia
 		*/
 
 		delete m_ui_render_system;
+		delete m_water_render_system;
 		delete m_debugger_render_system;
 		delete m_ground_render_system;
-		delete m_water_render_system;
 
-		for (Pipeline::Descriptors::DescriptorWriter* writer : m_global_writers) {
-			delete writer;
-		}
-		delete m_global_set_layout;
-		delete m_global_pool;
+		delete m_global_swapchain_descriptor_manager;
+		delete m_global_descriptor_manager;
+
+		delete m_weather_descriptor_manager;
+		delete m_ground_descriptor_manager;
+		delete m_water_descriptor_manager;
+		delete m_text_descriptor_manager;
+		delete m_debugger_descriptor_manager;
+
 		for (Pipeline::Buffer* buffer : m_clock_buffers) {
 			delete buffer;
 		}
@@ -78,8 +82,8 @@ namespace Isonia
 					frame_index,
 					frame_time_s,
 					command_buffer,
-					m_global_descriptor_sets[frame_index],
-					m_global_swapchain_descriptor_sets[frame_index]
+					*m_global_descriptor_manager->getDescriptorSets(frame_index),
+					*m_global_swapchain_descriptor_manager->getDescriptorSets(frame_index)
 				};
 
 				// update
@@ -99,15 +103,24 @@ namespace Isonia
 
 				// render
 				m_renderer.beginSwapChainRenderPass(command_buffer, 0u);
-				m_ground_render_system->render(&frame_info, &m_player.m_camera);
-				m_debugger_render_system->render(&frame_info);
+				m_ground_render_system->render(
+					m_ground_descriptor_manager->getDescriptorSets(frame_index),
+					m_weather_descriptor_manager->getDescriptorSets(frame_index),
+					&frame_info,
+					&m_player.m_camera
+				);
+				m_debugger_render_system->render(m_debugger_descriptor_manager->getDescriptorSets(frame_index), &frame_info);
 				m_renderer.endSwapChainRenderPass(command_buffer);
 
 				m_renderer.copyToIntermediates(command_buffer);
 
 				m_renderer.beginSwapChainRenderPass(command_buffer, 1u);
-				m_water_render_system->render(&frame_info, &m_player.m_camera);
-				m_ui_render_system->render(&frame_info, &m_player.m_camera);
+				m_water_render_system->render(
+					m_water_descriptor_manager->getDescriptorSets(frame_index),
+					&frame_info,
+					&m_player.m_camera
+				);
+				m_ui_render_system->render(m_text_descriptor_manager->getDescriptorSets(frame_index), &frame_info, &m_player.m_camera);
 				m_renderer.endSwapChainRenderPass(command_buffer);
 
 				m_renderer.blit(command_buffer, m_player.m_camera.m_sub_pixel_offset);
@@ -122,23 +135,24 @@ namespace Isonia
 	{
 		initializeGlobalDescriptorPool();
 		initializeSwapChainDescriptorPool();
+		initializeWeatherDescriptorPool();
+		initializeGroundDescriptorPool();
+		initializeWaterDescriptorPool();
+		initializeTextDescriptorPool();
+		initializeDebuggerDescriptorPool();
 	}
 
 	void Isonia::initializeGlobalDescriptorPool()
 	{
-		const unsigned int size = 9u;
-
-		m_global_pool = (new Pipeline::Descriptors::DescriptorPool(&m_device, size))
+		m_global_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
+		m_global_descriptor_manager->getPool()
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->build(Pipeline::SwapChain::max_frames_in_flight);
+		m_global_descriptor_manager->getSetLayout()
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(1u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
 
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
@@ -159,11 +173,52 @@ namespace Isonia
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
 			);
 			m_clock_buffers[i]->map();
-		}
 
-		Renderable::GrassTextureAtlasFactory grassTextureAtlasFactory = Renderable::GrassTextureAtlasFactory{ 9u, 9u, 16u, 16u, 1u };
-		m_grass = grassTextureAtlasFactory.instantiateTexture(&m_device, VK_FORMAT_R8_UNORM);
-		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
+			const VkDescriptorBufferInfo* ubo_buffer_info = m_ubo_buffers[i]->getDescriptorInfo();
+			const VkDescriptorBufferInfo* clock_buffer_info = m_clock_buffers[i]->getDescriptorInfo();
+
+			m_global_descriptor_manager->getWriters(i)
+				->writeBuffer(0u, ubo_buffer_info)
+				->writeBuffer(1u, clock_buffer_info)
+				->build(m_global_descriptor_manager->getDescriptorSets(i));
+		}
+	}
+
+	void Isonia::initializeSwapChainDescriptorPool()
+	{
+		m_global_swapchain_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
+		m_global_swapchain_descriptor_manager->getPool()
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->build(Pipeline::SwapChain::max_frames_in_flight);
+		m_global_swapchain_descriptor_manager->getSetLayout()
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(1u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
+
+		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
+		{
+			const VkDescriptorImageInfo* intermediate_color_buffer_image_info = m_renderer.getPixelSwapChain()->getIntermediateImageInfo(i);
+			const VkDescriptorImageInfo* intermediate_depth_buffer_image_info = m_renderer.getPixelSwapChain()->getIntermediateDepthImageInfo(i);
+
+			m_global_swapchain_descriptor_manager->getWriters(i)
+				->writeImage(0u, intermediate_color_buffer_image_info)
+				->writeImage(1u, intermediate_depth_buffer_image_info)
+				->build(m_global_swapchain_descriptor_manager->getDescriptorSets(i));
+		}
+	}
+
+	void Isonia::initializeWeatherDescriptorPool()
+	{
+		m_weather_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
+		m_weather_descriptor_manager->getPool()
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->build(Pipeline::SwapChain::max_frames_in_flight);
+		m_weather_descriptor_manager->getSetLayout()
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->addBinding(1u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
 
 		Noise::ConstantScalarWarpNoise cloud_warp_noise{ 5.0f };
 		Noise::FractalPerlinNoise cloud_noise{ 69, 3, 2.0f, 0.5f, 0.0f };
@@ -176,72 +231,103 @@ namespace Isonia
 		Renderable::WarpNoiseTextureFactory windTextureFactory = Renderable::WarpNoiseTextureFactory{ &wind_noise, 128u, 128u, 2u };
 		m_wind = windTextureFactory.instantiateTexture(&m_device, VK_FORMAT_R8G8_SNORM, VK_FILTER_LINEAR);
 
-		m_debugger = Renderable::createDebugTexture(&m_device);
-		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
-
-		m_text = Renderable::Font::pixelFont3x6(&m_device);
-
-		m_global_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, size))
-			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(1u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(2u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(3u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(4u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(5u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(6u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(7u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->addBinding(8u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
-			->build();
-
+		const VkDescriptorImageInfo* cloud_info = m_cloud->getImageInfo();
+		const VkDescriptorImageInfo* wind_info = m_wind->getImageInfo();
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			const VkDescriptorBufferInfo* ubo_buffer_info = m_ubo_buffers[i]->getDescriptorInfo();
-			const VkDescriptorBufferInfo* clock_buffer_info = m_clock_buffers[i]->getDescriptorInfo();
-			const VkDescriptorImageInfo* grass_day_palette_info = m_grass_day_palette->getImageInfo();
-			const VkDescriptorImageInfo* grass_info = m_grass->getImageInfo();
-			const VkDescriptorImageInfo* debugger_info = m_debugger->getImageInfo();
-			const VkDescriptorImageInfo* cloud_info = m_cloud->getImageInfo();
-			const VkDescriptorImageInfo* water_day_palette_info = m_water_day_palette->getImageInfo();
-			const VkDescriptorImageInfo* wind_info = m_wind->getImageInfo();
-			const VkDescriptorImageInfo* text_info = m_text->getTexture()->getImageInfo();
-
-			m_global_writers[i] = new Pipeline::Descriptors::DescriptorWriter(m_global_set_layout, m_global_pool, size);
-			m_global_writers[i]->writeBuffer(0u, ubo_buffer_info)
-				->writeBuffer(1u, clock_buffer_info)
-				->writeImage(2u, grass_day_palette_info)
-				->writeImage(3u, grass_info)
-				->writeImage(4u, debugger_info)
-				->writeImage(5u, cloud_info)
-				->writeImage(6u, water_day_palette_info)
-				->writeImage(7u, wind_info)
-				->writeImage(8u, text_info)
-				->build(&m_global_descriptor_sets[i]);
+			m_weather_descriptor_manager->getWriters(i)
+				->writeImage(0u, cloud_info)
+				->writeImage(1u, wind_info)
+				->build(m_weather_descriptor_manager->getDescriptorSets(i));
 		}
 	}
 
-	void Isonia::initializeSwapChainDescriptorPool()
+	void Isonia::initializeGroundDescriptorPool()
 	{
-		const unsigned int size = 2u;
-
-		m_global_swapchain_pool = (new Pipeline::Descriptors::DescriptorPool(&m_device, size))
+		m_ground_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
+		m_ground_descriptor_manager->getPool()
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
 			->build(Pipeline::SwapChain::max_frames_in_flight);
-
-		m_global_swapchain_set_layout = (new Pipeline::Descriptors::DescriptorSetLayout(&m_device, size))
+		m_ground_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
 
+		Renderable::GrassTextureAtlasFactory grassTextureAtlasFactory = Renderable::GrassTextureAtlasFactory{ 9u, 9u, 16u, 16u, 1u };
+		m_grass = grassTextureAtlasFactory.instantiateTexture(&m_device, VK_FORMAT_R8_UNORM);
+		m_grass_day_palette = Renderable::createGrassDayPalette(&m_device);
+
+		const VkDescriptorImageInfo* grass_day_palette_info = m_grass_day_palette->getImageInfo();
+		const VkDescriptorImageInfo* grass_info = m_grass->getImageInfo();
 		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
 		{
-			const VkDescriptorImageInfo* intermediate_color_buffer_image_info = m_renderer.getPixelSwapChain()->getIntermediateImageInfo(i);
-			const VkDescriptorImageInfo* intermediate_depth_buffer_image_info = m_renderer.getPixelSwapChain()->getIntermediateDepthImageInfo(i);
+			m_ground_descriptor_manager->getWriters(i)
+				->writeImage(0u, grass_day_palette_info)
+				->writeImage(1u, grass_info)
+				->build(m_ground_descriptor_manager->getDescriptorSets(i));
+		}
+	}
 
-			m_global_swapchain_writers[i] = new Pipeline::Descriptors::DescriptorWriter(m_global_swapchain_set_layout, m_global_swapchain_pool, size);
-			m_global_swapchain_writers[i]->writeImage(0u, intermediate_color_buffer_image_info)
-				->writeImage(1u, intermediate_depth_buffer_image_info)
-				->build(&m_global_swapchain_descriptor_sets[i]);
+	void Isonia::initializeWaterDescriptorPool()
+	{
+		m_water_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 1u);
+		m_water_descriptor_manager->getPool()
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->build(Pipeline::SwapChain::max_frames_in_flight);
+		m_water_descriptor_manager->getSetLayout()
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
+
+		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
+		const VkDescriptorImageInfo* water_day_palette_info = m_water_day_palette->getImageInfo();
+		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
+		{
+			m_water_descriptor_manager->getWriters(i)
+				->writeImage(0u, water_day_palette_info)
+				->build(m_water_descriptor_manager->getDescriptorSets(i));
+		}
+	}
+
+	void Isonia::initializeTextDescriptorPool()
+	{
+		m_text_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 1u);
+		m_text_descriptor_manager->getPool()
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->build(Pipeline::SwapChain::max_frames_in_flight);
+		m_text_descriptor_manager->getSetLayout()
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
+
+		m_text = Renderable::Font::pixelFont3x6(&m_device);
+
+		const VkDescriptorImageInfo* text_info = m_text->getTexture()->getImageInfo();
+		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
+		{
+			m_text_descriptor_manager->getWriters(i)
+				->writeImage(0u, text_info)
+				->build(m_text_descriptor_manager->getDescriptorSets(i));
+		}
+	}
+
+	void Isonia::initializeDebuggerDescriptorPool()
+	{
+		m_debugger_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 1u);
+		m_debugger_descriptor_manager->getPool()
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::SwapChain::max_frames_in_flight)
+			->build(Pipeline::SwapChain::max_frames_in_flight);
+		m_debugger_descriptor_manager->getSetLayout()
+			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
+			->build();
+
+		m_debugger = Renderable::createDebugTexture(&m_device);
+
+		const VkDescriptorImageInfo* debugger_info = m_debugger->getImageInfo();
+		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
+		{
+			m_debugger_descriptor_manager->getWriters(i)
+				->writeImage(0u, debugger_info)
+				->build(m_debugger_descriptor_manager->getDescriptorSets(i));
 		}
 	}
 
@@ -250,27 +336,32 @@ namespace Isonia
 		m_ground_render_system = new Pipeline::RenderSystems::GroundRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(0u),
-			m_global_set_layout->getDescriptorSetLayout(),
+			m_global_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
+			m_ground_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
+			m_weather_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
 			64, 1.0f, 4.0f
 		};
 
 		m_debugger_render_system = new Pipeline::RenderSystems::DebuggerRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(0u),
-			m_global_set_layout->getDescriptorSetLayout()
+			m_global_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
+			m_debugger_descriptor_manager->getSetLayout()->getDescriptorSetLayout()
 		};
 
 		m_water_render_system = new Pipeline::RenderSystems::WaterRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(1u),
-			m_global_set_layout->getDescriptorSetLayout(),
-			m_global_swapchain_set_layout->getDescriptorSetLayout()
+			m_global_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
+			m_global_swapchain_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
+			m_water_descriptor_manager->getSetLayout()->getDescriptorSetLayout()
 		};
 
 		m_ui_render_system = new Pipeline::RenderSystems::UIRenderSystem{
 			&m_device,
 			m_renderer.getSwapChainRenderPass(1u),
-			m_global_set_layout->getDescriptorSetLayout(),
+			m_global_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
+			m_text_descriptor_manager->getSetLayout()->getDescriptorSetLayout(),
 			m_text,
 			128u
 		};

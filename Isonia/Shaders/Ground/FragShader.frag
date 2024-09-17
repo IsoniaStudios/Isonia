@@ -25,9 +25,9 @@ layout(push_constant) uniform Push {
   float z;
 } push;
 
-layout (set = 0, binding = 2) uniform sampler1D colors;
+layout (set = 1, binding = 0) uniform sampler1D colors;
 
-layout (set = 0, binding = 5) uniform sampler2D cloud_shadow_map;
+layout (set = 2, binding = 0) uniform sampler2D cloud_shadow_map;
 
 const float CLOUD_HEIGHT = -100;
 
