@@ -48,6 +48,8 @@ namespace Isonia
 		void initializeEntities();
 		void initializePlayer();
 
+		static void OverwriteSwapChainDescriptorSets(Pipeline::PixelRenderer* renderer, void* descriptor_manager);
+
 		Pipeline::Descriptors::DescriptorManager* m_global_swapchain_descriptor_manager;
 		Pipeline::Descriptors::DescriptorManager* m_global_descriptor_manager;
 

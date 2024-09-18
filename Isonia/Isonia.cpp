@@ -371,9 +371,25 @@ namespace Isonia
 	{
 	}
 
+	void Isonia::OverwriteSwapChainDescriptorSets(Pipeline::PixelRenderer* renderer, void* descriptor_manager)
+	{
+		Pipeline::Descriptors::DescriptorManager* m_global_swapchain_descriptor_manager = static_cast<Pipeline::Descriptors::DescriptorManager*>(descriptor_manager);
+		for (int i = 0; i < Pipeline::SwapChain::max_frames_in_flight; i++)
+		{
+			const VkDescriptorImageInfo* intermediate_color_buffer_image_info = renderer->getPixelSwapChain()->getIntermediateImageInfo(i);
+			const VkDescriptorImageInfo* intermediate_depth_buffer_image_info = renderer->getPixelSwapChain()->getIntermediateDepthImageInfo(i);
+
+			m_global_swapchain_descriptor_manager->getWriters(i)
+				->writeImage(0u, intermediate_color_buffer_image_info)
+				->writeImage(1u, intermediate_depth_buffer_image_info)
+				->overwrite(m_global_swapchain_descriptor_manager->getDescriptorSets(i));
+		}
+	}
+
 	void Isonia::initializePlayer()
 	{
 		m_renderer.registerRenderResizeCallback(m_player.getOnAspectChangeCallback(), &m_player);
+		m_renderer.registerRenderResizeCallback(&Isonia::OverwriteSwapChainDescriptorSets, m_global_swapchain_descriptor_manager);
 		m_player.onAspectChange(&m_renderer, &m_player);
 	}
 }
