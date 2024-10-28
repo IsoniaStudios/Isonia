@@ -299,7 +299,6 @@ namespace Isonia::Pipeline
         unsigned int count;
     };
 
-
     struct PixelSwapChainResourceSet
     {
     public:
@@ -337,6 +336,7 @@ namespace Isonia::Pipeline
 	{
 	public:
 		static constexpr const unsigned int max_frames_in_flight = 3u;
+        static constexpr const unsigned int attachments_length = 2u;
 
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent);
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent, PixelSwapChain* previous);
@@ -376,8 +376,8 @@ namespace Isonia::Pipeline
 		VkResult submitCommandBuffers(const VkCommandBuffer* buffers, unsigned int* image_index);
 		bool compareSwapFormats(const PixelSwapChain* swap_chain) const;
 
-        RenderPassInfo* m_render_passes = (RenderPassInfo*)malloc(2u * sizeof(RenderPassInfo));
-        unsigned int m_render_pass_count = 2u;
+        static constexpr const unsigned int m_render_pass_count = 2u;
+        RenderPassInfo* m_render_passes = (RenderPassInfo*)malloc(m_render_pass_count * sizeof(RenderPassInfo));
         unsigned int m_current_render_pass_index;
 
 	private:
@@ -395,8 +395,6 @@ namespace Isonia::Pipeline
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count);
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
-
-		static constexpr const unsigned int attachments_length = 2u;
 
 		unsigned int m_image_count;
 
@@ -478,6 +476,7 @@ namespace Isonia::Pipeline
     {
     public:
         static constexpr const unsigned int max_frames_in_flight = 3u;
+        static constexpr const unsigned int attachments_length = 2u;
 
         SwapChain(Device* device_ref, VkExtent2D extent);
         SwapChain(Device* device_ref, VkExtent2D extent, SwapChain* previous);
@@ -516,8 +515,6 @@ namespace Isonia::Pipeline
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR* available_formats, const unsigned int available_formats_count);
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
-
-        static constexpr const unsigned int attachments_length = 2u;
 
         unsigned int m_image_count;
 

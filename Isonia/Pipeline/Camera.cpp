@@ -68,7 +68,7 @@ namespace Isonia::Pipeline
     void Camera::setProjection(Renderer* renderer)
     {
         const float aspect = renderer->getAspectRatio();
-        setPerspectiveProjection(Math::radiansf(50.f), aspect, 0.1f, 1000.f);
+        setPerspectiveProjection(Math::radiansf(50.f), aspect, 0.1f, 1'000.f);
     }
 
     const Math::Matrix4x4* Camera::getProjection() const

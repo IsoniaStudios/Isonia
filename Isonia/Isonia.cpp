@@ -66,7 +66,7 @@ namespace Isonia
 			}
 
 			std::chrono::time_point new_time_s = std::chrono::high_resolution_clock::now();
-			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time_s - current_time_s).count();
+			float frame_time_s = std::chrono::duration<float, std::chrono::seconds::period>(new_time_s - current_time_s).count(); // 10.0f / 1'000.0f
 			current_time_s = new_time_s;
 
 			m_player.act(&m_window, frame_time_s);

@@ -29,7 +29,7 @@ namespace Isonia::Noise
     {
         base_warp_noise->transformCoordinate(x, y, z);
 
-        const float noise_offset = 1000.0f;
+        const float noise_offset = 1'000.0f;
 
         const float x1y = base_noise->generateNoise(*x + Math::float_delta, *y, *z + noise_offset);
         const float x1z = base_noise->generateNoise(*x + Math::float_delta + noise_offset, *y, *z);
@@ -63,7 +63,7 @@ namespace Isonia::Noise
     {
         base_warp_noise->transformCoordinate(x, y, z, w);
 
-        const float noise_offset = 1000.0f;
+        const float noise_offset = 1'000.0f;
 
         const float x1y = base_noise->generateNoise(*x + Math::float_delta, *y, *z, *w + noise_offset);
         const float x1z = base_noise->generateNoise(*x + Math::float_delta, *y, *z + noise_offset, *w);

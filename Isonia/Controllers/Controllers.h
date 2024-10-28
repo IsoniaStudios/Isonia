@@ -43,7 +43,7 @@ namespace Isonia::Controllers
         float m_sprint_speed{ 60.f };
         float m_move_speed{ 30.0f };
         float m_walk_speed{ 0.3f };
-        float m_look_speed{ 1.5f };
+        float m_look_speed{ 3.0f };
     };
 
     struct KeyboardControllerIsometric : public KeyboardController

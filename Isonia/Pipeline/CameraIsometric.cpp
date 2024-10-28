@@ -72,7 +72,7 @@ namespace Isonia::Pipeline
             m_top = -(extent.height / ortho_size),
             m_bottom = extent.height / ortho_size,
             m_near = 0.0f,
-            m_far = 1000.0f
+            m_far = 1'000.0f
         );
 
         // NDC coordinates of the top left upmost center pixel position

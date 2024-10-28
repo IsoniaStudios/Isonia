@@ -55,6 +55,15 @@ namespace Isonia::Pipeline
 			vkFreeMemory(m_device->getDevice(), resource->m_depth_image_memory_intermediate, nullptr);
 			vkDestroySampler(m_device->getDevice(), resource->m_depth_sampler_intermediate, nullptr);
 		}
+
+		for (unsigned int i = 0; i < m_render_pass_count; i++)
+		{
+			vkDestroyRenderPass(m_device->getDevice(), m_render_passes[i].m_render_pass, nullptr);
+			for (unsigned int q = 0; q < m_render_passes[i].count; q++)
+			{
+				vkDestroyFramebuffer(m_device->getDevice(), m_render_passes[i].m_framebuffers[q], nullptr);
+			}
+		}
 	}
 
 	void PixelSwapChain::freeOldPixelSwapChain()
@@ -427,6 +436,7 @@ namespace Isonia::Pipeline
 	{
 		for (unsigned int r = 0; r < m_render_pass_count; r++)
 		{
+			m_render_passes[r].count = m_image_count;
 			m_render_passes[r].m_framebuffers = (VkFramebuffer*)malloc(m_image_count * sizeof(VkFramebuffer));
 			for (unsigned int i = 0; i < m_image_count; i++)
 			{
