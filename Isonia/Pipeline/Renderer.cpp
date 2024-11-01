@@ -114,7 +114,7 @@ namespace Isonia::Pipeline
 		}
 
 		m_is_frame_started = false;
-		m_current_frame_index = (m_current_frame_index + 1) % SwapChain::max_frames_in_flight;
+		m_current_frame_index = (m_current_frame_index + 1) % PixelSwapChain::max_frames_in_flight;
 	}
 
 	void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
@@ -167,7 +167,7 @@ namespace Isonia::Pipeline
 		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		alloc_info.commandPool = m_device->getCommandPool();
-		alloc_info.commandBufferCount = SwapChain::max_frames_in_flight;
+		alloc_info.commandBufferCount = PixelSwapChain::max_frames_in_flight;
 
 		if (vkAllocateCommandBuffers(m_device->getDevice(), &alloc_info, m_command_buffers) != VK_SUCCESS)
 		{
@@ -180,7 +180,7 @@ namespace Isonia::Pipeline
 		vkFreeCommandBuffers(
 			m_device->getDevice(),
 			m_device->getCommandPool(),
-			SwapChain::max_frames_in_flight,
+			PixelSwapChain::max_frames_in_flight,
 			m_command_buffers
 		);
 	}

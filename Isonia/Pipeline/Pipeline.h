@@ -403,8 +403,8 @@ namespace Isonia::Pipeline
 		VkFormat m_swap_chain_depth_format;
 		VkExtent2D m_swap_chain_extent;
 
-        PixelSwapChainResourceSet m_resource_set[max_frames_in_flight];
-        PixelSwapChainResourceSet* m_current_resource_set = &m_resource_set[0];
+        PixelSwapChainResourceSet m_resource_set[PixelSwapChain::max_frames_in_flight];
+        PixelSwapChainResourceSet* m_current_resource_set = m_resource_set;
 
 		Device* m_device;
 		VkExtent2D m_window_extent;
@@ -539,9 +539,9 @@ namespace Isonia::Pipeline
         VkSwapchainKHR m_swap_chain;
         SwapChain* m_old_swap_chain;
 
-        VkSemaphore m_image_available_semaphores[max_frames_in_flight];
-        VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
-        VkFence m_in_flight_fences[max_frames_in_flight];
+        VkSemaphore m_image_available_semaphores[PixelSwapChain::max_frames_in_flight];
+        VkSemaphore m_render_finished_semaphores[PixelSwapChain::max_frames_in_flight];
+        VkFence m_in_flight_fences[PixelSwapChain::max_frames_in_flight];
         unsigned int m_current_frame = 0;
     };
 
@@ -580,7 +580,7 @@ namespace Isonia::Pipeline
 		Window* m_window;
 		Device* m_device;
 		SwapChain* m_swap_chain = nullptr;
-		VkCommandBuffer m_command_buffers[SwapChain::max_frames_in_flight];
+		VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
 
         unsigned int m_event_count = 0;
         EventHandler m_handlers[4];

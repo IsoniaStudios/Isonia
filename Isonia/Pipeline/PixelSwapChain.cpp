@@ -208,9 +208,9 @@ namespace Isonia::Pipeline
 		submit_info.commandBufferCount = 1;
 		submit_info.pCommandBuffers = buffers;
 
-		VkSemaphore signalSemaphores[] = { m_current_resource_set->m_render_finished_semaphore };
+		VkSemaphore signal_semaphores[] = { m_current_resource_set->m_render_finished_semaphore };
 		submit_info.signalSemaphoreCount = 1;
-		submit_info.pSignalSemaphores = signalSemaphores;
+		submit_info.pSignalSemaphores = signal_semaphores;
 
 		vkResetFences(m_device->getDevice(), 1, &m_current_resource_set->m_in_flight_fence);
 		VkResult queue_submit_result = vkQueueSubmit(m_device->getGraphicsQueue(), 1, &submit_info, m_current_resource_set->m_in_flight_fence);
@@ -223,19 +223,17 @@ namespace Isonia::Pipeline
 		present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
 		present_info.waitSemaphoreCount = 1;
-		present_info.pWaitSemaphores = signalSemaphores;
+		present_info.pWaitSemaphores = signal_semaphores;
 
-		VkSwapchainKHR swapChains[] = { m_swap_chain };
+		VkSwapchainKHR m_swap_chains[] = { m_swap_chain };
 		present_info.swapchainCount = 1;
-		present_info.pSwapchains = swapChains;
+		present_info.pSwapchains = m_swap_chains;
 
 		present_info.pImageIndices = image_index;
 
-		// TODO: Exception thrown at 0x00007FF83E6AF39C in Isonia.exe: Microsoft C++ exception: Poco::NotFoundException at memory location 0x00000038C074EF50.
 		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
 
-		m_current_frame = (m_current_frame + 1) % m_image_count;
-		m_current_resource_set = &m_resource_set[m_current_frame];
+		m_current_frame = (m_current_frame + 1) % PixelSwapChain::max_frames_in_flight;
 
 		return result;
 	}
@@ -773,6 +771,8 @@ namespace Isonia::Pipeline
 
 	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
+		std::cout << "Present mode: V-Sync" << '\n';
+		return VK_PRESENT_MODE_FIFO_KHR;
 		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
