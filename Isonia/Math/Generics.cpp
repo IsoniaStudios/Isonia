@@ -6,7 +6,7 @@
 
 namespace Isonia::Math
 {
-    extern inline constexpr float floorf(const float f)
+    extern constexpr float floorf(const float f)
     {
         const int truncated = static_cast<int>(f);
         if (f < truncated)
@@ -16,7 +16,7 @@ namespace Isonia::Math
         return static_cast<float>(truncated);
     }
 
-    extern inline constexpr float ceilf(const float f)
+    extern constexpr float ceilf(const float f)
     {
         const int truncated = static_cast<int>(f);
         if (f > truncated)
@@ -26,7 +26,7 @@ namespace Isonia::Math
         return static_cast<float>(truncated);
     }
 
-    extern inline constexpr float roundf(const float f)
+    extern constexpr float roundf(const float f)
     {
         const int integer_part = static_cast<int>(f);
         const float fractional_part = f - integer_part;
@@ -42,7 +42,7 @@ namespace Isonia::Math
         return static_cast<float>(integer_part);
     }
 
-    extern inline constexpr float truncf(const float f)
+    extern constexpr float truncf(const float f)
     {
         if (f > 0)
         {
@@ -51,7 +51,7 @@ namespace Isonia::Math
         return ceilf(f);
     }
 
-    extern inline constexpr int absi(const int i)
+    extern constexpr int absi(const int i)
     {
         if (i < 0)
         {
@@ -60,7 +60,7 @@ namespace Isonia::Math
         return i;
     }
 
-    extern inline constexpr float absf(const float f)
+    extern constexpr float absf(const float f)
     {
         if (f < 0)
         {
@@ -69,12 +69,12 @@ namespace Isonia::Math
         return f;
     }
 
-    extern inline float fmodf(const float x, const float y)
+    extern float fmodf(const float x, const float y)
     {
         return x - truncf(x / y) * y;
     }
 
-    extern inline constexpr int mini(const int a, const int b)
+    extern constexpr int mini(const int a, const int b)
     {
         if (a < b)
         {
@@ -82,7 +82,7 @@ namespace Isonia::Math
         }
         return b;
     }
-    extern inline constexpr int maxi(const int a, const int b)
+    extern constexpr int maxi(const int a, const int b)
     {
         if (a > b)
         {
@@ -91,7 +91,7 @@ namespace Isonia::Math
         return b;
     }
 
-    extern inline constexpr float minf(const float a, const float b)
+    extern constexpr float minf(const float a, const float b)
     {
         if (a < b)
         {
@@ -99,7 +99,7 @@ namespace Isonia::Math
         }
         return b;
     }
-    extern inline constexpr float maxf(const float a, const float b)
+    extern constexpr float maxf(const float a, const float b)
     {
         if (a > b)
         {
@@ -107,7 +107,7 @@ namespace Isonia::Math
         }
         return b;
     }
-    extern inline constexpr float clampf(const float f, const float min, const float max)
+    extern constexpr float clampf(const float f, const float min, const float max)
     {
         if (f < min)
         {
@@ -119,7 +119,7 @@ namespace Isonia::Math
         }
         return f;
     }
-    extern inline constexpr unsigned int clampui(const unsigned int i, const unsigned int min, const unsigned int max)
+    extern constexpr unsigned int clampui(const unsigned int i, const unsigned int min, const unsigned int max)
     {
         if (i < min)
         {
@@ -131,7 +131,7 @@ namespace Isonia::Math
         }
         return i;
     }
-    extern inline constexpr int clampi(const int i, const int min, const int max)
+    extern constexpr int clampi(const int i, const int min, const int max)
     {
         if (i < min)
         {
@@ -144,18 +144,18 @@ namespace Isonia::Math
         return i;
     }
 
-    extern inline constexpr float sqrtf(const float f)
+    extern constexpr float sqrtf(const float f)
     {
         return 1.0f / rsqrtf(f);
     }
-    extern inline constexpr float rsqrtf(const float f)
+    extern constexpr float rsqrtf(const float f)
     {
         long i = *(long*)&f;
         i = 0x5f3759df - (i >> 1);
         const float y = *(float*)&i;
         return y * (1.5f - (f * 0.5f * y * y));
     }
-    extern inline constexpr float powf(const float f, const float e)
+    extern constexpr float powf(const float f, const float e)
     {
         union {
             float f;
@@ -164,7 +164,7 @@ namespace Isonia::Math
         temp.u = (unsigned int)(e * (float)(temp.u - 1064774667) + 1064774667);
         return temp.f;
     }
-    extern inline constexpr float powPrecisef(const float f, const float e)
+    extern constexpr float powPrecisef(const float f, const float e)
     {
         int e2 = (int)e;
         union {
@@ -187,7 +187,7 @@ namespace Isonia::Math
 
         return r * temp.f;
     }
-    extern inline float powExactf(const float f, const float e)
+    extern float powExactf(const float f, const float e)
     {
         return std::powf(f, e);
     }

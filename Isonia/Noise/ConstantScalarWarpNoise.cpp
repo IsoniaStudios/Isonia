@@ -8,18 +8,18 @@ namespace Isonia::Noise
     {
     }
 
-    inline void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y) const
+    void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y) const
     {
         *x *= frequency;
         *y *= frequency;
     }
-    inline void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y, float* z) const
+    void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y, float* z) const
     {
         *x *= frequency;
         *y *= frequency;
         *z *= frequency;
     }
-    inline void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y, float* z, float* w) const
+    void ConstantScalarWarpNoise::transformCoordinate(float* x, float* y, float* z, float* w) const
     {
         *x *= frequency;
         *y *= frequency;

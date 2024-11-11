@@ -3,7 +3,7 @@
 
 namespace Isonia::Math
 {
-    extern inline constexpr Vector3 roundVec3ToPixel(const Vector3 vector)
+    extern constexpr Vector3 roundVec3ToPixel(const Vector3 vector)
     {
         return Vector3{
             roundf(vector.x * pixels_per_unit) * units_per_pixel,
@@ -11,7 +11,7 @@ namespace Isonia::Math
             roundf(vector.z * pixels_per_unit) * units_per_pixel
         };
     }
-    extern inline constexpr Vector4 roundVec4ToPixel(const Vector4 vector)
+    extern constexpr Vector4 roundVec4ToPixel(const Vector4 vector)
     {
         return Vector4{
             roundf(vector.x * pixels_per_unit) * units_per_pixel,

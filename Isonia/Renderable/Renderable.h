@@ -95,11 +95,11 @@ namespace Isonia::Renderable
 		virtual void* createTexture() const;
 
 	protected:
-		virtual inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const = 0;
+		virtual void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const = 0;
 
-		virtual inline unsigned int getTextureHeight() const;
-		virtual inline unsigned int getTextureWidth() const;
-		inline unsigned int getTextureSize() const;
+		virtual unsigned int getTextureHeight() const;
+		virtual unsigned int getTextureWidth() const;
+		unsigned int getTextureSize() const;
 
 		const unsigned int texture_height;
 		const unsigned int texture_width;
@@ -118,11 +118,11 @@ namespace Isonia::Renderable
 		void* createTexture() const override;
 
 	protected:
-		virtual inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const { static_assert("Do not use!"); };
-		virtual inline void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const = 0;
+		virtual void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const { static_assert("Do not use!"); };
+		virtual void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const = 0;
 
-		inline unsigned int getTextureHeight() const override;
-		inline unsigned int getTextureWidth() const override;
+		unsigned int getTextureHeight() const override;
+		unsigned int getTextureWidth() const override;
 
 		const unsigned int atlas_height;
 		const unsigned int atlas_width;
@@ -136,7 +136,7 @@ namespace Isonia::Renderable
 		GrassTextureAtlasFactory(const GrassTextureAtlasFactory&) = delete;
 		GrassTextureAtlasFactory& operator=(const GrassTextureAtlasFactory&) = delete;
 		
-		inline void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const override;
+		void textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const override;
 	};
 
 	struct Noise4DTextureFactory : public TextureFactory
@@ -147,7 +147,7 @@ namespace Isonia::Renderable
 		Noise4DTextureFactory(const Noise4DTextureFactory&) = delete;
 		Noise4DTextureFactory& operator=(const Noise4DTextureFactory&) = delete;
 
-		inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
+		void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
 
 	private:
 		const Noise::VirtualWarpNoise* warp_noise;
@@ -162,7 +162,7 @@ namespace Isonia::Renderable
 		WarpNoiseTextureFactory(const WarpNoiseTextureFactory&) = delete;
 		WarpNoiseTextureFactory& operator=(const WarpNoiseTextureFactory&) = delete;
 
-		inline void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
+		void textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const override;
 
 	private:
 		const Noise::VirtualWarpNoise* warp_noise;

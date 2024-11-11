@@ -3,20 +3,20 @@
 
 namespace Isonia::Math
 {
-    extern inline constexpr float interpolationHermitef(const float t)
+    extern constexpr float interpolationHermitef(const float t)
     {
         return t * t * (3.0f - 2.0f * t);
     }
-    extern inline constexpr float interpolationQuinticf(const float t)
+    extern constexpr float interpolationQuinticf(const float t)
     {
         return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
     }
 
-    extern inline constexpr float lerpf(const float a, const float b, const float t)
+    extern constexpr float lerpf(const float a, const float b, const float t)
     {
         return a + t * (b - a);
     }
-    extern inline constexpr Vector3 lerpv3(const Vector3* a, const Vector3* b, const float t)
+    extern constexpr Vector3 lerpv3(const Vector3* a, const Vector3* b, const float t)
     {
         return Vector3{
             lerpf(a->x, b->x, t),
@@ -24,12 +24,12 @@ namespace Isonia::Math
             lerpf(a->z, b->z, t)
         };
     }
-    extern inline constexpr float cubicLerpf(const float a, const float b, const float c, const float d, const float t)
+    extern constexpr float cubicLerpf(const float a, const float b, const float c, const float d, const float t)
     {
         const float p = (d - c) - (a - b);
         return t * t * t * p + t * t * ((a - b) - p) + t * (c - a) + b;
     }
-    extern inline constexpr Vector3 cubicLerpv3(const Vector3* a, const Vector3* b, const Vector3* c, const Vector3* d, const float t)
+    extern constexpr Vector3 cubicLerpv3(const Vector3* a, const Vector3* b, const Vector3* c, const Vector3* d, const float t)
     {
         return Vector3{
             cubicLerpf(a->x, b->x, c->x, d->x, t),
@@ -38,16 +38,16 @@ namespace Isonia::Math
         };
     }
 
-    extern inline constexpr float exponentialDecayf(const float a, const float b, const float t)
+    extern constexpr float exponentialDecayf(const float a, const float b, const float t)
     {
         return a * powf(eulers_number, -(b * t));
     }
-    extern inline constexpr float sigmoidf(const float a, const float b, const float t)
+    extern constexpr float sigmoidf(const float a, const float b, const float t)
     {
         return 1.0f / (1.0f + powf(eulers_number, 0.5f * (t - b)));
     }
 
-    extern inline constexpr Vector3 smoothNormalFromFour(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
+    extern constexpr Vector3 smoothNormalFromFour(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
     {
         const unsigned int middle_index = z * width + x;
         const float top = height_map[middle_index - width];
@@ -61,7 +61,7 @@ namespace Isonia::Math
             right - left
         );
     }
-    extern inline constexpr Vector3 smoothNormalFromEight(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
+    extern constexpr Vector3 smoothNormalFromEight(const float* height_map, const float dx, const float dz, const unsigned int width, const unsigned int height, const unsigned int z, const unsigned int x)
     {
         const unsigned int middle_index = z * width + x;
         const float top = height_map[middle_index - width];

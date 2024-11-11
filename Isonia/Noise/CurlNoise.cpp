@@ -7,7 +7,7 @@ namespace Isonia::Noise
     {
     }
 
-    inline void CurlNoise::transformCoordinate(float* x, float* y) const
+    void CurlNoise::transformCoordinate(float* x, float* y) const
     {
         base_warp_noise->transformCoordinate(x, y);
 
@@ -25,7 +25,7 @@ namespace Isonia::Noise
         Math::float2Normalize(x, y);
     }
 
-    inline void CurlNoise::transformCoordinate(float* x, float* y, float* z) const
+    void CurlNoise::transformCoordinate(float* x, float* y, float* z) const
     {
         base_warp_noise->transformCoordinate(x, y, z);
 
@@ -59,7 +59,7 @@ namespace Isonia::Noise
         Math::float3Normalize(x, y, z);
     }
 
-    inline void CurlNoise::transformCoordinate(float* x, float* y, float* z, float* w) const
+    void CurlNoise::transformCoordinate(float* x, float* y, float* z, float* w) const
     {
         base_warp_noise->transformCoordinate(x, y, z, w);
 

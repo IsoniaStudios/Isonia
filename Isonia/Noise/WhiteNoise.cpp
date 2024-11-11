@@ -11,15 +11,15 @@ namespace Isonia::Noise
     {
     }
 
-    inline float WhiteNoise::generateNoise(const float x, const float y) const
+    float WhiteNoise::generateNoise(const float x, const float y) const
     {
         return Math::sinf(x * x_constant + y * y_constant);
     }
-    inline float WhiteNoise::generateNoise(const float x, const float y, const float z) const
+    float WhiteNoise::generateNoise(const float x, const float y, const float z) const
     {
         return Math::sinf(x * x_constant + y * y_constant + z * z_constant);
     }
-    inline float WhiteNoise::generateNoise(const float x, const float y, float z, const float w) const
+    float WhiteNoise::generateNoise(const float x, const float y, float z, const float w) const
     {
         return Math::sinf(x * x_constant + y * y_constant + z * z_constant + w * w_constant);
     }

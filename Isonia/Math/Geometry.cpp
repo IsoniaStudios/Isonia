@@ -26,11 +26,11 @@ namespace Isonia::Math
 		this->normal = normal;
 	}
 
-	extern inline constexpr bool intersectRayPlane(const Ray* ray, const Plane* plane, float* intersection_distance)
+	extern constexpr bool intersectRayPlane(const Ray* ray, const Plane* plane, float* intersection_distance)
 	{
 		return intersectRayPlane(&ray->origin, &ray->direction, &plane->origin, &plane->normal, intersection_distance);
 	}
-	extern inline constexpr bool intersectRayPlane(const Vector3* origin, const Vector3* direction, const Vector3* plane_origin, const Vector3* plane_normal, float* intersection_distance)
+	extern constexpr bool intersectRayPlane(const Vector3* origin, const Vector3* direction, const Vector3* plane_origin, const Vector3* plane_normal, float* intersection_distance)
 	{
 		const float dot = vec3Dot(direction, plane_normal);
 		if (absf(dot) > epsilon)

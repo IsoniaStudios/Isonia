@@ -46,15 +46,15 @@ namespace Isonia::Renderable
 		: texture_height(texture_height), texture_width(texture_width), stride(stride)
 	{
 	}
-	inline unsigned int TextureFactory::getTextureHeight() const
+	unsigned int TextureFactory::getTextureHeight() const
 	{
 		return texture_height;
 	}
-	inline unsigned int TextureFactory::getTextureWidth() const
+	unsigned int TextureFactory::getTextureWidth() const
 	{
 		return texture_width;
 	}
-	inline unsigned int TextureFactory::getTextureSize() const
+	unsigned int TextureFactory::getTextureSize() const
 	{
 		return getTextureHeight() * getTextureWidth() * stride;
 	}
@@ -86,11 +86,11 @@ namespace Isonia::Renderable
 		: TextureFactory(texture_height, texture_width, stride),  atlas_height(atlas_height), atlas_width(atlas_width)
 	{
 	}
-	inline unsigned int TextureAtlasFactory::getTextureHeight() const
+	unsigned int TextureAtlasFactory::getTextureHeight() const
 	{
 		return texture_height * atlas_height;
 	}
-	inline unsigned int TextureAtlasFactory::getTextureWidth() const
+	unsigned int TextureAtlasFactory::getTextureWidth() const
 	{
 		return texture_width * atlas_width;
 	}
@@ -124,7 +124,7 @@ namespace Isonia::Renderable
 		: TextureFactory(texture_height, texture_width, stride), warp_noise(warp_noise), noise(noise)
 	{
 	}
-	inline void Noise4DTextureFactory::textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const
+	void Noise4DTextureFactory::textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const
 	{
 		unsigned char* value = static_cast<unsigned char*>(memory) + index;
 
@@ -146,7 +146,7 @@ namespace Isonia::Renderable
 		: TextureFactory(texture_height, texture_width, stride), warp_noise(warp_noise)
 	{
 	}
-	inline void WarpNoiseTextureFactory::textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const
+	void WarpNoiseTextureFactory::textureFiller(void* memory, const unsigned int index, const unsigned int t_h, const unsigned int t_w) const
 	{
 		float s = static_cast<float>(t_h) / getTextureHeight();
 		float t = static_cast<float>(t_w) / getTextureWidth();
@@ -165,7 +165,7 @@ namespace Isonia::Renderable
 		: TextureAtlasFactory(atlas_height, atlas_width, texture_height, texture_width, stride)
 	{
 	}
-	inline void GrassTextureAtlasFactory::textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const
+	void GrassTextureAtlasFactory::textureFiller(void* memory, const unsigned int index, const unsigned int a_h, const unsigned int a_w, const unsigned int t_h, const unsigned int t_w) const
 	{
 		// parameters
 		const float parameter_force = 0.01f;

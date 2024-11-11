@@ -8,7 +8,7 @@ namespace Isonia::Noise
 	{
 	}
 
-	inline float FractalPerlinNoise::generateNoise(float x, float y) const
+	float FractalPerlinNoise::generateNoise(float x, float y) const
 	{
 		unsigned int seed = this->seed;
 		float sum = 0.0f;
@@ -27,7 +27,7 @@ namespace Isonia::Noise
 
 		return sum;
 	}
-	inline float FractalPerlinNoise::generateNoise(float x, float y, float z) const
+	float FractalPerlinNoise::generateNoise(float x, float y, float z) const
 	{
 		unsigned int seed = this->seed;
 		float sum = 0.0f;
@@ -47,7 +47,7 @@ namespace Isonia::Noise
 
 		return sum;
 	}
-	inline float FractalPerlinNoise::generateNoise(float x, float y, float z, float w) const
+	float FractalPerlinNoise::generateNoise(float x, float y, float z, float w) const
 	{
 		unsigned int seed = this->seed;
 		float sum = 0.0f;
@@ -69,7 +69,7 @@ namespace Isonia::Noise
 		return sum;
 	}
 
-	const inline float FractalPerlinNoise::calculateFractalBounding() const
+	const float FractalPerlinNoise::calculateFractalBounding() const
 	{
 		float gain = Math::absf(this->gain);
 		float amp = gain;
