@@ -118,8 +118,8 @@ namespace Isonia::Pipeline
             {
                 break;
             }
-            window->m_resized = true;
             window->m_extent = { width, height };
+            window->m_resized = true;
             window->propagateEvent();
         }
         break;
@@ -216,11 +216,13 @@ namespace Isonia::Pipeline
         HINSTANCE h_instance_recast = static_cast<HINSTANCE>(m_window_instance);
         WNDCLASSEX wcex;
         
+#if DEBUG
         AllocConsole();
         AttachConsole(GetCurrentProcessId());
         FILE* stream_out = freopen("CON", "w", stdout);
         FILE* stream_err = freopen("CON", "w", stderr);
         SetConsoleTitle(TEXT(m_name));
+#endif
         
         wcex.cbSize = sizeof(WNDCLASSEX);
         wcex.lpfnWndProc = WndProc;

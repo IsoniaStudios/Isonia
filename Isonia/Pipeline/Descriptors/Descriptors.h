@@ -106,7 +106,7 @@ namespace Isonia::Pipeline::Descriptors
 		DescriptorWriter createWriter(const unsigned int index);
 		DescriptorPool m_pool;
 		DescriptorSetLayout m_set_layout;
-		DescriptorWriter m_writers[SwapChain::max_frames_in_flight];
-		VkDescriptorSet m_descriptor_sets[SwapChain::max_frames_in_flight];
+		DescriptorWriter m_writers[PixelSwapChain::max_frames_in_flight];
+		VkDescriptorSet m_descriptor_sets[PixelSwapChain::max_frames_in_flight];
 	};
 }

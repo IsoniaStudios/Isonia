@@ -55,7 +55,7 @@ namespace Isonia::Pipeline
 		vkDestroyRenderPass(m_device->getDevice(), m_render_pass, nullptr);
 
 		// cleanup synchronization objects
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < PixelSwapChain::max_frames_in_flight; i++)
 		{
 			vkDestroySemaphore(m_device->getDevice(), m_render_finished_semaphores[i], nullptr);
 			vkDestroySemaphore(m_device->getDevice(), m_image_available_semaphores[i], nullptr);
@@ -187,7 +187,7 @@ namespace Isonia::Pipeline
 
 		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
 
-		m_current_frame = (m_current_frame + 1) % max_frames_in_flight;
+		m_current_frame = (m_current_frame + 1) % PixelSwapChain::max_frames_in_flight;
 
 		return result;
 	}
@@ -448,7 +448,7 @@ namespace Isonia::Pipeline
 		fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (unsigned int i = 0; i < max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < PixelSwapChain::max_frames_in_flight; i++)
 		{
 			if (vkCreateSemaphore(m_device->getDevice(), &semaphore_info, nullptr, &m_image_available_semaphores[i]) != VK_SUCCESS ||
 				vkCreateSemaphore(m_device->getDevice(), &semaphore_info, nullptr, &m_render_finished_semaphores[i]) != VK_SUCCESS ||

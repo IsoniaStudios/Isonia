@@ -9,7 +9,7 @@ namespace Isonia::Debug
     char* PerformanceTracker::logFrameTime(float frame_time_s)
     {
         // Convert frame_time_s to ms
-        float frame_time_ms = frame_time_s * 1000.0f;
+        float frame_time_ms = frame_time_s * 1'000.0f;
 
         // New frame
         m_frame_count++;
