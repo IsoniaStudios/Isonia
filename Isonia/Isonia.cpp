@@ -144,17 +144,19 @@ namespace Isonia
 
 	void Isonia::initializeGlobalDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_global_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
 		m_global_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, frames_in_flight)
+			->build(frames_in_flight);
 		m_global_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
 
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			m_ubo_buffers[i] = new Pipeline::Buffer(
 				&m_device,
@@ -186,17 +188,19 @@ namespace Isonia
 
 	void Isonia::initializeSwapChainDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_global_swapchain_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
 		m_global_swapchain_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->build(frames_in_flight);
 		m_global_swapchain_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
 
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			const VkDescriptorImageInfo* intermediate_color_buffer_image_info = m_renderer.getPixelSwapChain()->getIntermediateImageInfo(i);
 			const VkDescriptorImageInfo* intermediate_depth_buffer_image_info = m_renderer.getPixelSwapChain()->getIntermediateDepthImageInfo(i);
@@ -210,11 +214,13 @@ namespace Isonia
 
 	void Isonia::initializeWeatherDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_weather_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
 		m_weather_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->build(frames_in_flight);
 		m_weather_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -233,7 +239,7 @@ namespace Isonia
 
 		const VkDescriptorImageInfo* cloud_info = m_cloud->getImageInfo();
 		const VkDescriptorImageInfo* wind_info = m_wind->getImageInfo();
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			m_weather_descriptor_manager->getWriters(i)
 				->writeImage(0u, cloud_info)
@@ -244,11 +250,13 @@ namespace Isonia
 
 	void Isonia::initializeGroundDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_ground_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 2u);
 		m_ground_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->build(frames_in_flight);
 		m_ground_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->addBinding(1u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -260,7 +268,7 @@ namespace Isonia
 
 		const VkDescriptorImageInfo* grass_day_palette_info = m_grass_day_palette->getImageInfo();
 		const VkDescriptorImageInfo* grass_info = m_grass->getImageInfo();
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			m_ground_descriptor_manager->getWriters(i)
 				->writeImage(0u, grass_day_palette_info)
@@ -271,17 +279,19 @@ namespace Isonia
 
 	void Isonia::initializeWaterDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_water_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 1u);
 		m_water_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->build(frames_in_flight);
 		m_water_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
 
 		m_water_day_palette = Renderable::createWaterDayPalette(&m_device);
 		const VkDescriptorImageInfo* water_day_palette_info = m_water_day_palette->getImageInfo();
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			m_water_descriptor_manager->getWriters(i)
 				->writeImage(0u, water_day_palette_info)
@@ -291,10 +301,12 @@ namespace Isonia
 
 	void Isonia::initializeTextDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_text_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 1u);
 		m_text_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->build(frames_in_flight);
 		m_text_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
@@ -302,7 +314,7 @@ namespace Isonia
 		m_text = Renderable::Font::pixelFont3x6(&m_device);
 
 		const VkDescriptorImageInfo* text_info = m_text->getTexture()->getImageInfo();
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			m_text_descriptor_manager->getWriters(i)
 				->writeImage(0u, text_info)
@@ -312,10 +324,12 @@ namespace Isonia
 
 	void Isonia::initializeDebuggerDescriptorPool()
 	{
+		const unsigned int frames_in_flight = m_renderer.getPixelSwapChain()->getImageCount();
+
 		m_debugger_descriptor_manager = new Pipeline::Descriptors::DescriptorManager(&m_device, 1u);
 		m_debugger_descriptor_manager->getPool()
-			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Pipeline::PixelSwapChain::max_frames_in_flight)
-			->build(Pipeline::PixelSwapChain::max_frames_in_flight);
+			->addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, frames_in_flight)
+			->build(frames_in_flight);
 		m_debugger_descriptor_manager->getSetLayout()
 			->addBinding(0u, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			->build();
@@ -323,7 +337,7 @@ namespace Isonia
 		m_debugger = Renderable::createDebugTexture(&m_device);
 
 		const VkDescriptorImageInfo* debugger_info = m_debugger->getImageInfo();
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			m_debugger_descriptor_manager->getWriters(i)
 				->writeImage(0u, debugger_info)
@@ -373,8 +387,10 @@ namespace Isonia
 
 	void Isonia::OverwriteSwapChainDescriptorSets(Pipeline::PixelRenderer* renderer, void* descriptor_manager)
 	{
+		const unsigned int frames_in_flight = renderer->getPixelSwapChain()->getImageCount();
+
 		Pipeline::Descriptors::DescriptorManager* m_global_swapchain_descriptor_manager = static_cast<Pipeline::Descriptors::DescriptorManager*>(descriptor_manager);
-		for (int i = 0; i < Pipeline::PixelSwapChain::max_frames_in_flight; i++)
+		for (int i = 0; i < frames_in_flight; i++)
 		{
 			const VkDescriptorImageInfo* intermediate_color_buffer_image_info = renderer->getPixelSwapChain()->getIntermediateImageInfo(i);
 			const VkDescriptorImageInfo* intermediate_depth_buffer_image_info = renderer->getPixelSwapChain()->getIntermediateDepthImageInfo(i);

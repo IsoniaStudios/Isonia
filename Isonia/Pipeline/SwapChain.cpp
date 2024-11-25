@@ -22,7 +22,7 @@ namespace Isonia::Pipeline
 
 	SwapChain::~SwapChain()
 	{
-		for (unsigned int i = 0; i < m_image_count; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			vkDestroyImageView(m_device->getDevice(), m_swap_chain_image_views[i], nullptr);
 		}
@@ -36,7 +36,7 @@ namespace Isonia::Pipeline
 			delete[] m_swap_chain_images;
 		}
 
-		for (unsigned int i = 0; i < m_image_count; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			vkDestroyImageView(m_device->getDevice(), m_depth_image_views[i], nullptr);
 			vkDestroyImage(m_device->getDevice(), m_depth_images[i], nullptr);
@@ -46,7 +46,7 @@ namespace Isonia::Pipeline
 		delete[] m_depth_images;
 		delete[] m_depth_image_memorys;
 
-		for (unsigned int i = 0; i < m_image_count; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			vkDestroyFramebuffer(m_device->getDevice(), m_swap_chain_framebuffers[i], nullptr);
 		}
@@ -55,7 +55,7 @@ namespace Isonia::Pipeline
 		vkDestroyRenderPass(m_device->getDevice(), m_render_pass, nullptr);
 
 		// cleanup synchronization objects
-		for (unsigned int i = 0; i < PixelSwapChain::max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			vkDestroySemaphore(m_device->getDevice(), m_render_finished_semaphores[i], nullptr);
 			vkDestroySemaphore(m_device->getDevice(), m_image_available_semaphores[i], nullptr);
@@ -125,7 +125,7 @@ namespace Isonia::Pipeline
 		vkWaitForFences(
 			m_device->getDevice(),
 			1,
-			&m_in_flight_fences[m_current_frame],
+			&m_in_flight_fences[max_frames_in_flight],
 			VK_TRUE,
 			Math::unsigned_long_max
 		);
@@ -134,7 +134,7 @@ namespace Isonia::Pipeline
 			m_device->getDevice(),
 			m_swap_chain,
 			Math::unsigned_long_max,
-			m_image_available_semaphores[m_current_frame],  // must be a not signaled semaphore
+			m_image_available_semaphores[max_frames_in_flight],  // must be a not signaled semaphore
 			nullptr,
 			image_index
 		);
@@ -148,12 +148,12 @@ namespace Isonia::Pipeline
 		{
 			vkWaitForFences(m_device->getDevice(), 1, &m_images_in_flight[*image_index], VK_TRUE, UINT64_MAX);
 		}
-		m_images_in_flight[*image_index] = m_images_in_flight[m_current_frame];
+		m_images_in_flight[*image_index] = m_images_in_flight[max_frames_in_flight];
 
 		VkSubmitInfo submit_info = {};
 		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore wait_semaphores[] = { m_image_available_semaphores[m_current_frame] };
+		VkSemaphore wait_semaphores[] = { m_image_available_semaphores[max_frames_in_flight] };
 		VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submit_info.waitSemaphoreCount = 1;
 		submit_info.pWaitSemaphores = wait_semaphores;
@@ -162,12 +162,12 @@ namespace Isonia::Pipeline
 		submit_info.commandBufferCount = 1;
 		submit_info.pCommandBuffers = buffers;
 
-		VkSemaphore signal_semaphores[] = { m_render_finished_semaphores[m_current_frame] };
+		VkSemaphore signal_semaphores[] = { m_render_finished_semaphores[max_frames_in_flight] };
 		submit_info.signalSemaphoreCount = 1;
 		submit_info.pSignalSemaphores = signal_semaphores;
 
-		vkResetFences(m_device->getDevice(), 1, &m_in_flight_fences[m_current_frame]);
-		VkResult queueSubmitResult = vkQueueSubmit(m_device->getGraphicsQueue(), 1, &submit_info, m_in_flight_fences[m_current_frame]);
+		vkResetFences(m_device->getDevice(), 1, &m_in_flight_fences[max_frames_in_flight]);
+		VkResult queueSubmitResult = vkQueueSubmit(m_device->getGraphicsQueue(), 1, &submit_info, m_in_flight_fences[max_frames_in_flight]);
 		if (queueSubmitResult != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to submit draw command buffer!");
@@ -185,11 +185,7 @@ namespace Isonia::Pipeline
 
 		present_info.pImageIndices = image_index;
 
-		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
-
-		m_current_frame = (m_current_frame + 1) % PixelSwapChain::max_frames_in_flight;
-
-		return result;
+		return vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
 	}
 
 	bool SwapChain::compareSwapFormats(const SwapChain* m_swap_chain) const
@@ -275,8 +271,8 @@ namespace Isonia::Pipeline
 
 	void SwapChain::createImageViews()
 	{
-		m_swap_chain_image_views = new VkImageView[m_image_count];
-		for (unsigned int i = 0; i < m_image_count; i++)
+		m_swap_chain_image_views = new VkImageView[max_frames_in_flight];
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			VkImageViewCreateInfo view_info{};
 			view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -358,8 +354,8 @@ namespace Isonia::Pipeline
 
 	void SwapChain::createFramebuffers()
 	{
-		m_swap_chain_framebuffers = new VkFramebuffer[m_image_count];
-		for (unsigned int i = 0; i < m_image_count; i++)
+		m_swap_chain_framebuffers = new VkFramebuffer[max_frames_in_flight];
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			VkImageView attachments[attachments_length] = { m_swap_chain_image_views[i], m_depth_image_views[i] };
 
@@ -386,11 +382,11 @@ namespace Isonia::Pipeline
 		m_swap_chain_depth_format = depth_format;
 		VkExtent2D m_swap_chainExtent = getSwapChainExtent();
 
-		m_depth_images = new VkImage[m_image_count];
-		m_depth_image_memorys = new VkDeviceMemory[m_image_count];
-		m_depth_image_views = new VkImageView[m_image_count];
+		m_depth_images = new VkImage[max_frames_in_flight];
+		m_depth_image_memorys = new VkDeviceMemory[max_frames_in_flight];
+		m_depth_image_views = new VkImageView[max_frames_in_flight];
 
-		for (unsigned int i = 0; i < m_image_count; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			VkImageCreateInfo image_info{};
 			image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -435,8 +431,8 @@ namespace Isonia::Pipeline
 
 	void SwapChain::createSyncObjects()
 	{
-		m_images_in_flight = new VkFence[m_image_count];
-		for (unsigned int i = 0; i < m_image_count; i++)
+		m_images_in_flight = new VkFence[max_frames_in_flight];
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			m_images_in_flight[i] = nullptr;
 		}
@@ -448,7 +444,7 @@ namespace Isonia::Pipeline
 		fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (unsigned int i = 0; i < PixelSwapChain::max_frames_in_flight; i++)
+		for (unsigned int i = 0; i < max_frames_in_flight; i++)
 		{
 			if (vkCreateSemaphore(m_device->getDevice(), &semaphore_info, nullptr, &m_image_available_semaphores[i]) != VK_SUCCESS ||
 				vkCreateSemaphore(m_device->getDevice(), &semaphore_info, nullptr, &m_render_finished_semaphores[i]) != VK_SUCCESS ||

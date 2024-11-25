@@ -59,8 +59,8 @@ namespace Isonia
 		Pipeline::Descriptors::DescriptorManager* m_text_descriptor_manager;
 		Pipeline::Descriptors::DescriptorManager* m_debugger_descriptor_manager;
 
-		Pipeline::Buffer* m_ubo_buffers[Pipeline::PixelSwapChain::max_frames_in_flight];
-		Pipeline::Buffer* m_clock_buffers[Pipeline::PixelSwapChain::max_frames_in_flight];
+		Pipeline::Buffer* m_ubo_buffers[Pipeline::max_frames_in_flight];
+		Pipeline::Buffer* m_clock_buffers[Pipeline::max_frames_in_flight];
 
 		Pipeline::RenderSystems::GroundRenderSystem* m_ground_render_system;
 		Pipeline::RenderSystems::WaterRenderSystem* m_water_render_system;

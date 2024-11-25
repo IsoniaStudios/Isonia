@@ -54,20 +54,20 @@ namespace Isonia::Pipeline
 	VkCommandBuffer Renderer::getCurrentCommandBuffer() const
 	{
 		assert(m_is_frame_started && "Cannot get command buffer when frame not in progress");
-		return m_command_buffers[m_current_frame_index];
+		return m_command_buffers[m_current_frame];
 	}
 
 	int Renderer::getFrameIndex() const
 	{
 		assert(m_is_frame_started && "Cannot get frame index when frame not in progress");
-		return m_current_frame_index;
+		return m_current_frame;
 	}
 
 	VkCommandBuffer Renderer::beginFrame()
 	{
 		assert(!m_is_frame_started && "Can't call beginFrame while already in progress");
 
-		VkResult result = m_swap_chain->acquireNextImage(&m_current_image_index);
+		VkResult result = m_swap_chain->acquireNextImage(&m_current_frame);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain();
@@ -101,7 +101,7 @@ namespace Isonia::Pipeline
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 
-		VkResult result = m_swap_chain->submitCommandBuffers(&command_buffer, &m_current_image_index);
+		VkResult result = m_swap_chain->submitCommandBuffers(&command_buffer, &m_current_frame);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->m_resized)
 		{
 			m_window->m_resized = false;
@@ -114,7 +114,7 @@ namespace Isonia::Pipeline
 		}
 
 		m_is_frame_started = false;
-		m_current_frame_index = (m_current_frame_index + 1) % PixelSwapChain::max_frames_in_flight;
+		m_current_frame = (m_current_frame + 1) % m_swap_chain->getImageCount();
 	}
 
 	void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
@@ -125,7 +125,7 @@ namespace Isonia::Pipeline
 		VkRenderPassBeginInfo render_pass_info{};
 		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		render_pass_info.renderPass = m_swap_chain->getRenderPass();
-		render_pass_info.framebuffer = m_swap_chain->getFrameBuffer(m_current_image_index);
+		render_pass_info.framebuffer = m_swap_chain->getFrameBuffer(m_current_frame);
 
 		render_pass_info.renderArea.offset = { 0, 0 };
 		render_pass_info.renderArea.extent = m_swap_chain->getSwapChainExtent();
@@ -167,7 +167,7 @@ namespace Isonia::Pipeline
 		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		alloc_info.commandPool = m_device->getCommandPool();
-		alloc_info.commandBufferCount = PixelSwapChain::max_frames_in_flight;
+		alloc_info.commandBufferCount = m_swap_chain->getImageCount();
 
 		if (vkAllocateCommandBuffers(m_device->getDevice(), &alloc_info, m_command_buffers) != VK_SUCCESS)
 		{
@@ -180,7 +180,7 @@ namespace Isonia::Pipeline
 		vkFreeCommandBuffers(
 			m_device->getDevice(),
 			m_device->getCommandPool(),
-			PixelSwapChain::max_frames_in_flight,
+			m_swap_chain->getImageCount(),
 			m_command_buffers
 		);
 	}

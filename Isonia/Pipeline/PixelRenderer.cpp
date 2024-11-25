@@ -59,13 +59,13 @@ namespace Isonia::Pipeline
 	VkCommandBuffer PixelRenderer::getCurrentCommandBuffer() const
 	{
 		assert(m_is_frame_started && "Cannot get command buffer when frame not in progress");
-		return m_command_buffers[m_current_frame_index];
+		return m_command_buffers[m_current_frame];
 	}
 
 	int PixelRenderer::getFrameIndex() const
 	{
 		assert(m_is_frame_started && "Cannot get frame index when frame not in progress");
-		return m_current_frame_index;
+		return m_current_frame;
 	}
 
 	unsigned int PixelRenderer::getRenderFactor() const
@@ -77,7 +77,7 @@ namespace Isonia::Pipeline
 	{
 		assert(!m_is_frame_started && "Can't call beginFrame while already in progress");
 
-		VkResult result = m_pixel_swap_chain->acquireNextImage(&m_current_image_index);
+		VkResult result = m_pixel_swap_chain->acquireNextImage(&m_current_frame);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain();
@@ -111,7 +111,7 @@ namespace Isonia::Pipeline
 			throw std::runtime_error("Failed to record command buffer!");
 		}
 
-		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&command_buffer, &m_current_image_index);
+		VkResult result = m_pixel_swap_chain->submitCommandBuffers(&command_buffer, &m_current_frame);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->m_resized)
 		{
 			m_window->m_resized = false;
@@ -124,7 +124,7 @@ namespace Isonia::Pipeline
 		}
 
 		m_is_frame_started = false;
-		m_current_frame_index = (m_current_frame_index + 1) % PixelSwapChain::max_frames_in_flight;
+		m_current_frame = (m_current_frame + 1) % m_pixel_swap_chain->getImageCount();
 	}
 
 	void PixelRenderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer, unsigned int render_pass_index)
@@ -137,7 +137,7 @@ namespace Isonia::Pipeline
 		VkRenderPassBeginInfo render_pass_info{};
 		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		render_pass_info.renderPass = m_pixel_swap_chain->getRenderPass(render_pass_index);
-		render_pass_info.framebuffer = m_pixel_swap_chain->getFrameBuffer(m_current_image_index);
+		render_pass_info.framebuffer = m_pixel_swap_chain->getFrameBuffer(m_current_frame);
 
 		const VkExtent2D extent = m_pixel_swap_chain->getRenderExtent();
 		const VkOffset2D offset = { 0, 0 };
@@ -205,7 +205,7 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
+			.image = m_pixel_swap_chain->getSwapChainImage(m_current_frame),
 			.subresourceRange = subresource_range
 		};
 
@@ -245,9 +245,9 @@ namespace Isonia::Pipeline
 		// Blit the image to the swapchain image
 		vkCmdBlitImage(
 			command_buffer,
-			m_pixel_swap_chain->getImage(m_current_image_index),
+			m_pixel_swap_chain->getImage(m_current_frame),
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
+			m_pixel_swap_chain->getSwapChainImage(m_current_frame),
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1, &imageBlit, VK_FILTER_NEAREST
 		);
@@ -264,7 +264,7 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = m_pixel_swap_chain->getSwapChainImage(m_current_image_index),
+			.image = m_pixel_swap_chain->getSwapChainImage(m_current_frame),
 			.subresourceRange = subresource_range
 		};
 
@@ -320,7 +320,7 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
+			.image = m_pixel_swap_chain->getIntermediateImage(m_current_frame),
 			.subresourceRange = color_subresource_range
 		};
 
@@ -334,7 +334,7 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = m_pixel_swap_chain->getIntermediateDepthImage(m_current_image_index),
+			.image = m_pixel_swap_chain->getIntermediateDepthImage(m_current_frame),
 			.subresourceRange = depth_subresource_range
 		};
 
@@ -380,9 +380,9 @@ namespace Isonia::Pipeline
 		// Perform the copy operation for color
 		vkCmdCopyImage(
 			command_buffer,
-			m_pixel_swap_chain->getImage(m_current_image_index),
+			m_pixel_swap_chain->getImage(m_current_frame),
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
+			m_pixel_swap_chain->getIntermediateImage(m_current_frame),
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1, &color_copy_region
 		);
@@ -390,9 +390,9 @@ namespace Isonia::Pipeline
 		// Perform the copy operation for depth
 		vkCmdCopyImage(
 			command_buffer,
-			m_pixel_swap_chain->getDepthImage(m_current_image_index),
+			m_pixel_swap_chain->getDepthImage(m_current_frame),
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			m_pixel_swap_chain->getIntermediateDepthImage(m_current_image_index),
+			m_pixel_swap_chain->getIntermediateDepthImage(m_current_frame),
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			1, &depth_copy_region
 		);
@@ -407,7 +407,7 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = m_pixel_swap_chain->getIntermediateImage(m_current_image_index),
+			.image = m_pixel_swap_chain->getIntermediateImage(m_current_frame),
 			.subresourceRange = color_subresource_range
 		};
 
@@ -421,7 +421,7 @@ namespace Isonia::Pipeline
 			.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
 			.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 			.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-			.image = m_pixel_swap_chain->getIntermediateDepthImage(m_current_image_index),
+			.image = m_pixel_swap_chain->getIntermediateDepthImage(m_current_frame),
 			.subresourceRange = depth_subresource_range
 		};
 
@@ -447,7 +447,7 @@ namespace Isonia::Pipeline
 		alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		alloc_info.commandPool = m_device->getCommandPool();
-		alloc_info.commandBufferCount = PixelSwapChain::max_frames_in_flight;
+		alloc_info.commandBufferCount = m_pixel_swap_chain->getImageCount();
 
 		if (vkAllocateCommandBuffers(m_device->getDevice(), &alloc_info, m_command_buffers) != VK_SUCCESS)
 		{
@@ -460,7 +460,7 @@ namespace Isonia::Pipeline
 		vkFreeCommandBuffers(
 			m_device->getDevice(),
 			m_device->getCommandPool(),
-			PixelSwapChain::max_frames_in_flight,
+			m_pixel_swap_chain->getImageCount(),
 			m_command_buffers
 		);
 	}

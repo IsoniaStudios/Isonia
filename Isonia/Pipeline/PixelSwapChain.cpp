@@ -59,7 +59,7 @@ namespace Isonia::Pipeline
 		for (unsigned int i = 0; i < m_render_pass_count; i++)
 		{
 			vkDestroyRenderPass(m_device->getDevice(), m_render_passes[i].m_render_pass, nullptr);
-			for (unsigned int q = 0; q < m_render_passes[i].count; q++)
+			for (unsigned int q = 0; q < m_image_count; q++)
 			{
 				vkDestroyFramebuffer(m_device->getDevice(), m_render_passes[i].m_framebuffers[q], nullptr);
 			}
@@ -74,6 +74,10 @@ namespace Isonia::Pipeline
 		}
 	}
 
+	unsigned int PixelSwapChain::getImageCount() const
+	{
+		return m_image_count;
+	}
 	VkImage PixelSwapChain::getSwapChainImage(int index) const
 	{
 		return m_resource_set[index].m_swap_chain_image;
@@ -114,10 +118,6 @@ namespace Isonia::Pipeline
 	VkImageView PixelSwapChain::getImageView(int index) const
 	{
 		return m_resource_set[index].m_color_image_view;
-	}
-	unsigned int PixelSwapChain::getImageCount() const
-	{
-		return m_image_count;
 	}
 
 	VkFormat PixelSwapChain::getPixelSwapChainImageFormat() const
@@ -231,11 +231,7 @@ namespace Isonia::Pipeline
 
 		present_info.pImageIndices = image_index;
 
-		VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
-
-		m_current_frame = (m_current_frame + 1) % PixelSwapChain::max_frames_in_flight;
-
-		return result;
+		return vkQueuePresentKHR(m_device->getPresentQueue(), &present_info);
 	}
 
 	bool PixelSwapChain::compareSwapFormats(const PixelSwapChain* swap_chain) const
@@ -268,6 +264,10 @@ namespace Isonia::Pipeline
 		if (swap_chain_support.capabilities.maxImageCount > 0 && m_image_count > swap_chain_support.capabilities.maxImageCount)
 		{
 			m_image_count = swap_chain_support.capabilities.maxImageCount;
+		}
+		if (m_image_count > max_frames_in_flight)
+		{
+			m_image_count = max_frames_in_flight;
 		}
 
 		VkSwapchainCreateInfoKHR create_info = {};
@@ -434,8 +434,6 @@ namespace Isonia::Pipeline
 	{
 		for (unsigned int r = 0; r < m_render_pass_count; r++)
 		{
-			m_render_passes[r].count = m_image_count;
-			m_render_passes[r].m_framebuffers = (VkFramebuffer*)malloc(m_image_count * sizeof(VkFramebuffer));
 			for (unsigned int i = 0; i < m_image_count; i++)
 			{
 				VkImageView attachments[attachments_length] = { m_resource_set[i].m_color_image_view, m_resource_set[i].m_depth_image_view };
@@ -771,8 +769,6 @@ namespace Isonia::Pipeline
 
 	VkPresentModeKHR PixelSwapChain::chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count)
 	{
-		std::cout << "Present mode: V-Sync" << '\n';
-		return VK_PRESENT_MODE_FIFO_KHR;
 		for (unsigned int i = 0; i < available_present_modes_count; i++)
 		{
 			if (available_present_modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)

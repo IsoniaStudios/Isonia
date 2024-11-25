@@ -9,6 +9,8 @@
 
 namespace Isonia::Pipeline
 {
+    static constexpr const unsigned int max_frames_in_flight = 3u;
+
     struct KeyCodes
     {
         static const constexpr unsigned int a = 0x01E;
@@ -295,8 +297,7 @@ namespace Isonia::Pipeline
     struct RenderPassInfo
     {
         VkRenderPass m_render_pass;
-        VkFramebuffer* m_framebuffers;
-        unsigned int count;
+        VkFramebuffer m_framebuffers[max_frames_in_flight];
     };
 
     struct PixelSwapChainResourceSet
@@ -335,7 +336,6 @@ namespace Isonia::Pipeline
 	struct PixelSwapChain
 	{
 	public:
-		static constexpr const unsigned int max_frames_in_flight = 3u;
         static constexpr const unsigned int attachments_length = 2u;
 
         PixelSwapChain(Device* device, VkExtent2D window_extent, VkExtent2D render_extent);
@@ -348,6 +348,7 @@ namespace Isonia::Pipeline
         PixelSwapChain(const PixelSwapChain&) = delete;
         PixelSwapChain& operator=(const PixelSwapChain&) = delete;
 
+        unsigned int getImageCount() const;
         VkImage getSwapChainImage(int index) const;
         VkImage getImage(int index) const;
         VkImage getDepthImage(int index) const;
@@ -359,7 +360,6 @@ namespace Isonia::Pipeline
         VkFramebuffer getFrameBuffer(int index) const;
         VkRenderPass getRenderPass(const unsigned int index) const;
         VkImageView getImageView(int index) const;
-        unsigned int getImageCount() const;
 
         VkFormat getPixelSwapChainImageFormat() const;
         VkExtent2D getPixelSwapChainExtent() const;
@@ -396,14 +396,12 @@ namespace Isonia::Pipeline
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
-		unsigned int m_image_count;
-
 		VkFormat m_swap_chain_image_format;
 		VkFormat m_swap_chain_color_format;
 		VkFormat m_swap_chain_depth_format;
 		VkExtent2D m_swap_chain_extent;
 
-        PixelSwapChainResourceSet m_resource_set[PixelSwapChain::max_frames_in_flight];
+        PixelSwapChainResourceSet m_resource_set[max_frames_in_flight];
         PixelSwapChainResourceSet* m_current_resource_set = m_resource_set;
 
 		Device* m_device;
@@ -413,7 +411,7 @@ namespace Isonia::Pipeline
 		VkSwapchainKHR m_swap_chain;
 		PixelSwapChain* m_old_swap_chain;
 
-        unsigned int m_current_frame = 0;
+        unsigned int m_image_count;
 	};
 
     struct PixelRenderer
@@ -434,8 +432,6 @@ namespace Isonia::Pipeline
         VkExtent2D getExtent() const;
         bool isFrameInProgress() const;
         PixelSwapChain* getPixelSwapChain() const;
-
-        void addRenderPass(const RenderPassInfo* render_pass_info);
 
         VkCommandBuffer getCurrentCommandBuffer() const;
         int getFrameIndex() const;
@@ -460,22 +456,21 @@ namespace Isonia::Pipeline
         Window* m_window;
         Device* m_device;
         PixelSwapChain* m_pixel_swap_chain = nullptr;
-        VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
+        VkCommandBuffer m_command_buffers[max_frames_in_flight];
 
         unsigned int m_event_count = 0;
         EventHandler m_handlers[4];
         void* m_user_data[4];
 
-        unsigned int m_current_image_index;
-        unsigned int m_current_frame_index = 0u;
         bool m_is_frame_started = false;
         unsigned int m_render_factor = 1u;
+
+        unsigned int m_current_frame = 0;
     };
 
     struct SwapChain
     {
     public:
-        static constexpr const unsigned int max_frames_in_flight = 3u;
         static constexpr const unsigned int attachments_length = 2u;
 
         SwapChain(Device* device_ref, VkExtent2D extent);
@@ -516,8 +511,6 @@ namespace Isonia::Pipeline
         VkPresentModeKHR chooseSwapPresentMode(VkPresentModeKHR* available_present_modes, const unsigned int available_present_modes_count);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR* capabilities) const;
 
-        unsigned int m_image_count;
-
         VkFormat m_swap_chain_image_format;
         VkFormat m_swap_chain_color_format;
         VkFormat m_swap_chain_depth_format;
@@ -539,10 +532,11 @@ namespace Isonia::Pipeline
         VkSwapchainKHR m_swap_chain;
         SwapChain* m_old_swap_chain;
 
-        VkSemaphore m_image_available_semaphores[PixelSwapChain::max_frames_in_flight];
-        VkSemaphore m_render_finished_semaphores[PixelSwapChain::max_frames_in_flight];
-        VkFence m_in_flight_fences[PixelSwapChain::max_frames_in_flight];
-        unsigned int m_current_frame = 0;
+        VkSemaphore m_image_available_semaphores[max_frames_in_flight];
+        VkSemaphore m_render_finished_semaphores[max_frames_in_flight];
+        VkFence m_in_flight_fences[max_frames_in_flight];
+
+        unsigned int m_image_count;
     };
 
 	struct Renderer
@@ -580,16 +574,16 @@ namespace Isonia::Pipeline
 		Window* m_window;
 		Device* m_device;
 		SwapChain* m_swap_chain = nullptr;
-		VkCommandBuffer m_command_buffers[PixelSwapChain::max_frames_in_flight];
+		VkCommandBuffer m_command_buffers[max_frames_in_flight];
 
         unsigned int m_event_count = 0;
         EventHandler m_handlers[4];
         void* m_user_data[4];
 
-		unsigned int m_current_image_index;
-		unsigned int m_current_frame_index = 0u;
-		bool m_is_frame_started = false;
-	};
+        bool m_is_frame_started = false;
+
+        unsigned int m_current_frame = 0;
+    };
 
     struct Camera
     {
